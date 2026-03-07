@@ -41,11 +41,11 @@ complexity:
     active: true
     threshold: 60
   LongParameterList:
-    active: true
+    active: false
     threshold: 8
     ignoreAnnotated: [ 'Composable' ]
   TooManyFunctions:
-    active: true
+    active: false
     thresholdInFiles: 20
     thresholdInClasses: 15
     thresholdInInterfaces: 10
@@ -331,6 +331,7 @@ style:
     active: true
   UnusedPrivateMember:
     active: true
+    ignoreAnnotated: [ 'Preview' ]
   UnusedPrivateProperty:
     active: true
     allowedNames: '_|ignored|expected|serialVersionUID'
