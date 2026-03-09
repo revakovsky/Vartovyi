@@ -7,11 +7,18 @@ import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import androidx.navigation.navOptions
 import com.revakovskyi.vartovyi.ui.screen.home.HomeScreen
 import com.revakovskyi.vartovyi.ui.screen.keywords.KeywordsScreen
 import com.revakovskyi.vartovyi.ui.screen.log.LogScreen
 import com.revakovskyi.vartovyi.ui.screen.permissions.PermissionsScreen
 import com.revakovskyi.vartovyi.ui.screen.settings.SettingsScreen
+
+private fun tabNavOptions() = navOptions {
+    popUpTo<Routes.Home> { saveState = true }
+    launchSingleTop = true
+    restoreState = true
+}
 
 @Composable
 fun NavGraph(
@@ -25,9 +32,24 @@ fun NavGraph(
     ) {
         composable<Routes.Home> {
             HomeScreen(
-                onNavigateToKeywords = { navController.navigate(Routes.Keywords) },
-                onNavigateToLog = { navController.navigate(Routes.Log) },
-                onNavigateToSettings = { navController.navigate(Routes.Settings) },
+                onNavigateToKeywords = {
+                    navController.navigate(
+                        route = Routes.Keywords,
+                        navOptions = tabNavOptions()
+                    )
+                },
+                onNavigateToLog = {
+                    navController.navigate(
+                        route = Routes.Log,
+                        navOptions = tabNavOptions()
+                    )
+                },
+                onNavigateToSettings = {
+                    navController.navigate(
+                        route = Routes.Settings,
+                        navOptions = tabNavOptions()
+                    )
+                },
                 onNavigateToPermissions = { navController.navigate(Routes.Permissions) },
             )
         }

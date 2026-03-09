@@ -3,6 +3,7 @@ package com.revakovskyi.vartovyi.ui.screen.home
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.revakovskyi.vartovyi.domain.model.MonitoringState
+import com.revakovskyi.vartovyi.domain.usecase.keywords.ObserveKeywordsUseCase
 import com.revakovskyi.vartovyi.domain.usecase.monitoring.ObserveMonitoringStateUseCase
 import com.revakovskyi.vartovyi.domain.usecase.monitoring.ToggleMonitoringUseCase
 import com.revakovskyi.vartovyi.domain.usecase.settings.ObserveScheduleSettingsUseCase
@@ -21,6 +22,7 @@ class HomeViewModel(
     private val observeMonitoringStateUseCase: ObserveMonitoringStateUseCase,
     private val toggleMonitoringUseCase: ToggleMonitoringUseCase,
     private val observeScheduleSettingsUseCase: ObserveScheduleSettingsUseCase,
+    private val observeKeywordsUseCase: ObserveKeywordsUseCase,
 ) : ViewModel() {
 
     private val _state = MutableStateFlow(HomeUiContract.State())
@@ -32,11 +34,13 @@ class HomeViewModel(
     init {
         observeMonitoringState()
         observeScheduleSettings()
+        observeKeywords()
     }
 
     fun onAction(action: HomeUiContract.Action) {
         when (action) {
             is HomeUiContract.Action.ToggleMonitoring -> toggleMonitoring()
+            is HomeUiContract.Action.TestAlarm -> testAlarm()
             is HomeUiContract.Action.NavigateToKeywords -> navigateToKeywords()
             is HomeUiContract.Action.NavigateToLog -> navigateToLog()
             is HomeUiContract.Action.NavigateToSettings -> navigateToSettings()
@@ -62,6 +66,12 @@ class HomeViewModel(
         }.launchIn(viewModelScope)
     }
 
+    private fun observeKeywords() {
+        observeKeywordsUseCase().onEach { keywords ->
+            _state.update { it.copy(keywords = keywords) }
+        }.launchIn(viewModelScope)
+    }
+
     private fun toggleMonitoring() {
         viewModelScope.launch {
             val isCurrentlyActive = state.value.monitoringState == MonitoringState.ACTIVE
@@ -71,6 +81,9 @@ class HomeViewModel(
                 else HomeUiContract.Event.MonitoringStarted
             _events.emit(event)
         }
+    }
+
+    private fun testAlarm() {
     }
 
     private fun navigateToKeywords() {
