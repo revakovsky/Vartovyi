@@ -9,13 +9,20 @@ import androidx.activity.ComponentActivity
 import androidx.activity.SystemBarStyle
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.material3.Surface
-import androidx.compose.ui.Modifier
+import androidx.compose.material3.Scaffold
+import androidx.compose.runtime.getValue
+import androidx.compose.ui.res.stringResource
 import androidx.core.app.NotificationManagerCompat
 import androidx.core.content.ContextCompat
+import androidx.navigation.NavDestination.Companion.hasRoute
+import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navOptions
+import com.revakovskyi.vartovyi.navigation.BottomNavItem
 import com.revakovskyi.vartovyi.navigation.NavGraph
+import com.revakovskyi.vartovyi.navigation.Routes
+import com.revakovskyi.vartovyi.ui.components.VartovyiBottomBar
+import com.revakovskyi.vartovyi.ui.components.VartovyiTopBar
 import com.revakovskyi.vartovyi.ui.screen.permissions.PermissionsViewModel
 import com.revakovskyi.vartovyi.ui.theme.VartovyiTheme
 import org.koin.androidx.viewmodel.ext.android.viewModel
@@ -34,13 +41,60 @@ class MainActivity : ComponentActivity() {
 
         setContent {
             VartovyiTheme {
-                Surface(
-                    modifier = Modifier.fillMaxSize(),
-                    color = VartovyiTheme.colors.background
-                ) {
-                    val navController = rememberNavController()
+                val navController = rememberNavController()
 
-                    NavGraph(navController = navController)
+                val currentBackStackEntry by navController.currentBackStackEntryAsState()
+                val currentDestination = currentBackStackEntry?.destination
+
+                val selectedNavItem: BottomNavItem? = when {
+                    currentDestination?.hasRoute(Routes.Home::class) == true -> BottomNavItem.Home
+                    currentDestination?.hasRoute(Routes.Log::class) == true -> BottomNavItem.Logs
+                    currentDestination?.hasRoute(Routes.Settings::class) == true -> BottomNavItem.Settings
+                    currentDestination?.hasRoute(Routes.Keywords::class) == true -> BottomNavItem.Keywords
+                    else -> null
+                }
+
+                val showBars = selectedNavItem != null
+
+                val topBarTitle = when (selectedNavItem) {
+                    BottomNavItem.Home -> stringResource(R.string.app_name)
+                    BottomNavItem.Logs -> stringResource(R.string.nav_log)
+                    BottomNavItem.Settings -> stringResource(R.string.nav_settings)
+                    BottomNavItem.Keywords -> stringResource(R.string.nav_keywords)
+                    null -> ""
+                }
+
+                Scaffold(
+                    containerColor = VartovyiTheme.colors.background,
+                    topBar = {
+                        if (showBars) {
+                            VartovyiTopBar(title = topBarTitle)
+                        }
+                    },
+                    bottomBar = {
+                        if (showBars) {
+                            VartovyiBottomBar(
+                                selectedRoute = selectedNavItem.route,
+                                onNavigate = { route ->
+                                    navController.navigate(
+                                        route = route,
+                                        navOptions = navOptions {
+                                            popUpTo(navController.graph.startDestinationId) {
+                                                saveState = true
+                                            }
+                                            launchSingleTop = true
+                                            restoreState = true
+                                        },
+                                    )
+                                },
+                            )
+                        }
+                    },
+                ) { paddingValues ->
+                    NavGraph(
+                        navController = navController,
+                        paddingValues = paddingValues,
+                    )
                 }
             }
         }

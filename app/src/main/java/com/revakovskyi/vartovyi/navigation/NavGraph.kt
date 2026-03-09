@@ -1,6 +1,9 @@
 package com.revakovskyi.vartovyi.navigation
 
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -11,11 +14,14 @@ import com.revakovskyi.vartovyi.ui.screen.permissions.PermissionsScreen
 import com.revakovskyi.vartovyi.ui.screen.settings.SettingsScreen
 
 @Composable
-fun NavGraph(navController: NavHostController) {
-
+fun NavGraph(
+    navController: NavHostController,
+    paddingValues: PaddingValues,
+) {
     NavHost(
         navController = navController,
         startDestination = Routes.Home,
+        modifier = Modifier.padding(paddingValues),
     ) {
         composable<Routes.Home> {
             HomeScreen(

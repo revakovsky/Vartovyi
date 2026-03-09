@@ -1,3 +1,7 @@
 <resources>
     <string name="app_name">Vartovyi</string>
+    <string name="nav_home">Home</string>
+    <string name="nav_keywords">Keywords</string>
+    <string name="nav_log">Logs</string>
+    <string name="nav_settings">Settings</string>
 </resources>
