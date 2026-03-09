@@ -4,4 +4,15 @@
     <string name="nav_keywords">Ключові слова</string>
     <string name="nav_log">Логи</string>
     <string name="nav_settings">Налаштування</string>
+    <string name="monitoring_active">Моніторинг активний</string>
+    <string name="monitoring_inactive">Моніторинг вимкнений</string>
+    <string name="monitoring_activate">Активувати</string>
+    <string name="monitoring_deactivate">Вимкнути</string>
+    <string name="home_keywords_title">Ключові слова</string>
+    <string name="home_add_keywords_hint">Ключові слова ще не додані</string>
+    <string name="home_add">Додати</string>
+    <string name="home_and_more">+%d ще…</string>
+    <string name="home_last_trigger">Останнє активування</string>
+    <string name="home_no_triggers">Спрацьовок ще не було</string>
+    <string name="home_test_alarm">Тестувати тривогу</string>
 </resources>

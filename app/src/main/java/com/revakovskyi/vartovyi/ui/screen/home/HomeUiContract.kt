@@ -14,10 +14,12 @@ interface HomeUiContract {
         val endTime: String = "07:00",
         val lastAlertEvent: AlertEvent? = null,
         val isListenerServiceActive: Boolean = false,
+        val keywords: List<String> = emptyList(),
     )
 
     sealed interface Action {
         data object ToggleMonitoring : Action
+        data object TestAlarm : Action
         data object NavigateToKeywords : Action
         data object NavigateToLog : Action
         data object NavigateToSettings : Action

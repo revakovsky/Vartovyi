@@ -4,4 +4,15 @@
     <string name="nav_keywords">Keywords</string>
     <string name="nav_log">Logs</string>
     <string name="nav_settings">Settings</string>
+    <string name="monitoring_active">Monitoring active</string>
+    <string name="monitoring_inactive">Monitoring inactive</string>
+    <string name="monitoring_activate">Activate</string>
+    <string name="monitoring_deactivate">Deactivate</string>
+    <string name="home_keywords_title">Keywords</string>
+    <string name="home_add_keywords_hint">No keywords added yet</string>
+    <string name="home_add">Add</string>
+    <string name="home_and_more">+%d more…</string>
+    <string name="home_last_trigger">Last trigger</string>
+    <string name="home_no_triggers">No triggers yet</string>
+    <string name="home_test_alarm">Test alarm</string>
 </resources>
