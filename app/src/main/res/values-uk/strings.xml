@@ -1,0 +1,7 @@
+<resources>
+    <string name="app_name">Вартовий</string>
+    <string name="nav_home">Головна</string>
+    <string name="nav_keywords">Ключові слова</string>
+    <string name="nav_log">Логи</string>
+    <string name="nav_settings">Налаштування</string>
+</resources>
