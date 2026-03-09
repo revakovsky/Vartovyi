@@ -1,7 +1,7 @@
 <resources>
     <string name="app_name">Вартовий</string>
     <string name="nav_home">Головна</string>
-    <string name="nav_keywords">Ключові слова</string>
+    <string name="nav_keywords">Тригери</string>
     <string name="nav_log">Логи</string>
     <string name="nav_settings">Налаштування</string>
     <string name="monitoring_active">Моніторинг активний</string>
@@ -15,4 +15,12 @@
     <string name="home_last_trigger">Останнє активування</string>
     <string name="home_no_triggers">Спрацьовок ще не було</string>
     <string name="home_test_alarm">Тестувати тривогу</string>
+    <string name="home_stop_test_alarm">Зупинити тест</string>
+    <string name="alarm_channel_name">Тривога</string>
+    <string name="alarm_channel_description">Сповіщення про загрози від Вартового</string>
+    <string name="alarm_notification_title">Загроза виявлена!</string>
+    <string name="alarm_notification_text">Виявлено повідомлення, що відповідає ключовим словам</string>
+    <string name="alarm_stop">Вимкнути</string>
+    <string name="alarm_dismiss">Закрити</string>
+    <string name="alarm_title">Тривога</string>
 </resources>

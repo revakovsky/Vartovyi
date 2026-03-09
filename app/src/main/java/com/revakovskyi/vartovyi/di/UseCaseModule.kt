@@ -2,6 +2,12 @@ package com.revakovskyi.vartovyi.di
 
 import com.revakovskyi.vartovyi.domain.usecase.AnalyzeMessageUseCase
 import com.revakovskyi.vartovyi.domain.usecase.AnalyzeMessageUseCaseImpl
+import com.revakovskyi.vartovyi.domain.usecase.alarm.ObserveAlarmRunningUseCase
+import com.revakovskyi.vartovyi.domain.usecase.alarm.ObserveAlarmRunningUseCaseImpl
+import com.revakovskyi.vartovyi.domain.usecase.alarm.StopAlarmUseCase
+import com.revakovskyi.vartovyi.domain.usecase.alarm.StopAlarmUseCaseImpl
+import com.revakovskyi.vartovyi.domain.usecase.alarm.TriggerAlarmUseCase
+import com.revakovskyi.vartovyi.domain.usecase.alarm.TriggerAlarmUseCaseImpl
 import com.revakovskyi.vartovyi.domain.usecase.keywords.AddKeywordUseCase
 import com.revakovskyi.vartovyi.domain.usecase.keywords.AddKeywordUseCaseImpl
 import com.revakovskyi.vartovyi.domain.usecase.keywords.AddStopWordUseCase
@@ -51,6 +57,9 @@ import org.koin.dsl.module
 val useCaseModule = module {
 
     singleOf(::AnalyzeMessageUseCaseImpl) { bind<AnalyzeMessageUseCase>() }
+    singleOf(::TriggerAlarmUseCaseImpl) { bind<TriggerAlarmUseCase>() }
+    singleOf(::StopAlarmUseCaseImpl) { bind<StopAlarmUseCase>() }
+    singleOf(::ObserveAlarmRunningUseCaseImpl) { bind<ObserveAlarmRunningUseCase>() }
 
     singleOf(::ObserveMonitoringStateUseCaseImpl) { bind<ObserveMonitoringStateUseCase>() }
     singleOf(::ToggleMonitoringUseCaseImpl) { bind<ToggleMonitoringUseCase>() }

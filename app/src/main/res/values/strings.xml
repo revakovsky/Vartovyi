@@ -15,4 +15,12 @@
     <string name="home_last_trigger">Last trigger</string>
     <string name="home_no_triggers">No triggers yet</string>
     <string name="home_test_alarm">Test alarm</string>
+    <string name="home_stop_test_alarm">Stop test</string>
+    <string name="alarm_channel_name">Alarm</string>
+    <string name="alarm_channel_description">Vartovyi threat alerts</string>
+    <string name="alarm_notification_title">Threat alert!</string>
+    <string name="alarm_notification_text">A matching message was detected</string>
+    <string name="alarm_stop">Stop alarm</string>
+    <string name="alarm_dismiss">Dismiss</string>
+    <string name="alarm_title">Alarm</string>
 </resources>

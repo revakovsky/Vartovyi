@@ -11,6 +11,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import com.revakovskyi.vartovyi.domain.model.AlertEvent
@@ -60,6 +61,7 @@ private fun HomeContent(
         val statusBlockHeight = maxHeight / 2
 
         Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
             modifier = Modifier
                 .fillMaxSize()
                 .verticalScroll(rememberScrollState())
@@ -81,7 +83,10 @@ private fun HomeContent(
 
                 LastAlertCard(lastAlertEvent = state.lastAlertEvent)
 
-                TestAlarmButton(onClick = { onAction(HomeUiContract.Action.TestAlarm) })
+                TestAlarmButton(
+                    isAlarmRunning = state.isAlarmRunning,
+                    onClick = { onAction(HomeUiContract.Action.TestAlarm) },
+                )
             }
         }
     }
@@ -140,6 +145,25 @@ private fun HomeContentActiveWithAlertPreview() {
                     messageText = "Повітряна тривога в Київській та Харківській областях. Просимо негайно зайти у найближче укриття.",
                     matchedKeyword = "тривога",
                 ),
+            ),
+            onAction = {},
+        )
+    }
+}
+
+@Preview(
+    name = "Active — alarm running",
+    widthDp = 360,
+    heightDp = 800,
+)
+@Composable
+private fun HomeContentAlarmRunningPreview() {
+    VartovyiTheme {
+        HomeContent(
+            state = HomeUiContract.State(
+                monitoringState = MonitoringState.ACTIVE,
+                keywords = listOf("ракета", "тривога"),
+                isAlarmRunning = true,
             ),
             onAction = {},
         )

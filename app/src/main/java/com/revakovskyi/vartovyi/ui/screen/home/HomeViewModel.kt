@@ -3,6 +3,9 @@ package com.revakovskyi.vartovyi.ui.screen.home
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.revakovskyi.vartovyi.domain.model.MonitoringState
+import com.revakovskyi.vartovyi.domain.usecase.alarm.ObserveAlarmRunningUseCase
+import com.revakovskyi.vartovyi.domain.usecase.alarm.StopAlarmUseCase
+import com.revakovskyi.vartovyi.domain.usecase.alarm.TriggerAlarmUseCase
 import com.revakovskyi.vartovyi.domain.usecase.keywords.ObserveKeywordsUseCase
 import com.revakovskyi.vartovyi.domain.usecase.monitoring.ObserveMonitoringStateUseCase
 import com.revakovskyi.vartovyi.domain.usecase.monitoring.ToggleMonitoringUseCase
@@ -23,6 +26,9 @@ class HomeViewModel(
     private val toggleMonitoringUseCase: ToggleMonitoringUseCase,
     private val observeScheduleSettingsUseCase: ObserveScheduleSettingsUseCase,
     private val observeKeywordsUseCase: ObserveKeywordsUseCase,
+    private val triggerAlarmUseCase: TriggerAlarmUseCase,
+    private val stopAlarmUseCase: StopAlarmUseCase,
+    private val observeAlarmRunningUseCase: ObserveAlarmRunningUseCase,
 ) : ViewModel() {
 
     private val _state = MutableStateFlow(HomeUiContract.State())
@@ -35,6 +41,7 @@ class HomeViewModel(
         observeMonitoringState()
         observeScheduleSettings()
         observeKeywords()
+        observeAlarmRunning()
     }
 
     fun onAction(action: HomeUiContract.Action) {
@@ -72,6 +79,12 @@ class HomeViewModel(
         }.launchIn(viewModelScope)
     }
 
+    private fun observeAlarmRunning() {
+        observeAlarmRunningUseCase().onEach { isRunning ->
+            _state.update { it.copy(isAlarmRunning = isRunning) }
+        }.launchIn(viewModelScope)
+    }
+
     private fun toggleMonitoring() {
         viewModelScope.launch {
             val isCurrentlyActive = state.value.monitoringState == MonitoringState.ACTIVE
@@ -84,6 +97,8 @@ class HomeViewModel(
     }
 
     private fun testAlarm() {
+        if (state.value.isAlarmRunning) stopAlarmUseCase()
+        else triggerAlarmUseCase()
     }
 
     private fun navigateToKeywords() {

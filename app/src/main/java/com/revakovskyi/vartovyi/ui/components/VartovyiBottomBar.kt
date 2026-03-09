@@ -1,17 +1,24 @@
 package com.revakovskyi.vartovyi.ui.components
 
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Icon
-import androidx.compose.material3.NavigationBar
-import androidx.compose.material3.NavigationBarItem
-import androidx.compose.material3.NavigationBarItemDefaults
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
 import com.revakovskyi.vartovyi.navigation.BottomNavItem
 import com.revakovskyi.vartovyi.navigation.Routes
 import com.revakovskyi.vartovyi.ui.theme.VartovyiTheme
@@ -20,42 +27,77 @@ import com.revakovskyi.vartovyi.ui.theme.VartovyiTheme
 fun VartovyiBottomBar(
     modifier: Modifier = Modifier,
     selectedRoute: Routes?,
+    contentArrangement: Arrangement.Horizontal = Arrangement.SpaceEvenly,
+    itemsPadding: PaddingValues = PaddingValues(all = VartovyiTheme.spacing.none),
+    itemPadding: ((item: BottomNavItem) -> PaddingValues)? = null,
     onNavigate: (route: Routes) -> Unit,
 ) {
-    NavigationBar(
-        containerColor = VartovyiTheme.colors.surface,
-        modifier = modifier
+    Surface(
+        color = VartovyiTheme.colors.surface,
+        modifier = modifier.fillMaxWidth()
     ) {
-        BottomNavItem.all.forEach { item ->
-            val isSelected = selectedRoute == item.route
+        Row(
+            horizontalArrangement = contentArrangement,
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(
+                    start = VartovyiTheme.spacing.small,
+                    end = VartovyiTheme.spacing.small,
+                    top = VartovyiTheme.spacing.small,
+                    bottom = VartovyiTheme.spacing.large,
+                )
+        ) {
+            BottomNavItem.all.forEach { item ->
+                val resolvedPadding = itemPadding?.invoke(item) ?: itemsPadding
 
-            NavigationBarItem(
-                selected = isSelected,
-                onClick = { onNavigate(item.route) },
-                icon = {
-                    Icon(
-                        painter = painterResource(item.iconResId),
-                        contentDescription = null,
-                        modifier = Modifier.size(32.dp)
-                    )
-                },
-                label = {
-                    Text(
-                        text = stringResource(item.labelResId),
-                        style =
-                            if (isSelected) VartovyiTheme.typography.titleMedium
-                            else VartovyiTheme.typography.bodyMedium,
-                    )
-                },
-                colors = NavigationBarItemDefaults.colors(
-                    selectedIconColor = VartovyiTheme.colors.primary,
-                    selectedTextColor = VartovyiTheme.colors.primary,
-                    unselectedIconColor = VartovyiTheme.colors.onSurfaceVariant,
-                    unselectedTextColor = VartovyiTheme.colors.onSurfaceVariant,
-                    indicatorColor = VartovyiTheme.colors.surface,
-                ),
-            )
+                BottomBarItem(
+                    item = item,
+                    isSelected = selectedRoute == item.route,
+                    itemPadding = resolvedPadding,
+                    onNavigate = onNavigate,
+                    modifier = Modifier.weight(1f)
+                )
+            }
         }
+    }
+}
+
+@Composable
+private fun BottomBarItem(
+    modifier: Modifier = Modifier,
+    item: BottomNavItem,
+    isSelected: Boolean,
+    itemPadding: PaddingValues,
+    onNavigate: (route: Routes) -> Unit,
+) {
+    val contentColor =
+        if (isSelected) VartovyiTheme.colors.primary else VartovyiTheme.colors.onSurfaceVariant
+
+    val interactionSource = remember { MutableInteractionSource() }
+
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center,
+        modifier = modifier
+            .clickable(
+                indication = null,
+                interactionSource = interactionSource,
+            ) { onNavigate(item.route) }
+            .padding(itemPadding),
+    ) {
+        Icon(
+            painter = painterResource(item.iconResId),
+            contentDescription = null,
+            tint = contentColor,
+            modifier = Modifier.size(VartovyiTheme.spacing.huge),
+        )
+
+        Text(
+            text = stringResource(item.labelResId),
+            style = VartovyiTheme.typography.bodySmall,
+            color = contentColor,
+        )
     }
 }
 
@@ -65,6 +107,19 @@ private fun VartovyiBottomBarPreview() {
     VartovyiTheme {
         VartovyiBottomBar(
             selectedRoute = Routes.Home,
+            onNavigate = {},
+        )
+    }
+}
+
+@Preview
+@Composable
+private fun BottomBarItemPreview() {
+    VartovyiTheme {
+        BottomBarItem(
+            item = BottomNavItem.Home,
+            isSelected = true,
+            itemPadding = PaddingValues(all = VartovyiTheme.spacing.small),
             onNavigate = {},
         )
     }
