@@ -35,6 +35,7 @@ class MonitoringDataStore(private val context: Context) {
         val VIBRATION_ENABLED = booleanPreferencesKey("vibration_enabled")
         val TELEGRAM_PACKAGES = stringSetPreferencesKey("telegram_packages")
         val LOG_SIZE_LIMIT = intPreferencesKey("log_size_limit")
+        val ALARM_SOUND_URI = stringPreferencesKey("alarm_sound_uri")
     }
 
     val isMonitoringActive: Flow<Boolean> = context.monitoringDataStore.data
