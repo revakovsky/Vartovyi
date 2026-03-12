@@ -35,12 +35,13 @@ fun SettingsScreen(
 
 @Composable
 private fun SettingsContent(
+    modifier: Modifier = Modifier,
     state: SettingsUiContract.State,
     onAction: (action: SettingsUiContract.Action) -> Unit,
 ) {
     Box(
         contentAlignment = Alignment.Center,
-        modifier = Modifier.fillMaxSize()
+        modifier = modifier.fillMaxSize()
     ) {
         Text(
             text = "Settings",

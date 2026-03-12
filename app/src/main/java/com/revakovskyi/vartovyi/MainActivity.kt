@@ -9,7 +9,14 @@ import androidx.activity.ComponentActivity
 import androidx.activity.SystemBarStyle
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.consumeWindowInsets
+import androidx.compose.foundation.layout.exclude
+import androidx.compose.foundation.layout.ime
+import androidx.compose.foundation.layout.padding
+import androidx.compose.ui.Modifier
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.ScaffoldDefaults
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.res.stringResource
 import androidx.core.app.NotificationManagerCompat
@@ -65,6 +72,7 @@ class MainActivity : ComponentActivity() {
                 }
 
                 Scaffold(
+                    contentWindowInsets = ScaffoldDefaults.contentWindowInsets.exclude(WindowInsets.ime),
                     containerColor = VartovyiTheme.colors.background,
                     topBar = {
                         if (showBars) {
@@ -92,8 +100,10 @@ class MainActivity : ComponentActivity() {
                     },
                 ) { paddingValues ->
                     NavGraph(
+                        modifier = Modifier
+                            .padding(paddingValues)
+                            .consumeWindowInsets(paddingValues),
                         navController = navController,
-                        paddingValues = paddingValues,
                     )
                 }
             }

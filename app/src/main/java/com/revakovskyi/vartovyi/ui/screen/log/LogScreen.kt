@@ -35,12 +35,13 @@ fun LogScreen(
 
 @Composable
 private fun LogContent(
+    modifier: Modifier = Modifier,
     state: LogUiContract.State,
     onAction: (action: LogUiContract.Action) -> Unit,
 ) {
     Box(
         contentAlignment = Alignment.Center,
-        modifier = Modifier.fillMaxSize()
+        modifier = modifier.fillMaxSize()
     ) {
         Text(
             text = "Log entries: ${state.logEntries.size}",

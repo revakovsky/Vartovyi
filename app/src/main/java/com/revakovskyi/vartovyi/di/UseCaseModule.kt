@@ -12,14 +12,24 @@ import com.revakovskyi.vartovyi.domain.usecase.keywords.AddKeywordUseCase
 import com.revakovskyi.vartovyi.domain.usecase.keywords.AddKeywordUseCaseImpl
 import com.revakovskyi.vartovyi.domain.usecase.keywords.AddStopWordUseCase
 import com.revakovskyi.vartovyi.domain.usecase.keywords.AddStopWordUseCaseImpl
+import com.revakovskyi.vartovyi.domain.usecase.keywords.AddTelegramChannelUseCase
+import com.revakovskyi.vartovyi.domain.usecase.keywords.AddTelegramChannelUseCaseImpl
 import com.revakovskyi.vartovyi.domain.usecase.keywords.ObserveKeywordsUseCase
 import com.revakovskyi.vartovyi.domain.usecase.keywords.ObserveKeywordsUseCaseImpl
 import com.revakovskyi.vartovyi.domain.usecase.keywords.ObserveStopWordsUseCase
 import com.revakovskyi.vartovyi.domain.usecase.keywords.ObserveStopWordsUseCaseImpl
+import com.revakovskyi.vartovyi.domain.usecase.keywords.ObserveTelegramChannelFilterEnabledUseCase
+import com.revakovskyi.vartovyi.domain.usecase.keywords.ObserveTelegramChannelFilterEnabledUseCaseImpl
+import com.revakovskyi.vartovyi.domain.usecase.keywords.ObserveTelegramChannelsUseCase
+import com.revakovskyi.vartovyi.domain.usecase.keywords.ObserveTelegramChannelsUseCaseImpl
 import com.revakovskyi.vartovyi.domain.usecase.keywords.RemoveKeywordUseCase
 import com.revakovskyi.vartovyi.domain.usecase.keywords.RemoveKeywordUseCaseImpl
 import com.revakovskyi.vartovyi.domain.usecase.keywords.RemoveStopWordUseCase
 import com.revakovskyi.vartovyi.domain.usecase.keywords.RemoveStopWordUseCaseImpl
+import com.revakovskyi.vartovyi.domain.usecase.keywords.RemoveTelegramChannelUseCase
+import com.revakovskyi.vartovyi.domain.usecase.keywords.RemoveTelegramChannelUseCaseImpl
+import com.revakovskyi.vartovyi.domain.usecase.keywords.ToggleTelegramChannelFilterUseCase
+import com.revakovskyi.vartovyi.domain.usecase.keywords.ToggleTelegramChannelFilterUseCaseImpl
 import com.revakovskyi.vartovyi.domain.usecase.log.AddLogEntryUseCase
 import com.revakovskyi.vartovyi.domain.usecase.log.AddLogEntryUseCaseImpl
 import com.revakovskyi.vartovyi.domain.usecase.log.ClearLogUseCase
@@ -70,6 +80,11 @@ val useCaseModule = module {
     singleOf(::RemoveKeywordUseCaseImpl) { bind<RemoveKeywordUseCase>() }
     singleOf(::AddStopWordUseCaseImpl) { bind<AddStopWordUseCase>() }
     singleOf(::RemoveStopWordUseCaseImpl) { bind<RemoveStopWordUseCase>() }
+    singleOf(::ObserveTelegramChannelsUseCaseImpl) { bind<ObserveTelegramChannelsUseCase>() }
+    singleOf(::ObserveTelegramChannelFilterEnabledUseCaseImpl) { bind<ObserveTelegramChannelFilterEnabledUseCase>() }
+    singleOf(::AddTelegramChannelUseCaseImpl) { bind<AddTelegramChannelUseCase>() }
+    singleOf(::RemoveTelegramChannelUseCaseImpl) { bind<RemoveTelegramChannelUseCase>() }
+    singleOf(::ToggleTelegramChannelFilterUseCaseImpl) { bind<ToggleTelegramChannelFilterUseCase>() }
 
     singleOf(::AddLogEntryUseCaseImpl) { bind<AddLogEntryUseCase>() }
     singleOf(::ObserveLogEntriesUseCaseImpl) { bind<ObserveLogEntriesUseCase>() }

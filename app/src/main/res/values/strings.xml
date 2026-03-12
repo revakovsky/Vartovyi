@@ -23,4 +23,19 @@
     <string name="alarm_stop">Stop alarm</string>
     <string name="alarm_dismiss">Dismiss</string>
     <string name="alarm_title">Alarm</string>
+    <string name="keywords_trigger_words">Trigger words</string>
+    <string name="keywords_trigger_tooltip">An alarm will trigger if a message contains any of these words</string>
+    <string name="keywords_trigger_hint">e.g. Saltivka</string>
+    <string name="keywords_stop_words">Stop words</string>
+    <string name="keywords_stop_tooltip">A message won\'t trigger an alarm if it contains any stop word</string>
+    <string name="keywords_stop_hint">e.g. all clear</string>
+    <string name="keywords_telegram_channels">Telegram channels</string>
+    <string name="keywords_optional">Optional</string>
+    <string name="keywords_all_channels_monitored">All channels are being monitored</string>
+    <string name="keywords_telegram_channel_hint">e.g. @air_alert_ua</string>
+    <string name="keywords_telegram_channel_tip">Only messages from these channels will trigger the alarm</string>
+    <string name="keywords_duplicate_title">Already in the list</string>
+    <string name="keywords_duplicate_message">"%s" is already in the list.</string>
+    <string name="keywords_duplicate_confirm">OK</string>
+    <string name="ok">OK</string>
 </resources>

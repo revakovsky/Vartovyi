@@ -1,13 +1,9 @@
 package com.revakovskyi.vartovyi.ui.screen.home
 
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -19,7 +15,6 @@ import com.revakovskyi.vartovyi.domain.model.MonitoringState
 import com.revakovskyi.vartovyi.ui.screen.home.components.KeywordsCard
 import com.revakovskyi.vartovyi.ui.screen.home.components.LastAlertCard
 import com.revakovskyi.vartovyi.ui.screen.home.components.StatusBlock
-import com.revakovskyi.vartovyi.ui.screen.home.components.TestAlarmButton
 import com.revakovskyi.vartovyi.ui.theme.VartovyiTheme
 import com.revakovskyi.vartovyi.utils.ObserveSingleEvents
 import org.koin.androidx.compose.koinViewModel
@@ -52,51 +47,37 @@ fun HomeScreen(
 
 @Composable
 private fun HomeContent(
+    modifier: Modifier = Modifier,
     state: HomeUiContract.State,
     onAction: (action: HomeUiContract.Action) -> Unit,
 ) {
-    BoxWithConstraints(
-        modifier = Modifier.fillMaxSize()
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally,
+        modifier = modifier.fillMaxSize(),
     ) {
-        val statusBlockHeight = maxHeight / 2
+        StatusBlock(
+            monitoringState = state.monitoringState,
+            onToggle = { onAction(HomeUiContract.Action.ToggleMonitoring) },
+            modifier = Modifier.weight(1f),
+        )
 
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
-            modifier = Modifier
-                .fillMaxSize()
-                .verticalScroll(rememberScrollState())
+            verticalArrangement = Arrangement.spacedBy(VartovyiTheme.spacing.standard),
+            modifier = Modifier.padding(VartovyiTheme.spacing.standard),
         ) {
-            StatusBlock(
-                monitoringState = state.monitoringState,
-                onToggle = { onAction(HomeUiContract.Action.ToggleMonitoring) },
-                modifier = Modifier.height(statusBlockHeight),
+            KeywordsCard(
+                keywords = state.keywords,
+                onAddKeywords = { onAction(HomeUiContract.Action.NavigateToKeywords) },
+                onMoreClick = { onAction(HomeUiContract.Action.NavigateToKeywords) },
             )
 
-            Column(
-                verticalArrangement = Arrangement.spacedBy(VartovyiTheme.spacing.standard),
-                modifier = Modifier.padding(VartovyiTheme.spacing.standard),
-            ) {
-                KeywordsCard(
-                    keywords = state.keywords,
-                    onAddKeywords = { onAction(HomeUiContract.Action.NavigateToKeywords) },
-                )
-
-                LastAlertCard(lastAlertEvent = state.lastAlertEvent)
-
-                TestAlarmButton(
-                    isAlarmRunning = state.isAlarmRunning,
-                    onClick = { onAction(HomeUiContract.Action.TestAlarm) },
-                )
-            }
+            LastAlertCard(lastAlertEvent = state.lastAlertEvent)
         }
     }
 }
 
-@Preview(
-    name = "Inactive — empty",
-    widthDp = 360,
-    heightDp = 800,
-)
+@Preview(name = "Inactive — empty")
 @Composable
 private fun HomeContentInactivePreview() {
     VartovyiTheme {
@@ -107,11 +88,7 @@ private fun HomeContentInactivePreview() {
     }
 }
 
-@Preview(
-    name = "Active — with keywords",
-    widthDp = 360,
-    heightDp = 800,
-)
+@Preview(name = "Active — with keywords")
 @Composable
 private fun HomeContentActiveWithKeywordsPreview() {
     VartovyiTheme {
@@ -125,11 +102,7 @@ private fun HomeContentActiveWithKeywordsPreview() {
     }
 }
 
-@Preview(
-    name = "Active — with last alert",
-    widthDp = 360,
-    heightDp = 800,
-)
+@Preview(name = "Active — with last alert")
 @Composable
 private fun HomeContentActiveWithAlertPreview() {
     VartovyiTheme {
@@ -151,11 +124,7 @@ private fun HomeContentActiveWithAlertPreview() {
     }
 }
 
-@Preview(
-    name = "Active — alarm running",
-    widthDp = 360,
-    heightDp = 800,
-)
+@Preview(name = "Active — alarm running")
 @Composable
 private fun HomeContentAlarmRunningPreview() {
     VartovyiTheme {

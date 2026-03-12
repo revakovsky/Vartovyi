@@ -10,6 +10,10 @@ interface KeywordsUiContract {
         val stopWords: List<String> = emptyList(),
         val inputKeyword: String = "",
         val inputStopWord: String = "",
+        val isTelegramChannelFilterEnabled: Boolean = false,
+        val telegramChannels: List<String> = emptyList(),
+        val inputTelegramChannel: String = "",
+        val duplicateWord: String? = null,
     )
 
     sealed interface Action {
@@ -19,14 +23,19 @@ interface KeywordsUiContract {
         data class RemoveKeyword(val keyword: String) : Action
         data object AddStopWord : Action
         data class RemoveStopWord(val stopWord: String) : Action
+        data object ToggleTelegramChannelFilter : Action
+        data class UpdateTelegramChannelInput(val value: String) : Action
+        data object AddTelegramChannel : Action
+        data class RemoveTelegramChannel(val channel: String) : Action
+        data object DismissDuplicateWordDialog : Action
         data object NavigateBack : Action
     }
 
     sealed interface Event {
         data object KeywordAdded : Event
         data object StopWordAdded : Event
+        data object TelegramChannelAdded : Event
         data object NavigateBack : Event
-        data class Error(val message: String) : Event
     }
 
 }

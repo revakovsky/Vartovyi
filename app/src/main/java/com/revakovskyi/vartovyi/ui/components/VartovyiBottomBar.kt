@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Icon
@@ -27,34 +28,26 @@ import com.revakovskyi.vartovyi.ui.theme.VartovyiTheme
 fun VartovyiBottomBar(
     modifier: Modifier = Modifier,
     selectedRoute: Routes?,
-    contentArrangement: Arrangement.Horizontal = Arrangement.SpaceEvenly,
-    itemsPadding: PaddingValues = PaddingValues(all = VartovyiTheme.spacing.none),
-    itemPadding: ((item: BottomNavItem) -> PaddingValues)? = null,
     onNavigate: (route: Routes) -> Unit,
 ) {
     Surface(
         color = VartovyiTheme.colors.surface,
-        modifier = modifier.fillMaxWidth()
+        modifier = modifier
+            .fillMaxWidth()
+            .navigationBarsPadding()
     ) {
         Row(
-            horizontalArrangement = contentArrangement,
+            horizontalArrangement = Arrangement.SpaceEvenly,
             verticalAlignment = Alignment.CenterVertically,
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(
-                    start = VartovyiTheme.spacing.small,
-                    end = VartovyiTheme.spacing.small,
-                    top = VartovyiTheme.spacing.small,
-                    bottom = VartovyiTheme.spacing.large,
-                )
+                .padding(VartovyiTheme.spacing.small)
         ) {
             BottomNavItem.all.forEach { item ->
-                val resolvedPadding = itemPadding?.invoke(item) ?: itemsPadding
-
                 BottomBarItem(
                     item = item,
                     isSelected = selectedRoute == item.route,
-                    itemPadding = resolvedPadding,
+                    itemPadding = PaddingValues(all = VartovyiTheme.spacing.none),
                     onNavigate = onNavigate,
                     modifier = Modifier.weight(1f)
                 )
@@ -72,7 +65,8 @@ private fun BottomBarItem(
     onNavigate: (route: Routes) -> Unit,
 ) {
     val contentColor =
-        if (isSelected) VartovyiTheme.colors.primary else VartovyiTheme.colors.onSurfaceVariant
+        if (isSelected) VartovyiTheme.colors.primary
+        else VartovyiTheme.colors.onSurfaceVariant
 
     val interactionSource = remember { MutableInteractionSource() }
 
