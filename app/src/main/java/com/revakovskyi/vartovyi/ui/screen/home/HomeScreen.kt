@@ -1,5 +1,7 @@
 package com.revakovskyi.vartovyi.ui.screen.home
 
+import androidx.compose.animation.Crossfade
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -14,6 +16,7 @@ import com.revakovskyi.vartovyi.domain.model.AlertEvent
 import com.revakovskyi.vartovyi.domain.model.MonitoringState
 import com.revakovskyi.vartovyi.ui.screen.home.components.KeywordsCard
 import com.revakovskyi.vartovyi.ui.screen.home.components.LastAlertCard
+import com.revakovskyi.vartovyi.ui.components.LoadingOverlay
 import com.revakovskyi.vartovyi.ui.screen.home.components.StatusBlock
 import com.revakovskyi.vartovyi.ui.theme.VartovyiTheme
 import com.revakovskyi.vartovyi.utils.ObserveSingleEvents
@@ -39,10 +42,20 @@ fun HomeScreen(
         }
     }
 
-    HomeContent(
-        state = state,
-        onAction = viewModel::onAction,
-    )
+    Crossfade(
+        targetState = state.isLoading,
+        animationSpec = tween(durationMillis = 500),
+        label = "home_loading_crossfade",
+    ) { isLoading ->
+        if (isLoading) {
+            LoadingOverlay()
+        } else {
+            HomeContent(
+                state = state,
+                onAction = viewModel::onAction,
+            )
+        }
+    }
 }
 
 @Composable

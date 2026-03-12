@@ -1,5 +1,7 @@
 package com.revakovskyi.vartovyi.ui.screen.keywords
 
+import androidx.compose.animation.Crossfade
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
@@ -25,6 +27,7 @@ import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import com.revakovskyi.vartovyi.R
+import com.revakovskyi.vartovyi.ui.components.LoadingOverlay
 import com.revakovskyi.vartovyi.ui.components.VartovyiDialog
 import com.revakovskyi.vartovyi.ui.screen.keywords.components.KeywordsSection
 import com.revakovskyi.vartovyi.ui.screen.keywords.components.StopWordsSection
@@ -59,10 +62,20 @@ fun KeywordsScreen(
         }
     }
 
-    KeywordsContent(
-        state = state,
-        onAction = viewModel::onAction,
-    )
+    Crossfade(
+        targetState = state.isLoading,
+        animationSpec = tween(durationMillis = 500),
+        label = "keywords_loading_crossfade",
+    ) { isLoading ->
+        if (isLoading) {
+            LoadingOverlay()
+        } else {
+            KeywordsContent(
+                state = state,
+                onAction = viewModel::onAction,
+            )
+        }
+    }
 
     if (state.duplicateWord != null) {
         VartovyiDialog(

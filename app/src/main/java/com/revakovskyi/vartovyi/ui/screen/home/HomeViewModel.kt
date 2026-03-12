@@ -37,6 +37,8 @@ class HomeViewModel(
     private val _events = MutableSharedFlow<HomeUiContract.Event>()
     val events: SharedFlow<HomeUiContract.Event> = _events.asSharedFlow()
 
+    private var loadedSourcesCount = 0
+
     init {
         observeMonitoringState()
         observeScheduleSettings()
@@ -56,12 +58,18 @@ class HomeViewModel(
     }
 
     private fun observeMonitoringState() {
+        var isFirstEmission = true
         observeMonitoringStateUseCase().onEach { monitoringState ->
             _state.update { it.copy(monitoringState = monitoringState) }
+            if (isFirstEmission) {
+                isFirstEmission = false
+                markSourceLoaded()
+            }
         }.launchIn(viewModelScope)
     }
 
     private fun observeScheduleSettings() {
+        var isFirstEmission = true
         observeScheduleSettingsUseCase().onEach { scheduleSettings ->
             _state.update {
                 it.copy(
@@ -70,19 +78,40 @@ class HomeViewModel(
                     endTime = scheduleSettings.endTime,
                 )
             }
+            if (isFirstEmission) {
+                isFirstEmission = false
+                markSourceLoaded()
+            }
         }.launchIn(viewModelScope)
     }
 
     private fun observeKeywords() {
+        var isFirstEmission = true
         observeKeywordsUseCase().onEach { keywords ->
             _state.update { it.copy(keywords = keywords) }
+            if (isFirstEmission) {
+                isFirstEmission = false
+                markSourceLoaded()
+            }
         }.launchIn(viewModelScope)
     }
 
     private fun observeAlarmRunning() {
+        var isFirstEmission = true
         observeAlarmRunningUseCase().onEach { isRunning ->
             _state.update { it.copy(isAlarmRunning = isRunning) }
+            if (isFirstEmission) {
+                isFirstEmission = false
+                markSourceLoaded()
+            }
         }.launchIn(viewModelScope)
+    }
+
+    private fun markSourceLoaded() {
+        loadedSourcesCount++
+        if (loadedSourcesCount >= 4) {
+            _state.update { it.copy(isLoading = false) }
+        }
     }
 
     private fun toggleMonitoring() {

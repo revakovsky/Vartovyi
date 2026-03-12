@@ -6,6 +6,7 @@ interface KeywordsUiContract {
 
     @Immutable
     data class State(
+        val isLoading: Boolean = true,
         val keywords: List<String> = emptyList(),
         val stopWords: List<String> = emptyList(),
         val inputKeyword: String = "",

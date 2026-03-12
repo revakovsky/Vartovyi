@@ -8,6 +8,7 @@ interface HomeUiContract {
 
     @Immutable
     data class State(
+        val isLoading: Boolean = true,
         val monitoringState: MonitoringState = MonitoringState.INACTIVE,
         val isScheduleEnabled: Boolean = false,
         val startTime: String = "22:00",
