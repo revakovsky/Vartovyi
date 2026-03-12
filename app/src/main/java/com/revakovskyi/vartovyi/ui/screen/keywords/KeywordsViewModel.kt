@@ -66,6 +66,7 @@ class KeywordsViewModel(
     }
 
     private fun observeKeywords() {
+        var isFirstEmission = true
         combine(
             observeKeywordsUseCase(),
             observeStopWordsUseCase(),
@@ -79,6 +80,10 @@ class KeywordsViewModel(
                     telegramChannels = telegramChannels,
                     isTelegramChannelFilterEnabled = isTelegramChannelFilterEnabled,
                 )
+            }
+            if (isFirstEmission) {
+                isFirstEmission = false
+                _state.update { it.copy(isLoading = false) }
             }
         }.launchIn(viewModelScope)
     }
