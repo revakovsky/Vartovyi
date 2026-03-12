@@ -46,12 +46,13 @@ fun PermissionsScreen(
 
 @Composable
 private fun PermissionsContent(
+    modifier: Modifier = Modifier,
     state: PermissionsUiContract.State,
     onAction: (action: PermissionsUiContract.Action) -> Unit,
 ) {
     Box(
         contentAlignment = Alignment.Center,
-        modifier = Modifier.fillMaxSize()
+        modifier = modifier.fillMaxSize()
     ) {
         Text(
             text = "Permissions — all granted: ${state.allGranted}",

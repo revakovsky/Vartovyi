@@ -1,7 +1,5 @@
 package com.revakovskyi.vartovyi.navigation
 
-import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
@@ -22,13 +20,13 @@ private fun tabNavOptions() = navOptions {
 
 @Composable
 fun NavGraph(
+    modifier: Modifier = Modifier,
     navController: NavHostController,
-    paddingValues: PaddingValues,
 ) {
     NavHost(
+        modifier = modifier,
         navController = navController,
         startDestination = Routes.Home,
-        modifier = Modifier.padding(paddingValues),
     ) {
         composable<Routes.Home> {
             HomeScreen(

@@ -1,11 +1,11 @@
 package com.revakovskyi.vartovyi.ui.screen.home.components
 
-import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.material3.Button
@@ -24,7 +24,10 @@ import com.revakovskyi.vartovyi.R
 import com.revakovskyi.vartovyi.domain.model.MonitoringState
 import com.revakovskyi.vartovyi.ui.theme.VartovyiTheme
 
-private const val SECURITY_ICON_SIZE_DP = 150
+private const val ICON_SIZE_FRACTION = 0.5f
+private const val ICON_MIN_SIZE_DP = 32
+private const val ICON_MAX_SIZE_DP = 200
+private const val SPACER_BOTTOM_WEIGHT = 0.5f
 private const val TOGGLE_BUTTON_MIN_WIDTH_DP = 160
 private const val TOGGLE_BUTTON_WIDTH_FRACTION = 0.7f
 
@@ -56,47 +59,56 @@ fun StatusBlock(
         if (isActive) VartovyiTheme.colors.onErrorContainer
         else VartovyiTheme.colors.onPrimary
 
-    Column(
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center,
-        modifier = modifier
-            .fillMaxWidth()
-            .padding(VartovyiTheme.spacing.standard),
+    BoxWithConstraints(
+        modifier = modifier.fillMaxWidth()
     ) {
-        Icon(
-            imageVector = ImageVector.vectorResource(
-                if (isActive) R.drawable.security_on else R.drawable.security_off
-            ),
-            contentDescription = null,
-            tint = iconTint,
-            modifier = Modifier.size(SECURITY_ICON_SIZE_DP.dp),
-        )
+        val iconSize = (maxHeight * ICON_SIZE_FRACTION)
+            .coerceIn(ICON_MIN_SIZE_DP.dp, ICON_MAX_SIZE_DP.dp)
 
-        Spacer(modifier = Modifier.height(VartovyiTheme.spacing.standard))
-
-        Text(
-            text = statusText,
-            style = VartovyiTheme.typography.headlineSmall,
-            color = VartovyiTheme.colors.onSurface,
-        )
-
-        Spacer(modifier = Modifier.height(VartovyiTheme.spacing.huge))
-
-        Button(
-            onClick = onToggle,
-            colors = ButtonDefaults.buttonColors(
-                containerColor = buttonContainerColor,
-                contentColor = buttonContentColor,
-            ),
-            modifier = Modifier
-                .widthIn(min = TOGGLE_BUTTON_MIN_WIDTH_DP.dp)
-                .fillMaxWidth(TOGGLE_BUTTON_WIDTH_FRACTION)
-                .height(VartovyiTheme.spacing.massive),
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
+            modifier = Modifier.fillMaxSize(),
         ) {
-            Text(
-                text = buttonText,
-                style = VartovyiTheme.typography.titleMedium,
+            Spacer(modifier = Modifier.weight(1f))
+
+            Icon(
+                imageVector = ImageVector.vectorResource(
+                    if (isActive) R.drawable.security_on
+                    else R.drawable.security_off
+                ),
+                contentDescription = null,
+                tint = iconTint,
+                modifier = Modifier.size(iconSize),
             )
+
+            Spacer(modifier = Modifier.height(VartovyiTheme.spacing.standard))
+
+            Text(
+                text = statusText,
+                style = VartovyiTheme.typography.headlineSmall,
+                color = VartovyiTheme.colors.onSurface,
+            )
+
+            Spacer(modifier = Modifier.weight(SPACER_BOTTOM_WEIGHT))
+
+            Button(
+                onClick = onToggle,
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = buttonContainerColor,
+                    contentColor = buttonContentColor,
+                ),
+                modifier = Modifier
+                    .widthIn(min = TOGGLE_BUTTON_MIN_WIDTH_DP.dp)
+                    .fillMaxWidth(TOGGLE_BUTTON_WIDTH_FRACTION)
+                    .height(VartovyiTheme.spacing.massive),
+            ) {
+                Text(
+                    text = buttonText,
+                    style = VartovyiTheme.typography.titleMedium,
+                )
+            }
+
+            Spacer(modifier = Modifier.weight(1f))
         }
     }
 }

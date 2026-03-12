@@ -19,13 +19,14 @@ import androidx.compose.ui.tooling.preview.Preview
 import com.revakovskyi.vartovyi.R
 import com.revakovskyi.vartovyi.ui.theme.VartovyiTheme
 
-private const val MAX_VISIBLE_KEYWORDS = 10
+private const val MAX_VISIBLE_KEYWORDS = 8
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun KeywordsCard(
     keywords: List<String>,
     onAddKeywords: () -> Unit,
+    onMoreClick: () -> Unit,
 ) {
     Surface(
         color = VartovyiTheme.colors.surface,
@@ -73,6 +74,7 @@ fun KeywordsCard(
                     if (remainingCount > 0) {
                         HomeKeywordChip(
                             text = stringResource(R.string.home_and_more, remainingCount),
+                            onClick = onMoreClick,
                         )
                     }
                 }
@@ -81,24 +83,43 @@ fun KeywordsCard(
     }
 }
 
-@Preview
+@Preview(name = "Keywords card — short words")
 @Composable
 private fun PreviewKeywordsCard() {
     VartovyiTheme {
         KeywordsCard(
             keywords = listOf("ракета", "вибух", "тривога", "атака", "бомба"),
             onAddKeywords = {},
+            onMoreClick = {},
         )
     }
 }
 
-@Preview
+@Preview(name = "Keywords card — empty")
 @Composable
 private fun PreviewKeywordsCardEmpty() {
     VartovyiTheme {
         KeywordsCard(
             keywords = listOf(),
             onAddKeywords = {},
+            onMoreClick = {},
+        )
+    }
+}
+
+@Preview(name = "Keywords card — long words")
+@Composable
+private fun PreviewKeywordsCardLongWords() {
+    VartovyiTheme {
+        KeywordsCard(
+            keywords = listOf(
+                "Салтівка",
+                "sdffds lgfsgkld lfdskgjdsgj ldfgldjgjsdfogjs odfgj lfdskgjdsgj",
+                "вибух",
+                "короткий текст та ще трохи довший текст",
+            ),
+            onAddKeywords = {},
+            onMoreClick = {},
         )
     }
 }

@@ -13,7 +13,7 @@
     <string name="home_add">Додати</string>
     <string name="home_and_more">+%d ще…</string>
     <string name="home_last_trigger">Останнє активування</string>
-    <string name="home_no_triggers">Спрацьовок ще не було</string>
+    <string name="home_no_triggers">Спрацювань ще не було</string>
     <string name="home_test_alarm">Тестувати тривогу</string>
     <string name="home_stop_test_alarm">Зупинити тест</string>
     <string name="alarm_channel_name">Тривога</string>
@@ -23,4 +23,19 @@
     <string name="alarm_stop">Вимкнути</string>
     <string name="alarm_dismiss">Закрити</string>
     <string name="alarm_title">Тривога</string>
+    <string name="keywords_trigger_words">Тригер-слова</string>
+    <string name="keywords_trigger_tooltip">Тривога спрацює, якщо повідомлення містить будь-яке з цих слів</string>
+    <string name="keywords_trigger_hint">Наприклад: Салтівка</string>
+    <string name="keywords_stop_words">Стоп-слова</string>
+    <string name="keywords_stop_tooltip">Повідомлення не спричинить тривогу, якщо містить будь-яке стоп-слово</string>
+    <string name="keywords_stop_hint">Наприклад: відбій</string>
+    <string name="keywords_telegram_channels">Канали Telegram</string>
+    <string name="keywords_optional">Необов\'язково</string>
+    <string name="keywords_all_channels_monitored">Відстежуються всі канали</string>
+    <string name="keywords_telegram_channel_hint">Наприклад: @air_alert_ua</string>
+    <string name="keywords_telegram_channel_tip">Тривога спрацює тільки від повідомлень з цих каналів</string>
+    <string name="keywords_duplicate_title">Вже є у списку</string>
+    <string name="keywords_duplicate_message">«%s» вже є у списку.</string>
+    <string name="keywords_duplicate_confirm">Зрозуміло</string>
+    <string name="ok">OK</string>
 </resources>
