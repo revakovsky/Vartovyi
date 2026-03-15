@@ -29,10 +29,17 @@ private const val MAX_MESSAGE_LINES = 2
 private const val BORDER_STROKE_WIDTH_DP = 1
 
 @Composable
-fun LastAlertCard(lastAlertEvent: AlertEvent?) {
+fun LastAlertCard(
+    modifier: Modifier = Modifier,
+    lastAlertEvent: AlertEvent?,
+    onClick: () -> Unit,
+) {
     Surface(
         color = VartovyiTheme.colors.surface,
         shape = VartovyiTheme.shapes.large,
+        onClick = onClick,
+        enabled = lastAlertEvent != null,
+        modifier = modifier,
     ) {
         Column(
             modifier = Modifier
@@ -118,6 +125,7 @@ private fun PreviewLastAlertCard() {
                 messageText = "Повітряна тривога в Київській та Харківській областях. Просимо негайно зайти у найближче укриття.",
                 matchedKeyword = "тривога",
             ),
+            onClick = {},
         )
     }
 }
@@ -128,6 +136,7 @@ private fun PreviewLastAlertCardEmpty() {
     VartovyiTheme {
         LastAlertCard(
             lastAlertEvent = null,
+            onClick = {},
         )
     }
 }

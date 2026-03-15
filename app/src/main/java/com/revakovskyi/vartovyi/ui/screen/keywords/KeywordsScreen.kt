@@ -43,7 +43,6 @@ private const val BRING_INTO_VIEW_DELAY_MS = 400L
 @Composable
 fun KeywordsScreen(
     viewModel: KeywordsViewModel = koinViewModel(),
-    onNavigateBack: () -> Unit,
 ) {
     val hapticFeedback = LocalHapticFeedback.current
 
@@ -53,12 +52,9 @@ fun KeywordsScreen(
         when (event) {
             is KeywordsUiContract.Event.KeywordAdded,
             is KeywordsUiContract.Event.StopWordAdded,
-            is KeywordsUiContract.Event.TelegramChannelAdded,
-                -> {
+            is KeywordsUiContract.Event.TelegramChannelAdded -> {
                 hapticFeedback.performHapticFeedback(HapticFeedbackType.Confirm)
             }
-
-            is KeywordsUiContract.Event.NavigateBack -> onNavigateBack()
         }
     }
 

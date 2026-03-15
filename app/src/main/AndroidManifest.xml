@@ -2,14 +2,29 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
 
+    <!-- BootReceiver: restore monitoring after device reboot -->
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
-    <uses-permission android:name="android.permission.VIBRATE" />
+
+    <!-- PermissionsScreen: request battery optimization exemption flow -->
+    <uses-permission android:name="android.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS" />
+
+    <!-- Notifications: runtime permission for app/alarm notifications -->
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
-    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_MEDIA_PLAYBACK" />
+
+    <!-- AlarmService: vibration and wake-up reliability for alert signaling -->
+    <uses-permission android:name="android.permission.VIBRATE" />
     <uses-permission android:name="android.permission.WAKE_LOCK" />
+
+    <!-- Foreground services: required base + specific service types -->
     <uses-permission
         android:name="android.permission.FOREGROUND_SERVICE"
         tools:ignore="ForegroundServicesPolicy" />
+    <!-- AlarmService -->
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_MEDIA_PLAYBACK" />
+    <!-- MonitoringForegroundService -->
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_DATA_SYNC" />
+
+    <!-- AlarmActivity via AlarmService full-screen notification -->
     <uses-permission
         android:name="android.permission.USE_FULL_SCREEN_INTENT"
         tools:ignore="FullScreenIntentPolicy" />
@@ -42,6 +57,7 @@
         <activity
             android:name=".ui.alarm.AlarmActivity"
             android:exported="false"
+            android:launchMode="singleTask"
             android:showOnLockScreen="true"
             android:turnScreenOn="true" />
 
@@ -60,6 +76,11 @@
             android:name=".service.AlarmService"
             android:exported="false"
             android:foregroundServiceType="mediaPlayback" />
+
+        <service
+            android:name=".service.MonitoringForegroundService"
+            android:exported="false"
+            android:foregroundServiceType="dataSync" />
 
         <receiver
             android:name=".receiver.BootReceiver"

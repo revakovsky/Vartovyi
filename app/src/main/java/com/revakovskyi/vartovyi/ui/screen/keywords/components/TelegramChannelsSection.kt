@@ -9,8 +9,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.relocation.BringIntoViewRequester
 import androidx.compose.foundation.relocation.bringIntoViewRequester
 import androidx.compose.material3.Surface
-import androidx.compose.material3.Switch
-import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
@@ -19,6 +17,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import com.revakovskyi.vartovyi.R
+import com.revakovskyi.vartovyi.ui.components.VartovyiSwitch
 import com.revakovskyi.vartovyi.ui.theme.VartovyiTheme
 
 @Composable
@@ -64,14 +63,9 @@ fun TelegramChannelsSection(
                     )
                 }
 
-                Switch(
+                VartovyiSwitch(
                     checked = isEnabled,
-                    onCheckedChange = { onToggle() },
-                    colors = SwitchDefaults.colors(
-                        uncheckedThumbColor = VartovyiTheme.colors.outline,
-                        uncheckedTrackColor = VartovyiTheme.colors.surfaceVariant,
-                        uncheckedBorderColor = VartovyiTheme.colors.outline,
-                    ),
+                    onCheckedChange = { onToggle() }
                 )
             }
 

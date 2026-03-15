@@ -22,6 +22,8 @@ private fun tabNavOptions() = navOptions {
 fun NavGraph(
     modifier: Modifier = Modifier,
     navController: NavHostController,
+    isRequiredPermissionsGranted: Boolean,
+    onRefreshPermissions: () -> Unit,
 ) {
     NavHost(
         modifier = modifier,
@@ -30,6 +32,7 @@ fun NavGraph(
     ) {
         composable<Routes.Home> {
             HomeScreen(
+                isRequiredPermissionsGranted = isRequiredPermissionsGranted,
                 onNavigateToKeywords = {
                     navController.navigate(
                         route = Routes.Keywords,
@@ -42,26 +45,15 @@ fun NavGraph(
                         navOptions = tabNavOptions()
                     )
                 },
-                onNavigateToSettings = {
-                    navController.navigate(
-                        route = Routes.Settings,
-                        navOptions = tabNavOptions()
-                    )
-                },
-                onNavigateToPermissions = { navController.navigate(Routes.Permissions) },
             )
         }
 
         composable<Routes.Keywords> {
-            KeywordsScreen(
-                onNavigateBack = { navController.navigateUp() },
-            )
+            KeywordsScreen()
         }
 
         composable<Routes.Log> {
-            LogScreen(
-                onNavigateBack = { navController.navigateUp() },
-            )
+            LogScreen()
         }
 
         composable<Routes.Settings> {
@@ -73,6 +65,7 @@ fun NavGraph(
         composable<Routes.Permissions> {
             PermissionsScreen(
                 onNavigateBack = { navController.navigateUp() },
+                onRefreshPermissions = onRefreshPermissions,
             )
         }
     }

@@ -29,14 +29,12 @@ interface KeywordsUiContract {
         data object AddTelegramChannel : Action
         data class RemoveTelegramChannel(val channel: String) : Action
         data object DismissDuplicateWordDialog : Action
-        data object NavigateBack : Action
     }
 
     sealed interface Event {
         data object KeywordAdded : Event
         data object StopWordAdded : Event
         data object TelegramChannelAdded : Event
-        data object NavigateBack : Event
     }
 
 }

@@ -1,19 +1,307 @@
-# Vartovyi
+# Vartovyi (Вартовий)
 
-Vartovyi (Вартовий) — Android app designed for Ukrainians living under constant drone (Shahed)
-threat. It monitors incoming Telegram notifications in real-time, analyzes message text against
-user-defined keywords (district, street, city), and triggers a loud full-screen alarm only when the
-threat is relevant to your specific area. All other messages are silently ignored, allowing you to
-sleep undisturbed until there is real danger nearby.
-Key features:
+Android-додаток для моніторингу Telegram-сповіщень у фоні та запуску тривоги тільки при релевантних
+повідомленнях (за trigger-словами користувача).
 
-- Intercepts Telegram notifications via NotificationListenerService
-- Regex-based keyword matching with stop-word filtering
-- Full-volume alarm that bypasses Do Not Disturb mode
-- Lock-screen alert activity (like an incoming call)
-- Foreground service with watchdog for reliable background operation
-- Schedule support (e.g. active only 22:00–07:00)
-- Optional channel name filtering
+## 1) Призначення проєкту
 
-Tech stack: Kotlin, Jetpack Compose, Material 3, MVI, Koin, DataStore, Navigation Compose (type-safe
-routes), WorkManager.
+`Vartovyi` створюється як утилітарний інструмент нічного/фонового чергування:
+
+- читає вхідні Telegram-сповіщення через `NotificationListenerService`;
+- аналізує текст повідомлення за списками `trigger words` та `stop words`;
+- запускає гучну тривогу (full-screen) тільки коли є релевантний збіг;
+- веде журнал подій для прозорості та контролю;
+- працює стабільно у фоні після перезапуску пристрою.
+
+## 2) Що додаток має робити
+
+- Моніторити тільки вибрані Telegram-пакети (`org.telegram.messenger` та інші, які обере
+  користувач).
+- Підтримувати:
+    - trigger-слова (позитивний тригер);
+    - stop-слова (скасування тривоги навіть при trigger-збігу);
+    - опційний фільтр за каналами.
+- Запускати тривогу через окремий `AlarmService` + `AlarmActivity` поверх lock screen.
+- Показувати постійне foreground-сповіщення, коли моніторинг активний.
+- Відновлювати роботу після reboot (`BOOT_COMPLETED`) та контролювати живучість (
+  watchdog/WorkManager).
+- Давати керування через екрани: `Home`, `Keywords`, `Logs`, `Settings`, `Permissions`.
+
+## 3) Що додаток не має робити
+
+- Не має обробляти особисті дані за межами локального пристрою.
+- Не має відправляти повідомлення/логи на сервери (поточний scope: локальне зберігання).
+- Не має запускати тривогу для нерелевантних повідомлень без trigger-збігу.
+- Не має ігнорувати stop-слова, якщо вони присутні у повідомленні.
+- Не має залежати від ручного відкриття UI для фонового моніторингу.
+
+## 4) Базовий технічний стек
+
+- **Platform:** Android, `minSdk = 28`, `targetSdk = 36`
+- **Language:** Kotlin
+- **UI:** Jetpack Compose + Material 3
+- **Architecture:** Single Activity, MVI (`State + Action + Event`), Clean Architecture
+- **DI:** Koin
+- **Navigation:** Navigation Compose (type-safe routes, `@Serializable`)
+- **Storage:** DataStore Preferences + Room (журнал)
+- **Build:** Gradle Kotlin DSL + Version Catalog
+
+## 5) Архітектура і шари
+
+Напрямок залежностей:
+
+`ViewModel -> UseCase -> Repository (interface) -> RepositoryImpl (data) -> DataStore/Room/Android components`
+
+Ключові правила:
+
+- `ViewModel` інжектить тільки `UseCase`.
+- Domain-шар без Android-залежностей.
+- Репозиторії та mappers ізольовані по шарах.
+- Навігація в `NavGraph`, екрани не працюють напряму з `NavController`.
+
+## 6) Поточна структура модулів/пакетів
+
+- `ui/` — екрани, контракти, компоненти, тема, навігація
+- `domain/` — моделі, use cases, repository interfaces
+- `data/` — repository implementations, DataStore, Room, mappers
+- `service/` — `TelegramListenerService`, `AlarmService`
+- `receiver/` — `BootReceiver`
+- `di/` — Koin modules
+
+## 7) Runtime-процес (цільова модель роботи)
+
+1. Користувач вмикає моніторинг на `Home`.
+2. Запускається monitoring foreground service (persistent notification).
+3. `TelegramListenerService` отримує нові Telegram-сповіщення.
+4. Повідомлення проходить фільтри:
+    - моніторинг активний;
+    - дозволений пакет;
+    - (опційно) дозволений канал;
+    - (опційно) вікно розкладу.
+5. `AnalyzeMessageUseCase` перевіряє trigger/stop-слова.
+6. Якщо match:
+    - запис у лог;
+    - запуск `AlarmService`;
+    - full-screen `AlarmActivity`.
+7. Якщо no match/stop-word:
+    - запис у лог як пропущена подія;
+    - без тривоги.
+
+## 8) Поточний стан реалізації (as-is)
+
+### UI / MVI
+
+- [x] `HomeScreen`, `KeywordsScreen`, `LogsScreen`, `SettingsScreen`, `PermissionsScreen` існують.
+- [x] `HomeViewModel`, `KeywordsViewModel` підключені до use cases.
+- [x] `Keywords` CRUD (trigger/stop/channel filter) працює через DataStore.
+- [x] На `Home` підключено live-оновлення `lastAlertEvent` із логу.
+- [ ] На `Home` відсутня робоча кнопка `Test Alarm` у UI-потоці.
+
+### Alarm
+
+- [x] `AlarmService` реалізований (звук, вібрація, foreground notification, stop action).
+- [x] `AlarmActivity` підключена в `AndroidManifest`.
+- [ ] Тривалість тривоги поки не синхронізована з налаштуваннями (`alarmDurationSeconds`).
+- [ ] `WAKE_LOCK` permission додано, але явне керування `PowerManager.WakeLock` в `AlarmService` ще
+  не реалізовано.
+- [ ] Повна інтеграція DND bypass потребує перевірки каналів/дозволів на runtime.
+
+### Monitoring / Telegram listener
+
+- [x] `TelegramListenerService` оголошений у `AndroidManifest`.
+- [x] `onNotificationPosted` реалізований, базовий pipeline підключений.
+- [x] Додано `MonitoringForegroundService` з ongoing notification.
+- [x] `ToggleMonitoring` керує стартом/зупинкою monitoring service.
+- [x] `BootReceiver` відновлює monitoring service після reboot, якщо monitoring був active.
+- [x] Реалізовано watchdog (`WorkManager`) для періодичної перевірки.
+
+### Domain / Data
+
+- [x] `AnalyzeMessageUseCase` існує.
+- [x] `KeywordMatcher`, `SettingsRepository`, `KeywordsRepository`, `LogRepository` реалізовані.
+- [x] Room для журналу (`AlertEventDao`, entity, mappers) реалізований.
+- [x] Додано use case обробки вхідного Telegram notification (фільтри + лог + alarm trigger).
+
+## 9) Особливості та ризики
+
+- Якість роботи сильно залежить від дозволів (`Notification Access`, battery optimizations,
+  full-screen intent).
+- OEM-прошивки (Xiaomi/Samsung/Huawei) можуть агресивно вбивати фон.
+- Неправильно підібрані trigger/stop-слова можуть дати false positive/false negative.
+- Потрібна обережна перевірка сумісності Android 13/14+ для notification/full-screen policy.
+
+## 10) Живий TODO-план (roadmap)
+
+> Цей список є основним джерелом правди для прогресу. Після кожної завершеної задачі оновлюємо
+> статус тут.
+
+### Milestone A — Core monitoring pipeline (найвищий пріоритет)
+
+- [x] Реалізувати `TelegramListenerService.onNotificationPosted`:
+    - [x] витяг `packageName`, `title`, `text`, `postTime`;
+    - [x] пропуск порожніх/службових нотифікацій;
+    - [x] фільтр за вибраними Telegram-пакетами.
+- [x] Додати use case `ProcessIncomingNotificationUseCase`:
+    - [x] завантаження keywords/stop-words/channels/settings;
+    - [x] виклик логіки аналізу повідомлення;
+    - [x] формування результату (ALARM/SKIPPED).
+- [x] Інтегрувати запуск `TriggerAlarmUseCase` тільки на релевантному match.
+- [x] Інтегрувати `AddLogEntryUseCase` для кожної обробленої події.
+
+### Milestone B — Monitoring lifecycle / reliability
+
+- [x] Додати monitoring foreground service з постійним low-importance notification.
+- [x] Прив’язати `Home ToggleMonitoring` до старту/зупинки monitoring service.
+- [x] Реалізувати `BootReceiver` (відновлення моніторингу після reboot, якщо було active).
+- [x] Додати watchdog через `WorkManager` для самовідновлення monitor service.
+
+### Milestone C — Home integration
+
+- [x] Показувати `lastAlertEvent` із реального джерела (log flow).
+- [ ] Додати/підключити кнопку `Test Alarm` у `HomeScreen`.
+- [ ] Показати статус сервісу моніторингу (`isListenerServiceActive` / health check).
+
+### Milestone D — Log model enhancement
+
+- [ ] Розширити модель журналу під стани:
+    - [ ] `ALARM_TRIGGERED`
+    - [ ] `SKIPPED_NO_KEYWORD`
+    - [ ] `SKIPPED_STOP_WORD`
+    - [ ] `SKIPPED_CHANNEL_FILTER`
+- [ ] Оновити Room schema + mapper + UI логу під нову модель.
+
+### Milestone E — Settings/Alarm completion
+
+- [ ] Підв’язати `alarmDurationSeconds` до реальної зупинки `AlarmService`.
+- [ ] Підв’язати `isVibrationEnabled` до поведінки `AlarmService`.
+- [ ] Додати короткий `WakeLock` в `AlarmService` (safe acquire/release) для надійного старту
+  тривоги в deep sleep.
+- [ ] Додати preview/play тест звуку тривоги з Settings.
+
+### Milestone F — Permissions hardening
+
+- [ ] Повний чек усіх required/recommended permissions.
+- [ ] Динамічна логіка для API 33+/34+ (POST_NOTIFICATIONS, full-screen intent).
+- [ ] Vendor-specific автозапуск гайд (Xiaomi/Samsung/Huawei).
+
+### Milestone G — QA / release readiness
+
+- [ ] Інструментальні/інтеграційні перевірки основного пайплайна.
+- [ ] Ручний тест-план для нічного сценарію.
+- [ ] Полірування UX станів помилок/підказок.
+- [ ] Підготовка release checklist.
+
+## 11) Правило оновлення цього README
+
+Після кожної суттєвої зміни:
+
+1. Оновити секцію `Поточний стан реалізації (as-is)`.
+2. Оновити чекбокси в `Живий TODO-план`.
+3. Додати короткий запис у форматі:
+    - `YYYY-MM-DD — що зроблено, що залишилось`.
+
+## 12) Change log (короткий)
+
+- `2026-03-13` — README перетворено у повну специфікацію проєкту + єдиний TODO-roadmap для подальшої
+  роботи.
+- `2026-03-13` — реалізовано базовий Telegram notification pipeline (`onNotificationPosted` +
+  process use case + логування + alarm trigger).
+- `2026-03-13` — реалізовано `MonitoringForegroundService`, прив’язку до toggle, `BootReceiver` та
+  `WorkManager` watchdog.
+- `2026-03-13` — реалізовано список подій на `LogScreen` і notification-діалог на `Home` при новому
+  спрацюванні.
+- `2026-03-13` — реалізовано повноцінний `PermissionsScreen` (UI + дії + refresh) та відкриття з
+  іконки в `TopBar` з badge.
+
+## 13) Узгоджені продукт-рішення (зафіксовано)
+
+- Логування: зберігаємо **всі** перехоплені Telegram-повідомлення (включно з пропущеними).
+- Channel filter: первинна реалізація через `notification title` в режимі **exact
+  match + `ignoreCase`** (без `contains`).
+- Monitoring default state: при першому запуску — `OFF`.
+- Alarm duration mode: використовуємо окремий enum-тип (без "магічних" значень в `Int`).
+
+## 14) UI/UX специфікація (фільтрована, актуальна)
+
+Ця секція фіксує тільки те, що важливо для реалізації і перевірки. Детальні дизайнерські
+експерименти/мокапні варіації не є блокерами для core-функціоналу.
+
+### 14.1 Visual direction
+
+- Тема за замовчуванням: **Dark only** (light theme поки не робимо).
+- Стиль: утилітарний, стриманий, без декоративного шуму.
+- Ключові кольори:
+    - background: `#0D1117`
+    - surface: `#161B22`
+    - surfaceVariant: `#21262D`
+    - primary: `#2EA043`
+    - error/alarm: `#F85149`
+    - warning: `#D29922`
+    - onBackground: `#E6EDF3`
+    - secondary text: `#8B949E`
+    - outline: `#30363D`
+
+### 14.2 Typography baseline
+
+- TopAppBar title: `20sp Medium`
+- Section title: `16sp Medium`
+- Body: `14sp Regular`
+- Secondary/hint: `12sp Regular`
+- Big status text: `24sp Bold`
+- Chip text: `13sp Medium`
+- Log time: `12sp Mono` (`RobotoMono`)
+
+### 14.3 Navigation
+
+- Bottom bar: `Home`, `Keywords`, `Log`, `Settings`.
+- `Permissions` відкривається окремо через іконку в `TopAppBar`.
+- На permissions-іконці показується badge, якщо є ненадані критичні дозволи.
+
+### 14.4 Screens — implementation contract
+
+- **Home**
+    - Великий статус моніторингу (щит + текст + toggle/button).
+    - Картка ключових слів (включно з empty-state).
+    - Картка останнього спрацювання (включно з empty-state).
+    - Кнопка `Test Alarm` (запуск короткого тестового циклу тривоги).
+
+- **Keywords**
+    - Trigger words (додавання/видалення, tooltip).
+    - Stop words (додавання/видалення, tooltip, візуально відмінні chips).
+    - Telegram channel filter (toggle + список каналів, якщо увімкнено).
+
+- **Log**
+    - Список перехоплених подій (включно з пропущеними).
+    - Стани елементів: alarm / skipped.
+    - Очищення через confirm-діалог.
+    - Empty-state.
+
+- **Settings**
+    - Розклад роботи (enable + start/end time).
+    - Налаштування тривоги: duration, vibration, alarm sound preview.
+    - Джерела сповіщень (список Telegram-клієнтів).
+    - Ліміт розміру журналу.
+
+- **Permissions**
+    - Повний перелік критичних/рекомендованих дозволів.
+    - Кнопки переходу в системні налаштування.
+    - Кнопка `Перевірити всі` для refresh статусів.
+
+### 14.5 Alarm UX
+
+- `AlarmActivity`: full-screen поверх lock screen.
+- Контент: сирена, заголовок `ТРИВОГА`, канал, текст повідомлення, matched keyword, час, кнопка
+  вимкнення.
+- Окреме alarm-сповіщення: `HIGH`, `CATEGORY_ALARM`, full-screen intent, action `Вимкнути тривогу`.
+
+### 14.6 Monitoring notification UX
+
+- Коли моніторинг активний: ongoing foreground notification (`LOW`, без звуку, не свайпається).
+- Tap по notification відкриває додаток.
+
+### 14.7 Notes for implementation
+
+- Для channel filter використовуємо `title exact match + ignoreCase` як базову стратегію.
+- Якщо в реальних тестах стабільність недостатня, додаємо fallback-режим як окрему, підтверджену
+  зміну.
+- `Alarm duration` моделюємо enum-типом у domain/data/UI, без спец-чисел.а

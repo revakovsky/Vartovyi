@@ -1,5 +1,6 @@
 package com.revakovskyi.vartovyi.domain.usecase.monitoring
 
+import com.revakovskyi.vartovyi.domain.repository.MonitoringController
 import com.revakovskyi.vartovyi.domain.repository.SettingsRepository
 
 interface ToggleMonitoringUseCase {
@@ -8,10 +9,15 @@ interface ToggleMonitoringUseCase {
 
 class ToggleMonitoringUseCaseImpl(
     private val settingsRepository: SettingsRepository,
+    private val monitoringController: MonitoringController,
 ) : ToggleMonitoringUseCase {
 
     override suspend operator fun invoke(isCurrentlyActive: Boolean) {
-        settingsRepository.setMonitoringActive(!isCurrentlyActive)
+        val shouldActivate = !isCurrentlyActive
+        settingsRepository.setMonitoringActive(shouldActivate)
+
+        if (shouldActivate) monitoringController.startMonitoring()
+        else monitoringController.stopMonitoring()
     }
 
 }

@@ -21,21 +21,13 @@ interface HomeUiContract {
 
     sealed interface Action {
         data object ToggleMonitoring : Action
-        data object TestAlarm : Action
         data object NavigateToKeywords : Action
         data object NavigateToLog : Action
-        data object NavigateToSettings : Action
-        data object NavigateToPermissions : Action
     }
 
     sealed interface Event {
-        data object MonitoringStarted : Event
-        data object MonitoringStopped : Event
         data object NavigateToKeywords : Event
         data object NavigateToLog : Event
-        data object NavigateToSettings : Event
-        data object NavigateToPermissions : Event
-        data class Error(val message: String) : Event
     }
 
 }
