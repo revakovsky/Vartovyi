@@ -20,7 +20,9 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -36,20 +38,30 @@ import com.revakovskyi.vartovyi.ui.theme.VartovyiTheme
 private const val ALARM_ICON_SIZE_DP = 128
 private const val DISMISS_BUTTON_MIN_WIDTH_DP = 200
 private const val DISMISS_BUTTON_WIDTH_FRACTION = 0.7f
+private const val EMPTY_KEYWORD = ""
 
 class AlarmActivity : ComponentActivity() {
+
+    private var matchedKeyword by mutableStateOf(EMPTY_KEYWORD)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setupWindow()
+        updateMatchedKeywordFromIntent(intent)
 
         setContent {
             VartovyiTheme {
                 AlarmContent(
+                    matchedKeyword = matchedKeyword,
                     onDismiss = ::dismissAlarm,
                 )
             }
         }
+    }
+
+    override fun onNewIntent(intent: Intent) {
+        super.onNewIntent(intent)
+        updateMatchedKeywordFromIntent(intent)
     }
 
     override fun onStart() {
@@ -76,6 +88,10 @@ class AlarmActivity : ComponentActivity() {
         finish()
     }
 
+    private fun updateMatchedKeywordFromIntent(intent: Intent?) {
+        matchedKeyword = intent?.getStringExtra(AlarmService.EXTRA_MATCHED_KEYWORD).orEmpty()
+    }
+
     companion object {
         val isVisible: MutableState<Boolean> = mutableStateOf(false)
     }
@@ -84,11 +100,12 @@ class AlarmActivity : ComponentActivity() {
 
 @Composable
 private fun AlarmContent(
+    matchedKeyword: String,
     onDismiss: () -> Unit,
 ) {
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center,
+        verticalArrangement = Arrangement.SpaceEvenly,
         modifier = Modifier
             .fillMaxSize()
             .background(VartovyiTheme.colors.background)
@@ -101,16 +118,29 @@ private fun AlarmContent(
             modifier = Modifier.size(ALARM_ICON_SIZE_DP.dp),
         )
 
-        Spacer(modifier = Modifier.height(VartovyiTheme.spacing.huge))
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center,
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Text(
+                text = stringResource(R.string.alarm_title),
+                style = VartovyiTheme.typography.headlineLarge,
+                color = VartovyiTheme.colors.error,
+                textAlign = TextAlign.Center,
+            )
 
-        Text(
-            text = stringResource(R.string.alarm_title),
-            style = VartovyiTheme.typography.headlineLarge,
-            color = VartovyiTheme.colors.error,
-            textAlign = TextAlign.Center,
-        )
+            if (matchedKeyword.isNotBlank()) {
+                Spacer(modifier = Modifier.height(VartovyiTheme.spacing.extraLarge))
 
-        Spacer(modifier = Modifier.height(VartovyiTheme.spacing.huge))
+                Text(
+                    text = matchedKeyword,
+                    style = VartovyiTheme.typography.bodyLarge,
+                    color = VartovyiTheme.colors.onBackground,
+                    textAlign = TextAlign.Center,
+                )
+            }
+        }
 
         Button(
             onClick = onDismiss,
@@ -142,6 +172,7 @@ private fun AlarmContent(
 private fun AlarmContentPreview() {
     VartovyiTheme {
         AlarmContent(
+            matchedKeyword = "тривога",
             onDismiss = {},
         )
     }

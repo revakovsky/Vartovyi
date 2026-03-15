@@ -31,12 +31,14 @@ private const val CHANNEL_ID = "vartovyi_alarm"
 private val VIBRATION_PATTERN = longArrayOf(0, 700, 300)
 private const val ALARM_TAG = "AlarmService"
 private const val RED_ACCENT_COLOR_RES_ID = android.R.color.holo_red_dark
+private const val EMPTY_KEYWORD = ""
 
 class AlarmService : Service() {
 
     private var mediaPlayer: MediaPlayer? = null
     private var vibrator: Vibrator? = null
     private var audioFocusRequest: AudioFocusRequest? = null
+    private var currentMatchedKeyword: String = EMPTY_KEYWORD
 
     override fun onCreate() {
         super.onCreate()
@@ -54,6 +56,7 @@ class AlarmService : Service() {
             return START_NOT_STICKY
         }
 
+        currentMatchedKeyword = intent?.getStringExtra(EXTRA_MATCHED_KEYWORD) ?: EMPTY_KEYWORD
         _isRunning.value = true
         requestAudioFocus()
         ensureForegroundNotification()
@@ -105,6 +108,7 @@ class AlarmService : Service() {
         }
 
         _isRunning.value = false
+        currentMatchedKeyword = EMPTY_KEYWORD
 
         stopAlarmSound()
         stopVibration()
@@ -135,6 +139,7 @@ class AlarmService : Service() {
         runCatching {
             val alarmActivityIntent = Intent(this, AlarmActivity::class.java).apply {
                 flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_SINGLE_TOP
+                putExtra(EXTRA_MATCHED_KEYWORD, currentMatchedKeyword)
             }
             startActivity(alarmActivityIntent)
         }.onFailure { throwable ->
@@ -148,6 +153,7 @@ class AlarmService : Service() {
             0,
             Intent(this, AlarmActivity::class.java).apply {
                 flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
+                putExtra(EXTRA_MATCHED_KEYWORD, currentMatchedKeyword)
             },
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE,
         )
@@ -260,6 +266,7 @@ class AlarmService : Service() {
 
     companion object {
         const val ACTION_STOP = "com.revakovskyi.vartovyi.ACTION_STOP_ALARM"
+        const val EXTRA_MATCHED_KEYWORD = "com.revakovskyi.vartovyi.EXTRA_MATCHED_KEYWORD"
 
         private val isAlarmActive = AtomicBoolean(false)
         private val _isRunning = MutableStateFlow(false)

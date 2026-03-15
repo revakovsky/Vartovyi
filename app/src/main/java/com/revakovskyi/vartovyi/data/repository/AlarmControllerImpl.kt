@@ -13,13 +13,17 @@ class AlarmControllerImpl(
 
     override val isAlarmRunning: Flow<Boolean> = AlarmService.isRunning
 
-    override fun triggerAlarm() {
+    override fun triggerAlarm(matchedKeyword: String) {
         if (AlarmService.isRunning.value) return
 
         if (!isStartRequested.compareAndSet(false, true)) return
 
         try {
-            context.startForegroundService(Intent(context, AlarmService::class.java))
+            context.startForegroundService(
+                Intent(context, AlarmService::class.java).apply {
+                    putExtra(AlarmService.EXTRA_MATCHED_KEYWORD, matchedKeyword)
+                }
+            )
         } finally {
             isStartRequested.set(false)
         }

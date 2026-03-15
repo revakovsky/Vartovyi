@@ -91,7 +91,7 @@ class ProcessIncomingTelegramNotificationUseCaseImpl(
             val isAlarmRunning = alarmController.isAlarmRunning.first()
             if (isAlarmRunning) return true
 
-            alarmController.triggerAlarm()
+            alarmController.triggerAlarm(matchedKeyword)
             return true
         }
 
