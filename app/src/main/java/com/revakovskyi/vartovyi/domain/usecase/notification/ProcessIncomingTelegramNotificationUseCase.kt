@@ -39,6 +39,19 @@ class ProcessIncomingTelegramNotificationUseCaseImpl(
 
         if (!settingsRepository.isMonitoringActive.first()) return false
 
+        val senderName = payload.title.ifBlank { payload.packageName }
+        val effectiveTimestamp =
+            if (payload.timestamp > 0) payload.timestamp
+            else System.currentTimeMillis()
+
+        val isAlreadyLogged = logRepository.existsBySignature(
+            senderPackage = payload.packageName,
+            senderName = senderName,
+            messageText = payload.text,
+            timestamp = effectiveTimestamp,
+        )
+        if (isAlreadyLogged) return false
+
         val isScheduleEnabled = settingsRepository.isScheduleEnabled.first()
         val isInScheduleWindow =
             isWithinScheduleWindow(
@@ -69,6 +82,8 @@ class ProcessIncomingTelegramNotificationUseCaseImpl(
 
         addLogEntry(
             payload = payload,
+            senderName = senderName,
+            effectiveTimestamp = effectiveTimestamp,
             matchedKeyword = matchedKeyword ?: EMPTY_MATCHED_KEYWORD,
         )
 
@@ -85,14 +100,16 @@ class ProcessIncomingTelegramNotificationUseCaseImpl(
 
     private suspend fun addLogEntry(
         payload: NotificationPayload,
+        senderName: String,
+        effectiveTimestamp: Long,
         matchedKeyword: String,
     ) {
         logRepository.addEntry(
             event = AlertEvent(
                 id = UUID.randomUUID().toString(),
-                timestamp = if (payload.timestamp > 0) payload.timestamp else System.currentTimeMillis(),
+                timestamp = effectiveTimestamp,
                 senderPackage = payload.packageName,
-                senderName = payload.title.ifBlank { payload.packageName },
+                senderName = senderName,
                 messageText = payload.text,
                 matchedKeyword = matchedKeyword,
             )
