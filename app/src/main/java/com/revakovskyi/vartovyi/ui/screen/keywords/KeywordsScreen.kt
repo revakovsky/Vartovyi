@@ -51,8 +51,11 @@ fun KeywordsScreen(
     ObserveSingleEvents(flow = viewModel.events) { event ->
         when (event) {
             is KeywordsUiContract.Event.KeywordAdded,
+            is KeywordsUiContract.Event.KeywordRemoved,
             is KeywordsUiContract.Event.StopWordAdded,
-            is KeywordsUiContract.Event.TelegramChannelAdded -> {
+            is KeywordsUiContract.Event.StopWordRemoved,
+            is KeywordsUiContract.Event.TelegramChannelAdded,
+            is KeywordsUiContract.Event.TelegramChannelRemoved -> {
                 hapticFeedback.performHapticFeedback(HapticFeedbackType.Confirm)
             }
         }

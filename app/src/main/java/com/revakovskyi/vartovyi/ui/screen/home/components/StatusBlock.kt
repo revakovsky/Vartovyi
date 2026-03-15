@@ -16,6 +16,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
+import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.tooling.preview.Preview
@@ -37,6 +39,8 @@ fun StatusBlock(
     monitoringState: MonitoringState,
     onToggle: () -> Unit,
 ) {
+    val hapticFeedback = LocalHapticFeedback.current
+
     val isActive = monitoringState == MonitoringState.ACTIVE
 
     val iconTint =
@@ -92,7 +96,10 @@ fun StatusBlock(
             Spacer(modifier = Modifier.weight(SPACER_BOTTOM_WEIGHT))
 
             Button(
-                onClick = onToggle,
+                onClick = {
+                    hapticFeedback.performHapticFeedback(HapticFeedbackType.Confirm)
+                    onToggle()
+                },
                 colors = ButtonDefaults.buttonColors(
                     containerColor = buttonContainerColor,
                     contentColor = buttonContentColor,

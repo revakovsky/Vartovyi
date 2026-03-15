@@ -6,6 +6,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.PlainTooltip
 import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBarScrollBehavior
 import androidx.compose.material3.TooltipAnchorPosition
 import androidx.compose.material3.TooltipBox
 import androidx.compose.material3.TooltipDefaults
@@ -31,6 +32,7 @@ fun VartovyiTopBar(
     title: String,
     hasMissingPermissions: Boolean,
     isEmergencyStopVisible: Boolean,
+    scrollBehavior: TopAppBarScrollBehavior = TopAppBarDefaults.pinnedScrollBehavior(),
     onPermissionsClick: () -> Unit,
     onEmergencyStopClick: () -> Unit,
 ) {
@@ -76,6 +78,7 @@ fun VartovyiTopBar(
         colors = TopAppBarDefaults.topAppBarColors(
             containerColor = VartovyiTheme.colors.background,
         ),
+        scrollBehavior = scrollBehavior,
         modifier = modifier
     )
 }
@@ -105,6 +108,7 @@ private fun TopBarTooltipIconButton(
 }
 
 @Preview(name = "All permissions were granted")
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun VartovyiTopBarPermissionsGrantedPreview() {
     VartovyiTheme {
@@ -112,6 +116,7 @@ private fun VartovyiTopBarPermissionsGrantedPreview() {
             title = "Вартовий",
             hasMissingPermissions = false,
             isEmergencyStopVisible = true,
+            scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior(),
             onPermissionsClick = {},
             onEmergencyStopClick = {},
         )
@@ -119,6 +124,7 @@ private fun VartovyiTopBarPermissionsGrantedPreview() {
 }
 
 @Preview(name = "Not all permissions were granted")
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun VartovyiTopBarNotAllPermissionsGrantedPreview() {
     VartovyiTheme {
@@ -126,6 +132,7 @@ private fun VartovyiTopBarNotAllPermissionsGrantedPreview() {
             title = "Вартовий",
             hasMissingPermissions = true,
             isEmergencyStopVisible = false,
+            scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior(),
             onPermissionsClick = {},
             onEmergencyStopClick = {},
         )

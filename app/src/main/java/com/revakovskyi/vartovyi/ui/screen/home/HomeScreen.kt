@@ -111,8 +111,8 @@ private fun HomeContent(
 
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(VartovyiTheme.spacing.standard),
-            modifier = Modifier.padding(VartovyiTheme.spacing.standard),
+            verticalArrangement = Arrangement.spacedBy(VartovyiTheme.spacing.small),
+            modifier = Modifier.padding(horizontal = VartovyiTheme.spacing.standard),
         ) {
             KeywordsCard(
                 keywords = state.keywords,
@@ -123,6 +123,7 @@ private fun HomeContent(
             LastAlertCard(
                 lastAlertEvent = state.lastAlertEvent,
                 onClick = { onAction(HomeUiContract.Action.NavigateToLog) },
+                modifier = Modifier.padding(bottom = VartovyiTheme.spacing.small)
             )
         }
     }

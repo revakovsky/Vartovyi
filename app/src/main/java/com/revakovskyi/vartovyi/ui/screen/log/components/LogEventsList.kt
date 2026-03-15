@@ -1,7 +1,6 @@
 package com.revakovskyi.vartovyi.ui.screen.log.components
 
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -20,7 +19,6 @@ fun LogEventsList(
 ) {
     LazyColumn(
         verticalArrangement = Arrangement.spacedBy(VartovyiTheme.spacing.small),
-        contentPadding = PaddingValues(bottom = VartovyiTheme.spacing.small),
         modifier = modifier,
     ) {
         items(
