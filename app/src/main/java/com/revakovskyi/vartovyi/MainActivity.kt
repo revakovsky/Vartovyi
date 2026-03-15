@@ -33,6 +33,7 @@ import androidx.navigation.NavDestination.Companion.hasRoute
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navOptions
+import com.revakovskyi.vartovyi.domain.usecase.alarm.ObserveAlarmRunningUseCase
 import com.revakovskyi.vartovyi.domain.usecase.emergency.StopEverythingUseCase
 import com.revakovskyi.vartovyi.navigation.BottomNavItem
 import com.revakovskyi.vartovyi.navigation.NavGraph
@@ -50,6 +51,7 @@ import org.koin.androidx.viewmodel.ext.android.viewModel
 class MainActivity : ComponentActivity() {
 
     private val permissionsViewModel: PermissionsViewModel by viewModel()
+    private val observeAlarmRunningUseCase: ObserveAlarmRunningUseCase by inject()
     private val stopEverythingUseCase: StopEverythingUseCase by inject()
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -63,6 +65,7 @@ class MainActivity : ComponentActivity() {
         setContent {
             VartovyiTheme {
                 val permissionsState by permissionsViewModel.state.collectAsState()
+                val isAlarmRunning by observeAlarmRunningUseCase().collectAsState(initial = false)
 
                 val navController = rememberNavController()
                 val currentBackStackEntry by navController.currentBackStackEntryAsState()
@@ -113,6 +116,7 @@ class MainActivity : ComponentActivity() {
                             VartovyiTopBar(
                                 title = topBarTitle,
                                 hasMissingPermissions = permissionsState.hasMissingPermissions,
+                                isEmergencyStopVisible = isAlarmRunning,
                                 onPermissionsClick = { navController.navigate(Routes.Permissions) },
                                 onEmergencyStopClick = {
                                     lifecycleScope.launch {

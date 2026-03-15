@@ -21,6 +21,7 @@
     <string name="settings_test_alarm">Test alarm</string>
     <string name="settings_stop_test_alarm">Stop test</string>
     <string name="home_permissions_required_snackbar">Grant required permissions before activating monitoring</string>
+    <string name="home_permissions_required_snackbar_action">Permissions</string>
     <string name="monitoring_channel_name">Monitoring</string>
     <string name="monitoring_channel_description">Vartovyi monitoring status</string>
     <string name="monitoring_notification_title">Vartovyi is active</string>
