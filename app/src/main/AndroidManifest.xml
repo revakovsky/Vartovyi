@@ -10,6 +10,7 @@
 
     <!-- Notifications: runtime permission for app/alarm notifications -->
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+    <uses-permission android:name="android.permission.ACCESS_NOTIFICATION_POLICY" />
 
     <!-- AlarmService: vibration and wake-up reliability for alert signaling -->
     <uses-permission android:name="android.permission.VIBRATE" />

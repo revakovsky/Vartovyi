@@ -22,14 +22,12 @@ interface PermissionsUiContract {
         data object RequestDoNotDisturbAccess : Action
         data object RequestPostNotificationsPermission : Action
         data class ToggleFullScreenIntentPermission(val shouldEnable: Boolean) : Action
-        data object CheckPermissions : Action
         data object NavigateBack : Action
     }
 
     sealed interface Event {
         data object NavigateBack : Event
         data class NavigateToSystemSettings(val action: String) : Event
-        data object RefreshPermissionsState : Event
     }
 
 }
