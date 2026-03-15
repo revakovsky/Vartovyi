@@ -45,6 +45,7 @@ fun NavGraph(
                         navOptions = tabNavOptions()
                     )
                 },
+                onNavigateToPermissions = { navController.navigate(Routes.Permissions) },
             )
         }
 

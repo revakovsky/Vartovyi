@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.SnackbarDuration
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -22,6 +23,7 @@ import com.revakovskyi.vartovyi.ui.screen.home.components.KeywordsCard
 import com.revakovskyi.vartovyi.ui.screen.home.components.LastAlertCard
 import com.revakovskyi.vartovyi.ui.screen.home.components.StatusBlock
 import com.revakovskyi.vartovyi.ui.theme.VartovyiTheme
+import com.revakovskyi.vartovyi.ui.util.snackbar.SnackbarAction
 import com.revakovskyi.vartovyi.ui.util.snackbar.SnackbarController
 import com.revakovskyi.vartovyi.ui.util.snackbar.SnackbarEvent
 import com.revakovskyi.vartovyi.utils.ObserveSingleEvents
@@ -34,12 +36,14 @@ fun HomeScreen(
     isRequiredPermissionsGranted: Boolean,
     onNavigateToKeywords: () -> Unit,
     onNavigateToLog: () -> Unit,
+    onNavigateToPermissions: () -> Unit,
 ) {
     val state by viewModel.state.collectAsState()
 
     val coroutineScope = rememberCoroutineScope()
 
     val permissionsRequiredMessage = stringResource(R.string.home_permissions_required_snackbar)
+    val permissionsAction = stringResource(R.string.home_permissions_required_snackbar_action)
 
     ObserveSingleEvents(flow = viewModel.events) { event ->
         when (event) {
@@ -63,7 +67,14 @@ fun HomeScreen(
                 onShowPermissionsRequiredMessage = {
                     coroutineScope.launch {
                         SnackbarController.sendEvent(
-                            SnackbarEvent(message = permissionsRequiredMessage),
+                            SnackbarEvent(
+                                message = permissionsRequiredMessage,
+                                action = SnackbarAction(
+                                    name = permissionsAction,
+                                    action = { onNavigateToPermissions() }
+                                ),
+                                duration = SnackbarDuration.Long,
+                            )
                         )
                     }
                 },

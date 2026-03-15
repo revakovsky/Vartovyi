@@ -17,7 +17,6 @@ import androidx.compose.foundation.layout.widthIn
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
-import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
@@ -30,21 +29,15 @@ import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.lifecycleScope
 import com.revakovskyi.vartovyi.R
-import com.revakovskyi.vartovyi.domain.usecase.emergency.StopEverythingUseCase
 import com.revakovskyi.vartovyi.service.AlarmService
 import com.revakovskyi.vartovyi.ui.theme.VartovyiTheme
-import kotlinx.coroutines.launch
-import org.koin.android.ext.android.inject
 
 private const val ALARM_ICON_SIZE_DP = 128
 private const val DISMISS_BUTTON_MIN_WIDTH_DP = 200
 private const val DISMISS_BUTTON_WIDTH_FRACTION = 0.7f
 
 class AlarmActivity : ComponentActivity() {
-
-    private val stopEverythingUseCase: StopEverythingUseCase by inject()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -54,7 +47,6 @@ class AlarmActivity : ComponentActivity() {
             VartovyiTheme {
                 AlarmContent(
                     onDismiss = ::dismissAlarm,
-                    onEmergencyStop = ::stopEverything,
                 )
             }
         }
@@ -84,13 +76,6 @@ class AlarmActivity : ComponentActivity() {
         finish()
     }
 
-    private fun stopEverything() {
-        lifecycleScope.launch {
-            stopEverythingUseCase()
-            finish()
-        }
-    }
-
     companion object {
         val isVisible: MutableState<Boolean> = mutableStateOf(false)
     }
@@ -100,7 +85,6 @@ class AlarmActivity : ComponentActivity() {
 @Composable
 private fun AlarmContent(
     onDismiss: () -> Unit,
-    onEmergencyStop: () -> Unit,
 ) {
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -144,21 +128,6 @@ private fun AlarmContent(
                 style = VartovyiTheme.typography.titleMedium,
             )
         }
-
-        Spacer(modifier = Modifier.height(VartovyiTheme.spacing.medium))
-
-        OutlinedButton(
-            onClick = onEmergencyStop,
-            modifier = Modifier
-                .widthIn(min = DISMISS_BUTTON_MIN_WIDTH_DP.dp)
-                .fillMaxWidth(DISMISS_BUTTON_WIDTH_FRACTION)
-                .height(VartovyiTheme.spacing.massive),
-        ) {
-            Text(
-                text = stringResource(R.string.emergency_stop),
-                style = VartovyiTheme.typography.titleMedium,
-            )
-        }
     }
 }
 
@@ -174,7 +143,6 @@ private fun AlarmContentPreview() {
     VartovyiTheme {
         AlarmContent(
             onDismiss = {},
-            onEmergencyStop = {},
         )
     }
 }

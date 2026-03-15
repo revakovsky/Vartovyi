@@ -1,6 +1,5 @@
 package com.revakovskyi.vartovyi.ui.screen.settings
 
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -41,7 +40,6 @@ private fun SettingsContent(
     onAction: (action: SettingsUiContract.Action) -> Unit,
 ) {
     Column(
-        verticalArrangement = Arrangement.Center,
         modifier = modifier
             .fillMaxSize()
             .padding(VartovyiTheme.spacing.standard)
