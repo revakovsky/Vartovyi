@@ -15,16 +15,22 @@ import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.foundation.layout.exclude
 import androidx.compose.foundation.layout.ime
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.ScaffoldDefaults
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.SnackbarResult
+import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.material3.TopAppBarScrollBehavior
+import androidx.compose.material3.rememberTopAppBarState
+import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.res.stringResource
 import androidx.core.app.NotificationManagerCompat
 import androidx.core.content.ContextCompat
@@ -49,6 +55,7 @@ import kotlinx.coroutines.launch
 import org.koin.android.ext.android.inject
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
+@OptIn(ExperimentalMaterial3Api::class)
 class MainActivity : ComponentActivity() {
 
     private val permissionsViewModel: PermissionsViewModel by viewModel()
@@ -101,6 +108,7 @@ class MainActivity : ComponentActivity() {
                 }
 
                 val showBars = selectedNavItem != null
+                val topBarScrollBehavior = provideTopBarScrollBehavior(selectedNavItem)
 
                 val topBarTitle = when (selectedNavItem) {
                     BottomNavItem.Home -> stringResource(R.string.app_name)
@@ -113,12 +121,14 @@ class MainActivity : ComponentActivity() {
                 Scaffold(
                     contentWindowInsets = ScaffoldDefaults.contentWindowInsets.exclude(WindowInsets.ime),
                     containerColor = VartovyiTheme.colors.background,
+                    modifier = Modifier.nestedScroll(topBarScrollBehavior.nestedScrollConnection),
                     topBar = {
                         if (showBars) {
                             VartovyiTopBar(
                                 title = topBarTitle,
                                 hasMissingPermissions = permissionsState.hasMissingPermissions,
                                 isEmergencyStopVisible = isAlarmRunning,
+                                scrollBehavior = topBarScrollBehavior,
                                 onPermissionsClick = { navController.navigate(Routes.Permissions) },
                                 onEmergencyStopClick = {
                                     lifecycleScope.launch {
@@ -214,5 +224,13 @@ class MainActivity : ComponentActivity() {
             fullScreenIntentGranted = fullScreenIntentGranted,
         )
     }
+
+    @OptIn(ExperimentalMaterial3Api::class)
+    @Composable
+    private fun provideTopBarScrollBehavior(selectedNavItem: BottomNavItem?): TopAppBarScrollBehavior =
+        when (selectedNavItem) {
+            BottomNavItem.Logs -> TopAppBarDefaults.enterAlwaysScrollBehavior(state = rememberTopAppBarState())
+            else -> TopAppBarDefaults.pinnedScrollBehavior(state = rememberTopAppBarState())
+        }
 
 }

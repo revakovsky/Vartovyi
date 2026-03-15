@@ -116,7 +116,10 @@ class KeywordsViewModel(
     }
 
     private fun removeKeyword(keyword: String) {
-        viewModelScope.launch { removeKeywordUseCase(keyword) }
+        viewModelScope.launch {
+            removeKeywordUseCase(keyword)
+            _events.emit(Event.KeywordRemoved)
+        }
     }
 
     private fun addStopWord() {
@@ -137,7 +140,10 @@ class KeywordsViewModel(
     }
 
     private fun removeStopWord(stopWord: String) {
-        viewModelScope.launch { removeStopWordUseCase(stopWord) }
+        viewModelScope.launch {
+            removeStopWordUseCase(stopWord)
+            _events.emit(Event.StopWordRemoved)
+        }
     }
 
     private fun toggleTelegramChannelFilter() {
@@ -166,7 +172,10 @@ class KeywordsViewModel(
     }
 
     private fun removeTelegramChannel(channel: String) {
-        viewModelScope.launch { removeTelegramChannelUseCase(channel) }
+        viewModelScope.launch {
+            removeTelegramChannelUseCase(channel)
+            _events.emit(Event.TelegramChannelRemoved)
+        }
     }
 
     private fun dismissDuplicateWordDialog() {

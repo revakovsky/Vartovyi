@@ -33,8 +33,11 @@ interface KeywordsUiContract {
 
     sealed interface Event {
         data object KeywordAdded : Event
+        data object KeywordRemoved : Event
         data object StopWordAdded : Event
+        data object StopWordRemoved : Event
         data object TelegramChannelAdded : Event
+        data object TelegramChannelRemoved : Event
     }
 
 }

@@ -2,13 +2,13 @@ package com.revakovskyi.vartovyi.ui.screen.log
 
 import android.content.ClipData
 import androidx.compose.animation.Crossfade
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.ClipEntry
 import androidx.compose.ui.platform.LocalClipboard
@@ -93,27 +93,19 @@ private fun LogContent(
     onAction: (action: LogUiContract.Action) -> Unit,
 ) {
     Crossfade(
-        targetState = state.logEntries.isEmpty(),
-        modifier = modifier.fillMaxSize(),
         label = "logContentCrossfade",
+        targetState = state.logEntries.isEmpty(),
+        modifier = modifier.fillMaxSize()
     ) { isEmptyStateVisible ->
         if (isEmptyStateVisible) {
             LogEmptyState(modifier = Modifier.fillMaxSize())
         } else {
             Column(
-                verticalArrangement = Arrangement.spacedBy(VartovyiTheme.spacing.small),
+                horizontalAlignment = Alignment.CenterHorizontally,
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(
-                        top = VartovyiTheme.spacing.small,
-                        start = VartovyiTheme.spacing.standard,
-                        end = VartovyiTheme.spacing.standard,
-                    ),
+                    .padding(horizontal = VartovyiTheme.spacing.standard)
             ) {
-                LogClearButton(
-                    onClick = { onAction(LogUiContract.Action.OpenClearLogDialog) },
-                )
-
                 LogEventsList(
                     logEntries = state.logEntries,
                     onCopyChannelClick = { channelName ->
@@ -123,6 +115,10 @@ private fun LogContent(
                         onAction(LogUiContract.Action.CopyMessageText(messageText))
                     },
                     modifier = Modifier.weight(1f),
+                )
+
+                LogClearButton(
+                    onClick = { onAction(LogUiContract.Action.OpenClearLogDialog) },
                 )
             }
         }

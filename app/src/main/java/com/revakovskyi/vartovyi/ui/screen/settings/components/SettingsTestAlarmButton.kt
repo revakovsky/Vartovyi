@@ -1,10 +1,10 @@
 package com.revakovskyi.vartovyi.ui.screen.settings.components
 
 import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
@@ -33,6 +33,7 @@ fun SettingsTestAlarmButton(
     onClick: () -> Unit,
 ) {
     val buttonModifier = modifier
+        .padding(vertical = VartovyiTheme.spacing.standard)
         .widthIn(max = TEST_BUTTON_MAX_WIDTH_DP.dp)
         .fillMaxWidth()
         .height(VartovyiTheme.spacing.massive)
@@ -44,7 +45,6 @@ fun SettingsTestAlarmButton(
                 containerColor = VartovyiTheme.colors.errorContainer,
                 contentColor = VartovyiTheme.colors.onErrorContainer,
             ),
-            contentPadding = PaddingValues(VartovyiTheme.spacing.small),
             modifier = buttonModifier,
         ) {
             Icon(
@@ -63,7 +63,6 @@ fun SettingsTestAlarmButton(
     } else {
         OutlinedButton(
             onClick = onClick,
-            contentPadding = PaddingValues(VartovyiTheme.spacing.small),
             border = BorderStroke(
                 width = BORDER_STROKE_WIDTH_DP.dp,
                 color = VartovyiTheme.colors.error,

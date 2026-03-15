@@ -1,6 +1,7 @@
 package com.revakovskyi.vartovyi.ui.screen.settings
 
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.SnackbarDuration
@@ -72,8 +73,10 @@ private fun SettingsContent(
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = modifier
             .fillMaxSize()
-            .padding(VartovyiTheme.spacing.standard)
+            .padding(horizontal = VartovyiTheme.spacing.standard)
     ) {
+        Spacer(modifier = Modifier.weight(1f))
+
         SettingsTestAlarmButton(
             isAlarmRunning = state.isAlarmRunning,
             onClick = { onAction(SettingsUiContract.Action.ToggleTestAlarm) },
