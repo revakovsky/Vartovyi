@@ -1,14 +1,15 @@
 package com.revakovskyi.vartovyi.ui.screen.settings
 
-import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.material3.Text
+import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
+import com.revakovskyi.vartovyi.ui.screen.settings.components.SettingsTestAlarmButton
 import com.revakovskyi.vartovyi.ui.theme.VartovyiTheme
 import com.revakovskyi.vartovyi.utils.ObserveSingleEvents
 import org.koin.androidx.compose.koinViewModel
@@ -39,13 +40,15 @@ private fun SettingsContent(
     state: SettingsUiContract.State,
     onAction: (action: SettingsUiContract.Action) -> Unit,
 ) {
-    Box(
-        contentAlignment = Alignment.Center,
-        modifier = modifier.fillMaxSize()
+    Column(
+        verticalArrangement = Arrangement.Center,
+        modifier = modifier
+            .fillMaxSize()
+            .padding(VartovyiTheme.spacing.standard)
     ) {
-        Text(
-            text = "Settings",
-            color = VartovyiTheme.colors.onBackground,
+        SettingsTestAlarmButton(
+            isAlarmRunning = state.isAlarmRunning,
+            onClick = { onAction(SettingsUiContract.Action.ToggleTestAlarm) },
         )
     }
 }

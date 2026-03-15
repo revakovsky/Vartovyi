@@ -3,9 +3,6 @@ package com.revakovskyi.vartovyi.ui.screen.home
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.revakovskyi.vartovyi.domain.model.MonitoringState
-import com.revakovskyi.vartovyi.domain.usecase.alarm.ObserveAlarmRunningUseCase
-import com.revakovskyi.vartovyi.domain.usecase.alarm.StopAlarmUseCase
-import com.revakovskyi.vartovyi.domain.usecase.alarm.TriggerAlarmUseCase
 import com.revakovskyi.vartovyi.domain.usecase.keywords.ObserveKeywordsUseCase
 import com.revakovskyi.vartovyi.domain.usecase.monitoring.ObserveMonitoringStateUseCase
 import com.revakovskyi.vartovyi.domain.usecase.monitoring.ToggleMonitoringUseCase
@@ -29,9 +26,6 @@ class HomeViewModel(
     private val toggleMonitoringUseCase: ToggleMonitoringUseCase,
     private val observeScheduleSettingsUseCase: ObserveScheduleSettingsUseCase,
     private val observeKeywordsUseCase: ObserveKeywordsUseCase,
-    private val triggerAlarmUseCase: TriggerAlarmUseCase,
-    private val stopAlarmUseCase: StopAlarmUseCase,
-    private val observeAlarmRunningUseCase: ObserveAlarmRunningUseCase,
 ) : ViewModel() {
 
     private val _state = MutableStateFlow(State())
@@ -46,7 +40,6 @@ class HomeViewModel(
         observeMonitoringState()
         observeScheduleSettings()
         observeKeywords()
-        observeAlarmRunning()
     }
 
     fun onAction(action: Action) {
@@ -96,20 +89,9 @@ class HomeViewModel(
         }.launchIn(viewModelScope)
     }
 
-    private fun observeAlarmRunning() {
-        var isFirstEmission = true
-        observeAlarmRunningUseCase().onEach { isRunning ->
-            _state.update { it.copy(isAlarmRunning = isRunning) }
-            if (isFirstEmission) {
-                isFirstEmission = false
-                markSourceLoaded()
-            }
-        }.launchIn(viewModelScope)
-    }
-
     private fun markSourceLoaded() {
         loadedSourcesCount++
-        if (loadedSourcesCount >= 4) {
+        if (loadedSourcesCount >= 3) {
             _state.update { it.copy(isLoading = false) }
         }
     }
@@ -119,12 +101,6 @@ class HomeViewModel(
             val isCurrentlyActive = state.value.monitoringState == MonitoringState.ACTIVE
             toggleMonitoringUseCase(isCurrentlyActive)
         }
-    }
-
-    // TODO: should be moved to the Settings screen when it will be ready!
-    private fun testAlarm() {
-        if (state.value.isAlarmRunning) stopAlarmUseCase()
-        else triggerAlarmUseCase()
     }
 
     private fun navigateToKeywords() {

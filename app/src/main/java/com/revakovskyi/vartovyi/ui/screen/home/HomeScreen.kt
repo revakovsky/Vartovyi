@@ -169,20 +169,3 @@ private fun HomeContentActiveWithAlertPreview() {
         )
     }
 }
-
-@Preview(name = "Active — alarm running")
-@Composable
-private fun HomeContentAlarmRunningPreview() {
-    VartovyiTheme {
-        HomeContent(
-            state = HomeUiContract.State(
-                monitoringState = MonitoringState.ACTIVE,
-                keywords = listOf("ракета", "тривога"),
-                isAlarmRunning = true,
-            ),
-            isRequiredPermissionsGranted = true,
-            onAction = {},
-            onShowPermissionsRequiredMessage = {},
-        )
-    }
-}

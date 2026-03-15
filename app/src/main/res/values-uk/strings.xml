@@ -18,8 +18,8 @@
     <string name="home_and_more">+%d ще…</string>
     <string name="home_last_trigger">Останнє активування</string>
     <string name="home_no_triggers">Спрацювань ще не було</string>
-    <string name="home_test_alarm">Тестувати тривогу</string>
-    <string name="home_stop_test_alarm">Зупинити тест</string>
+    <string name="settings_test_alarm">Тестувати тривогу</string>
+    <string name="settings_stop_test_alarm">Зупинити тест</string>
     <string name="home_permissions_required_snackbar">Надайте обов’язкові дозволи перед активацією моніторингу</string>
     <string name="monitoring_channel_name">Моніторинг</string>
     <string name="monitoring_channel_description">Статус моніторингу Вартового</string>

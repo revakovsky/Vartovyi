@@ -2,6 +2,9 @@ package com.revakovskyi.vartovyi.ui.screen.settings
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.revakovskyi.vartovyi.domain.usecase.alarm.ObserveAlarmRunningUseCase
+import com.revakovskyi.vartovyi.domain.usecase.alarm.StopAlarmUseCase
+import com.revakovskyi.vartovyi.domain.usecase.alarm.TriggerAlarmUseCase
 import com.revakovskyi.vartovyi.domain.usecase.settings.ObserveLogSizeLimitUseCase
 import com.revakovskyi.vartovyi.domain.usecase.settings.ObserveScheduleSettingsUseCase
 import com.revakovskyi.vartovyi.domain.usecase.settings.ObserveTelegramPackagesUseCase
@@ -37,6 +40,9 @@ class SettingsViewModel(
     private val setVibrationEnabledUseCase: SetVibrationEnabledUseCase,
     private val setTelegramPackagesUseCase: SetTelegramPackagesUseCase,
     private val setLogSizeLimitUseCase: SetLogSizeLimitUseCase,
+    private val triggerAlarmUseCase: TriggerAlarmUseCase,
+    private val stopAlarmUseCase: StopAlarmUseCase,
+    private val observeAlarmRunningUseCase: ObserveAlarmRunningUseCase,
 ) : ViewModel() {
 
     private val _state = MutableStateFlow(State())
@@ -49,6 +55,7 @@ class SettingsViewModel(
         observeScheduleSettings()
         observeTelegramPackages()
         observeLogSizeLimit()
+        observeAlarmRunning()
     }
 
     fun onAction(action: Action) {
@@ -60,6 +67,7 @@ class SettingsViewModel(
             is Action.SetVibrationEnabled -> setVibrationEnabled(action.enabled)
             is Action.SetTelegramPackages -> setTelegramPackages(action.packages)
             is Action.SetLogSizeLimit -> setLogSizeLimit(action.limit)
+            is Action.ToggleTestAlarm -> toggleTestAlarm()
             is Action.NavigateBack -> navigateBack()
         }
     }
@@ -90,6 +98,12 @@ class SettingsViewModel(
         }.launchIn(viewModelScope)
     }
 
+    private fun observeAlarmRunning() {
+        observeAlarmRunningUseCase().onEach { isRunning ->
+            _state.update { it.copy(isAlarmRunning = isRunning) }
+        }.launchIn(viewModelScope)
+    }
+
     private fun setScheduleEnabled(enabled: Boolean) {
         viewModelScope.launch { setScheduleEnabledUseCase(enabled) }
     }
@@ -116,6 +130,14 @@ class SettingsViewModel(
 
     private fun setLogSizeLimit(limit: Int) {
         viewModelScope.launch { setLogSizeLimitUseCase(limit) }
+    }
+
+    private fun toggleTestAlarm() {
+        if (state.value.isAlarmRunning) {
+            stopAlarmUseCase()
+        } else {
+            triggerAlarmUseCase()
+        }
     }
 
     private fun navigateBack() {
