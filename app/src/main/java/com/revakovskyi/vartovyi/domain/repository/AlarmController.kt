@@ -6,7 +6,7 @@ interface AlarmController {
 
     val isAlarmRunning: Flow<Boolean>
 
-    fun triggerAlarm()
+    fun triggerAlarm(matchedKeyword: String = "")
     fun stopAlarm()
 
 }

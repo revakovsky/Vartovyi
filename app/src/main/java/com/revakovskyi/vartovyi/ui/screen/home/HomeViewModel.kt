@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.revakovskyi.vartovyi.domain.model.MonitoringState
 import com.revakovskyi.vartovyi.domain.usecase.keywords.ObserveKeywordsUseCase
+import com.revakovskyi.vartovyi.domain.usecase.log.ObserveLogEntriesUseCase
 import com.revakovskyi.vartovyi.domain.usecase.monitoring.ObserveMonitoringStateUseCase
 import com.revakovskyi.vartovyi.domain.usecase.monitoring.ToggleMonitoringUseCase
 import com.revakovskyi.vartovyi.domain.usecase.settings.ObserveScheduleSettingsUseCase
@@ -26,6 +27,7 @@ class HomeViewModel(
     private val toggleMonitoringUseCase: ToggleMonitoringUseCase,
     private val observeScheduleSettingsUseCase: ObserveScheduleSettingsUseCase,
     private val observeKeywordsUseCase: ObserveKeywordsUseCase,
+    private val observeLogEntriesUseCase: ObserveLogEntriesUseCase,
 ) : ViewModel() {
 
     private val _state = MutableStateFlow(State())
@@ -40,6 +42,7 @@ class HomeViewModel(
         observeMonitoringState()
         observeScheduleSettings()
         observeKeywords()
+        observeLastAlertEvent()
     }
 
     fun onAction(action: Action) {
@@ -89,9 +92,26 @@ class HomeViewModel(
         }.launchIn(viewModelScope)
     }
 
+    private fun observeLastAlertEvent() {
+        var isFirstEmission = true
+        observeLogEntriesUseCase().onEach { logEntries ->
+            _state.update {
+                it.copy(
+                    lastAlertEvent = logEntries.firstOrNull { event ->
+                        event.matchedKeyword.isNotBlank()
+                    }
+                )
+            }
+            if (isFirstEmission) {
+                isFirstEmission = false
+                markSourceLoaded()
+            }
+        }.launchIn(viewModelScope)
+    }
+
     private fun markSourceLoaded() {
         loadedSourcesCount++
-        if (loadedSourcesCount >= 3) {
+        if (loadedSourcesCount >= 4) {
             _state.update { it.copy(isLoading = false) }
         }
     }
