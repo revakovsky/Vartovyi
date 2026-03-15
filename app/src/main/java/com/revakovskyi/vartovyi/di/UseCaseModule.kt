@@ -40,6 +40,8 @@ import com.revakovskyi.vartovyi.domain.usecase.log.ObserveLogEntriesUseCase
 import com.revakovskyi.vartovyi.domain.usecase.log.ObserveLogEntriesUseCaseImpl
 import com.revakovskyi.vartovyi.domain.usecase.monitoring.ObserveMonitoringStateUseCase
 import com.revakovskyi.vartovyi.domain.usecase.monitoring.ObserveMonitoringStateUseCaseImpl
+import com.revakovskyi.vartovyi.domain.usecase.monitoring.SyncMonitoringRuntimeUseCase
+import com.revakovskyi.vartovyi.domain.usecase.monitoring.SyncMonitoringRuntimeUseCaseImpl
 import com.revakovskyi.vartovyi.domain.usecase.monitoring.ToggleMonitoringUseCase
 import com.revakovskyi.vartovyi.domain.usecase.monitoring.ToggleMonitoringUseCaseImpl
 import com.revakovskyi.vartovyi.domain.usecase.notification.ProcessIncomingTelegramNotificationUseCase
@@ -77,6 +79,7 @@ val useCaseModule = module {
     singleOf(::StopEverythingUseCaseImpl) { bind<StopEverythingUseCase>() }
 
     singleOf(::ObserveMonitoringStateUseCaseImpl) { bind<ObserveMonitoringStateUseCase>() }
+    singleOf(::SyncMonitoringRuntimeUseCaseImpl) { bind<SyncMonitoringRuntimeUseCase>() }
     singleOf(::ToggleMonitoringUseCaseImpl) { bind<ToggleMonitoringUseCase>() }
     singleOf(::ProcessIncomingTelegramNotificationUseCaseImpl) { bind<ProcessIncomingTelegramNotificationUseCase>() }
 

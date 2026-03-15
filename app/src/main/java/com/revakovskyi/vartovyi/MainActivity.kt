@@ -35,6 +35,7 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navOptions
 import com.revakovskyi.vartovyi.domain.usecase.alarm.ObserveAlarmRunningUseCase
 import com.revakovskyi.vartovyi.domain.usecase.emergency.StopEverythingUseCase
+import com.revakovskyi.vartovyi.domain.usecase.monitoring.SyncMonitoringRuntimeUseCase
 import com.revakovskyi.vartovyi.navigation.BottomNavItem
 import com.revakovskyi.vartovyi.navigation.NavGraph
 import com.revakovskyi.vartovyi.navigation.Routes
@@ -52,6 +53,7 @@ class MainActivity : ComponentActivity() {
 
     private val permissionsViewModel: PermissionsViewModel by viewModel()
     private val observeAlarmRunningUseCase: ObserveAlarmRunningUseCase by inject()
+    private val syncMonitoringRuntimeUseCase: SyncMonitoringRuntimeUseCase by inject()
     private val stopEverythingUseCase: StopEverythingUseCase by inject()
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -167,6 +169,9 @@ class MainActivity : ComponentActivity() {
 
     override fun onResume() {
         super.onResume()
+        lifecycleScope.launch {
+            syncMonitoringRuntimeUseCase()
+        }
         updatePermissionsState()
     }
 
