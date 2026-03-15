@@ -14,10 +14,14 @@ import com.revakovskyi.vartovyi.MainActivity
 import com.revakovskyi.vartovyi.R
 import com.revakovskyi.vartovyi.domain.repository.SettingsRepository
 import com.revakovskyi.vartovyi.service.watchdog.MonitoringWatchdogWorker
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.launch
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 
@@ -28,6 +32,7 @@ private const val GREEN_ACCENT_COLOR_RES_ID = android.R.color.holo_green_dark
 class MonitoringForegroundService : Service(), KoinComponent {
 
     private val settingsRepository: SettingsRepository by inject()
+    private val serviceScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
 
     override fun onCreate() {
         super.onCreate()
@@ -36,7 +41,7 @@ class MonitoringForegroundService : Service(), KoinComponent {
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         if (intent?.action == ACTION_STOP) {
-            runBlocking {
+            serviceScope.launch {
                 settingsRepository.setMonitoringActive(false)
             }
 
@@ -55,6 +60,7 @@ class MonitoringForegroundService : Service(), KoinComponent {
 
     override fun onDestroy() {
         _isRunning.value = false
+        serviceScope.cancel()
         super.onDestroy()
     }
 

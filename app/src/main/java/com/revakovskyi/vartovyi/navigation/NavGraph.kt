@@ -60,6 +60,12 @@ fun NavGraph(
         composable<Routes.Settings> {
             SettingsScreen(
                 onNavigateBack = { navController.navigateUp() },
+                onNavigateToHome = {
+                    navController.navigate(
+                        route = Routes.Home,
+                        navOptions = tabNavOptions()
+                    )
+                },
             )
         }
 

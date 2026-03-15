@@ -3,26 +3,54 @@ package com.revakovskyi.vartovyi.ui.screen.settings
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.SnackbarDuration
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
+import com.revakovskyi.vartovyi.R
 import com.revakovskyi.vartovyi.ui.screen.settings.components.SettingsTestAlarmButton
 import com.revakovskyi.vartovyi.ui.theme.VartovyiTheme
+import com.revakovskyi.vartovyi.ui.util.snackbar.SnackbarAction
+import com.revakovskyi.vartovyi.ui.util.snackbar.SnackbarController
+import com.revakovskyi.vartovyi.ui.util.snackbar.SnackbarEvent
 import com.revakovskyi.vartovyi.utils.ObserveSingleEvents
+import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
 
 @Composable
 fun SettingsScreen(
     viewModel: SettingsViewModel = koinViewModel(),
     onNavigateBack: () -> Unit,
+    onNavigateToHome: () -> Unit,
 ) {
     val state by viewModel.state.collectAsState()
+    val coroutineScope = rememberCoroutineScope()
+    val disableMonitoringMessage =
+        stringResource(R.string.settings_test_alarm_disable_monitoring_first)
+    val homeActionLabel = stringResource(R.string.nav_home)
 
     ObserveSingleEvents(flow = viewModel.events) { event ->
         when (event) {
             is SettingsUiContract.Event.NavigateBack -> onNavigateBack()
+            is SettingsUiContract.Event.ShowDisableMonitoringForTestAlarm -> {
+                coroutineScope.launch {
+                    SnackbarController.sendEvent(
+                        SnackbarEvent(
+                            message = disableMonitoringMessage,
+                            action = SnackbarAction(
+                                name = homeActionLabel,
+                                action = { onNavigateToHome() },
+                            ),
+                            duration = SnackbarDuration.Long,
+                        )
+                    )
+                }
+            }
+
             else -> Unit
         }
     }
