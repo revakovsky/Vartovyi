@@ -64,7 +64,6 @@
     <string name="permissions_status_missing">Missing</string>
     <string name="permissions_required">Required</string>
     <string name="permissions_recommended">Recommended</string>
-    <string name="permissions_refresh_statuses">Refresh statuses</string>
     <string name="log_alarm">Alarm</string>
     <string name="log_skipped">Skipped</string>
     <string name="log_copy">Copy</string>

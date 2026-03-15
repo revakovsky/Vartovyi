@@ -12,16 +12,18 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
+import androidx.lifecycle.compose.LocalLifecycleOwner
 import com.revakovskyi.vartovyi.ui.components.LoadingOverlay
 import com.revakovskyi.vartovyi.ui.screen.permissions.components.PermissionItemCard
 import com.revakovskyi.vartovyi.ui.screen.permissions.components.PermissionsHeader
-import com.revakovskyi.vartovyi.ui.screen.permissions.components.PermissionsRefreshButton
 import com.revakovskyi.vartovyi.ui.screen.permissions.components.PermissionsWarningCard
 import com.revakovskyi.vartovyi.ui.screen.permissions.utils.buildPermissionItems
 import com.revakovskyi.vartovyi.ui.theme.VartovyiTheme
@@ -39,17 +41,28 @@ fun PermissionsScreen(
     onRefreshPermissions: () -> Unit,
 ) {
     val context = LocalContext.current
+    val lifecycleOwner = LocalLifecycleOwner.current
 
     val state by viewModel.state.collectAsState()
 
-    LaunchedEffect(Unit) {
+    DisposableEffect(lifecycleOwner) {
+        val observer = LifecycleEventObserver { _, event ->
+            if (event == Lifecycle.Event.ON_RESUME) {
+                onRefreshPermissions()
+            }
+        }
+
+        lifecycleOwner.lifecycle.addObserver(observer)
         onRefreshPermissions()
+
+        onDispose {
+            lifecycleOwner.lifecycle.removeObserver(observer)
+        }
     }
 
     ObserveSingleEvents(flow = viewModel.events) { event ->
         when (event) {
             is PermissionsUiContract.Event.NavigateBack -> onNavigateBack()
-            is PermissionsUiContract.Event.RefreshPermissionsState -> onRefreshPermissions()
             is PermissionsUiContract.Event.NavigateToSystemSettings -> {
                 openSystemSettings(
                     context = context,
@@ -83,11 +96,6 @@ private fun PermissionsContent(
     ) {
         PermissionsHeader(
             onNavigateBack = { onAction(PermissionsUiContract.Action.NavigateBack) },
-        )
-
-        PermissionsRefreshButton(
-            onClick = { onAction(PermissionsUiContract.Action.CheckPermissions) },
-            modifier = Modifier.padding(horizontal = VartovyiTheme.spacing.standard),
         )
 
         if (state.hasMissingPermissions) {

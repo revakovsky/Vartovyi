@@ -31,7 +31,6 @@ class PermissionsViewModel : ViewModel() {
             is Action.RequestDoNotDisturbAccess -> requestDoNotDisturbAccess()
             is Action.RequestPostNotificationsPermission -> requestPostNotifications()
             is Action.ToggleFullScreenIntentPermission -> toggleFullScreenIntentPermission(action.shouldEnable)
-            is Action.CheckPermissions -> checkPermissions()
             is Action.NavigateBack -> navigateBack()
             is Action.ToggleBatteryOptimizationPermission -> {
                 toggleBatteryOptimizationPermission(action.shouldEnable)
@@ -71,13 +70,7 @@ class PermissionsViewModel : ViewModel() {
     }
 
     private fun requestPostNotifications() {
-        viewModelScope.launch {
-            _events.emit(
-                Event.NavigateToSystemSettings(
-                    Settings.ACTION_APPLICATION_DETAILS_SETTINGS
-                )
-            )
-        }
+        openAppNotificationSettings()
     }
 
     @SuppressLint("BatteryLife")
@@ -106,7 +99,18 @@ class PermissionsViewModel : ViewModel() {
             requestBatteryOptimizationIgnore()
             return
         }
-        openAppDetailsSettings()
+
+        openBatteryOptimizationSettings()
+    }
+
+    private fun openBatteryOptimizationSettings() {
+        viewModelScope.launch {
+            _events.emit(
+                Event.NavigateToSystemSettings(
+                    Settings.ACTION_IGNORE_BATTERY_OPTIMIZATION_SETTINGS
+                )
+            )
+        }
     }
 
     private fun requestFullScreenIntent() {
@@ -118,15 +122,14 @@ class PermissionsViewModel : ViewModel() {
                     )
                 )
             }
+            return
         }
+
+        openAppNotificationSettings()
     }
 
     private fun toggleFullScreenIntentPermission(shouldEnable: Boolean) {
-        if (shouldEnable) {
-            requestFullScreenIntent()
-            return
-        }
-        openAppNotificationSettings()
+        requestFullScreenIntent()
     }
 
     private fun openAppDetailsSettings() {
@@ -147,11 +150,6 @@ class PermissionsViewModel : ViewModel() {
                 )
             )
         }
-    }
-
-    private fun checkPermissions() {
-        _state.update { it.copy(isLoading = true) }
-        viewModelScope.launch { _events.emit(Event.RefreshPermissionsState) }
     }
 
     private fun navigateBack() {

@@ -72,7 +72,7 @@ class MainActivity : ComponentActivity() {
                 val currentDestination = currentBackStackEntry?.destination
 
                 val snackbarHostState = remember { SnackbarHostState() }
-                
+
                 val emergencyStopMessage = stringResource(R.string.emergency_stop_completed)
 
                 LaunchedEffect(Unit) {
@@ -179,10 +179,15 @@ class MainActivity : ComponentActivity() {
 
         val postNotificationsGranted =
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                ContextCompat.checkSelfPermission(
+                val hasRuntimePermission = ContextCompat.checkSelfPermission(
                     this, Manifest.permission.POST_NOTIFICATIONS
                 ) == PackageManager.PERMISSION_GRANTED
-            } else true
+
+                hasRuntimePermission && NotificationManagerCompat.from(this)
+                    .areNotificationsEnabled()
+            } else {
+                NotificationManagerCompat.from(this).areNotificationsEnabled()
+            }
 
         val batteryOptimizationIgnored = getSystemService(PowerManager::class.java)
             .isIgnoringBatteryOptimizations(packageName)
@@ -191,8 +196,10 @@ class MainActivity : ComponentActivity() {
 
         val fullScreenIntentGranted =
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
-                notificationManager.canUseFullScreenIntent()
-            } else true
+                postNotificationsGranted && notificationManager.canUseFullScreenIntent()
+            } else {
+                postNotificationsGranted
+            }
 
         permissionsViewModel.updatePermissionsState(
             listenerGranted = listenerGranted,

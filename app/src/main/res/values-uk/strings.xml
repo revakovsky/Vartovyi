@@ -64,7 +64,6 @@
     <string name="permissions_status_missing">Не надано</string>
     <string name="permissions_required">Обов’язковий</string>
     <string name="permissions_recommended">Рекомендований</string>
-    <string name="permissions_refresh_statuses">Оновити статуси</string>
     <string name="log_alarm">Тривога</string>
     <string name="log_skipped">Пропущено</string>
     <string name="log_copy">Копіювати</string>
