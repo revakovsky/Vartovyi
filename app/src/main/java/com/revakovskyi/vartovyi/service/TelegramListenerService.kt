@@ -19,6 +19,8 @@ class TelegramListenerService : NotificationListenerService(), KoinComponent {
 
     private val processIncomingTelegramNotificationUseCase: ProcessIncomingTelegramNotificationUseCase by inject()
     private val serviceScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
+    private val deduplicationLock = Any()
+    private var lastProcessedNotificationSignature: String? = null
 
     override fun onNotificationPosted(sbn: StatusBarNotification?) {
         super.onNotificationPosted(sbn)
@@ -37,6 +39,8 @@ class TelegramListenerService : NotificationListenerService(), KoinComponent {
             timestamp = statusBarNotification.postTime,
         )
 
+        if (isDuplicateNotification(statusBarNotification, payload)) return
+
         serviceScope.launch {
             processIncomingTelegramNotificationUseCase(payload)
         }
@@ -48,6 +52,9 @@ class TelegramListenerService : NotificationListenerService(), KoinComponent {
 
     override fun onDestroy() {
         serviceScope.cancel()
+        synchronized(deduplicationLock) {
+            lastProcessedNotificationSignature = null
+        }
         super.onDestroy()
     }
 
@@ -60,5 +67,38 @@ class TelegramListenerService : NotificationListenerService(), KoinComponent {
         extras.getCharSequence(Notification.EXTRA_TEXT)?.toString()
             ?: extras.getCharSequence(Notification.EXTRA_BIG_TEXT)?.toString()
             ?: EMPTY_VALUE
+
+    private fun isDuplicateNotification(
+        statusBarNotification: StatusBarNotification,
+        payload: NotificationPayload,
+    ): Boolean {
+        val signature = buildNotificationSignature(statusBarNotification, payload)
+
+        synchronized(deduplicationLock) {
+            if (lastProcessedNotificationSignature == signature) {
+                return true
+            }
+
+            lastProcessedNotificationSignature = signature
+            return false
+        }
+    }
+
+    private fun buildNotificationSignature(
+        statusBarNotification: StatusBarNotification,
+        payload: NotificationPayload,
+    ): String {
+        return buildString {
+            append(statusBarNotification.packageName)
+            append('|')
+            append(statusBarNotification.key)
+            append('|')
+            append(payload.timestamp)
+            append('|')
+            append(payload.title)
+            append('|')
+            append(payload.text)
+        }
+    }
 
 }

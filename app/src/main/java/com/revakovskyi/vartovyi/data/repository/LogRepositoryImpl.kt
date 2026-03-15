@@ -15,6 +15,20 @@ class LogRepositoryImpl(
     override val logEntries: Flow<List<AlertEvent>> = alertEventDao.getAll()
         .map { entities -> entities.map { it.toDomain() } }
 
+    override suspend fun existsBySignature(
+        senderPackage: String,
+        senderName: String,
+        messageText: String,
+        timestamp: Long,
+    ): Boolean {
+        return alertEventDao.existsBySignature(
+            senderPackage = senderPackage,
+            senderName = senderName,
+            messageText = messageText,
+            timestamp = timestamp,
+        )
+    }
+
     override suspend fun addEntry(event: AlertEvent) {
         alertEventDao.insert(event.toEntity())
     }

@@ -56,16 +56,10 @@ class AlarmService : Service() {
 
         _isRunning.value = true
         requestAudioFocus()
-        val isForegroundNotificationStarted = ensureForegroundNotification()
-        val canUseFullScreenIntent = canUseFullScreenIntent()
+        ensureForegroundNotification()
         startAlarmSound()
         startVibration()
-
-        if (!isForegroundNotificationStarted) {
-            openAlarmActivity()
-        } else if (!canUseFullScreenIntent) {
-            openAlarmActivity()
-        }
+        openAlarmActivity()
 
         return START_NOT_STICKY
     }
@@ -174,7 +168,6 @@ class AlarmService : Service() {
             .setPriority(NotificationCompat.PRIORITY_HIGH)
             .setColor(ContextCompat.getColor(this, RED_ACCENT_COLOR_RES_ID))
             .setColorized(true)
-            .setSilent(true)
             .setOnlyAlertOnce(true)
             .setCategory(NotificationCompat.CATEGORY_ALARM)
             .setContentIntent(fullScreenPendingIntent)
