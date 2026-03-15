@@ -13,6 +13,9 @@ import com.revakovskyi.vartovyi.domain.usecase.keywords.RemoveKeywordUseCase
 import com.revakovskyi.vartovyi.domain.usecase.keywords.RemoveStopWordUseCase
 import com.revakovskyi.vartovyi.domain.usecase.keywords.RemoveTelegramChannelUseCase
 import com.revakovskyi.vartovyi.domain.usecase.keywords.ToggleTelegramChannelFilterUseCase
+import com.revakovskyi.vartovyi.ui.screen.keywords.KeywordsUiContract.Action
+import com.revakovskyi.vartovyi.ui.screen.keywords.KeywordsUiContract.Event
+import com.revakovskyi.vartovyi.ui.screen.keywords.KeywordsUiContract.State
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
@@ -38,30 +41,29 @@ class KeywordsViewModel(
     private val toggleTelegramChannelFilterUseCase: ToggleTelegramChannelFilterUseCase,
 ) : ViewModel() {
 
-    private val _state = MutableStateFlow(KeywordsUiContract.State())
-    val state: StateFlow<KeywordsUiContract.State> = _state.asStateFlow()
+    private val _state = MutableStateFlow(State())
+    val state: StateFlow<State> = _state.asStateFlow()
 
-    private val _events = MutableSharedFlow<KeywordsUiContract.Event>()
-    val events: SharedFlow<KeywordsUiContract.Event> = _events.asSharedFlow()
+    private val _events = MutableSharedFlow<Event>()
+    val events: SharedFlow<Event> = _events.asSharedFlow()
 
     init {
         observeKeywords()
     }
 
-    fun onAction(action: KeywordsUiContract.Action) {
+    fun onAction(action: Action) {
         when (action) {
-            is KeywordsUiContract.Action.UpdateKeywordInput -> updateKeywordInput(action.value)
-            is KeywordsUiContract.Action.UpdateStopWordInput -> updateStopWordInput(action.value)
-            is KeywordsUiContract.Action.AddKeyword -> addKeyword()
-            is KeywordsUiContract.Action.RemoveKeyword -> removeKeyword(action.keyword)
-            is KeywordsUiContract.Action.AddStopWord -> addStopWord()
-            is KeywordsUiContract.Action.RemoveStopWord -> removeStopWord(action.stopWord)
-            is KeywordsUiContract.Action.ToggleTelegramChannelFilter -> toggleTelegramChannelFilter()
-            is KeywordsUiContract.Action.UpdateTelegramChannelInput -> updateTelegramChannelInput(action.value)
-            is KeywordsUiContract.Action.AddTelegramChannel -> addTelegramChannel()
-            is KeywordsUiContract.Action.RemoveTelegramChannel -> removeTelegramChannel(action.channel)
-            is KeywordsUiContract.Action.DismissDuplicateWordDialog -> dismissDuplicateWordDialog()
-            is KeywordsUiContract.Action.NavigateBack -> navigateBack()
+            is Action.UpdateKeywordInput -> updateKeywordInput(action.value)
+            is Action.UpdateStopWordInput -> updateStopWordInput(action.value)
+            is Action.AddKeyword -> addKeyword()
+            is Action.RemoveKeyword -> removeKeyword(action.keyword)
+            is Action.AddStopWord -> addStopWord()
+            is Action.RemoveStopWord -> removeStopWord(action.stopWord)
+            is Action.ToggleTelegramChannelFilter -> toggleTelegramChannelFilter()
+            is Action.UpdateTelegramChannelInput -> updateTelegramChannelInput(action.value)
+            is Action.AddTelegramChannel -> addTelegramChannel()
+            is Action.RemoveTelegramChannel -> removeTelegramChannel(action.channel)
+            is Action.DismissDuplicateWordDialog -> dismissDuplicateWordDialog()
         }
     }
 
@@ -109,7 +111,7 @@ class KeywordsViewModel(
         viewModelScope.launch {
             addKeywordUseCase(keyword)
             _state.update { it.copy(inputKeyword = "") }
-            _events.emit(KeywordsUiContract.Event.KeywordAdded)
+            _events.emit(Event.KeywordAdded)
         }
     }
 
@@ -130,7 +132,7 @@ class KeywordsViewModel(
         viewModelScope.launch {
             addStopWordUseCase(stopWord)
             _state.update { it.copy(inputStopWord = "") }
-            _events.emit(KeywordsUiContract.Event.StopWordAdded)
+            _events.emit(Event.StopWordAdded)
         }
     }
 
@@ -159,7 +161,7 @@ class KeywordsViewModel(
         viewModelScope.launch {
             addTelegramChannelUseCase(channel)
             _state.update { it.copy(inputTelegramChannel = "") }
-            _events.emit(KeywordsUiContract.Event.TelegramChannelAdded)
+            _events.emit(Event.TelegramChannelAdded)
         }
     }
 
@@ -169,10 +171,6 @@ class KeywordsViewModel(
 
     private fun dismissDuplicateWordDialog() {
         _state.update { it.copy(duplicateWord = null) }
-    }
-
-    private fun navigateBack() {
-        viewModelScope.launch { _events.emit(KeywordsUiContract.Event.NavigateBack) }
     }
 
 }

@@ -8,6 +8,8 @@ import com.revakovskyi.vartovyi.domain.usecase.alarm.StopAlarmUseCase
 import com.revakovskyi.vartovyi.domain.usecase.alarm.StopAlarmUseCaseImpl
 import com.revakovskyi.vartovyi.domain.usecase.alarm.TriggerAlarmUseCase
 import com.revakovskyi.vartovyi.domain.usecase.alarm.TriggerAlarmUseCaseImpl
+import com.revakovskyi.vartovyi.domain.usecase.emergency.StopEverythingUseCase
+import com.revakovskyi.vartovyi.domain.usecase.emergency.StopEverythingUseCaseImpl
 import com.revakovskyi.vartovyi.domain.usecase.keywords.AddKeywordUseCase
 import com.revakovskyi.vartovyi.domain.usecase.keywords.AddKeywordUseCaseImpl
 import com.revakovskyi.vartovyi.domain.usecase.keywords.AddStopWordUseCase
@@ -40,6 +42,8 @@ import com.revakovskyi.vartovyi.domain.usecase.monitoring.ObserveMonitoringState
 import com.revakovskyi.vartovyi.domain.usecase.monitoring.ObserveMonitoringStateUseCaseImpl
 import com.revakovskyi.vartovyi.domain.usecase.monitoring.ToggleMonitoringUseCase
 import com.revakovskyi.vartovyi.domain.usecase.monitoring.ToggleMonitoringUseCaseImpl
+import com.revakovskyi.vartovyi.domain.usecase.notification.ProcessIncomingTelegramNotificationUseCase
+import com.revakovskyi.vartovyi.domain.usecase.notification.ProcessIncomingTelegramNotificationUseCaseImpl
 import com.revakovskyi.vartovyi.domain.usecase.settings.ObserveLogSizeLimitUseCase
 import com.revakovskyi.vartovyi.domain.usecase.settings.ObserveLogSizeLimitUseCaseImpl
 import com.revakovskyi.vartovyi.domain.usecase.settings.ObserveScheduleSettingsUseCase
@@ -70,9 +74,11 @@ val useCaseModule = module {
     singleOf(::TriggerAlarmUseCaseImpl) { bind<TriggerAlarmUseCase>() }
     singleOf(::StopAlarmUseCaseImpl) { bind<StopAlarmUseCase>() }
     singleOf(::ObserveAlarmRunningUseCaseImpl) { bind<ObserveAlarmRunningUseCase>() }
+    singleOf(::StopEverythingUseCaseImpl) { bind<StopEverythingUseCase>() }
 
     singleOf(::ObserveMonitoringStateUseCaseImpl) { bind<ObserveMonitoringStateUseCase>() }
     singleOf(::ToggleMonitoringUseCaseImpl) { bind<ToggleMonitoringUseCase>() }
+    singleOf(::ProcessIncomingTelegramNotificationUseCaseImpl) { bind<ProcessIncomingTelegramNotificationUseCase>() }
 
     singleOf(::ObserveKeywordsUseCaseImpl) { bind<ObserveKeywordsUseCase>() }
     singleOf(::ObserveStopWordsUseCaseImpl) { bind<ObserveStopWordsUseCase>() }

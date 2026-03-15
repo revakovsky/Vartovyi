@@ -42,9 +42,9 @@ fun WordInputRow(
     modifier: Modifier = Modifier,
     value: String,
     hint: String,
-    onValueChange: (value: String) -> Unit,
-    onAdd: () -> Unit,
     onFocusChanged: (isFocused: Boolean) -> Unit = {},
+    onAdd: () -> Unit,
+    onValueChange: (value: String) -> Unit,
 ) {
     val interactionSource = remember { MutableInteractionSource() }
 

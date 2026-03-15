@@ -12,6 +12,9 @@ import com.revakovskyi.vartovyi.domain.usecase.settings.SetScheduleEnabledUseCas
 import com.revakovskyi.vartovyi.domain.usecase.settings.SetStartTimeUseCase
 import com.revakovskyi.vartovyi.domain.usecase.settings.SetTelegramPackagesUseCase
 import com.revakovskyi.vartovyi.domain.usecase.settings.SetVibrationEnabledUseCase
+import com.revakovskyi.vartovyi.ui.screen.settings.SettingsUiContract.Action
+import com.revakovskyi.vartovyi.ui.screen.settings.SettingsUiContract.Event
+import com.revakovskyi.vartovyi.ui.screen.settings.SettingsUiContract.State
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
@@ -36,11 +39,11 @@ class SettingsViewModel(
     private val setLogSizeLimitUseCase: SetLogSizeLimitUseCase,
 ) : ViewModel() {
 
-    private val _state = MutableStateFlow(SettingsUiContract.State())
-    val state: StateFlow<SettingsUiContract.State> = _state.asStateFlow()
+    private val _state = MutableStateFlow(State())
+    val state: StateFlow<State> = _state.asStateFlow()
 
-    private val _events = MutableSharedFlow<SettingsUiContract.Event>()
-    val events: SharedFlow<SettingsUiContract.Event> = _events.asSharedFlow()
+    private val _events = MutableSharedFlow<Event>()
+    val events: SharedFlow<Event> = _events.asSharedFlow()
 
     init {
         observeScheduleSettings()
@@ -48,16 +51,16 @@ class SettingsViewModel(
         observeLogSizeLimit()
     }
 
-    fun onAction(action: SettingsUiContract.Action) {
+    fun onAction(action: Action) {
         when (action) {
-            is SettingsUiContract.Action.SetScheduleEnabled -> setScheduleEnabled(action.enabled)
-            is SettingsUiContract.Action.SetStartTime -> setStartTime(action.time)
-            is SettingsUiContract.Action.SetEndTime -> setEndTime(action.time)
-            is SettingsUiContract.Action.SetAlarmDuration -> setAlarmDuration(action.seconds)
-            is SettingsUiContract.Action.SetVibrationEnabled -> setVibrationEnabled(action.enabled)
-            is SettingsUiContract.Action.SetTelegramPackages -> setTelegramPackages(action.packages)
-            is SettingsUiContract.Action.SetLogSizeLimit -> setLogSizeLimit(action.limit)
-            is SettingsUiContract.Action.NavigateBack -> navigateBack()
+            is Action.SetScheduleEnabled -> setScheduleEnabled(action.enabled)
+            is Action.SetStartTime -> setStartTime(action.time)
+            is Action.SetEndTime -> setEndTime(action.time)
+            is Action.SetAlarmDuration -> setAlarmDuration(action.seconds)
+            is Action.SetVibrationEnabled -> setVibrationEnabled(action.enabled)
+            is Action.SetTelegramPackages -> setTelegramPackages(action.packages)
+            is Action.SetLogSizeLimit -> setLogSizeLimit(action.limit)
+            is Action.NavigateBack -> navigateBack()
         }
     }
 
@@ -116,7 +119,7 @@ class SettingsViewModel(
     }
 
     private fun navigateBack() {
-        viewModelScope.launch { _events.emit(SettingsUiContract.Event.NavigateBack) }
+        viewModelScope.launch { _events.emit(Event.NavigateBack) }
     }
 
 }

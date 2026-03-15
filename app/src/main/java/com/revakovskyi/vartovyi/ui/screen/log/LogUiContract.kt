@@ -7,19 +7,22 @@ interface LogUiContract {
 
     @Immutable
     data class State(
-        val logEntries: List<AlertEvent> = emptyList(),
         val isLoading: Boolean = false,
+        val logEntries: List<AlertEvent> = emptyList(),
+        val isClearDialogVisible: Boolean = false,
     )
 
     sealed interface Action {
-        data object ClearLog : Action
-        data object NavigateBack : Action
+        data object OpenClearLogDialog : Action
+        data object DismissClearLogDialog : Action
+        data object ConfirmClearLog : Action
+        data class CopyChannelName(val channelName: String) : Action
+        data class CopyMessageText(val messageText: String) : Action
     }
 
     sealed interface Event {
-        data object LogCleared : Event
-        data object NavigateBack : Event
-        data class Error(val message: String) : Event
+        data class CopyChannelNameRequested(val channelName: String) : Event
+        data class CopyMessageTextRequested(val messageText: String) : Event
     }
 
 }

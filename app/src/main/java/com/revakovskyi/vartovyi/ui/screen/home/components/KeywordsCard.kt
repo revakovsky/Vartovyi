@@ -25,8 +25,8 @@ private const val MAX_VISIBLE_KEYWORDS = 8
 @Composable
 fun KeywordsCard(
     keywords: List<String>,
-    onAddKeywords: () -> Unit,
     onMoreClick: () -> Unit,
+    onAddKeywords: () -> Unit,
 ) {
     Surface(
         color = VartovyiTheme.colors.surface,

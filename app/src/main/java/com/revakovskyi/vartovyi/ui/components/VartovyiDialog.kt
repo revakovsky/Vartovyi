@@ -14,10 +14,14 @@ fun VartovyiDialog(
     title: String,
     message: String,
     confirmText: String,
-    onDismiss: () -> Unit,
-    containerColor: Color = VartovyiTheme.colors.surface,
     shape: Shape = VartovyiTheme.shapes.large,
+    containerColor: Color = VartovyiTheme.colors.surface,
+    dismissText: String? = null,
+    onConfirm: (() -> Unit)? = null,
+    onDismiss: () -> Unit,
 ) {
+    val resolvedOnConfirm = onConfirm ?: onDismiss
+
     AlertDialog(
         onDismissRequest = onDismiss,
         title = {
@@ -35,12 +39,23 @@ fun VartovyiDialog(
             )
         },
         confirmButton = {
-            TextButton(onClick = onDismiss) {
+            TextButton(onClick = resolvedOnConfirm) {
                 Text(
                     text = confirmText,
                     style = VartovyiTheme.typography.labelLarge,
                     color = VartovyiTheme.colors.primary,
                 )
+            }
+        },
+        dismissButton = {
+            dismissText?.let { text ->
+                TextButton(onClick = onDismiss) {
+                    Text(
+                        text = text,
+                        style = VartovyiTheme.typography.labelLarge,
+                        color = VartovyiTheme.colors.onSurfaceVariant,
+                    )
+                }
             }
         },
         containerColor = containerColor,
@@ -57,6 +72,21 @@ private fun PreviewVartovyiDialog() {
             message = "Слово \"Салтівка\" вже є у списку.",
             confirmText = "Зрозуміло",
             onDismiss = {},
+        )
+    }
+}
+
+@Preview(name = "Vartovyi dialog with dismiss")
+@Composable
+private fun PreviewVartovyiDialogWithDismiss() {
+    VartovyiTheme {
+        VartovyiDialog(
+            title = "Очистити логи?",
+            message = "Це видалить усі збережені записи журналу з цього пристрою.",
+            confirmText = "Очистити",
+            dismissText = "Скасувати",
+            onDismiss = {},
+            onConfirm = {},
         )
     }
 }

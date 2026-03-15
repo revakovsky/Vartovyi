@@ -1,19 +1,32 @@
 package com.revakovskyi.vartovyi.ui.components
 
+import androidx.compose.foundation.layout.size
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
+import com.revakovskyi.vartovyi.R
 import com.revakovskyi.vartovyi.ui.theme.VartovyiTheme
+
+private val TOP_BAR_PERMISSION_ICON_SIZE = 24.dp
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun VartovyiTopBar(
     modifier: Modifier = Modifier,
     title: String,
+    hasMissingPermissions: Boolean,
+    onPermissionsClick: () -> Unit,
+    onEmergencyStopClick: () -> Unit,
 ) {
     TopAppBar(
         title = {
@@ -23,6 +36,29 @@ fun VartovyiTopBar(
                 color = VartovyiTheme.colors.onBackground,
             )
         },
+        actions = {
+            IconButton(onClick = onEmergencyStopClick) {
+                Icon(
+                    imageVector = ImageVector.vectorResource(R.drawable.close),
+                    contentDescription = stringResource(R.string.emergency_stop_content_description),
+                    tint = VartovyiTheme.colors.error,
+                    modifier = Modifier.size(TOP_BAR_PERMISSION_ICON_SIZE),
+                )
+            }
+
+            IconButton(onClick = onPermissionsClick) {
+                val iconColor =
+                    if (hasMissingPermissions) VartovyiTheme.colors.error
+                    else VartovyiTheme.colors.primary
+
+                Icon(
+                    imageVector = ImageVector.vectorResource(R.drawable.checkbox),
+                    contentDescription = stringResource(R.string.permissions_icon_content_description),
+                    tint = iconColor,
+                    modifier = Modifier.size(TOP_BAR_PERMISSION_ICON_SIZE),
+                )
+            }
+        },
         colors = TopAppBarDefaults.topAppBarColors(
             containerColor = VartovyiTheme.colors.background,
         ),
@@ -30,10 +66,28 @@ fun VartovyiTopBar(
     )
 }
 
-@Preview
+@Preview(name = "All permissions were granted")
 @Composable
-private fun VartovyiTopBarPreview() {
+private fun VartovyiTopBarPermissionsGrantedPreview() {
     VartovyiTheme {
-        VartovyiTopBar(title = "Вартовий")
+        VartovyiTopBar(
+            title = "Вартовий",
+            hasMissingPermissions = false,
+            onPermissionsClick = {},
+            onEmergencyStopClick = {},
+        )
+    }
+}
+
+@Preview(name = "Not all permissions were granted")
+@Composable
+private fun VartovyiTopBarNotAllPermissionsGrantedPreview() {
+    VartovyiTheme {
+        VartovyiTopBar(
+            title = "Вартовий",
+            hasMissingPermissions = true,
+            onPermissionsClick = {},
+            onEmergencyStopClick = {},
+        )
     }
 }

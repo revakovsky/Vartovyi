@@ -9,36 +9,42 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
+import com.revakovskyi.vartovyi.R
 import com.revakovskyi.vartovyi.domain.model.AlertEvent
 import com.revakovskyi.vartovyi.domain.model.MonitoringState
+import com.revakovskyi.vartovyi.ui.components.LoadingOverlay
 import com.revakovskyi.vartovyi.ui.screen.home.components.KeywordsCard
 import com.revakovskyi.vartovyi.ui.screen.home.components.LastAlertCard
-import com.revakovskyi.vartovyi.ui.components.LoadingOverlay
 import com.revakovskyi.vartovyi.ui.screen.home.components.StatusBlock
 import com.revakovskyi.vartovyi.ui.theme.VartovyiTheme
+import com.revakovskyi.vartovyi.ui.util.snackbar.SnackbarController
+import com.revakovskyi.vartovyi.ui.util.snackbar.SnackbarEvent
 import com.revakovskyi.vartovyi.utils.ObserveSingleEvents
+import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
 
 @Composable
 fun HomeScreen(
     viewModel: HomeViewModel = koinViewModel(),
+    isRequiredPermissionsGranted: Boolean,
     onNavigateToKeywords: () -> Unit,
     onNavigateToLog: () -> Unit,
-    onNavigateToSettings: () -> Unit,
-    onNavigateToPermissions: () -> Unit,
 ) {
     val state by viewModel.state.collectAsState()
+
+    val coroutineScope = rememberCoroutineScope()
+
+    val permissionsRequiredMessage = stringResource(R.string.home_permissions_required_snackbar)
 
     ObserveSingleEvents(flow = viewModel.events) { event ->
         when (event) {
             is HomeUiContract.Event.NavigateToKeywords -> onNavigateToKeywords()
             is HomeUiContract.Event.NavigateToLog -> onNavigateToLog()
-            is HomeUiContract.Event.NavigateToSettings -> onNavigateToSettings()
-            is HomeUiContract.Event.NavigateToPermissions -> onNavigateToPermissions()
-            else -> Unit
         }
     }
 
@@ -52,7 +58,15 @@ fun HomeScreen(
         } else {
             HomeContent(
                 state = state,
+                isRequiredPermissionsGranted = isRequiredPermissionsGranted,
                 onAction = viewModel::onAction,
+                onShowPermissionsRequiredMessage = {
+                    coroutineScope.launch {
+                        SnackbarController.sendEvent(
+                            SnackbarEvent(message = permissionsRequiredMessage),
+                        )
+                    }
+                },
             )
         }
     }
@@ -62,7 +76,9 @@ fun HomeScreen(
 private fun HomeContent(
     modifier: Modifier = Modifier,
     state: HomeUiContract.State,
+    isRequiredPermissionsGranted: Boolean,
     onAction: (action: HomeUiContract.Action) -> Unit,
+    onShowPermissionsRequiredMessage: () -> Unit,
 ) {
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -70,7 +86,15 @@ private fun HomeContent(
     ) {
         StatusBlock(
             monitoringState = state.monitoringState,
-            onToggle = { onAction(HomeUiContract.Action.ToggleMonitoring) },
+            onToggle = {
+                val isTryingToActivate = state.monitoringState != MonitoringState.ACTIVE
+
+                if (isTryingToActivate && !isRequiredPermissionsGranted) {
+                    onShowPermissionsRequiredMessage()
+                } else {
+                    onAction(HomeUiContract.Action.ToggleMonitoring)
+                }
+            },
             modifier = Modifier.weight(1f),
         )
 
@@ -85,7 +109,10 @@ private fun HomeContent(
                 onMoreClick = { onAction(HomeUiContract.Action.NavigateToKeywords) },
             )
 
-            LastAlertCard(lastAlertEvent = state.lastAlertEvent)
+            LastAlertCard(
+                lastAlertEvent = state.lastAlertEvent,
+                onClick = { onAction(HomeUiContract.Action.NavigateToLog) },
+            )
         }
     }
 }
@@ -96,7 +123,9 @@ private fun HomeContentInactivePreview() {
     VartovyiTheme {
         HomeContent(
             state = HomeUiContract.State(),
+            isRequiredPermissionsGranted = false,
             onAction = {},
+            onShowPermissionsRequiredMessage = {},
         )
     }
 }
@@ -110,7 +139,9 @@ private fun HomeContentActiveWithKeywordsPreview() {
                 monitoringState = MonitoringState.ACTIVE,
                 keywords = listOf("ракета", "вибух", "тривога", "атака", "бомба"),
             ),
+            isRequiredPermissionsGranted = true,
             onAction = {},
+            onShowPermissionsRequiredMessage = {},
         )
     }
 }
@@ -132,7 +163,9 @@ private fun HomeContentActiveWithAlertPreview() {
                     matchedKeyword = "тривога",
                 ),
             ),
+            isRequiredPermissionsGranted = true,
             onAction = {},
+            onShowPermissionsRequiredMessage = {},
         )
     }
 }
@@ -147,7 +180,9 @@ private fun HomeContentAlarmRunningPreview() {
                 keywords = listOf("ракета", "тривога"),
                 isAlarmRunning = true,
             ),
+            isRequiredPermissionsGranted = true,
             onAction = {},
+            onShowPermissionsRequiredMessage = {},
         )
     }
 }

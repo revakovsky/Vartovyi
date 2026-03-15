@@ -10,6 +10,9 @@ import com.revakovskyi.vartovyi.domain.usecase.keywords.ObserveKeywordsUseCase
 import com.revakovskyi.vartovyi.domain.usecase.monitoring.ObserveMonitoringStateUseCase
 import com.revakovskyi.vartovyi.domain.usecase.monitoring.ToggleMonitoringUseCase
 import com.revakovskyi.vartovyi.domain.usecase.settings.ObserveScheduleSettingsUseCase
+import com.revakovskyi.vartovyi.ui.screen.home.HomeUiContract.Action
+import com.revakovskyi.vartovyi.ui.screen.home.HomeUiContract.Event
+import com.revakovskyi.vartovyi.ui.screen.home.HomeUiContract.State
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
@@ -31,11 +34,11 @@ class HomeViewModel(
     private val observeAlarmRunningUseCase: ObserveAlarmRunningUseCase,
 ) : ViewModel() {
 
-    private val _state = MutableStateFlow(HomeUiContract.State())
-    val state: StateFlow<HomeUiContract.State> = _state.asStateFlow()
+    private val _state = MutableStateFlow(State())
+    val state: StateFlow<State> = _state.asStateFlow()
 
-    private val _events = MutableSharedFlow<HomeUiContract.Event>()
-    val events: SharedFlow<HomeUiContract.Event> = _events.asSharedFlow()
+    private val _events = MutableSharedFlow<Event>()
+    val events: SharedFlow<Event> = _events.asSharedFlow()
 
     private var loadedSourcesCount = 0
 
@@ -46,14 +49,11 @@ class HomeViewModel(
         observeAlarmRunning()
     }
 
-    fun onAction(action: HomeUiContract.Action) {
+    fun onAction(action: Action) {
         when (action) {
-            is HomeUiContract.Action.ToggleMonitoring -> toggleMonitoring()
-            is HomeUiContract.Action.TestAlarm -> testAlarm()
-            is HomeUiContract.Action.NavigateToKeywords -> navigateToKeywords()
-            is HomeUiContract.Action.NavigateToLog -> navigateToLog()
-            is HomeUiContract.Action.NavigateToSettings -> navigateToSettings()
-            is HomeUiContract.Action.NavigateToPermissions -> navigateToPermissions()
+            is Action.ToggleMonitoring -> toggleMonitoring()
+            is Action.NavigateToKeywords -> navigateToKeywords()
+            is Action.NavigateToLog -> navigateToLog()
         }
     }
 
@@ -118,32 +118,21 @@ class HomeViewModel(
         viewModelScope.launch {
             val isCurrentlyActive = state.value.monitoringState == MonitoringState.ACTIVE
             toggleMonitoringUseCase(isCurrentlyActive)
-            val event =
-                if (isCurrentlyActive) HomeUiContract.Event.MonitoringStopped
-                else HomeUiContract.Event.MonitoringStarted
-            _events.emit(event)
         }
     }
 
+    // TODO: should be moved to the Settings screen when it will be ready!
     private fun testAlarm() {
         if (state.value.isAlarmRunning) stopAlarmUseCase()
         else triggerAlarmUseCase()
     }
 
     private fun navigateToKeywords() {
-        viewModelScope.launch { _events.emit(HomeUiContract.Event.NavigateToKeywords) }
+        viewModelScope.launch { _events.emit(Event.NavigateToKeywords) }
     }
 
     private fun navigateToLog() {
-        viewModelScope.launch { _events.emit(HomeUiContract.Event.NavigateToLog) }
-    }
-
-    private fun navigateToSettings() {
-        viewModelScope.launch { _events.emit(HomeUiContract.Event.NavigateToSettings) }
-    }
-
-    private fun navigateToPermissions() {
-        viewModelScope.launch { _events.emit(HomeUiContract.Event.NavigateToPermissions) }
+        viewModelScope.launch { _events.emit(Event.NavigateToLog) }
     }
 
 }
