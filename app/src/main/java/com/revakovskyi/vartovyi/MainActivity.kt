@@ -51,6 +51,7 @@ import com.revakovskyi.vartovyi.ui.screen.permissions.PermissionsViewModel
 import com.revakovskyi.vartovyi.ui.theme.VartovyiTheme
 import com.revakovskyi.vartovyi.ui.util.snackbar.SnackbarController
 import com.revakovskyi.vartovyi.ui.util.snackbar.SnackbarEvent
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import org.koin.android.ext.android.inject
 import org.koin.androidx.viewmodel.ext.android.viewModel
@@ -85,7 +86,9 @@ class MainActivity : ComponentActivity() {
                 val emergencyStopMessage = stringResource(R.string.emergency_stop_completed)
 
                 LaunchedEffect(Unit) {
-                    SnackbarController.events.collect { event ->
+                    SnackbarController.events.collectLatest { event ->
+                        snackbarHostState.currentSnackbarData?.dismiss()
+
                         val result = snackbarHostState.showSnackbar(
                             message = event.message,
                             actionLabel = event.action?.name,
