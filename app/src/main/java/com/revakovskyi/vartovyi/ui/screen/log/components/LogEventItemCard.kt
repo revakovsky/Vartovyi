@@ -29,6 +29,7 @@ import java.util.Locale
 
 private const val TIME_FORMAT_PATTERN = "HH:mm:ss"
 private const val MESSAGE_MAX_LINES = 3
+private val COPY_BUTTON_SIZE = 32.dp
 private val COPY_ICON_SIZE = 20.dp
 
 @Composable
@@ -77,6 +78,7 @@ fun LogEventItemCard(
 
                 IconButton(
                     onClick = { onCopyChannelClick(event.senderName) },
+                    modifier = Modifier.size(COPY_BUTTON_SIZE)
                 ) {
                     Icon(
                         imageVector = ImageVector.vectorResource(R.drawable.copy),
@@ -102,6 +104,7 @@ fun LogEventItemCard(
 
                 IconButton(
                     onClick = { onCopyMessageClick(event.messageText) },
+                    modifier = Modifier.size(COPY_BUTTON_SIZE)
                 ) {
                     Icon(
                         imageVector = ImageVector.vectorResource(R.drawable.copy),
