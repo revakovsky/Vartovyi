@@ -95,12 +95,18 @@ Android-додаток для моніторингу Telegram-сповіщень
 - [x] `HomeViewModel`, `KeywordsViewModel` підключені до use cases.
 - [x] `Keywords` CRUD (trigger/stop/channel filter) працює через DataStore.
 - [x] На `Home` підключено live-оновлення `lastAlertEvent` із логу.
-- [ ] На `Home` відсутня робоча кнопка `Test Alarm` у UI-потоці.
+- [x] `Test Alarm` перенесено в `SettingsScreen` і підключено до реального alarm-flow.
+- [x] Якщо моніторинг активний, тест тривоги блокується зі snackbar-підказкою та action переходу на
+  `Home`.
 
 ### Alarm
 
 - [x] `AlarmService` реалізований (звук, вібрація, foreground notification, stop action).
 - [x] `AlarmActivity` підключена в `AndroidManifest`.
+- [x] Додано anti-duplicate guard для запуску тривоги (service/controller/use case).
+- [x] Stop-flow зроблено ідемпотентним (повторні stop виклики без побічних ефектів).
+- [x] Додано global emergency stop у `TopBar` (кнопка показується тільки коли alarm active).
+- [x] З `AlarmActivity` прибрано emergency-кнопку, залишено одну кнопку stop alarm.
 - [ ] Тривалість тривоги поки не синхронізована з налаштуваннями (`alarmDurationSeconds`).
 - [ ] `WAKE_LOCK` permission додано, але явне керування `PowerManager.WakeLock` в `AlarmService` ще
   не реалізовано.
@@ -114,6 +120,9 @@ Android-додаток для моніторингу Telegram-сповіщень
 - [x] `ToggleMonitoring` керує стартом/зупинкою monitoring service.
 - [x] `BootReceiver` відновлює monitoring service після reboot, якщо monitoring був active.
 - [x] Реалізовано watchdog (`WorkManager`) для періодичної перевірки.
+- [x] Monitoring notification має кнопку `Deactivate` та зелений accent у шторці.
+- [x] Stop із monitoring notification вимикає runtime, persisted state та watchdog.
+- [x] Додано runtime/persisted синхронізацію моніторингу (self-heal при `MainActivity.onResume`).
 
 ### Domain / Data
 
@@ -158,7 +167,7 @@ Android-додаток для моніторингу Telegram-сповіщень
 ### Milestone C — Home integration
 
 - [x] Показувати `lastAlertEvent` із реального джерела (log flow).
-- [ ] Додати/підключити кнопку `Test Alarm` у `HomeScreen`.
+- [x] Перенести `Test Alarm` у `SettingsScreen` (та прибрати з `HomeScreen`).
 - [ ] Показати статус сервісу моніторингу (`isListenerServiceActive` / health check).
 
 ### Milestone D — Log model enhancement
@@ -180,8 +189,10 @@ Android-додаток для моніторингу Telegram-сповіщень
 
 ### Milestone F — Permissions hardening
 
-- [ ] Повний чек усіх required/recommended permissions.
-- [ ] Динамічна логіка для API 33+/34+ (POST_NOTIFICATIONS, full-screen intent).
+- [x] Повний чек усіх required/recommended permissions.
+- [x] Динамічна логіка для API 33+/34+ (POST_NOTIFICATIONS, full-screen intent).
+- [x] Авто-рефреш permission статусів на `PermissionsScreen` при `ON_RESUME`.
+- [x] Узгоджені переходи в системні налаштування для Notifications / Full-screen / Battery / DND.
 - [ ] Vendor-specific автозапуск гайд (Xiaomi/Samsung/Huawei).
 
 ### Milestone G — QA / release readiness
@@ -210,8 +221,11 @@ Android-додаток для моніторингу Telegram-сповіщень
   `WorkManager` watchdog.
 - `2026-03-13` — реалізовано список подій на `LogScreen` і notification-діалог на `Home` при новому
   спрацюванні.
-- `2026-03-13` — реалізовано повноцінний `PermissionsScreen` (UI + дії + refresh) та відкриття з
+- `2026-03-13` — реалізовано повноцінний `PermissionsScreen` (UI + дії) та відкриття з
   іконки в `TopBar` з badge.
+- `2026-03-15` — стабілізовано alarm/monitoring flows (anti-duplicate guard, idempotent stop,
+  emergency stop, runtime/persisted sync), оновлено permissions UX та перенесено `Test Alarm` у
+  `Settings`.
 
 ## 13) Узгоджені продукт-рішення (зафіксовано)
 
@@ -263,7 +277,6 @@ Android-додаток для моніторингу Telegram-сповіщень
     - Великий статус моніторингу (щит + текст + toggle/button).
     - Картка ключових слів (включно з empty-state).
     - Картка останнього спрацювання (включно з empty-state).
-    - Кнопка `Test Alarm` (запуск короткого тестового циклу тривоги).
 
 - **Keywords**
     - Trigger words (додавання/видалення, tooltip).
@@ -277,6 +290,9 @@ Android-додаток для моніторингу Telegram-сповіщень
     - Empty-state.
 
 - **Settings**
+    - Кнопка `Test Alarm` (запуск/стоп тестової тривоги).
+    - Якщо monitoring `ACTIVE`, тест тривоги блокується зі snackbar-підказкою та переходом на
+      `Home`.
     - Розклад роботи (enable + start/end time).
     - Налаштування тривоги: duration, vibration, alarm sound preview.
     - Джерела сповіщень (список Telegram-клієнтів).
@@ -285,23 +301,25 @@ Android-додаток для моніторингу Telegram-сповіщень
 - **Permissions**
     - Повний перелік критичних/рекомендованих дозволів.
     - Кнопки переходу в системні налаштування.
-    - Кнопка `Перевірити всі` для refresh статусів.
+    - Статуси permission автооновлюються при поверненні на екран (`ON_RESUME`).
 
 ### 14.5 Alarm UX
 
 - `AlarmActivity`: full-screen поверх lock screen.
-- Контент: сирена, заголовок `ТРИВОГА`, канал, текст повідомлення, matched keyword, час, кнопка
-  вимкнення.
-- Окреме alarm-сповіщення: `HIGH`, `CATEGORY_ALARM`, full-screen intent, action `Вимкнути тривогу`.
+- Контент: сирена, заголовок `ТРИВОГА`, одна кнопка вимкнення тривоги.
+- Окреме alarm-сповіщення: `HIGH`, `CATEGORY_ALARM`, full-screen intent, action `Вимкнути тривогу`,
+  red accent, fallback-відкриття `AlarmActivity`.
 
 ### 14.6 Monitoring notification UX
 
 - Коли моніторинг активний: ongoing foreground notification (`LOW`, без звуку, не свайпається).
 - Tap по notification відкриває додаток.
+- У notification є кнопка `Вимкнути`, яка зупиняє monitoring runtime + persisted state.
+- Notification має зелений accent для індикації активного стану.
 
 ### 14.7 Notes for implementation
 
 - Для channel filter використовуємо `title exact match + ignoreCase` як базову стратегію.
 - Якщо в реальних тестах стабільність недостатня, додаємо fallback-режим як окрему, підтверджену
   зміну.
-- `Alarm duration` моделюємо enum-типом у domain/data/UI, без спец-чисел.а
+- `Alarm duration` моделюємо enum-типом у domain/data/UI, без спец-чисел.
