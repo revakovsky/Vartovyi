@@ -20,6 +20,7 @@
     <string name="home_no_triggers">Спрацювань ще не було</string>
     <string name="settings_test_alarm">Тестувати тривогу</string>
     <string name="settings_stop_test_alarm">Зупинити тест</string>
+    <string name="settings_test_alarm_disable_monitoring_first">Для тесту спочатку вимкніть моніторинг</string>
     <string name="home_permissions_required_snackbar">Надайте обов’язкові дозволи перед активацією моніторингу</string>
     <string name="home_permissions_required_snackbar_action">Дозволи</string>
     <string name="monitoring_channel_name">Моніторинг</string>

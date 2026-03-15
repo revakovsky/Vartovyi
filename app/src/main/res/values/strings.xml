@@ -20,6 +20,7 @@
     <string name="home_no_triggers">No triggers yet</string>
     <string name="settings_test_alarm">Test alarm</string>
     <string name="settings_stop_test_alarm">Stop test</string>
+    <string name="settings_test_alarm_disable_monitoring_first">Disable monitoring before testing alarm</string>
     <string name="home_permissions_required_snackbar">Grant required permissions before activating monitoring</string>
     <string name="home_permissions_required_snackbar_action">Permissions</string>
     <string name="monitoring_channel_name">Monitoring</string>

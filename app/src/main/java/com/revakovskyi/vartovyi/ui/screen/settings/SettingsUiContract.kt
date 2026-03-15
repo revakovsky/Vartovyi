@@ -13,6 +13,7 @@ interface SettingsUiContract {
         val isVibrationEnabled: Boolean = true,
         val selectedTelegramPackages: Set<String> = setOf("org.telegram.messenger"),
         val logSizeLimit: Int = 500,
+        val isMonitoringActive: Boolean = false,
         val isAlarmRunning: Boolean = false,
     )
 
@@ -31,6 +32,7 @@ interface SettingsUiContract {
     sealed interface Event {
         data object SettingsSaved : Event
         data object NavigateBack : Event
+        data object ShowDisableMonitoringForTestAlarm : Event
         data class Error(val message: String) : Event
     }
 

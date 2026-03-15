@@ -2,9 +2,11 @@ package com.revakovskyi.vartovyi.ui.screen.settings
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.revakovskyi.vartovyi.domain.model.MonitoringState
 import com.revakovskyi.vartovyi.domain.usecase.alarm.ObserveAlarmRunningUseCase
 import com.revakovskyi.vartovyi.domain.usecase.alarm.StopAlarmUseCase
 import com.revakovskyi.vartovyi.domain.usecase.alarm.TriggerAlarmUseCase
+import com.revakovskyi.vartovyi.domain.usecase.monitoring.ObserveMonitoringStateUseCase
 import com.revakovskyi.vartovyi.domain.usecase.settings.ObserveLogSizeLimitUseCase
 import com.revakovskyi.vartovyi.domain.usecase.settings.ObserveScheduleSettingsUseCase
 import com.revakovskyi.vartovyi.domain.usecase.settings.ObserveTelegramPackagesUseCase
@@ -43,6 +45,7 @@ class SettingsViewModel(
     private val triggerAlarmUseCase: TriggerAlarmUseCase,
     private val stopAlarmUseCase: StopAlarmUseCase,
     private val observeAlarmRunningUseCase: ObserveAlarmRunningUseCase,
+    private val observeMonitoringStateUseCase: ObserveMonitoringStateUseCase,
 ) : ViewModel() {
 
     private val _state = MutableStateFlow(State())
@@ -56,6 +59,7 @@ class SettingsViewModel(
         observeTelegramPackages()
         observeLogSizeLimit()
         observeAlarmRunning()
+        observeMonitoringState()
     }
 
     fun onAction(action: Action) {
@@ -104,6 +108,14 @@ class SettingsViewModel(
         }.launchIn(viewModelScope)
     }
 
+    private fun observeMonitoringState() {
+        observeMonitoringStateUseCase().onEach { monitoringState ->
+            _state.update {
+                it.copy(isMonitoringActive = monitoringState == MonitoringState.ACTIVE)
+            }
+        }.launchIn(viewModelScope)
+    }
+
     private fun setScheduleEnabled(enabled: Boolean) {
         viewModelScope.launch { setScheduleEnabledUseCase(enabled) }
     }
@@ -133,6 +145,13 @@ class SettingsViewModel(
     }
 
     private fun toggleTestAlarm() {
+        if (state.value.isMonitoringActive) {
+            viewModelScope.launch {
+                _events.emit(Event.ShowDisableMonitoringForTestAlarm)
+            }
+            return
+        }
+
         if (state.value.isAlarmRunning) {
             stopAlarmUseCase()
         } else {
