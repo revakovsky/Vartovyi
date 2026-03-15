@@ -12,7 +12,9 @@ import android.media.AudioManager
 import android.media.MediaPlayer
 import android.media.RingtoneManager
 import android.os.Build
+import android.os.Handler
 import android.os.IBinder
+import android.os.Looper
 import android.os.VibrationEffect
 import android.os.Vibrator
 import android.os.VibratorManager
@@ -32,6 +34,8 @@ private val VIBRATION_PATTERN = longArrayOf(0, 700, 300)
 private const val ALARM_TAG = "AlarmService"
 private const val RED_ACCENT_COLOR_RES_ID = android.R.color.holo_red_dark
 private const val EMPTY_KEYWORD = ""
+private const val ALARM_ACTIVITY_OPEN_RETRY_DELAY_MILLIS = 400L
+private const val ALARM_ACTIVITY_OPEN_MAX_RETRIES = 8
 
 class AlarmService : Service() {
 
@@ -39,6 +43,7 @@ class AlarmService : Service() {
     private var vibrator: Vibrator? = null
     private var audioFocusRequest: AudioFocusRequest? = null
     private var currentMatchedKeyword: String = EMPTY_KEYWORD
+    private val mainHandler = Handler(Looper.getMainLooper())
 
     override fun onCreate() {
         super.onCreate()
@@ -60,9 +65,9 @@ class AlarmService : Service() {
         _isRunning.value = true
         requestAudioFocus()
         ensureForegroundNotification()
+        openAlarmActivityWithRetries()
         startAlarmSound()
         startVibration()
-        openAlarmActivity()
 
         return START_NOT_STICKY
     }
@@ -75,6 +80,7 @@ class AlarmService : Service() {
         releaseAudioFocus()
         stopAlarmSound()
         stopVibration()
+        mainHandler.removeCallbacksAndMessages(null)
     }
 
     override fun onBind(intent: Intent?): IBinder? = null
@@ -113,6 +119,7 @@ class AlarmService : Service() {
         stopAlarmSound()
         stopVibration()
         releaseAudioFocus()
+        mainHandler.removeCallbacksAndMessages(null)
 
         stopForeground(STOP_FOREGROUND_REMOVE)
         stopSelf()
@@ -133,17 +140,35 @@ class AlarmService : Service() {
                 getSystemService(NotificationManager::class.java).canUseFullScreenIntent()
     }
 
-    private fun openAlarmActivity() {
+    private fun openAlarmActivityWithRetries() {
+        openAlarmActivityAttempt(retryCount = 0)
+    }
+
+    private fun openAlarmActivityAttempt(retryCount: Int) {
         if (AlarmActivity.isVisible.value) return
 
         runCatching {
-            val alarmActivityIntent = Intent(this, AlarmActivity::class.java).apply {
-                flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_SINGLE_TOP
-                putExtra(EXTRA_MATCHED_KEYWORD, currentMatchedKeyword)
-            }
-            startActivity(alarmActivityIntent)
+            startActivity(createAlarmActivityIntent())
         }.onFailure { throwable ->
             Log.e(ALARM_TAG, "Failed to open alarm activity", throwable)
+        }
+
+        if (retryCount >= ALARM_ACTIVITY_OPEN_MAX_RETRIES) return
+
+        mainHandler.postDelayed(
+            {
+                openAlarmActivityAttempt(retryCount = retryCount + 1)
+            },
+            ALARM_ACTIVITY_OPEN_RETRY_DELAY_MILLIS,
+        )
+    }
+
+    private fun createAlarmActivityIntent(): Intent {
+        return Intent(this, AlarmActivity::class.java).apply {
+            flags = Intent.FLAG_ACTIVITY_NEW_TASK or
+                    Intent.FLAG_ACTIVITY_SINGLE_TOP or
+                    Intent.FLAG_ACTIVITY_CLEAR_TOP
+            putExtra(EXTRA_MATCHED_KEYWORD, currentMatchedKeyword)
         }
     }
 
@@ -151,10 +176,7 @@ class AlarmService : Service() {
         val fullScreenPendingIntent = PendingIntent.getActivity(
             this,
             0,
-            Intent(this, AlarmActivity::class.java).apply {
-                flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
-                putExtra(EXTRA_MATCHED_KEYWORD, currentMatchedKeyword)
-            },
+            createAlarmActivityIntent(),
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE,
         )
 
@@ -171,11 +193,12 @@ class AlarmService : Service() {
             .setSmallIcon(R.drawable.alarm)
             .setContentTitle(getString(R.string.alarm_notification_title))
             .setContentText(getString(R.string.alarm_notification_text))
-            .setPriority(NotificationCompat.PRIORITY_HIGH)
+            .setPriority(NotificationCompat.PRIORITY_MAX)
             .setColor(ContextCompat.getColor(this, RED_ACCENT_COLOR_RES_ID))
             .setColorized(true)
             .setOnlyAlertOnce(true)
             .setCategory(NotificationCompat.CATEGORY_ALARM)
+            .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
             .setContentIntent(fullScreenPendingIntent)
             .apply {
                 if (canUseFullScreenIntent) setFullScreenIntent(
@@ -226,8 +249,16 @@ class AlarmService : Service() {
                 )
                 setDataSource(this@AlarmService, alarmUri)
                 isLooping = true
-                prepare()
-                start()
+                setOnPreparedListener { player ->
+                    player.start()
+                }
+                setOnErrorListener { player, what, extra ->
+                    Log.e(ALARM_TAG, "MediaPlayer error: what=$what extra=$extra")
+                    runCatching { player.release() }
+                    mediaPlayer = null
+                    true
+                }
+                prepareAsync()
             }
         } catch (e: Exception) {
             Log.e(ALARM_TAG, "startAlarmSound error", e)

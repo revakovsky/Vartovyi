@@ -1,6 +1,8 @@
 package com.revakovskyi.vartovyi.ui.alarm
 
+import android.app.KeyguardManager
 import android.content.Intent
+import android.os.Build
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -66,6 +68,7 @@ class AlarmActivity : ComponentActivity() {
 
     override fun onStart() {
         super.onStart()
+        dismissKeyguardIfPossible()
         isVisible.value = true
     }
 
@@ -90,6 +93,13 @@ class AlarmActivity : ComponentActivity() {
 
     private fun updateMatchedKeywordFromIntent(intent: Intent?) {
         matchedKeyword = intent?.getStringExtra(AlarmService.EXTRA_MATCHED_KEYWORD).orEmpty()
+    }
+
+    private fun dismissKeyguardIfPossible() {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) return
+
+        val keyguardManager = getSystemService(KeyguardManager::class.java)
+        keyguardManager.requestDismissKeyguard(this, null)
     }
 
     companion object {
