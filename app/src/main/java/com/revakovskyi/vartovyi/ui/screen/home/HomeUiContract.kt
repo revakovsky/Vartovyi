@@ -16,7 +16,6 @@ interface HomeUiContract {
         val lastAlertEvent: AlertEvent? = null,
         val isListenerServiceActive: Boolean = false,
         val keywords: List<String> = emptyList(),
-        val isAlarmRunning: Boolean = false,
     )
 
     sealed interface Action {

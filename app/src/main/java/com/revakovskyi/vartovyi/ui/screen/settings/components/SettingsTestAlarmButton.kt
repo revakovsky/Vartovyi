@@ -1,4 +1,4 @@
-package com.revakovskyi.vartovyi.ui.screen.home.components
+package com.revakovskyi.vartovyi.ui.screen.settings.components
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.PaddingValues
@@ -27,7 +27,7 @@ private const val TEST_BUTTON_MAX_WIDTH_DP = 450
 private const val BORDER_STROKE_WIDTH_DP = 1
 
 @Composable
-fun TestAlarmButton(
+fun SettingsTestAlarmButton(
     modifier: Modifier = Modifier,
     isAlarmRunning: Boolean,
     onClick: () -> Unit,
@@ -56,7 +56,7 @@ fun TestAlarmButton(
             Spacer(modifier = Modifier.width(VartovyiTheme.spacing.medium))
 
             Text(
-                text = stringResource(R.string.home_stop_test_alarm),
+                text = stringResource(R.string.settings_stop_test_alarm),
                 style = VartovyiTheme.typography.titleMedium,
             )
         }
@@ -80,7 +80,7 @@ fun TestAlarmButton(
             Spacer(modifier = Modifier.width(VartovyiTheme.spacing.medium))
 
             Text(
-                text = stringResource(R.string.home_test_alarm),
+                text = stringResource(R.string.settings_test_alarm),
                 style = VartovyiTheme.typography.titleMedium,
                 color = VartovyiTheme.colors.error,
             )
@@ -90,9 +90,9 @@ fun TestAlarmButton(
 
 @Preview(name = "Idle")
 @Composable
-private fun PreviewTestAlarmButtonIdle() {
+private fun PreviewSettingsTestAlarmButtonIdle() {
     VartovyiTheme {
-        TestAlarmButton(
+        SettingsTestAlarmButton(
             isAlarmRunning = false,
             onClick = {},
         )
@@ -101,9 +101,9 @@ private fun PreviewTestAlarmButtonIdle() {
 
 @Preview(name = "Running")
 @Composable
-private fun PreviewTestAlarmButtonRunning() {
+private fun PreviewSettingsTestAlarmButtonRunning() {
     VartovyiTheme {
-        TestAlarmButton(
+        SettingsTestAlarmButton(
             isAlarmRunning = true,
             onClick = {},
         )

@@ -13,6 +13,7 @@ interface SettingsUiContract {
         val isVibrationEnabled: Boolean = true,
         val selectedTelegramPackages: Set<String> = setOf("org.telegram.messenger"),
         val logSizeLimit: Int = 500,
+        val isAlarmRunning: Boolean = false,
     )
 
     sealed interface Action {
@@ -23,6 +24,7 @@ interface SettingsUiContract {
         data class SetVibrationEnabled(val enabled: Boolean) : Action
         data class SetTelegramPackages(val packages: Set<String>) : Action
         data class SetLogSizeLimit(val limit: Int) : Action
+        data object ToggleTestAlarm : Action
         data object NavigateBack : Action
     }
 
