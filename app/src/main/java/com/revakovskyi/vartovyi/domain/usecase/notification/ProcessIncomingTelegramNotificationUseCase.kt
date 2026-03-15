@@ -44,14 +44,6 @@ class ProcessIncomingTelegramNotificationUseCaseImpl(
             if (payload.timestamp > 0) payload.timestamp
             else System.currentTimeMillis()
 
-        val isAlreadyLogged = logRepository.existsBySignature(
-            senderPackage = payload.packageName,
-            senderName = senderName,
-            messageText = payload.text,
-            timestamp = effectiveTimestamp,
-        )
-        if (isAlreadyLogged) return false
-
         val isScheduleEnabled = settingsRepository.isScheduleEnabled.first()
         val isInScheduleWindow =
             isWithinScheduleWindow(
@@ -80,12 +72,13 @@ class ProcessIncomingTelegramNotificationUseCaseImpl(
                 null
             }
 
-        addLogEntry(
+        val isLogInserted = addLogEntry(
             payload = payload,
             senderName = senderName,
             effectiveTimestamp = effectiveTimestamp,
             matchedKeyword = matchedKeyword ?: EMPTY_MATCHED_KEYWORD,
         )
+        if (!isLogInserted && matchedKeyword == null) return false
 
         if (matchedKeyword != null) {
             val isAlarmRunning = alarmController.isAlarmRunning.first()
@@ -103,8 +96,8 @@ class ProcessIncomingTelegramNotificationUseCaseImpl(
         senderName: String,
         effectiveTimestamp: Long,
         matchedKeyword: String,
-    ) {
-        logRepository.addEntry(
+    ): Boolean {
+        val isInserted = logRepository.addEntry(
             event = AlertEvent(
                 id = UUID.randomUUID().toString(),
                 timestamp = effectiveTimestamp,
@@ -114,9 +107,11 @@ class ProcessIncomingTelegramNotificationUseCaseImpl(
                 matchedKeyword = matchedKeyword,
             )
         )
+        if (!isInserted) return false
 
         val logSizeLimit = settingsRepository.logSizeLimit.first()
         logRepository.trimToLimit(logSizeLimit)
+        return true
     }
 
     private fun findMatchedKeyword(

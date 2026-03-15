@@ -21,7 +21,9 @@ val databaseModule = module {
             context = androidContext(),
             klass = VartovyiDatabase::class.java,
             name = DATABASE_NAME,
-        ).build()
+        )
+            .fallbackToDestructiveMigration(dropAllTables = true)
+            .build()
     }
 
     single<AlertEventDao> { get<VartovyiDatabase>().alertEventDao() }

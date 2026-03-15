@@ -12,11 +12,12 @@ fun AlertEventEntity.toDomain(): AlertEvent = AlertEvent(
     matchedKeyword = matchedKeyword,
 )
 
-fun AlertEvent.toEntity(): AlertEventEntity = AlertEventEntity(
+fun AlertEvent.toEntity(signature: String): AlertEventEntity = AlertEventEntity(
     id = id,
     timestamp = timestamp,
     senderPackage = senderPackage,
     senderName = senderName,
     messageText = messageText,
     matchedKeyword = matchedKeyword,
+    signature = signature,
 )

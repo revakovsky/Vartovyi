@@ -13,24 +13,8 @@ interface AlertEventDao {
     @Query("SELECT * FROM alert_events ORDER BY timestamp DESC")
     fun getAll(): Flow<List<AlertEventEntity>>
 
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insert(entity: AlertEventEntity)
-
-    @Query(
-        "SELECT EXISTS(" +
-                "SELECT 1 FROM alert_events " +
-                "WHERE senderPackage = :senderPackage " +
-                "AND senderName = :senderName " +
-                "AND messageText = :messageText " +
-                "AND timestamp = :timestamp" +
-                ")"
-    )
-    suspend fun existsBySignature(
-        senderPackage: String,
-        senderName: String,
-        messageText: String,
-        timestamp: Long,
-    ): Boolean
+    @Insert(onConflict = OnConflictStrategy.IGNORE)
+    suspend fun insert(entity: AlertEventEntity): Long
 
     @Query("DELETE FROM alert_events WHERE id NOT IN (SELECT id FROM alert_events ORDER BY timestamp DESC LIMIT :limit)")
     suspend fun trimToLimit(limit: Int)
