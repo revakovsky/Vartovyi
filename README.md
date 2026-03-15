@@ -98,6 +98,11 @@ Android-додаток для моніторингу Telegram-сповіщень
 - [x] `Test Alarm` перенесено в `SettingsScreen` і підключено до реального alarm-flow.
 - [x] Якщо моніторинг активний, тест тривоги блокується зі snackbar-підказкою та action переходу на
   `Home`.
+- [x] Для `TopAppBar` підключено `TopAppBarScrollBehavior`: на `Logs` top bar ховається/з'являється
+  під час скролу.
+- [x] Snackbar queue вимкнено: новий snackbar скасовує попередній.
+- [x] Додано haptic feedback для add/remove дій у `Keywords`, для `VartovyiSwitch` та toggle-кнопки
+  моніторингу.
 
 ### Alarm
 
@@ -107,6 +112,8 @@ Android-додаток для моніторингу Telegram-сповіщень
 - [x] Stop-flow зроблено ідемпотентним (повторні stop виклики без побічних ефектів).
 - [x] Додано global emergency stop у `TopBar` (кнопка показується тільки коли alarm active).
 - [x] З `AlarmActivity` прибрано emergency-кнопку, залишено одну кнопку stop alarm.
+- [x] Прискорено показ `AlarmActivity`: пріоритезовано запуск UI, додано retry-відкриття activity та
+  неблокуючий старт звуку.
 - [ ] Тривалість тривоги поки не синхронізована з налаштуваннями (`alarmDurationSeconds`).
 - [ ] `WAKE_LOCK` permission додано, але явне керування `PowerManager.WakeLock` в `AlarmService` ще
   не реалізовано.
@@ -130,6 +137,8 @@ Android-додаток для моніторингу Telegram-сповіщень
 - [x] `KeywordMatcher`, `SettingsRepository`, `KeywordsRepository`, `LogRepository` реалізовані.
 - [x] Room для журналу (`AlertEventDao`, entity, mappers) реалізований.
 - [x] Додано use case обробки вхідного Telegram notification (фільтри + лог + alarm trigger).
+- [x] Дедуплікація логу переведена на атомарний DB-рівень (`signature` + `UNIQUE` + `INSERT IGNORE`)
+  без pre-check race condition.
 
 ## 9) Особливості та ризики
 
@@ -226,6 +235,9 @@ Android-додаток для моніторингу Telegram-сповіщень
 - `2026-03-15` — стабілізовано alarm/monitoring flows (anti-duplicate guard, idempotent stop,
   emergency stop, runtime/persisted sync), оновлено permissions UX та перенесено `Test Alarm` у
   `Settings`.
+- `2026-03-15` — впроваджено атомарну дедуплікацію логів на рівні Room (`signature + UNIQUE +
+  INSERT IGNORE`), прискорено показ `AlarmActivity`, додано scroll behavior top bar на `Logs`,
+  haptic для ключових дій та заміну snackbar без черги.
 
 ## 13) Узгоджені продукт-рішення (зафіксовано)
 
