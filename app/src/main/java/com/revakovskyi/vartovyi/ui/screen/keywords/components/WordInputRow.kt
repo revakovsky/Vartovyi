@@ -15,9 +15,16 @@ import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedTextFieldDefaults
+import androidx.compose.material3.PlainTooltip
 import androidx.compose.material3.Text
+import androidx.compose.material3.TooltipAnchorPosition
+import androidx.compose.material3.TooltipBox
+import androidx.compose.material3.TooltipDefaults
+import androidx.compose.material3.rememberTooltipState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
@@ -26,6 +33,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.VisualTransformation
@@ -37,6 +45,7 @@ import com.revakovskyi.vartovyi.ui.theme.VartovyiTheme
 private const val BORDER_WIDTH_FOCUSED_DP = 2
 private const val BORDER_WIDTH_DEFAULT_DP = 1
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun WordInputRow(
     modifier: Modifier = Modifier,
@@ -44,9 +53,12 @@ fun WordInputRow(
     hint: String,
     onFocusChanged: (isFocused: Boolean) -> Unit = {},
     onAdd: () -> Unit,
+    onClear: () -> Unit,
     onValueChange: (value: String) -> Unit,
 ) {
     val interactionSource = remember { MutableInteractionSource() }
+
+    val clearButtonTooltipText = stringResource(R.string.keywords_input_clear_tooltip)
 
     Row(
         verticalAlignment = Alignment.CenterVertically,
@@ -80,6 +92,34 @@ fun WordInputRow(
                         text = hint,
                         style = VartovyiTheme.typography.bodyMedium,
                     )
+                },
+                trailingIcon = {
+                    if (value.isNotBlank()) {
+                        TooltipBox(
+                            positionProvider = TooltipDefaults.rememberTooltipPositionProvider(
+                                positioning = TooltipAnchorPosition.Above
+                            ),
+                            tooltip = {
+                                PlainTooltip {
+                                    Text(text = clearButtonTooltipText)
+                                }
+                            },
+                            state = rememberTooltipState(),
+                        ) {
+                            IconButton(
+                                onClick = onClear,
+                                enabled = value.isNotBlank(),
+                                modifier = Modifier.size(VartovyiTheme.spacing.large),
+                            ) {
+                                Icon(
+                                    imageVector = ImageVector.vectorResource(R.drawable.close),
+                                    contentDescription = null,
+                                    tint = VartovyiTheme.colors.onSurfaceVariant,
+                                    modifier = Modifier.size(VartovyiTheme.spacing.medium),
+                                )
+                            }
+                        }
+                    }
                 },
                 contentPadding = PaddingValues(
                     horizontal = VartovyiTheme.spacing.standard,
@@ -127,6 +167,7 @@ private fun PreviewWordInputRowEmpty() {
         WordInputRow(
             value = "",
             hint = "Наприклад: Салтівка",
+            onClear = {},
             onValueChange = {},
             onAdd = {},
         )
@@ -140,6 +181,7 @@ private fun PreviewWordInputRowWithText() {
         WordInputRow(
             value = "Центр",
             hint = "Наприклад: Салтівка",
+            onClear = {},
             onValueChange = {},
             onAdd = {},
         )

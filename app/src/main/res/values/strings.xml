@@ -39,8 +39,16 @@
     <string name="emergency_stop">Stop everything</string>
     <string name="emergency_stop_completed">Monitoring and alarm are stopped</string>
     <string name="keywords_trigger_words">Trigger words</string>
-    <string name="keywords_trigger_tooltip">An alarm will trigger if a message contains any of these words</string>
+    <string name="keywords_trigger_tooltip">Add alert rules here.\n\nMode \"Word\":\n- matches a standalone word in the message;\n- example: \"nd\" should match \"alert in nd\", but should not match \"fundament\".\n\nMode \"All words\":\n- all entered words must be present in the message (order does not matter);\n- example: \"rocket + kharkiv\" matches \"rocket to kharkiv\" and \"a rocket is flying to kharkiv\", but does not match \"rocket to kyiv\".\n\nMode \"Phrase\":\n- matches a specific phrase;\n- example: \"rocket to kharkiv\" matches only when this exact phrase is present.\n\nTip:\n- use \"All words\" or \"Phrase\" for precise alerts;\n- use \"Word\" for broader alerts.</string>
     <string name="keywords_trigger_hint">e.g. Saltivka</string>
+    <string name="keywords_trigger_hint_word">e.g. rocket</string>
+    <string name="keywords_trigger_hint_all_words">e.g. rocket + kharkiv</string>
+    <string name="keywords_trigger_hint_phrase">e.g. rocket to kharkiv</string>
+    <string name="keywords_rule_type_word">Word</string>
+    <string name="keywords_rule_type_all_words">All words</string>
+    <string name="keywords_rule_type_phrase">Phrase</string>
+    <string name="keywords_input_clear">Clear</string>
+    <string name="keywords_input_clear_tooltip">Clears the entered text in this field</string>
     <string name="keywords_stop_words">Stop words</string>
     <string name="keywords_stop_tooltip">A message won\'t trigger an alarm if it contains any stop word</string>
     <string name="keywords_stop_hint">e.g. all clear</string>
@@ -52,6 +60,7 @@
     <string name="keywords_duplicate_title">Already in the list</string>
     <string name="keywords_duplicate_message">"%s" is already in the list.</string>
     <string name="keywords_duplicate_confirm">OK</string>
+    <string name="keywords_chip_copied">Chip text copied</string>
     <string name="permissions_warning">Grant all required permissions for stable background monitoring</string>
     <string name="permissions_listener_title">Notification access</string>
     <string name="permissions_listener_description">Allows reading incoming Telegram notifications</string>

@@ -94,6 +94,12 @@ Android-додаток для моніторингу Telegram-сповіщень
 - [x] `HomeScreen`, `KeywordsScreen`, `LogsScreen`, `SettingsScreen`, `PermissionsScreen` існують.
 - [x] `HomeViewModel`, `KeywordsViewModel` підключені до use cases.
 - [x] `Keywords` CRUD (trigger/stop/channel filter) працює через DataStore.
+- [x] У `Keywords` додано режими trigger-правил: `WORD`, `ALL_WORDS`, `PHRASE` (вибір режиму,
+  підказки,
+  сортування чіпсів за режимом + текстом).
+- [x] Trigger-чіпси показують префікс режиму, long-press копіює лише текст правила (без префікса),
+  видалення виконується через `X`.
+- [x] Для полів вводу в `Keywords` додано trailing `X` (очистка поля) та long-press tooltip.
 - [x] На `Home` підключено live-оновлення `lastAlertEvent` із логу.
 - [x] `Test Alarm` перенесено в `SettingsScreen` і підключено до реального alarm-flow.
 - [x] Якщо моніторинг активний, тест тривоги блокується зі snackbar-підказкою та action переходу на
@@ -137,6 +143,8 @@ Android-додаток для моніторингу Telegram-сповіщень
 - [x] `KeywordMatcher`, `SettingsRepository`, `KeywordsRepository`, `LogRepository` реалізовані.
 - [x] Room для журналу (`AlertEventDao`, entity, mappers) реалізований.
 - [x] Додано use case обробки вхідного Telegram notification (фільтри + лог + alarm trigger).
+- [x] Matching trigger-ключових слів переведено на `TriggerKeywordRule` з підтримкою `WORD` /
+  `ALL_WORDS` / `PHRASE` замість простого `contains`.
 - [x] Дедуплікація логу переведена на атомарний DB-рівень (`signature` + `UNIQUE` + `INSERT IGNORE`)
   без pre-check race condition.
 
@@ -238,6 +246,10 @@ Android-додаток для моніторингу Telegram-сповіщень
 - `2026-03-15` — впроваджено атомарну дедуплікацію логів на рівні Room (`signature + UNIQUE +
   INSERT IGNORE`), прискорено показ `AlarmActivity`, додано scroll behavior top bar на `Logs`,
   haptic для ключових дій та заміну snackbar без черги.
+- `2026-03-16` — додано режими trigger-правил (`WORD`/`ALL_WORDS`/`PHRASE`) у domain + `Keywords`
+  UI,
+  оновлено matching вхідних Telegram-сповіщень на правила, покращено UX чіпсів/полів вводу (copy,
+  remove через `X`, trailing clear icon з tooltip).
 
 ## 13) Узгоджені продукт-рішення (зафіксовано)
 
@@ -291,7 +303,7 @@ Android-додаток для моніторингу Telegram-сповіщень
     - Картка останнього спрацювання (включно з empty-state).
 
 - **Keywords**
-    - Trigger words (додавання/видалення, tooltip).
+    - Trigger rules (режими `WORD` / `ALL_WORDS` / `PHRASE`, додавання/видалення, tooltip).
     - Stop words (додавання/видалення, tooltip, візуально відмінні chips).
     - Telegram channel filter (toggle + список каналів, якщо увімкнено).
 

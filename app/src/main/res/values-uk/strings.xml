@@ -39,8 +39,16 @@
     <string name="emergency_stop">Вимкнути все</string>
     <string name="emergency_stop_completed">Моніторинг і тривогу вимкнено</string>
     <string name="keywords_trigger_words">Тригер-слова</string>
-    <string name="keywords_trigger_tooltip">Тривога спрацює, якщо повідомлення містить будь-яке з цих слів</string>
+    <string name="keywords_trigger_tooltip">Тут ви додаєте правила, за якими спрацьовує тривога.\n\nРежим «Слово»:\n- шукає окреме слово в повідомленні;\n- приклад: «нд» спрацює на «тривога в нд», але не має спрацьовувати на «фундамент».\n\nРежим «Усі слова»:\n- у повідомленні мають бути всі задані слова (порядок не важливий);\n- приклад: «ракета + харків» спрацює на «ракета на харків» і «по харкову летить ракета», але не спрацює на «ракета на київ».\n\nРежим «Фраза»:\n- шукає конкретну фразу;\n- приклад: «ракета на харків» спрацює тільки коли в тексті є саме ця фраза.\n\nПорада:\n- для точності використовуйте «Усі слова» або «Фраза»;\n- для загальних спрацювань використовуйте «Слово».</string>
     <string name="keywords_trigger_hint">Наприклад: Салтівка</string>
+    <string name="keywords_trigger_hint_word">Наприклад: ракета</string>
+    <string name="keywords_trigger_hint_all_words">Наприклад: ракета + харків</string>
+    <string name="keywords_trigger_hint_phrase">Наприклад: ракета на харків</string>
+    <string name="keywords_rule_type_word">Слово</string>
+    <string name="keywords_rule_type_all_words">Усі слова</string>
+    <string name="keywords_rule_type_phrase">Фраза</string>
+    <string name="keywords_input_clear">Очистити</string>
+    <string name="keywords_input_clear_tooltip">Очищає введений текст у цьому полі</string>
     <string name="keywords_stop_words">Стоп-слова</string>
     <string name="keywords_stop_tooltip">Повідомлення не спричинить тривогу, якщо містить будь-яке стоп-слово</string>
     <string name="keywords_stop_hint">Наприклад: відбій</string>
@@ -52,6 +60,7 @@
     <string name="keywords_duplicate_title">Вже є у списку</string>
     <string name="keywords_duplicate_message">«%s» вже є у списку.</string>
     <string name="keywords_duplicate_confirm">Зрозуміло</string>
+    <string name="keywords_chip_copied">Текст чіпса скопійовано</string>
     <string name="permissions_warning">Для стабільного фонового моніторингу надайте всі обов’язкові дозволи</string>
     <string name="permissions_listener_title">Доступ до сповіщень</string>
     <string name="permissions_listener_description">Дозволяє читати вхідні сповіщення з Telegram</string>

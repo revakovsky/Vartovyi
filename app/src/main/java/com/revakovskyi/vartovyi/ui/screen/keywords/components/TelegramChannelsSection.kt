@@ -30,6 +30,7 @@ fun TelegramChannelsSection(
     onToggle: () -> Unit,
     onInputChange: (value: String) -> Unit,
     onAdd: () -> Unit,
+    onCopy: (text: String) -> Unit,
     onRemove: (channel: String) -> Unit,
     onFocusChanged: (isFocused: Boolean) -> Unit,
 ) {
@@ -77,6 +78,7 @@ fun TelegramChannelsSection(
                     WordInputRow(
                         value = inputValue,
                         hint = stringResource(R.string.keywords_telegram_channel_hint),
+                        onClear = { onInputChange("") },
                         onValueChange = onInputChange,
                         onAdd = onAdd,
                         onFocusChanged = onFocusChanged,
@@ -92,6 +94,7 @@ fun TelegramChannelsSection(
                                     text = channel,
                                     containerColor = VartovyiTheme.colors.tertiaryContainer,
                                     contentColor = VartovyiTheme.colors.onTertiaryContainer,
+                                    onLongPress = { onCopy(channel) },
                                     onRemove = { onRemove(channel) },
                                 )
                             }
@@ -127,6 +130,7 @@ private fun PreviewTelegramChannelsSectionDisabled() {
             onToggle = {},
             onInputChange = {},
             onAdd = {},
+            onCopy = {},
             onRemove = {},
             onFocusChanged = {},
         )
@@ -145,6 +149,7 @@ private fun PreviewTelegramChannelsSectionEnabledEmpty() {
             onToggle = {},
             onInputChange = {},
             onAdd = {},
+            onCopy = {},
             onRemove = {},
             onFocusChanged = {},
         )
@@ -163,6 +168,7 @@ private fun PreviewTelegramChannelsSectionWithChannels() {
             onToggle = {},
             onInputChange = {},
             onAdd = {},
+            onCopy = {},
             onRemove = {},
             onFocusChanged = {},
         )
