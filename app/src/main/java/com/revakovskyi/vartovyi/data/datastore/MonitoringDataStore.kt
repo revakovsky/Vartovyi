@@ -68,7 +68,7 @@ class MonitoringDataStore(private val context: Context) {
 
     val logSizeLimit: Flow<Int> = context.monitoringDataStore.data
         .safeCatch()
-        .map { it[Keys.LOG_SIZE_LIMIT] ?: 500 }
+        .map { it[Keys.LOG_SIZE_LIMIT] ?: 300 }
 
     suspend fun setMonitoringActive(active: Boolean) {
         context.monitoringDataStore.edit { it[Keys.MONITORING_ACTIVE] = active }

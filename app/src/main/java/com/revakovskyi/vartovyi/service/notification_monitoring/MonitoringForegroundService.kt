@@ -1,4 +1,4 @@
-package com.revakovskyi.vartovyi.service
+package com.revakovskyi.vartovyi.service.notification_monitoring
 
 import android.app.Notification
 import android.app.NotificationChannel
@@ -13,7 +13,6 @@ import androidx.core.content.ContextCompat
 import com.revakovskyi.vartovyi.MainActivity
 import com.revakovskyi.vartovyi.R
 import com.revakovskyi.vartovyi.domain.repository.SettingsRepository
-import com.revakovskyi.vartovyi.service.watchdog.MonitoringWatchdogWorker
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -28,6 +27,7 @@ import org.koin.core.component.inject
 private const val MONITORING_NOTIFICATION_ID = 2001
 private const val MONITORING_CHANNEL_ID = "vartovyi_monitoring"
 private const val GREEN_ACCENT_COLOR_RES_ID = android.R.color.holo_green_dark
+private const val ACTION_STOP = "com.revakovskyi.vartovyi.ACTION_STOP_MONITORING"
 
 class MonitoringForegroundService : Service(), KoinComponent {
 
@@ -117,7 +117,6 @@ class MonitoringForegroundService : Service(), KoinComponent {
     }
 
     companion object {
-        const val ACTION_STOP = "com.revakovskyi.vartovyi.ACTION_STOP_MONITORING"
         private val _isRunning = MutableStateFlow(false)
         val isRunning: StateFlow<Boolean> = _isRunning.asStateFlow()
 

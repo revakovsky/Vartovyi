@@ -1,9 +1,7 @@
-package com.revakovskyi.vartovyi.data.repository
+package com.revakovskyi.vartovyi.service.notification_monitoring
 
 import android.content.Context
-import com.revakovskyi.vartovyi.domain.repository.MonitoringController
-import com.revakovskyi.vartovyi.service.MonitoringForegroundService
-import com.revakovskyi.vartovyi.service.watchdog.MonitoringWatchdogWorker
+import com.revakovskyi.vartovyi.domain.controllers.notification_monitoring.MonitoringController
 import kotlinx.coroutines.flow.Flow
 
 class MonitoringControllerImpl(

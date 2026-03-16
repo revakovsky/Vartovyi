@@ -71,8 +71,13 @@ class SettingsViewModel(
             is Action.SetVibrationEnabled -> setVibrationEnabled(action.enabled)
             is Action.SetTelegramPackages -> setTelegramPackages(action.packages)
             is Action.SetLogSizeLimit -> setLogSizeLimit(action.limit)
-            is Action.ToggleTestAlarm -> toggleTestAlarm()
             is Action.NavigateBack -> navigateBack()
+            is Action.ToggleTestAlarm -> {
+                toggleTestAlarm(
+                    sourceChannelName = action.sourceChannelName,
+                    sourceMessageText = action.sourceMessageText,
+                )
+            }
         }
     }
 
@@ -144,7 +149,10 @@ class SettingsViewModel(
         viewModelScope.launch { setLogSizeLimitUseCase(limit) }
     }
 
-    private fun toggleTestAlarm() {
+    private fun toggleTestAlarm(
+        sourceChannelName: String,
+        sourceMessageText: String,
+    ) {
         if (state.value.isMonitoringActive) {
             viewModelScope.launch {
                 _events.emit(Event.ShowDisableMonitoringForTestAlarm)
@@ -155,7 +163,10 @@ class SettingsViewModel(
         if (state.value.isAlarmRunning) {
             stopAlarmUseCase()
         } else {
-            triggerAlarmUseCase()
+            triggerAlarmUseCase(
+                sourceChannelName = sourceChannelName,
+                sourceMessageText = sourceMessageText,
+            )
         }
     }
 

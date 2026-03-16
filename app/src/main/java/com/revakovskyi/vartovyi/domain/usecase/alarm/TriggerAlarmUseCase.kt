@@ -1,17 +1,26 @@
 package com.revakovskyi.vartovyi.domain.usecase.alarm
 
-import com.revakovskyi.vartovyi.domain.repository.AlarmController
+import com.revakovskyi.vartovyi.domain.controllers.alarm.AlarmController
 
 interface TriggerAlarmUseCase {
-    operator fun invoke(matchedKeyword: String = "")
+    operator fun invoke(
+        sourceChannelName: String = "",
+        sourceMessageText: String = "",
+    )
 }
 
 class TriggerAlarmUseCaseImpl(
     private val alarmController: AlarmController,
 ) : TriggerAlarmUseCase {
 
-    override operator fun invoke(matchedKeyword: String) {
-        alarmController.triggerAlarm(matchedKeyword)
+    override operator fun invoke(
+        sourceChannelName: String,
+        sourceMessageText: String,
+    ) {
+        alarmController.triggerAlarm(
+            sourceChannelName = sourceChannelName,
+            sourceMessageText = sourceMessageText,
+        )
     }
 
 }

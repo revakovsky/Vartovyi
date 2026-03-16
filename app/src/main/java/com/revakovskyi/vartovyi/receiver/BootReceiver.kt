@@ -3,7 +3,7 @@ package com.revakovskyi.vartovyi.receiver
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
-import com.revakovskyi.vartovyi.domain.repository.MonitoringController
+import com.revakovskyi.vartovyi.domain.controllers.notification_monitoring.MonitoringController
 import com.revakovskyi.vartovyi.domain.repository.SettingsRepository
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers

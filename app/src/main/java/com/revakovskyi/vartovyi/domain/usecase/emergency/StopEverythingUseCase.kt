@@ -1,7 +1,7 @@
 package com.revakovskyi.vartovyi.domain.usecase.emergency
 
-import com.revakovskyi.vartovyi.domain.repository.AlarmController
-import com.revakovskyi.vartovyi.domain.repository.MonitoringController
+import com.revakovskyi.vartovyi.domain.controllers.alarm.AlarmController
+import com.revakovskyi.vartovyi.domain.controllers.notification_monitoring.MonitoringController
 import com.revakovskyi.vartovyi.domain.repository.SettingsRepository
 
 interface StopEverythingUseCase {
