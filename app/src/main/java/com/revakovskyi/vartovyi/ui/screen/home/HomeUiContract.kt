@@ -14,6 +14,7 @@ interface HomeUiContract {
         val startTime: String = "22:00",
         val endTime: String = "07:00",
         val lastAlertEvent: AlertEvent? = null,
+        val alarmRetriggerCooldownMillis: Long = 0L,
         val isListenerServiceActive: Boolean = false,
         val keywords: List<String> = emptyList(),
     )

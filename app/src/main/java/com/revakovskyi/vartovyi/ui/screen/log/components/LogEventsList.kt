@@ -10,6 +10,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import com.revakovskyi.vartovyi.domain.model.AlertEvent
+import com.revakovskyi.vartovyi.domain.model.AlertEventStatus
 import com.revakovskyi.vartovyi.ui.theme.VartovyiTheme
 
 @Composable
@@ -53,6 +54,7 @@ private fun LogEventsListPreview() {
                     senderName = "City News",
                     messageText = "Daily update without matching keyword",
                     matchedKeyword = "",
+                    status = AlertEventStatus.SKIPPED,
                 ),
                 AlertEvent(
                     id = "2",
@@ -61,6 +63,16 @@ private fun LogEventsListPreview() {
                     senderName = "Alert Channel",
                     messageText = "Attention, air alert reported! Attention, air rted! Attention, air alert reported!",
                     matchedKeyword = "air alert",
+                    status = AlertEventStatus.ALARM_TRIGGERED,
+                ),
+                AlertEvent(
+                    id = "3",
+                    timestamp = 1_742_000_060_020,
+                    senderPackage = "org.telegram.messenger",
+                    senderName = "Alert Channel",
+                    messageText = "Attention, air alert reported! Attention, air rted! Attention, air alert reported!",
+                    matchedKeyword = "air alert",
+                    status = AlertEventStatus.SKIPPED_COOLDOWN,
                 ),
             ),
             onCopyChannelClick = {},

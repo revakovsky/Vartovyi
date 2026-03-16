@@ -20,5 +20,6 @@ data class AlertEventEntity(
     val senderName: String,
     val messageText: String,
     val matchedKeyword: String,
+    val status: String,
     val signature: String,
 )

@@ -2,7 +2,9 @@ package com.revakovskyi.vartovyi.ui.screen.home
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.revakovskyi.vartovyi.domain.model.AlertEventStatus
 import com.revakovskyi.vartovyi.domain.model.MonitoringState
+import com.revakovskyi.vartovyi.domain.usecase.alarm.ObserveAlarmRetriggerCooldownUseCase
 import com.revakovskyi.vartovyi.domain.usecase.keywords.ObserveKeywordsUseCase
 import com.revakovskyi.vartovyi.domain.usecase.log.ObserveLogEntriesUseCase
 import com.revakovskyi.vartovyi.domain.usecase.monitoring.ObserveMonitoringStateUseCase
@@ -28,6 +30,7 @@ class HomeViewModel(
     private val observeScheduleSettingsUseCase: ObserveScheduleSettingsUseCase,
     private val observeKeywordsUseCase: ObserveKeywordsUseCase,
     private val observeLogEntriesUseCase: ObserveLogEntriesUseCase,
+    private val observeAlarmRetriggerCooldownUseCase: ObserveAlarmRetriggerCooldownUseCase,
 ) : ViewModel() {
 
     private val _state = MutableStateFlow(State())
@@ -43,6 +46,7 @@ class HomeViewModel(
         observeScheduleSettings()
         observeKeywords()
         observeLastAlertEvent()
+        observeAlarmRetriggerCooldown()
     }
 
     fun onAction(action: Action) {
@@ -98,13 +102,21 @@ class HomeViewModel(
             _state.update {
                 it.copy(
                     lastAlertEvent = logEntries.firstOrNull { event ->
-                        event.matchedKeyword.isNotBlank()
+                        event.status == AlertEventStatus.ALARM_TRIGGERED
                     }
                 )
             }
             if (isFirstEmission) {
                 isFirstEmission = false
                 markSourceLoaded()
+            }
+        }.launchIn(viewModelScope)
+    }
+
+    private fun observeAlarmRetriggerCooldown() {
+        observeAlarmRetriggerCooldownUseCase().onEach { remainingCooldownMillis ->
+            _state.update {
+                it.copy(alarmRetriggerCooldownMillis = remainingCooldownMillis)
             }
         }.launchIn(viewModelScope)
     }

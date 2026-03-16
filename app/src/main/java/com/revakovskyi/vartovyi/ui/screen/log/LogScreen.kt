@@ -21,6 +21,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import com.revakovskyi.vartovyi.R
 import com.revakovskyi.vartovyi.domain.model.AlertEvent
+import com.revakovskyi.vartovyi.domain.model.AlertEventStatus
 import com.revakovskyi.vartovyi.ui.components.VartovyiDialog
 import com.revakovskyi.vartovyi.ui.screen.log.components.LogClearButton
 import com.revakovskyi.vartovyi.ui.screen.log.components.LogEmptyState
@@ -177,6 +178,7 @@ private fun LogContentWithEntriesPreview() {
                         senderName = "Channels",
                         messageText = "Regular update without keywords",
                         matchedKeyword = "",
+                        status = AlertEventStatus.SKIPPED,
                     ),
                     AlertEvent(
                         id = "2",
@@ -185,6 +187,16 @@ private fun LogContentWithEntriesPreview() {
                         senderName = "Important Channel",
                         messageText = "Air alert in your region",
                         matchedKeyword = "air alert",
+                        status = AlertEventStatus.ALARM_TRIGGERED,
+                    ),
+                    AlertEvent(
+                        id = "3",
+                        timestamp = 1_742_000_060_020,
+                        senderPackage = "org.telegram.messenger",
+                        senderName = "Alert Channel",
+                        messageText = "Attention, air alert reported! Attention, air rted! Attention, air alert reported!",
+                        matchedKeyword = "air alert",
+                        status = AlertEventStatus.SKIPPED_COOLDOWN,
                     ),
                 ),
             ),

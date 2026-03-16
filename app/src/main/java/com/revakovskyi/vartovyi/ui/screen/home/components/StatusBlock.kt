@@ -13,6 +13,7 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -32,11 +33,14 @@ private const val ICON_MAX_SIZE_DP = 200
 private const val SPACER_BOTTOM_WEIGHT = 0.5f
 private const val TOGGLE_BUTTON_MIN_WIDTH_DP = 160
 private const val TOGGLE_BUTTON_WIDTH_FRACTION = 0.7f
+private const val MILLIS_IN_SECOND = 1000L
+private const val SECONDS_IN_MINUTE = 60L
 
 @Composable
 fun StatusBlock(
     modifier: Modifier = Modifier,
     monitoringState: MonitoringState,
+    alarmRetriggerCooldownMillis: Long,
     onToggle: () -> Unit,
 ) {
     val hapticFeedback = LocalHapticFeedback.current
@@ -62,6 +66,21 @@ fun StatusBlock(
     val buttonContentColor =
         if (isActive) VartovyiTheme.colors.onErrorContainer
         else VartovyiTheme.colors.onPrimary
+
+    val formattedCooldownTime = remember(isActive, alarmRetriggerCooldownMillis) {
+        if (isActive && alarmRetriggerCooldownMillis > 0L) {
+            val seconds = alarmRetriggerCooldownMillis / MILLIS_IN_SECOND
+            val minutesPart = seconds / SECONDS_IN_MINUTE
+            val secondsPart = seconds % SECONDS_IN_MINUTE
+            "%02d:%02d".format(minutesPart, secondsPart)
+        } else {
+            ""
+        }
+    }
+
+    val cooldownText = stringResource(
+        id = R.string.home_alarm_retrigger_cooldown, formattedCooldownTime,
+    )
 
     BoxWithConstraints(
         modifier = modifier.fillMaxWidth()
@@ -92,6 +111,16 @@ fun StatusBlock(
                 style = VartovyiTheme.typography.headlineSmall,
                 color = VartovyiTheme.colors.onSurface,
             )
+
+            if (cooldownText.isNotEmpty() && alarmRetriggerCooldownMillis > 0) {
+                Spacer(modifier = Modifier.height(VartovyiTheme.spacing.extraSmall))
+
+                Text(
+                    text = cooldownText,
+                    style = VartovyiTheme.typography.bodySmall,
+                    color = VartovyiTheme.colors.onSurfaceVariant,
+                )
+            }
 
             Spacer(modifier = Modifier.weight(SPACER_BOTTOM_WEIGHT))
 
@@ -126,6 +155,7 @@ private fun PreviewStatusBlockActive() {
     VartovyiTheme {
         StatusBlock(
             monitoringState = MonitoringState.ACTIVE,
+            alarmRetriggerCooldownMillis = 143_000L,
             onToggle = {},
         )
     }
@@ -137,6 +167,7 @@ private fun PreviewStatusBlockInactive() {
     VartovyiTheme {
         StatusBlock(
             monitoringState = MonitoringState.INACTIVE,
+            alarmRetriggerCooldownMillis = 0L,
             onToggle = {},
         )
     }

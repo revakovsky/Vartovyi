@@ -2,6 +2,7 @@ package com.revakovskyi.vartovyi.data.mappers
 
 import com.revakovskyi.vartovyi.data.db.entity.AlertEventEntity
 import com.revakovskyi.vartovyi.domain.model.AlertEvent
+import com.revakovskyi.vartovyi.domain.model.AlertEventStatus
 
 fun AlertEventEntity.toDomain(): AlertEvent = AlertEvent(
     id = id,
@@ -10,6 +11,8 @@ fun AlertEventEntity.toDomain(): AlertEvent = AlertEvent(
     senderName = senderName,
     messageText = messageText,
     matchedKeyword = matchedKeyword,
+    status = runCatching { AlertEventStatus.valueOf(status) }
+        .getOrDefault(AlertEventStatus.SKIPPED),
 )
 
 fun AlertEvent.toEntity(signature: String): AlertEventEntity = AlertEventEntity(
@@ -19,5 +22,6 @@ fun AlertEvent.toEntity(signature: String): AlertEventEntity = AlertEventEntity(
     senderName = senderName,
     messageText = messageText,
     matchedKeyword = matchedKeyword,
+    status = status.name,
     signature = signature,
 )

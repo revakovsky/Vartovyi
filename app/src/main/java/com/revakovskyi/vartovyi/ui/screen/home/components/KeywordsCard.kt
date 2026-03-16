@@ -19,7 +19,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import com.revakovskyi.vartovyi.R
 import com.revakovskyi.vartovyi.ui.theme.VartovyiTheme
 
-private const val MAX_VISIBLE_KEYWORDS = 8
+private const val MAX_VISIBLE_KEYWORDS = 5
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable

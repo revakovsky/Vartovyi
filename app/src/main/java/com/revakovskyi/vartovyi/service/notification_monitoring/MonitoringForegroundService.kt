@@ -12,6 +12,7 @@ import androidx.core.app.NotificationCompat
 import androidx.core.content.ContextCompat
 import com.revakovskyi.vartovyi.MainActivity
 import com.revakovskyi.vartovyi.R
+import com.revakovskyi.vartovyi.domain.controllers.alarm.AlarmRetriggerCooldownStateHolder
 import com.revakovskyi.vartovyi.domain.repository.SettingsRepository
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -20,6 +21,7 @@ import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
@@ -32,17 +34,26 @@ private const val ACTION_STOP = "com.revakovskyi.vartovyi.ACTION_STOP_MONITORING
 class MonitoringForegroundService : Service(), KoinComponent {
 
     private val settingsRepository: SettingsRepository by inject()
+    private val alarmRetriggerCooldownStateHolder: AlarmRetriggerCooldownStateHolder by inject()
     private val serviceScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
 
     override fun onCreate() {
         super.onCreate()
         createNotificationChannel()
+        alarmRetriggerCooldownStateHolder.bindMonitoringScope(serviceScope)
+
+        serviceScope.launch {
+            settingsRepository.alarmRetriggerCooldownUntilEpochMillis.collectLatest { untilEpochMillis ->
+                alarmRetriggerCooldownStateHolder.setCooldownUntilEpochMillis(untilEpochMillis)
+            }
+        }
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         if (intent?.action == ACTION_STOP) {
             serviceScope.launch {
                 settingsRepository.setMonitoringActive(false)
+                settingsRepository.setAlarmRetriggerCooldownUntilEpochMillis(0L)
             }
 
             MonitoringWatchdogWorker.cancel(this)
@@ -60,6 +71,7 @@ class MonitoringForegroundService : Service(), KoinComponent {
 
     override fun onDestroy() {
         _isRunning.value = false
+        alarmRetriggerCooldownStateHolder.clearAndUnbind()
         serviceScope.cancel()
         super.onDestroy()
     }

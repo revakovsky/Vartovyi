@@ -2,6 +2,8 @@ package com.revakovskyi.vartovyi.di
 
 import com.revakovskyi.vartovyi.domain.usecase.AnalyzeMessageUseCase
 import com.revakovskyi.vartovyi.domain.usecase.AnalyzeMessageUseCaseImpl
+import com.revakovskyi.vartovyi.domain.usecase.alarm.ObserveAlarmRetriggerCooldownUseCase
+import com.revakovskyi.vartovyi.domain.usecase.alarm.ObserveAlarmRetriggerCooldownUseCaseImpl
 import com.revakovskyi.vartovyi.domain.usecase.alarm.ObserveAlarmRunningUseCase
 import com.revakovskyi.vartovyi.domain.usecase.alarm.ObserveAlarmRunningUseCaseImpl
 import com.revakovskyi.vartovyi.domain.usecase.alarm.StopAlarmUseCase
@@ -76,6 +78,7 @@ val useCaseModule = module {
     singleOf(::TriggerAlarmUseCaseImpl) { bind<TriggerAlarmUseCase>() }
     singleOf(::StopAlarmUseCaseImpl) { bind<StopAlarmUseCase>() }
     singleOf(::ObserveAlarmRunningUseCaseImpl) { bind<ObserveAlarmRunningUseCase>() }
+    singleOf(::ObserveAlarmRetriggerCooldownUseCaseImpl) { bind<ObserveAlarmRetriggerCooldownUseCase>() }
     singleOf(::StopEverythingUseCaseImpl) { bind<StopEverythingUseCase>() }
 
     singleOf(::ObserveMonitoringStateUseCaseImpl) { bind<ObserveMonitoringStateUseCase>() }

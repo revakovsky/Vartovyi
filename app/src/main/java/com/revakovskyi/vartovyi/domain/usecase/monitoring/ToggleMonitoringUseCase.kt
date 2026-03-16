@@ -16,6 +16,10 @@ class ToggleMonitoringUseCaseImpl(
         val shouldActivate = !isCurrentlyActive
         settingsRepository.setMonitoringActive(shouldActivate)
 
+        if (!shouldActivate) {
+            settingsRepository.setAlarmRetriggerCooldownUntilEpochMillis(0L)
+        }
+
         if (shouldActivate) monitoringController.startMonitoring()
         else monitoringController.stopMonitoring()
     }

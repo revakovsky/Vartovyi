@@ -10,6 +10,7 @@
     <string name="permissions_back">Назад</string>
     <string name="monitoring_active">Моніторинг активний</string>
     <string name="monitoring_inactive">Моніторинг вимкнений</string>
+    <string name="home_alarm_retrigger_cooldown">Наступна тривога не раніше ніж за %1$s</string>
     <string name="monitoring_activate">Активувати</string>
     <string name="monitoring_deactivate">Вимкнути</string>
     <string name="home_keywords_title">Ключові слова</string>
@@ -78,6 +79,7 @@
     <string name="permissions_recommended">Рекомендований</string>
     <string name="log_alarm">Тривога</string>
     <string name="log_skipped">Пропущено</string>
+    <string name="log_skipped_cooldown">Пропущено (cooldown)</string>
     <string name="log_copy">Копіювати</string>
     <string name="log_channel_copied">Назву каналу скопійовано</string>
     <string name="log_message_copied">Повідомлення скопійовано</string>
