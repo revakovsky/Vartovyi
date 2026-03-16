@@ -35,7 +35,7 @@ fun HomeScreen(
     viewModel: HomeViewModel = koinViewModel(),
     isRequiredPermissionsGranted: Boolean,
     onNavigateToKeywords: () -> Unit,
-    onNavigateToLog: () -> Unit,
+    onNavigateToLog: (logEntryId: String?) -> Unit,
     onNavigateToPermissions: () -> Unit,
 ) {
     val state by viewModel.state.collectAsState()
@@ -48,7 +48,7 @@ fun HomeScreen(
     ObserveSingleEvents(flow = viewModel.events) { event ->
         when (event) {
             is HomeUiContract.Event.NavigateToKeywords -> onNavigateToKeywords()
-            is HomeUiContract.Event.NavigateToLog -> onNavigateToLog()
+            is HomeUiContract.Event.NavigateToLog -> onNavigateToLog(event.logEntryId)
         }
     }
 
@@ -122,7 +122,13 @@ private fun HomeContent(
 
             LastAlertCard(
                 lastAlertEvent = state.lastAlertEvent,
-                onClick = { onAction(HomeUiContract.Action.NavigateToLog) },
+                onClick = {
+                    onAction(
+                        HomeUiContract.Action.NavigateToLog(
+                            logEntryId = state.lastAlertEvent?.id,
+                        ),
+                    )
+                },
                 modifier = Modifier.padding(bottom = VartovyiTheme.spacing.small)
             )
         }

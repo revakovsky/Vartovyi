@@ -6,6 +6,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navOptions
+import androidx.navigation.toRoute
 import com.revakovskyi.vartovyi.ui.screen.home.HomeScreen
 import com.revakovskyi.vartovyi.ui.screen.keywords.KeywordsScreen
 import com.revakovskyi.vartovyi.ui.screen.log.LogScreen
@@ -39,9 +40,9 @@ fun NavGraph(
                         navOptions = tabNavOptions()
                     )
                 },
-                onNavigateToLog = {
+                onNavigateToLog = { logEntryId ->
                     navController.navigate(
-                        route = Routes.Log,
+                        route = Routes.Log(highlightedLogEntryId = logEntryId),
                         navOptions = tabNavOptions()
                     )
                 },
@@ -53,8 +54,11 @@ fun NavGraph(
             KeywordsScreen()
         }
 
-        composable<Routes.Log> {
-            LogScreen()
+        composable<Routes.Log> { backStackEntry ->
+            val route: Routes.Log = backStackEntry.toRoute()
+            LogScreen(
+                highlightedLogEntryId = route.highlightedLogEntryId,
+            )
         }
 
         composable<Routes.Settings> {

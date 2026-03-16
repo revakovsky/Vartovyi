@@ -5,9 +5,14 @@ import androidx.compose.animation.Crossfade
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.ClipEntry
@@ -32,10 +37,11 @@ private const val MESSAGE_TEXT_CLIP_LABEL = "message_text"
 @Composable
 fun LogScreen(
     viewModel: LogViewModel = koinViewModel(),
+    highlightedLogEntryId: String? = null,
 ) {
-    val state by viewModel.state.collectAsState()
-
     val clipboardManager = LocalClipboard.current
+
+    val state by viewModel.state.collectAsState()
 
     val channelCopiedMessage = stringResource(R.string.log_channel_copied)
     val messageCopiedMessage = stringResource(R.string.log_message_copied)
@@ -70,6 +76,7 @@ fun LogScreen(
 
     LogContent(
         state = state,
+        highlightedLogEntryId = highlightedLogEntryId,
         onAction = viewModel::onAction,
     )
 
@@ -90,8 +97,26 @@ fun LogScreen(
 private fun LogContent(
     modifier: Modifier = Modifier,
     state: LogUiContract.State,
+    highlightedLogEntryId: String?,
     onAction: (action: LogUiContract.Action) -> Unit,
 ) {
+    val listState = rememberLazyListState()
+
+    var isInitialScrollCompleted by remember(highlightedLogEntryId) { mutableStateOf(false) }
+
+    LaunchedEffect(state.logEntries, highlightedLogEntryId, isInitialScrollCompleted) {
+        if (isInitialScrollCompleted) return@LaunchedEffect
+        if (highlightedLogEntryId == null) return@LaunchedEffect
+
+        val highlightedItemIndex = state.logEntries.indexOfFirst { event ->
+            event.id == highlightedLogEntryId
+        }
+        if (highlightedItemIndex < 0) return@LaunchedEffect
+
+        listState.scrollToItem(index = highlightedItemIndex)
+        isInitialScrollCompleted = true
+    }
+
     Crossfade(
         label = "logContentCrossfade",
         targetState = state.logEntries.isEmpty(),
@@ -107,6 +132,7 @@ private fun LogContent(
                     .padding(horizontal = VartovyiTheme.spacing.standard)
             ) {
                 LogEventsList(
+                    listState = listState,
                     logEntries = state.logEntries,
                     onCopyChannelClick = { channelName ->
                         onAction(LogUiContract.Action.CopyChannelName(channelName))
@@ -131,6 +157,7 @@ private fun LogContentEmptyPreview() {
     VartovyiTheme {
         LogContent(
             state = LogUiContract.State(),
+            highlightedLogEntryId = null,
             onAction = {},
         )
     }
@@ -161,6 +188,7 @@ private fun LogContentWithEntriesPreview() {
                     ),
                 ),
             ),
+            highlightedLogEntryId = "2",
             onAction = {},
         )
     }

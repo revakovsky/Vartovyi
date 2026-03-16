@@ -21,12 +21,12 @@ interface HomeUiContract {
     sealed interface Action {
         data object ToggleMonitoring : Action
         data object NavigateToKeywords : Action
-        data object NavigateToLog : Action
+        data class NavigateToLog(val logEntryId: String? = null) : Action
     }
 
     sealed interface Event {
         data object NavigateToKeywords : Event
-        data object NavigateToLog : Event
+        data class NavigateToLog(val logEntryId: String? = null) : Event
     }
 
 }
