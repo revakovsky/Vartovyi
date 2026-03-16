@@ -23,7 +23,7 @@ sealed class BottomNavItem(
     )
 
     data object Logs : BottomNavItem(
-        route = Routes.Log,
+        route = Routes.Log(),
         labelResId = R.string.nav_log,
         iconResId = R.drawable.logs,
     )

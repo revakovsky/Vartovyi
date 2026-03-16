@@ -11,7 +11,9 @@ sealed interface Routes {
     data object Keywords : Routes
 
     @Serializable
-    data object Log : Routes
+    data class Log(
+        val highlightedLogEntryId: String? = null,
+    ) : Routes
 
     @Serializable
     data object Settings : Routes

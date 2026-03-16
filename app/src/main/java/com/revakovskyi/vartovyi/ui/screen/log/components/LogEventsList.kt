@@ -3,7 +3,9 @@ package com.revakovskyi.vartovyi.ui.screen.log.components
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
@@ -13,11 +15,13 @@ import com.revakovskyi.vartovyi.ui.theme.VartovyiTheme
 @Composable
 fun LogEventsList(
     modifier: Modifier = Modifier,
+    listState: LazyListState,
     logEntries: List<AlertEvent>,
     onCopyChannelClick: (channelName: String) -> Unit,
     onCopyMessageClick: (messageText: String) -> Unit,
 ) {
     LazyColumn(
+        state = listState,
         verticalArrangement = Arrangement.spacedBy(VartovyiTheme.spacing.small),
         modifier = modifier,
     ) {
@@ -40,6 +44,7 @@ fun LogEventsList(
 private fun LogEventsListPreview() {
     VartovyiTheme {
         LogEventsList(
+            listState = rememberLazyListState(),
             logEntries = listOf(
                 AlertEvent(
                     id = "1",

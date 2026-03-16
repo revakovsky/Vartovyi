@@ -49,7 +49,7 @@ class HomeViewModel(
         when (action) {
             is Action.ToggleMonitoring -> toggleMonitoring()
             is Action.NavigateToKeywords -> navigateToKeywords()
-            is Action.NavigateToLog -> navigateToLog()
+            is Action.NavigateToLog -> navigateToLog(logEntryId = action.logEntryId)
         }
     }
 
@@ -127,8 +127,14 @@ class HomeViewModel(
         viewModelScope.launch { _events.emit(Event.NavigateToKeywords) }
     }
 
-    private fun navigateToLog() {
-        viewModelScope.launch { _events.emit(Event.NavigateToLog) }
+    private fun navigateToLog(logEntryId: String?) {
+        viewModelScope.launch {
+            _events.emit(
+                Event.NavigateToLog(
+                    logEntryId = logEntryId,
+                ),
+            )
+        }
     }
 
 }
