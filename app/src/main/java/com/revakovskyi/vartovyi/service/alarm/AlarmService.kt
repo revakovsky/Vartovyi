@@ -1,5 +1,6 @@
-package com.revakovskyi.vartovyi.service
+package com.revakovskyi.vartovyi.service.alarm
 
+import android.annotation.SuppressLint
 import android.app.Notification
 import android.app.NotificationChannel
 import android.app.NotificationManager
@@ -12,9 +13,7 @@ import android.media.AudioManager
 import android.media.MediaPlayer
 import android.media.RingtoneManager
 import android.os.Build
-import android.os.Handler
 import android.os.IBinder
-import android.os.Looper
 import android.os.VibrationEffect
 import android.os.Vibrator
 import android.os.VibratorManager
@@ -22,10 +21,17 @@ import android.util.Log
 import androidx.core.app.NotificationCompat
 import androidx.core.content.ContextCompat
 import com.revakovskyi.vartovyi.R
+import com.revakovskyi.vartovyi.domain.constants.AlarmContract
+import com.revakovskyi.vartovyi.domain.controllers.alarm.AlarmStateHolder
 import com.revakovskyi.vartovyi.ui.alarm.AlarmActivity
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.cancel
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
+import org.koin.android.ext.android.inject
 import java.util.concurrent.atomic.AtomicBoolean
 
 private const val NOTIFICATION_ID = 1001
@@ -33,7 +39,7 @@ private const val CHANNEL_ID = "vartovyi_alarm"
 private val VIBRATION_PATTERN = longArrayOf(0, 700, 300)
 private const val ALARM_TAG = "AlarmService"
 private const val RED_ACCENT_COLOR_RES_ID = android.R.color.holo_red_dark
-private const val EMPTY_KEYWORD = ""
+private const val EMPTY_VALUE = ""
 private const val ALARM_ACTIVITY_OPEN_RETRY_DELAY_MILLIS = 400L
 private const val ALARM_ACTIVITY_OPEN_MAX_RETRIES = 8
 
@@ -42,8 +48,16 @@ class AlarmService : Service() {
     private var mediaPlayer: MediaPlayer? = null
     private var vibrator: Vibrator? = null
     private var audioFocusRequest: AudioFocusRequest? = null
-    private var currentMatchedKeyword: String = EMPTY_KEYWORD
-    private val mainHandler = Handler(Looper.getMainLooper())
+
+    private var currentSourceChannelName: String = EMPTY_VALUE
+    private var currentSourceMessageText: String = EMPTY_VALUE
+
+    private val alarmStateHolder: AlarmStateHolder by inject()
+
+    private val serviceScope = CoroutineScope(SupervisorJob() + Dispatchers.Main.immediate)
+    private var openAlarmActivityJob: Job? = null
+
+    private val isAlarmActive = AtomicBoolean(false)
 
     override fun onCreate() {
         super.onCreate()
@@ -51,7 +65,7 @@ class AlarmService : Service() {
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-        if (intent?.action == ACTION_STOP) {
+        if (intent?.action == AlarmContract.ACTION_STOP) {
             stopAlarmSafely()
             return START_NOT_STICKY
         }
@@ -61,8 +75,15 @@ class AlarmService : Service() {
             return START_NOT_STICKY
         }
 
-        currentMatchedKeyword = intent?.getStringExtra(EXTRA_MATCHED_KEYWORD) ?: EMPTY_KEYWORD
-        _isRunning.value = true
+        currentSourceChannelName = intent?.getStringExtra(
+            AlarmContract.EXTRA_SOURCE_CHANNEL_NAME
+        ).orEmpty()
+        currentSourceMessageText = intent?.getStringExtra(
+            AlarmContract.EXTRA_SOURCE_MESSAGE_TEXT
+        ).orEmpty()
+
+        alarmStateHolder.setRunning(true)
+
         requestAudioFocus()
         ensureForegroundNotification()
         openAlarmActivityWithRetries()
@@ -74,13 +95,14 @@ class AlarmService : Service() {
 
     override fun onDestroy() {
         super.onDestroy()
-        _isRunning.value = false
+        alarmStateHolder.setRunning(false)
         isAlarmActive.set(false)
 
         releaseAudioFocus()
         stopAlarmSound()
         stopVibration()
-        mainHandler.removeCallbacksAndMessages(null)
+        openAlarmActivityJob?.cancel()
+        serviceScope.cancel()
     }
 
     override fun onBind(intent: Intent?): IBinder? = null
@@ -107,22 +129,31 @@ class AlarmService : Service() {
 
     private fun stopAlarmSafely() {
         if (!isAlarmActive.compareAndSet(true, false)) {
-            _isRunning.value = false
+            alarmStateHolder.setRunning(false)
+            notifyAlarmStopped()
             stopForeground(STOP_FOREGROUND_REMOVE)
             stopSelf()
             return
         }
 
-        _isRunning.value = false
-        currentMatchedKeyword = EMPTY_KEYWORD
+        alarmStateHolder.setRunning(false)
+        currentSourceChannelName = EMPTY_VALUE
+        currentSourceMessageText = EMPTY_VALUE
 
         stopAlarmSound()
         stopVibration()
         releaseAudioFocus()
-        mainHandler.removeCallbacksAndMessages(null)
+        openAlarmActivityJob?.cancel()
 
+        notifyAlarmStopped()
         stopForeground(STOP_FOREGROUND_REMOVE)
         stopSelf()
+    }
+
+    private fun notifyAlarmStopped() {
+        sendBroadcast(
+            Intent(AlarmContract.ACTION_ALARM_STOPPED).setPackage(packageName)
+        )
     }
 
     private fun ensureForegroundNotification(): Boolean {
@@ -141,26 +172,22 @@ class AlarmService : Service() {
     }
 
     private fun openAlarmActivityWithRetries() {
-        openAlarmActivityAttempt(retryCount = 0)
-    }
+        openAlarmActivityJob?.cancel()
+        openAlarmActivityJob = serviceScope.launch {
+            for (retryCount in 0..ALARM_ACTIVITY_OPEN_MAX_RETRIES) {
+                if (AlarmActivity.isVisible.value) return@launch
 
-    private fun openAlarmActivityAttempt(retryCount: Int) {
-        if (AlarmActivity.isVisible.value) return
+                runCatching {
+                    startActivity(createAlarmActivityIntent())
+                }.onFailure { throwable ->
+                    Log.e(ALARM_TAG, "Failed to open alarm activity", throwable)
+                }
 
-        runCatching {
-            startActivity(createAlarmActivityIntent())
-        }.onFailure { throwable ->
-            Log.e(ALARM_TAG, "Failed to open alarm activity", throwable)
+                if (retryCount < ALARM_ACTIVITY_OPEN_MAX_RETRIES) {
+                    delay(ALARM_ACTIVITY_OPEN_RETRY_DELAY_MILLIS)
+                }
+            }
         }
-
-        if (retryCount >= ALARM_ACTIVITY_OPEN_MAX_RETRIES) return
-
-        mainHandler.postDelayed(
-            {
-                openAlarmActivityAttempt(retryCount = retryCount + 1)
-            },
-            ALARM_ACTIVITY_OPEN_RETRY_DELAY_MILLIS,
-        )
     }
 
     private fun createAlarmActivityIntent(): Intent {
@@ -168,7 +195,8 @@ class AlarmService : Service() {
             flags = Intent.FLAG_ACTIVITY_NEW_TASK or
                     Intent.FLAG_ACTIVITY_SINGLE_TOP or
                     Intent.FLAG_ACTIVITY_CLEAR_TOP
-            putExtra(EXTRA_MATCHED_KEYWORD, currentMatchedKeyword)
+            putExtra(AlarmContract.EXTRA_SOURCE_CHANNEL_NAME, currentSourceChannelName)
+            putExtra(AlarmContract.EXTRA_SOURCE_MESSAGE_TEXT, currentSourceMessageText)
         }
     }
 
@@ -183,13 +211,11 @@ class AlarmService : Service() {
         val stopPendingIntent = PendingIntent.getService(
             this,
             0,
-            Intent(this, AlarmService::class.java).apply { action = ACTION_STOP },
+            Intent(this, AlarmService::class.java).apply { action = AlarmContract.ACTION_STOP },
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE,
         )
 
-        val canUseFullScreenIntent = canUseFullScreenIntent()
-
-        return NotificationCompat.Builder(this, CHANNEL_ID)
+        val notificationBuilder = NotificationCompat.Builder(this, CHANNEL_ID)
             .setSmallIcon(R.drawable.alarm)
             .setContentTitle(getString(R.string.alarm_notification_title))
             .setContentText(getString(R.string.alarm_notification_text))
@@ -200,15 +226,25 @@ class AlarmService : Service() {
             .setCategory(NotificationCompat.CATEGORY_ALARM)
             .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
             .setContentIntent(fullScreenPendingIntent)
-            .apply {
-                if (canUseFullScreenIntent) setFullScreenIntent(
-                    fullScreenPendingIntent,
-                    true
-                )
-            }
             .addAction(0, getString(R.string.alarm_stop), stopPendingIntent)
             .setOngoing(true)
-            .build()
+
+        applyFullScreenIntentIfAllowed(
+            notificationBuilder = notificationBuilder,
+            fullScreenPendingIntent = fullScreenPendingIntent,
+        )
+
+        return notificationBuilder.build()
+    }
+
+    @SuppressLint("FullScreenIntentPolicy")
+    private fun applyFullScreenIntentIfAllowed(
+        notificationBuilder: NotificationCompat.Builder,
+        fullScreenPendingIntent: PendingIntent,
+    ) {
+        if (!canUseFullScreenIntent()) return
+
+        notificationBuilder.setFullScreenIntent(fullScreenPendingIntent, true)
     }
 
     private fun requestAudioFocus() {
@@ -293,15 +329,6 @@ class AlarmService : Service() {
     private fun stopVibration() {
         vibrator?.cancel()
         vibrator = null
-    }
-
-    companion object {
-        const val ACTION_STOP = "com.revakovskyi.vartovyi.ACTION_STOP_ALARM"
-        const val EXTRA_MATCHED_KEYWORD = "com.revakovskyi.vartovyi.EXTRA_MATCHED_KEYWORD"
-
-        private val isAlarmActive = AtomicBoolean(false)
-        private val _isRunning = MutableStateFlow(false)
-        val isRunning: StateFlow<Boolean> = _isRunning.asStateFlow()
     }
 
 }

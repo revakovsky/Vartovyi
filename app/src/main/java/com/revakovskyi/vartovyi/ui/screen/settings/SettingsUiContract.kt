@@ -25,8 +25,11 @@ interface SettingsUiContract {
         data class SetVibrationEnabled(val enabled: Boolean) : Action
         data class SetTelegramPackages(val packages: Set<String>) : Action
         data class SetLogSizeLimit(val limit: Int) : Action
-        data object ToggleTestAlarm : Action
         data object NavigateBack : Action
+        data class ToggleTestAlarm(
+            val sourceChannelName: String,
+            val sourceMessageText: String,
+        ) : Action
     }
 
     sealed interface Event {

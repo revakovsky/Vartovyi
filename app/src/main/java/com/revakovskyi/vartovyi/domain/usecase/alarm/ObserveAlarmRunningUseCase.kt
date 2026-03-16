@@ -1,6 +1,6 @@
 package com.revakovskyi.vartovyi.domain.usecase.alarm
 
-import com.revakovskyi.vartovyi.domain.repository.AlarmController
+import com.revakovskyi.vartovyi.domain.controllers.alarm.AlarmController
 import kotlinx.coroutines.flow.Flow
 
 interface ObserveAlarmRunningUseCase {

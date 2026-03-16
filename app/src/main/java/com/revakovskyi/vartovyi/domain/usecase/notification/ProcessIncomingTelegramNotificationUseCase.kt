@@ -1,7 +1,7 @@
 package com.revakovskyi.vartovyi.domain.usecase.notification
 
+import com.revakovskyi.vartovyi.domain.controllers.alarm.AlarmController
 import com.revakovskyi.vartovyi.domain.model.AlertEvent
-import com.revakovskyi.vartovyi.domain.repository.AlarmController
 import com.revakovskyi.vartovyi.domain.repository.KeywordsRepository
 import com.revakovskyi.vartovyi.domain.repository.LogRepository
 import com.revakovskyi.vartovyi.domain.repository.SettingsRepository
@@ -84,7 +84,10 @@ class ProcessIncomingTelegramNotificationUseCaseImpl(
             val isAlarmRunning = alarmController.isAlarmRunning.first()
             if (isAlarmRunning) return true
 
-            alarmController.triggerAlarm(matchedKeyword)
+            alarmController.triggerAlarm(
+                sourceChannelName = senderName,
+                sourceMessageText = payload.text,
+            )
             return true
         }
 

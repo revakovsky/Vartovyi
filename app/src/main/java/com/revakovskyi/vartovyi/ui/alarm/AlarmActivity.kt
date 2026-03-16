@@ -1,8 +1,10 @@
 package com.revakovskyi.vartovyi.ui.alarm
 
 import android.app.KeyguardManager
+import android.content.BroadcastReceiver
+import android.content.Context
 import android.content.Intent
-import android.os.Build
+import android.content.IntentFilter
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -33,28 +35,42 @@ import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.core.content.ContextCompat
 import com.revakovskyi.vartovyi.R
-import com.revakovskyi.vartovyi.service.AlarmService
+import com.revakovskyi.vartovyi.domain.constants.AlarmContract
+import com.revakovskyi.vartovyi.service.alarm.AlarmService
 import com.revakovskyi.vartovyi.ui.theme.VartovyiTheme
 
 private const val ALARM_ICON_SIZE_DP = 128
 private const val DISMISS_BUTTON_MIN_WIDTH_DP = 200
 private const val DISMISS_BUTTON_WIDTH_FRACTION = 0.7f
-private const val EMPTY_KEYWORD = ""
+private const val EMPTY_VALUE = ""
 
 class AlarmActivity : ComponentActivity() {
 
-    private var matchedKeyword by mutableStateOf(EMPTY_KEYWORD)
+    private var sourceChannelName by mutableStateOf(EMPTY_VALUE)
+    private var sourceMessageText by mutableStateOf(EMPTY_VALUE)
+
+    private var isAlarmStopReceiverRegistered = false
+
+    private val alarmStopReceiver = object : BroadcastReceiver() {
+        override fun onReceive(context: Context?, intent: Intent?) {
+            if (intent?.action == AlarmContract.ACTION_ALARM_STOPPED) {
+                finish()
+            }
+        }
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setupWindow()
-        updateMatchedKeywordFromIntent(intent)
+        updateAlarmContentFromIntent(intent)
 
         setContent {
             VartovyiTheme {
                 AlarmContent(
-                    matchedKeyword = matchedKeyword,
+                    sourceChannelName = sourceChannelName,
+                    sourceMessageText = sourceMessageText,
                     onDismiss = ::dismissAlarm,
                 )
             }
@@ -63,17 +79,19 @@ class AlarmActivity : ComponentActivity() {
 
     override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
-        updateMatchedKeywordFromIntent(intent)
+        updateAlarmContentFromIntent(intent)
     }
 
     override fun onStart() {
         super.onStart()
         dismissKeyguardIfPossible()
+        registerAlarmStopReceiver()
         isVisible.value = true
     }
 
     override fun onStop() {
         super.onStop()
+        unregisterAlarmStopReceiver()
         isVisible.value = false
     }
 
@@ -85,21 +103,43 @@ class AlarmActivity : ComponentActivity() {
     private fun dismissAlarm() {
         startService(
             Intent(this, AlarmService::class.java).apply {
-                action = AlarmService.ACTION_STOP
+                action = AlarmContract.ACTION_STOP
             }
         )
         finish()
     }
 
-    private fun updateMatchedKeywordFromIntent(intent: Intent?) {
-        matchedKeyword = intent?.getStringExtra(AlarmService.EXTRA_MATCHED_KEYWORD).orEmpty()
+    private fun updateAlarmContentFromIntent(intent: Intent?) {
+        sourceChannelName =
+            intent?.getStringExtra(AlarmContract.EXTRA_SOURCE_CHANNEL_NAME).orEmpty()
+        sourceMessageText =
+            intent?.getStringExtra(AlarmContract.EXTRA_SOURCE_MESSAGE_TEXT).orEmpty()
     }
 
     private fun dismissKeyguardIfPossible() {
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) return
-
         val keyguardManager = getSystemService(KeyguardManager::class.java)
         keyguardManager.requestDismissKeyguard(this, null)
+    }
+
+    private fun registerAlarmStopReceiver() {
+        if (isAlarmStopReceiverRegistered) return
+
+        val intentFilter = IntentFilter(AlarmContract.ACTION_ALARM_STOPPED)
+        ContextCompat.registerReceiver(
+            this,
+            alarmStopReceiver,
+            intentFilter,
+            ContextCompat.RECEIVER_NOT_EXPORTED,
+        )
+
+        isAlarmStopReceiverRegistered = true
+    }
+
+    private fun unregisterAlarmStopReceiver() {
+        if (!isAlarmStopReceiverRegistered) return
+
+        unregisterReceiver(alarmStopReceiver)
+        isAlarmStopReceiverRegistered = false
     }
 
     companion object {
@@ -110,7 +150,8 @@ class AlarmActivity : ComponentActivity() {
 
 @Composable
 private fun AlarmContent(
-    matchedKeyword: String,
+    sourceChannelName: String,
+    sourceMessageText: String,
     onDismiss: () -> Unit,
 ) {
     Column(
@@ -140,15 +181,28 @@ private fun AlarmContent(
                 textAlign = TextAlign.Center,
             )
 
-            if (matchedKeyword.isNotBlank()) {
+            if (sourceChannelName.isNotBlank() || sourceMessageText.isNotBlank()) {
                 Spacer(modifier = Modifier.height(VartovyiTheme.spacing.extraLarge))
 
-                Text(
-                    text = matchedKeyword,
-                    style = VartovyiTheme.typography.bodyLarge,
-                    color = VartovyiTheme.colors.onBackground,
-                    textAlign = TextAlign.Center,
-                )
+                if (sourceChannelName.isNotBlank()) {
+                    Text(
+                        text = sourceChannelName,
+                        style = VartovyiTheme.typography.titleLarge,
+                        color = VartovyiTheme.colors.onPrimary,
+                        textAlign = TextAlign.Center,
+                    )
+                }
+
+                if (sourceMessageText.isNotBlank()) {
+                    Spacer(modifier = Modifier.height(VartovyiTheme.spacing.medium))
+
+                    Text(
+                        text = sourceMessageText,
+                        style = VartovyiTheme.typography.bodyLarge,
+                        color = VartovyiTheme.colors.onBackground,
+                        textAlign = TextAlign.Center,
+                    )
+                }
             }
         }
 
@@ -182,7 +236,8 @@ private fun AlarmContent(
 private fun AlarmContentPreview() {
     VartovyiTheme {
         AlarmContent(
-            matchedKeyword = "тривога",
+            sourceChannelName = "Тривога в Харкові",
+            sourceMessageText = "Увага! Повітряна небезпека в області, пройдіть в укриття.",
             onDismiss = {},
         )
     }

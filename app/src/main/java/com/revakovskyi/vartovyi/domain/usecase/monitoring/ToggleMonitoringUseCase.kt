@@ -1,6 +1,6 @@
 package com.revakovskyi.vartovyi.domain.usecase.monitoring
 
-import com.revakovskyi.vartovyi.domain.repository.MonitoringController
+import com.revakovskyi.vartovyi.domain.controllers.notification_monitoring.MonitoringController
 import com.revakovskyi.vartovyi.domain.repository.SettingsRepository
 
 interface ToggleMonitoringUseCase {

@@ -1,27 +1,33 @@
-package com.revakovskyi.vartovyi.data.repository
+package com.revakovskyi.vartovyi.service.alarm
 
 import android.content.Context
 import android.content.Intent
-import com.revakovskyi.vartovyi.domain.repository.AlarmController
-import com.revakovskyi.vartovyi.service.AlarmService
+import com.revakovskyi.vartovyi.domain.constants.AlarmContract
+import com.revakovskyi.vartovyi.domain.controllers.alarm.AlarmController
+import com.revakovskyi.vartovyi.domain.controllers.alarm.AlarmStateHolder
 import kotlinx.coroutines.flow.Flow
 import java.util.concurrent.atomic.AtomicBoolean
 
 class AlarmControllerImpl(
     private val context: Context,
+    private val alarmStateHolder: AlarmStateHolder,
 ) : AlarmController {
 
-    override val isAlarmRunning: Flow<Boolean> = AlarmService.isRunning
+    override val isAlarmRunning: Flow<Boolean> = alarmStateHolder.isRunning
 
-    override fun triggerAlarm(matchedKeyword: String) {
-        if (AlarmService.isRunning.value) return
+    override fun triggerAlarm(
+        sourceChannelName: String,
+        sourceMessageText: String,
+    ) {
+        if (alarmStateHolder.isRunning.value) return
 
         if (!isStartRequested.compareAndSet(false, true)) return
 
         try {
             context.startForegroundService(
                 Intent(context, AlarmService::class.java).apply {
-                    putExtra(AlarmService.EXTRA_MATCHED_KEYWORD, matchedKeyword)
+                    putExtra(AlarmContract.EXTRA_SOURCE_CHANNEL_NAME, sourceChannelName)
+                    putExtra(AlarmContract.EXTRA_SOURCE_MESSAGE_TEXT, sourceMessageText)
                 }
             )
         } finally {
@@ -34,7 +40,7 @@ class AlarmControllerImpl(
 
         context.startService(
             Intent(context, AlarmService::class.java).apply {
-                action = AlarmService.ACTION_STOP
+                action = AlarmContract.ACTION_STOP
             }
         )
     }

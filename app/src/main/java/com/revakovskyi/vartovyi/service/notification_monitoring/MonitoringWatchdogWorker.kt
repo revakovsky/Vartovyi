@@ -1,4 +1,4 @@
-package com.revakovskyi.vartovyi.service.watchdog
+package com.revakovskyi.vartovyi.service.notification_monitoring
 
 import android.content.Context
 import androidx.work.CoroutineWorker
@@ -6,7 +6,7 @@ import androidx.work.ExistingPeriodicWorkPolicy
 import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkManager
 import androidx.work.WorkerParameters
-import com.revakovskyi.vartovyi.domain.repository.MonitoringController
+import com.revakovskyi.vartovyi.domain.controllers.notification_monitoring.MonitoringController
 import com.revakovskyi.vartovyi.domain.repository.SettingsRepository
 import kotlinx.coroutines.flow.first
 import org.koin.core.context.GlobalContext

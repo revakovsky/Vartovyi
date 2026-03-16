@@ -1,7 +1,7 @@
 package com.revakovskyi.vartovyi.domain.usecase.monitoring
 
+import com.revakovskyi.vartovyi.domain.controllers.notification_monitoring.MonitoringController
 import com.revakovskyi.vartovyi.domain.model.MonitoringState
-import com.revakovskyi.vartovyi.domain.repository.MonitoringController
 import com.revakovskyi.vartovyi.domain.repository.SettingsRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine

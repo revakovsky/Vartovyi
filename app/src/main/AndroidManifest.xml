@@ -74,12 +74,12 @@
         </service>
 
         <service
-            android:name=".service.AlarmService"
+            android:name=".service.alarm.AlarmService"
             android:exported="false"
             android:foregroundServiceType="mediaPlayback" />
 
         <service
-            android:name=".service.MonitoringForegroundService"
+            android:name=".service.notification_monitoring.MonitoringForegroundService"
             android:exported="false"
             android:foregroundServiceType="dataSync" />
 

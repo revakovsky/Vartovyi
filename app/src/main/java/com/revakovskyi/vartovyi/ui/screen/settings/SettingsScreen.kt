@@ -30,9 +30,10 @@ fun SettingsScreen(
     onNavigateToHome: () -> Unit,
 ) {
     val state by viewModel.state.collectAsState()
+
     val coroutineScope = rememberCoroutineScope()
-    val disableMonitoringMessage =
-        stringResource(R.string.settings_test_alarm_disable_monitoring_first)
+
+    val disableMonitoringMessage = stringResource(R.string.settings_test_alarm_disable_monitoring)
     val homeActionLabel = stringResource(R.string.nav_home)
 
     ObserveSingleEvents(flow = viewModel.events) { event ->
@@ -69,6 +70,9 @@ private fun SettingsContent(
     state: SettingsUiContract.State,
     onAction: (action: SettingsUiContract.Action) -> Unit,
 ) {
+    val testAlarmSourceChannelName = stringResource(R.string.settings_test_alarm_channel_name)
+    val testAlarmSourceMessageText = stringResource(R.string.settings_test_alarm_message_text)
+
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = modifier
@@ -79,7 +83,14 @@ private fun SettingsContent(
 
         SettingsTestAlarmButton(
             isAlarmRunning = state.isAlarmRunning,
-            onClick = { onAction(SettingsUiContract.Action.ToggleTestAlarm) },
+            onClick = {
+                onAction(
+                    SettingsUiContract.Action.ToggleTestAlarm(
+                        sourceChannelName = testAlarmSourceChannelName,
+                        sourceMessageText = testAlarmSourceMessageText,
+                    )
+                )
+            },
         )
     }
 }
