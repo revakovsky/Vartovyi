@@ -10,6 +10,7 @@
     <string name="permissions_back">Back</string>
     <string name="monitoring_active">Monitoring active</string>
     <string name="monitoring_inactive">Monitoring inactive</string>
+    <string name="home_alarm_retrigger_cooldown">Next alarm not earlier than in %1$s</string>
     <string name="monitoring_activate">Activate</string>
     <string name="monitoring_deactivate">Deactivate</string>
     <string name="home_keywords_title">Keywords</string>
@@ -78,6 +79,7 @@
     <string name="permissions_recommended">Recommended</string>
     <string name="log_alarm">Alarm</string>
     <string name="log_skipped">Skipped</string>
+    <string name="log_skipped_cooldown">Skipped (cooldown)</string>
     <string name="log_copy">Copy</string>
     <string name="log_channel_copied">Channel name copied</string>
     <string name="log_message_copied">Message copied</string>

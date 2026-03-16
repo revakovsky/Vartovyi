@@ -2,6 +2,7 @@ package com.revakovskyi.vartovyi.domain.usecase.notification
 
 import com.revakovskyi.vartovyi.domain.controllers.alarm.AlarmController
 import com.revakovskyi.vartovyi.domain.model.AlertEvent
+import com.revakovskyi.vartovyi.domain.model.AlertEventStatus
 import com.revakovskyi.vartovyi.domain.model.TriggerKeywordRule
 import com.revakovskyi.vartovyi.domain.repository.KeywordsRepository
 import com.revakovskyi.vartovyi.domain.repository.LogRepository
@@ -73,26 +74,54 @@ class ProcessIncomingTelegramNotificationUseCaseImpl(
                 null
             }
 
-        val isLogInserted = addLogEntry(
-            payload = payload,
-            senderName = senderName,
-            effectiveTimestamp = effectiveTimestamp,
-            matchedKeyword = matchedKeyword ?: EMPTY_MATCHED_KEYWORD,
-        )
-        if (!isLogInserted && matchedKeyword == null) return false
+        if (matchedKeyword == null) {
+            addLogEntry(
+                payload = payload,
+                senderName = senderName,
+                effectiveTimestamp = effectiveTimestamp,
+                matchedKeyword = EMPTY_MATCHED_KEYWORD,
+                status = AlertEventStatus.SKIPPED,
+            )
+            return false
+        }
 
-        if (matchedKeyword != null) {
-            val isAlarmRunning = alarmController.isAlarmRunning.first()
-            if (isAlarmRunning) return true
+        val isAlarmRunning = alarmController.isAlarmRunning.first()
+        val cooldownUntilEpochMillis =
+            settingsRepository.alarmRetriggerCooldownUntilEpochMillis.first()
+        val currentEpochMillis = System.currentTimeMillis()
+        val isCooldownActive = cooldownUntilEpochMillis > currentEpochMillis
 
-            alarmController.triggerAlarm(
-                sourceChannelName = senderName,
-                sourceMessageText = payload.text,
+        if (isAlarmRunning || isCooldownActive) {
+            addLogEntry(
+                payload = payload,
+                senderName = senderName,
+                effectiveTimestamp = effectiveTimestamp,
+                matchedKeyword = matchedKeyword,
+                status = AlertEventStatus.SKIPPED_COOLDOWN,
             )
             return true
         }
 
-        return false
+        // TODO: Replace with value controlled from Settings screen.
+        val cooldownDurationMillis = settingsRepository.alarmRetriggerCooldownDurationMillis.first()
+        settingsRepository.setAlarmRetriggerCooldownUntilEpochMillis(
+            untilEpochMillis = currentEpochMillis + cooldownDurationMillis,
+        )
+
+        val isLogInserted = addLogEntry(
+            payload = payload,
+            senderName = senderName,
+            effectiveTimestamp = effectiveTimestamp,
+            matchedKeyword = matchedKeyword,
+            status = AlertEventStatus.ALARM_TRIGGERED,
+        )
+        if (!isLogInserted) return true
+
+        alarmController.triggerAlarm(
+            sourceChannelName = senderName,
+            sourceMessageText = payload.text,
+        )
+        return true
     }
 
     private suspend fun addLogEntry(
@@ -100,6 +129,7 @@ class ProcessIncomingTelegramNotificationUseCaseImpl(
         senderName: String,
         effectiveTimestamp: Long,
         matchedKeyword: String,
+        status: AlertEventStatus,
     ): Boolean {
         val isInserted = logRepository.addEntry(
             event = AlertEvent(
@@ -109,6 +139,7 @@ class ProcessIncomingTelegramNotificationUseCaseImpl(
                 senderName = senderName,
                 messageText = payload.text,
                 matchedKeyword = matchedKeyword,
+                status = status,
             )
         )
         if (!isInserted) return false
@@ -164,9 +195,9 @@ class ProcessIncomingTelegramNotificationUseCaseImpl(
 
         val now = LocalTime.now()
         return if (start.isBefore(end)) {
-            now >= start && now < end
+            now in start..<end
         } else {
-            now >= start || now < end
+            now !in end..<start
         }
     }
 

@@ -12,6 +12,8 @@ interface SettingsRepository {
     val isVibrationEnabled: Flow<Boolean>
     val selectedTelegramPackages: Flow<Set<String>>
     val logSizeLimit: Flow<Int>
+    val alarmRetriggerCooldownDurationMillis: Flow<Long>
+    val alarmRetriggerCooldownUntilEpochMillis: Flow<Long>
 
     suspend fun setMonitoringActive(active: Boolean)
     suspend fun setScheduleEnabled(enabled: Boolean)
@@ -21,5 +23,7 @@ interface SettingsRepository {
     suspend fun setVibrationEnabled(enabled: Boolean)
     suspend fun setSelectedTelegramPackages(packages: Set<String>)
     suspend fun setLogSizeLimit(limit: Int)
+    suspend fun setAlarmRetriggerCooldownDurationMillis(durationMillis: Long)
+    suspend fun setAlarmRetriggerCooldownUntilEpochMillis(untilEpochMillis: Long)
 
 }

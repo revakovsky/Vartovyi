@@ -22,6 +22,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.revakovskyi.vartovyi.R
 import com.revakovskyi.vartovyi.domain.model.AlertEvent
+import com.revakovskyi.vartovyi.domain.model.AlertEventStatus
 import com.revakovskyi.vartovyi.ui.theme.VartovyiTheme
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -39,8 +40,6 @@ fun LogEventItemCard(
     onCopyChannelClick: (channelName: String) -> Unit,
     onCopyMessageClick: (messageText: String) -> Unit,
 ) {
-    val isAlarm = event.matchedKeyword.isNotBlank()
-
     val formattedTime = remember(event.timestamp) {
         formatLogEventTime(timestamp = event.timestamp)
     }
@@ -115,29 +114,41 @@ fun LogEventItemCard(
                 }
             }
 
-            if (isAlarm) {
-                Surface(
-                    color = VartovyiTheme.colors.errorContainer,
-                    shape = VartovyiTheme.shapes.small,
-                    border = BorderStroke(1.dp, VartovyiTheme.colors.error),
-                    modifier = Modifier.padding(top = VartovyiTheme.spacing.extraSmall)
-                ) {
+            when (event.status) {
+                AlertEventStatus.ALARM_TRIGGERED -> {
+                    Surface(
+                        color = VartovyiTheme.colors.errorContainer,
+                        shape = VartovyiTheme.shapes.small,
+                        border = BorderStroke(1.dp, VartovyiTheme.colors.error),
+                        modifier = Modifier.padding(top = VartovyiTheme.spacing.extraSmall)
+                    ) {
+                        Text(
+                            text = "${stringResource(R.string.log_alarm)}: ${event.matchedKeyword}",
+                            style = VartovyiTheme.typography.labelMedium,
+                            color = VartovyiTheme.colors.error,
+                            modifier = Modifier.padding(
+                                horizontal = VartovyiTheme.spacing.small,
+                                vertical = VartovyiTheme.spacing.extraSmall,
+                            ),
+                        )
+                    }
+                }
+
+                AlertEventStatus.SKIPPED -> {
                     Text(
-                        text = "${stringResource(R.string.log_alarm)}: ${event.matchedKeyword}",
-                        style = VartovyiTheme.typography.labelMedium,
-                        color = VartovyiTheme.colors.error,
-                        modifier = Modifier.padding(
-                            horizontal = VartovyiTheme.spacing.small,
-                            vertical = VartovyiTheme.spacing.extraSmall,
-                        ),
+                        text = stringResource(R.string.log_skipped),
+                        style = VartovyiTheme.typography.bodySmall,
+                        color = VartovyiTheme.colors.onSurfaceVariant,
                     )
                 }
-            } else {
-                Text(
-                    text = stringResource(R.string.log_skipped),
-                    style = VartovyiTheme.typography.bodySmall,
-                    color = VartovyiTheme.colors.onSurfaceVariant,
-                )
+
+                AlertEventStatus.SKIPPED_COOLDOWN -> {
+                    Text(
+                        text = stringResource(R.string.log_skipped_cooldown),
+                        style = VartovyiTheme.typography.bodySmall,
+                        color = VartovyiTheme.colors.secondary,
+                    )
+                }
             }
         }
     }
@@ -159,6 +170,7 @@ private fun LogEventItemCardSkippedPreview() {
                 senderName = "City News",
                 messageText = "Daily update without matching keyword",
                 matchedKeyword = "",
+                status = AlertEventStatus.SKIPPED,
             ),
             onCopyChannelClick = {},
             onCopyMessageClick = {},
@@ -179,6 +191,28 @@ private fun LogEventItemCardAlarmPreview() {
                 senderName = "Alert Channel",
                 messageText = "Attention, air alert reported",
                 matchedKeyword = "air alert",
+                status = AlertEventStatus.ALARM_TRIGGERED,
+            ),
+            onCopyChannelClick = {},
+            onCopyMessageClick = {},
+            modifier = Modifier.fillMaxWidth(),
+        )
+    }
+}
+
+@Preview(name = "Log item - alarm")
+@Composable
+private fun LogEventItemCardAlarmSkippedPreview() {
+    VartovyiTheme {
+        LogEventItemCard(
+            event = AlertEvent(
+                id = "2",
+                timestamp = 1_742_000_060_000,
+                senderPackage = "org.telegram.messenger",
+                senderName = "Alert Channel",
+                messageText = "Attention, air alert reported",
+                matchedKeyword = "air alert",
+                status = AlertEventStatus.SKIPPED_COOLDOWN,
             ),
             onCopyChannelClick = {},
             onCopyMessageClick = {},

@@ -17,6 +17,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import com.revakovskyi.vartovyi.R
 import com.revakovskyi.vartovyi.domain.model.AlertEvent
+import com.revakovskyi.vartovyi.domain.model.AlertEventStatus
 import com.revakovskyi.vartovyi.domain.model.MonitoringState
 import com.revakovskyi.vartovyi.ui.components.LoadingOverlay
 import com.revakovskyi.vartovyi.ui.screen.home.components.KeywordsCard
@@ -97,6 +98,7 @@ private fun HomeContent(
     ) {
         StatusBlock(
             monitoringState = state.monitoringState,
+            alarmRetriggerCooldownMillis = state.alarmRetriggerCooldownMillis,
             onToggle = {
                 val isTryingToActivate = state.monitoringState != MonitoringState.ACTIVE
 
@@ -179,6 +181,7 @@ private fun HomeContentActiveWithAlertPreview() {
                     senderName = "Повітряна тривога",
                     messageText = "Повітряна тривога в Київській та Харківській областях. Просимо негайно зайти у найближче укриття.",
                     matchedKeyword = "тривога",
+                    status = AlertEventStatus.ALARM_TRIGGERED,
                 ),
             ),
             isRequiredPermissionsGranted = true,

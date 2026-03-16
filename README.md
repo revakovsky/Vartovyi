@@ -103,6 +103,8 @@ Android-додаток для моніторингу Telegram-сповіщень
 - [x] На `Home` підключено live-оновлення `lastAlertEvent` із логу.
 - [x] Клік по `Last alert` на `Home` відкриває `Logs` і прокручує до конкретного запису, якщо він ще
   існує в БД.
+- [x] На `Home` додано індикатор cooldown повторного спрацювання тривоги (`mm:ss`) після останнього
+  alarm trigger з формулюванням “наступна тривога не раніше ніж за …”.
 - [x] `Test Alarm` перенесено в `SettingsScreen` і підключено до реального alarm-flow.
 - [x] Якщо моніторинг активний, тест тривоги блокується зі snackbar-підказкою та action переходу на
   `Home`.
@@ -147,6 +149,11 @@ Android-додаток для моніторингу Telegram-сповіщень
 - [x] Додано use case обробки вхідного Telegram notification (фільтри + лог + alarm trigger).
 - [x] Matching trigger-ключових слів переведено на `TriggerKeywordRule` з підтримкою `WORD` /
   `ALL_WORDS` / `PHRASE` замість простого `contains`.
+- [x] Додано anti-retrigger cooldown для alarm trigger (default `5 хв`): повторний alarm trigger
+  блокується до завершення cooldown; відлік працює в coroutine scope `MonitoringForegroundService`,
+  а сам cooldown персиститься в `DataStore` (відновлення після restart / process death).
+- [x] Для логів додано окремий статус `SKIPPED_COOLDOWN` (подія зафіксована, але alarm trigger
+  пропущено через активний cooldown/вже активну тривогу).
 - [x] Дедуплікація логу переведена на атомарний DB-рівень (`signature` + `UNIQUE` + `INSERT IGNORE`)
   без pre-check race condition.
 
@@ -254,6 +261,12 @@ Android-додаток для моніторингу Telegram-сповіщень
   remove через `X`, trailing clear icon з tooltip).
 - `2026-03-16` — на `Home` додано deep-link поведінку для `Last alert`: перехід у `Logs` з
   автоскролом до відповідного запису за `id` (fallback на звичайний список, якщо запис видалено).
+- `2026-03-16` — додано захист від повторного alarm trigger через cooldown (`5 хв` за замовчуванням):
+  відлік працює тільки в життєвому циклі monitoring service, стан cooldown показується на `Home`,
+  значення підготовлено до винесення в `Settings`.
+- `2026-03-16` — cooldown винесено в персистентний стан (`DataStore`) з відновленням після restart /
+  process death, а в лог-модель додано статус `SKIPPED_COOLDOWN` для явного позначення пропусків через
+  cooldown.
 
 ## 13) Узгоджені продукт-рішення (зафіксовано)
 

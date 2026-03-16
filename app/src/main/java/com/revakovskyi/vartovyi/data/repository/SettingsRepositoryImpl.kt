@@ -16,6 +16,8 @@ class SettingsRepositoryImpl(
     override val isVibrationEnabled: Flow<Boolean> = monitoringDataStore.isVibrationEnabled
     override val selectedTelegramPackages: Flow<Set<String>> = monitoringDataStore.selectedTelegramPackages
     override val logSizeLimit: Flow<Int> = monitoringDataStore.logSizeLimit
+    override val alarmRetriggerCooldownDurationMillis: Flow<Long> = monitoringDataStore.alarmRetriggerCooldownDurationMillis
+    override val alarmRetriggerCooldownUntilEpochMillis: Flow<Long> = monitoringDataStore.alarmRetriggerCooldownUntilEpochMillis
 
     override suspend fun setMonitoringActive(active: Boolean) {
         monitoringDataStore.setMonitoringActive(active)
@@ -47,6 +49,14 @@ class SettingsRepositoryImpl(
 
     override suspend fun setLogSizeLimit(limit: Int) {
         monitoringDataStore.setLogSizeLimit(limit)
+    }
+
+    override suspend fun setAlarmRetriggerCooldownDurationMillis(durationMillis: Long) {
+        monitoringDataStore.setAlarmRetriggerCooldownDurationMillis(durationMillis)
+    }
+
+    override suspend fun setAlarmRetriggerCooldownUntilEpochMillis(untilEpochMillis: Long) {
+        monitoringDataStore.setAlarmRetriggerCooldownUntilEpochMillis(untilEpochMillis)
     }
 
 }

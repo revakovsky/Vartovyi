@@ -1,6 +1,7 @@
 package com.revakovskyi.vartovyi.di
 
 import com.revakovskyi.vartovyi.domain.controllers.alarm.AlarmController
+import com.revakovskyi.vartovyi.domain.controllers.alarm.AlarmRetriggerCooldownStateHolder
 import com.revakovskyi.vartovyi.domain.controllers.alarm.AlarmStateHolder
 import com.revakovskyi.vartovyi.domain.controllers.notification_monitoring.MonitoringController
 import com.revakovskyi.vartovyi.service.alarm.AlarmControllerImpl
@@ -14,6 +15,7 @@ val appModule = module {
 
     singleOf(::KeywordMatcher)
     singleOf(::AlarmStateHolder)
+    singleOf(::AlarmRetriggerCooldownStateHolder)
 
     singleOf(::AlarmControllerImpl) { bind<AlarmController>() }
     singleOf(::MonitoringControllerImpl) { bind<MonitoringController>() }

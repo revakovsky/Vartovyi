@@ -16,6 +16,7 @@ class StopEverythingUseCaseImpl(
 
     override suspend operator fun invoke() {
         alarmController.stopAlarm()
+        settingsRepository.setAlarmRetriggerCooldownUntilEpochMillis(0L)
         settingsRepository.setMonitoringActive(false)
         monitoringController.stopMonitoring()
     }
