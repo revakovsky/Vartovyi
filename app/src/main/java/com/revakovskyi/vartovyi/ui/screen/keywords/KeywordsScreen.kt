@@ -1,5 +1,6 @@
 package com.revakovskyi.vartovyi.ui.screen.keywords
 
+import android.content.ClipData
 import androidx.compose.animation.Crossfade
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.layout.Arrangement
@@ -22,29 +23,40 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
+import androidx.compose.ui.platform.ClipEntry
+import androidx.compose.ui.platform.LocalClipboard
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import com.revakovskyi.vartovyi.R
+import com.revakovskyi.vartovyi.domain.model.TriggerKeywordRule
+import com.revakovskyi.vartovyi.domain.model.TriggerKeywordRuleType
 import com.revakovskyi.vartovyi.ui.components.LoadingOverlay
 import com.revakovskyi.vartovyi.ui.components.VartovyiDialog
 import com.revakovskyi.vartovyi.ui.screen.keywords.components.KeywordsSection
 import com.revakovskyi.vartovyi.ui.screen.keywords.components.StopWordsSection
 import com.revakovskyi.vartovyi.ui.screen.keywords.components.TelegramChannelsSection
 import com.revakovskyi.vartovyi.ui.theme.VartovyiTheme
+import com.revakovskyi.vartovyi.ui.util.snackbar.SnackbarController
+import com.revakovskyi.vartovyi.ui.util.snackbar.SnackbarEvent
 import com.revakovskyi.vartovyi.utils.ObserveSingleEvents
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
 
 /** Delay to let the keyboard fully animate open before scrolling the active field into view. */
 private const val BRING_INTO_VIEW_DELAY_MS = 400L
+private const val KEYWORDS_CHIP_CLIP_LABEL = "keywords_chip"
 
 @Composable
 fun KeywordsScreen(
     viewModel: KeywordsViewModel = koinViewModel(),
 ) {
     val hapticFeedback = LocalHapticFeedback.current
+    val clipboardManager = LocalClipboard.current
+    val coroutineScope = androidx.compose.runtime.rememberCoroutineScope()
+    val chipCopiedMessage = stringResource(R.string.keywords_chip_copied)
 
     val state by viewModel.state.collectAsState()
 
@@ -55,7 +67,8 @@ fun KeywordsScreen(
             is KeywordsUiContract.Event.StopWordAdded,
             is KeywordsUiContract.Event.StopWordRemoved,
             is KeywordsUiContract.Event.TelegramChannelAdded,
-            is KeywordsUiContract.Event.TelegramChannelRemoved -> {
+            is KeywordsUiContract.Event.TelegramChannelRemoved,
+                -> {
                 hapticFeedback.performHapticFeedback(HapticFeedbackType.Confirm)
             }
         }
@@ -72,6 +85,19 @@ fun KeywordsScreen(
             KeywordsContent(
                 state = state,
                 onAction = viewModel::onAction,
+                onCopyChip = { text ->
+                    hapticFeedback.performHapticFeedback(HapticFeedbackType.LongPress)
+                    coroutineScope.launch {
+                        clipboardManager.setClipEntry(
+                            ClipEntry(
+                                ClipData.newPlainText(KEYWORDS_CHIP_CLIP_LABEL, text),
+                            )
+                        )
+                        SnackbarController.sendEvent(
+                            SnackbarEvent(message = chipCopiedMessage),
+                        )
+                    }
+                },
             )
         }
     }
@@ -91,6 +117,7 @@ fun KeywordsScreen(
 private fun KeywordsContent(
     modifier: Modifier = Modifier,
     state: KeywordsUiContract.State,
+    onCopyChip: (text: String) -> Unit,
     onAction: (action: KeywordsUiContract.Action) -> Unit,
 ) {
     val focusManager = LocalFocusManager.current
@@ -130,13 +157,23 @@ private fun KeywordsContent(
         KeywordsSection(
             bringIntoViewRequester = keywordsBivr,
             keywords = state.keywords,
+            selectedTriggerKeywordRuleType = state.selectedTriggerKeywordRuleType,
             inputValue = state.inputKeyword,
+            inputHint = when (state.selectedTriggerKeywordRuleType) {
+                TriggerKeywordRuleType.WORD -> stringResource(R.string.keywords_trigger_hint_word)
+                TriggerKeywordRuleType.ALL_WORDS -> stringResource(R.string.keywords_trigger_hint_all_words)
+                TriggerKeywordRuleType.PHRASE -> stringResource(R.string.keywords_trigger_hint_phrase)
+            },
+            onTypeSelected = { type ->
+                onAction(KeywordsUiContract.Action.SelectTriggerKeywordRuleType(type))
+            },
             onInputChange = { value ->
                 onAction(KeywordsUiContract.Action.UpdateKeywordInput(value))
             },
             onAdd = { onAction(KeywordsUiContract.Action.AddKeyword) },
-            onRemove = { keyword ->
-                onAction(KeywordsUiContract.Action.RemoveKeyword(keyword))
+            onCopy = onCopyChip,
+            onRemove = { keywordRule ->
+                onAction(KeywordsUiContract.Action.RemoveKeyword(keywordRule))
             },
             onFocusChanged = { isFocused ->
                 if (isFocused) activeBivr = keywordsBivr
@@ -152,6 +189,7 @@ private fun KeywordsContent(
                 onAction(KeywordsUiContract.Action.UpdateStopWordInput(value))
             },
             onAdd = { onAction(KeywordsUiContract.Action.AddStopWord) },
+            onCopy = onCopyChip,
             onRemove = { stopWord ->
                 onAction(KeywordsUiContract.Action.RemoveStopWord(stopWord))
             },
@@ -171,6 +209,7 @@ private fun KeywordsContent(
                 onAction(KeywordsUiContract.Action.UpdateTelegramChannelInput(value))
             },
             onAdd = { onAction(KeywordsUiContract.Action.AddTelegramChannel) },
+            onCopy = onCopyChip,
             onRemove = { channel ->
                 onAction(KeywordsUiContract.Action.RemoveTelegramChannel(channel))
             },
@@ -188,6 +227,7 @@ private fun KeywordsContentEmptyPreview() {
     VartovyiTheme {
         KeywordsContent(
             state = KeywordsUiContract.State(),
+            onCopyChip = {},
             onAction = {},
         )
     }
@@ -199,9 +239,14 @@ private fun KeywordsContentWithDataPreview() {
     VartovyiTheme {
         KeywordsContent(
             state = KeywordsUiContract.State(
-                keywords = listOf("Салтівка", "ракета", "вибух"),
+                keywords = listOf(
+                    TriggerKeywordRule.fromStorageValue("Салтівка"),
+                    TriggerKeywordRule.fromStorageValue("ракета + харків"),
+                    TriggerKeywordRule.fromStorageValue("\"вибух біля дому\""),
+                ),
                 stopWords = listOf("відбій", "чисто", "минула"),
             ),
+            onCopyChip = {},
             onAction = {},
         )
     }
@@ -213,11 +258,15 @@ private fun KeywordsContentTelegramFilterPreview() {
     VartovyiTheme {
         KeywordsContent(
             state = KeywordsUiContract.State(
-                keywords = listOf("Салтівка", "ракета"),
+                keywords = listOf(
+                    TriggerKeywordRule.fromStorageValue("Салтівка"),
+                    TriggerKeywordRule.fromStorageValue("ракета + харків"),
+                ),
                 stopWords = listOf("відбій"),
                 isTelegramChannelFilterEnabled = true,
                 telegramChannels = listOf("@air_alert_ua", "@kharkiv_alarm"),
             ),
+            onCopyChip = {},
             onAction = {},
         )
     }

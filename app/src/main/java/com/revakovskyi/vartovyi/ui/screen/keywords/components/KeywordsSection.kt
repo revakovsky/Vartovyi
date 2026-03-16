@@ -13,17 +13,23 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import com.revakovskyi.vartovyi.R
+import com.revakovskyi.vartovyi.domain.model.TriggerKeywordRule
+import com.revakovskyi.vartovyi.domain.model.TriggerKeywordRuleType
 import com.revakovskyi.vartovyi.ui.theme.VartovyiTheme
 
 @Composable
 fun KeywordsSection(
     modifier: Modifier = Modifier,
     bringIntoViewRequester: BringIntoViewRequester,
-    keywords: List<String>,
+    keywords: List<TriggerKeywordRule>,
+    selectedTriggerKeywordRuleType: TriggerKeywordRuleType,
     inputValue: String,
+    inputHint: String,
+    onTypeSelected: (type: TriggerKeywordRuleType) -> Unit,
     onInputChange: (value: String) -> Unit,
     onAdd: () -> Unit,
-    onRemove: (keyword: String) -> Unit,
+    onCopy: (text: String) -> Unit,
+    onRemove: (keyword: TriggerKeywordRule) -> Unit,
     onFocusChanged: (isFocused: Boolean) -> Unit,
 ) {
     Surface(
@@ -40,13 +46,19 @@ fun KeywordsSection(
                 tooltipText = stringResource(R.string.keywords_trigger_tooltip),
             )
 
+            TriggerRuleTypeSelector(
+                selectedTriggerKeywordRuleType = selectedTriggerKeywordRuleType,
+                onTypeSelected = onTypeSelected,
+            )
+
             Column(
                 verticalArrangement = Arrangement.spacedBy(VartovyiTheme.spacing.medium),
                 modifier = Modifier.bringIntoViewRequester(bringIntoViewRequester),
             ) {
                 WordInputRow(
                     value = inputValue,
-                    hint = stringResource(R.string.keywords_trigger_hint),
+                    hint = inputHint,
+                    onClear = { onInputChange("") },
                     onValueChange = onInputChange,
                     onAdd = onAdd,
                     onFocusChanged = onFocusChanged,
@@ -57,12 +69,15 @@ fun KeywordsSection(
                         horizontalArrangement = Arrangement.spacedBy(VartovyiTheme.spacing.small),
                         verticalArrangement = Arrangement.spacedBy(VartovyiTheme.spacing.small),
                     ) {
-                        keywords.forEach { keyword ->
+                        keywords.forEach { keywordRule ->
+                            val modeLabel = getModeLabel(type = keywordRule.type)
+                            val chipText = "[$modeLabel] ${keywordRule.displayValue}"
                             WordChip(
-                                text = keyword,
+                                text = chipText,
                                 containerColor = VartovyiTheme.colors.primaryContainer,
                                 contentColor = VartovyiTheme.colors.onPrimaryContainer,
-                                onRemove = { onRemove(keyword) },
+                                onLongPress = { onCopy(keywordRule.displayValue) },
+                                onRemove = { onRemove(keywordRule) },
                             )
                         }
                     }
@@ -72,16 +87,29 @@ fun KeywordsSection(
     }
 }
 
+@Composable
+private fun getModeLabel(type: TriggerKeywordRuleType): String {
+    return when (type) {
+        TriggerKeywordRuleType.WORD -> stringResource(R.string.keywords_rule_type_word)
+        TriggerKeywordRuleType.ALL_WORDS -> stringResource(R.string.keywords_rule_type_all_words)
+        TriggerKeywordRuleType.PHRASE -> stringResource(R.string.keywords_rule_type_phrase)
+    }
+}
+
 @Preview(name = "Keywords section — empty")
 @Composable
 private fun PreviewKeywordsSectionEmpty() {
     VartovyiTheme {
         KeywordsSection(
             bringIntoViewRequester = remember { BringIntoViewRequester() },
+            selectedTriggerKeywordRuleType = TriggerKeywordRuleType.WORD,
             keywords = emptyList(),
             inputValue = "",
+            inputHint = "e.g. Saltivka",
+            onTypeSelected = {},
             onInputChange = {},
             onAdd = {},
+            onCopy = {},
             onRemove = {},
             onFocusChanged = {},
         )
@@ -94,10 +122,18 @@ private fun PreviewKeywordsSectionWithWords() {
     VartovyiTheme {
         KeywordsSection(
             bringIntoViewRequester = remember { BringIntoViewRequester() },
-            keywords = listOf("Салтівка", "ракета", "вибух", "тривога", "атака"),
+            selectedTriggerKeywordRuleType = TriggerKeywordRuleType.ALL_WORDS,
+            keywords = listOf(
+                TriggerKeywordRule.fromStorageValue("Салтівка"),
+                TriggerKeywordRule.fromStorageValue("ракета + харків"),
+                TriggerKeywordRule.fromStorageValue("\"шахед на місто\""),
+            ),
             inputValue = "",
+            inputHint = "e.g. rocket + kharkiv",
+            onTypeSelected = {},
             onInputChange = {},
             onAdd = {},
+            onCopy = {},
             onRemove = {},
             onFocusChanged = {},
         )

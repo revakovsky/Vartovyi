@@ -1,9 +1,13 @@
 package com.revakovskyi.vartovyi.ui.components
 
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.tooling.preview.Preview
@@ -32,11 +36,15 @@ fun VartovyiDialog(
             )
         },
         text = {
-            Text(
-                text = message,
-                style = VartovyiTheme.typography.bodyMedium,
-                color = VartovyiTheme.colors.onSurfaceVariant,
-            )
+            Column(
+                modifier = Modifier.verticalScroll(rememberScrollState())
+            ) {
+                Text(
+                    text = message,
+                    style = VartovyiTheme.typography.bodyMedium,
+                    color = VartovyiTheme.colors.onSurfaceVariant,
+                )
+            }
         },
         confirmButton = {
             TextButton(onClick = resolvedOnConfirm) {

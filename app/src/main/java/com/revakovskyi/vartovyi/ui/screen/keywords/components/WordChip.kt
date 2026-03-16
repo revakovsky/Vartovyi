@@ -1,6 +1,7 @@
 package com.revakovskyi.vartovyi.ui.screen.keywords.components
 
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
@@ -27,6 +28,7 @@ fun WordChip(
     text: String,
     containerColor: Color,
     contentColor: Color,
+    onLongPress: () -> Unit = {},
     onRemove: () -> Unit,
 ) {
     Surface(
@@ -34,7 +36,10 @@ fun WordChip(
         shape = VartovyiTheme.shapes.largeIncreased,
         modifier = modifier
             .clip(VartovyiTheme.shapes.largeIncreased)
-            .clickable { onRemove() }
+            .combinedClickable(
+                onClick = {},
+                onLongClick = onLongPress,
+            )
     ) {
         Row(
             verticalAlignment = Alignment.CenterVertically,
@@ -56,7 +61,9 @@ fun WordChip(
                 imageVector = ImageVector.vectorResource(R.drawable.close),
                 contentDescription = null,
                 tint = contentColor.copy(alpha = CLOSE_ICON_ALPHA),
-                modifier = Modifier.size(VartovyiTheme.spacing.medium),
+                modifier = Modifier
+                    .size(VartovyiTheme.spacing.medium)
+                    .clickable(onClick = onRemove),
             )
         }
     }
@@ -70,6 +77,7 @@ private fun PreviewWordChipKeyword() {
             text = "Салтівка",
             containerColor = VartovyiTheme.colors.surfaceVariant,
             contentColor = VartovyiTheme.colors.onSurfaceVariant,
+            onLongPress = {},
             onRemove = {},
         )
     }
@@ -83,6 +91,7 @@ private fun PreviewWordChipStopWord() {
             text = "відбій",
             containerColor = VartovyiTheme.colors.tertiaryContainer,
             contentColor = VartovyiTheme.colors.onTertiaryContainer,
+            onLongPress = {},
             onRemove = {},
         )
     }

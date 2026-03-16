@@ -2,6 +2,7 @@ package com.revakovskyi.vartovyi.domain.usecase.notification
 
 import com.revakovskyi.vartovyi.domain.controllers.alarm.AlarmController
 import com.revakovskyi.vartovyi.domain.model.AlertEvent
+import com.revakovskyi.vartovyi.domain.model.TriggerKeywordRule
 import com.revakovskyi.vartovyi.domain.repository.KeywordsRepository
 import com.revakovskyi.vartovyi.domain.repository.LogRepository
 import com.revakovskyi.vartovyi.domain.repository.SettingsRepository
@@ -128,7 +129,10 @@ class ProcessIncomingTelegramNotificationUseCaseImpl(
         val hasStopWord = stopWords.any { stopWord -> lowerText.contains(stopWord.lowercase()) }
         if (hasStopWord) return null
 
-        return keywords.firstOrNull { keyword -> lowerText.contains(keyword.lowercase()) }
+        return keywords.asSequence()
+            .map { keyword -> TriggerKeywordRule.fromStorageValue(keyword) }
+            .firstOrNull { keywordRule -> keywordRule.matches(text) }
+            ?.displayValue
     }
 
     private fun isChannelAllowed(

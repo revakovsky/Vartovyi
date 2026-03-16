@@ -2,6 +2,8 @@ package com.revakovskyi.vartovyi.ui.screen.keywords
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.revakovskyi.vartovyi.domain.model.TriggerKeywordRule
+import com.revakovskyi.vartovyi.domain.model.TriggerKeywordRuleType
 import com.revakovskyi.vartovyi.domain.usecase.keywords.AddKeywordUseCase
 import com.revakovskyi.vartovyi.domain.usecase.keywords.AddStopWordUseCase
 import com.revakovskyi.vartovyi.domain.usecase.keywords.AddTelegramChannelUseCase
@@ -53,6 +55,7 @@ class KeywordsViewModel(
 
     fun onAction(action: Action) {
         when (action) {
+            is Action.SelectTriggerKeywordRuleType -> selectTriggerKeywordRuleType(action.type)
             is Action.UpdateKeywordInput -> updateKeywordInput(action.value)
             is Action.UpdateStopWordInput -> updateStopWordInput(action.value)
             is Action.AddKeyword -> addKeyword()
@@ -75,14 +78,25 @@ class KeywordsViewModel(
             observeTelegramChannelsUseCase(),
             observeTelegramChannelFilterEnabledUseCase(),
         ) { keywords, stopWords, telegramChannels, isTelegramChannelFilterEnabled ->
+            val parsedKeywords = keywords.map { keyword ->
+                TriggerKeywordRule.fromStorageValue(keyword)
+            }
+            val sortedKeywords = parsedKeywords.sortedWith(
+                compareBy<TriggerKeywordRule>(
+                    { keywordRule -> triggerRuleTypeOrder(keywordRule.type) },
+                    { keywordRule -> keywordRule.displayValue.lowercase() },
+                )
+            )
+
             _state.update {
                 it.copy(
-                    keywords = keywords,
+                    keywords = sortedKeywords,
                     stopWords = stopWords,
                     telegramChannels = telegramChannels,
                     isTelegramChannelFilterEnabled = isTelegramChannelFilterEnabled,
                 )
             }
+
             if (isFirstEmission) {
                 isFirstEmission = false
                 _state.update { it.copy(isLoading = false) }
@@ -94,30 +108,44 @@ class KeywordsViewModel(
         _state.update { it.copy(inputKeyword = value) }
     }
 
+    private fun selectTriggerKeywordRuleType(type: TriggerKeywordRuleType) {
+        _state.update { it.copy(selectedTriggerKeywordRuleType = type) }
+    }
+
     private fun updateStopWordInput(value: String) {
         _state.update { it.copy(inputStopWord = value) }
     }
 
     private fun addKeyword() {
-        val keyword = _state.value.inputKeyword.trim()
+        val newKeywordRule = TriggerKeywordRule.create(
+            type = _state.value.selectedTriggerKeywordRuleType,
+            input = _state.value.inputKeyword,
+        ) ?: return
 
-        if (keyword.isBlank() || keyword.length < 2) return
-
-        if (_state.value.keywords.any { it.equals(keyword, ignoreCase = true) }) {
-            _state.update { it.copy(inputKeyword = "", duplicateWord = keyword) }
+        if (
+            _state.value.keywords.any { keywordRule ->
+                keywordRule.normalizedSignature() == newKeywordRule.normalizedSignature()
+            }
+        ) {
+            _state.update {
+                it.copy(
+                    inputKeyword = "",
+                    duplicateWord = newKeywordRule.displayValue
+                )
+            }
             return
         }
 
         viewModelScope.launch {
-            addKeywordUseCase(keyword)
+            addKeywordUseCase(newKeywordRule.storageValue)
             _state.update { it.copy(inputKeyword = "") }
             _events.emit(Event.KeywordAdded)
         }
     }
 
-    private fun removeKeyword(keyword: String) {
+    private fun removeKeyword(keyword: TriggerKeywordRule) {
         viewModelScope.launch {
-            removeKeywordUseCase(keyword)
+            removeKeywordUseCase(keyword.storageValue)
             _events.emit(Event.KeywordRemoved)
         }
     }
@@ -180,6 +208,14 @@ class KeywordsViewModel(
 
     private fun dismissDuplicateWordDialog() {
         _state.update { it.copy(duplicateWord = null) }
+    }
+
+    private fun triggerRuleTypeOrder(type: TriggerKeywordRuleType): Int {
+        return when (type) {
+            TriggerKeywordRuleType.WORD -> 0
+            TriggerKeywordRuleType.ALL_WORDS -> 1
+            TriggerKeywordRuleType.PHRASE -> 2
+        }
     }
 
 }

@@ -23,6 +23,7 @@ fun StopWordsSection(
     inputValue: String,
     onInputChange: (value: String) -> Unit,
     onAdd: () -> Unit,
+    onCopy: (text: String) -> Unit,
     onRemove: (stopWord: String) -> Unit,
     onFocusChanged: (isFocused: Boolean) -> Unit,
 ) {
@@ -47,6 +48,7 @@ fun StopWordsSection(
                 WordInputRow(
                     value = inputValue,
                     hint = stringResource(R.string.keywords_stop_hint),
+                    onClear = { onInputChange("") },
                     onValueChange = onInputChange,
                     onAdd = onAdd,
                     onFocusChanged = onFocusChanged,
@@ -62,6 +64,7 @@ fun StopWordsSection(
                                 text = stopWord,
                                 containerColor = VartovyiTheme.colors.secondaryContainer,
                                 contentColor = VartovyiTheme.colors.onSecondaryContainer,
+                                onLongPress = { onCopy(stopWord) },
                                 onRemove = { onRemove(stopWord) },
                             )
                         }
@@ -82,6 +85,7 @@ private fun PreviewStopWordsSectionEmpty() {
             inputValue = "",
             onInputChange = {},
             onAdd = {},
+            onCopy = {},
             onRemove = {},
             onFocusChanged = {},
         )
@@ -98,6 +102,7 @@ private fun PreviewStopWordsSectionWithWords() {
             inputValue = "",
             onInputChange = {},
             onAdd = {},
+            onCopy = {},
             onRemove = {},
             onFocusChanged = {},
         )
