@@ -6,6 +6,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
 
 private const val DEFAULT_ALARM_VOLUME_PERCENT = 100
+private const val DEFAULT_ALARM_SOUND_URI = ""
 
 interface ObserveScheduleSettingsUseCase {
     operator fun invoke(): Flow<ScheduleSettings>
@@ -29,6 +30,7 @@ class ObserveScheduleSettingsUseCaseImpl(
                 endTime = endTime,
                 alarmDurationSeconds = alarmDurationSeconds,
                 alarmVolumePercent = DEFAULT_ALARM_VOLUME_PERCENT,
+                alarmSoundUri = DEFAULT_ALARM_SOUND_URI,
                 isVibrationEnabled = isVibrationEnabled,
             )
         }
@@ -36,9 +38,11 @@ class ObserveScheduleSettingsUseCaseImpl(
         return combine(
             baseScheduleSettingsFlow,
             settingsRepository.alarmVolumePercent,
-        ) { baseScheduleSettings, alarmVolumePercent ->
+            settingsRepository.alarmSoundUri,
+        ) { baseScheduleSettings, alarmVolumePercent, alarmSoundUri ->
             baseScheduleSettings.copy(
                 alarmVolumePercent = alarmVolumePercent,
+                alarmSoundUri = alarmSoundUri,
             )
         }
     }

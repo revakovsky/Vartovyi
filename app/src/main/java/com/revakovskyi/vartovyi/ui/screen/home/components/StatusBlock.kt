@@ -7,9 +7,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.widthIn
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -25,6 +22,8 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.revakovskyi.vartovyi.R
 import com.revakovskyi.vartovyi.domain.model.MonitoringState
+import com.revakovskyi.vartovyi.ui.components.VartovyiActionButton
+import com.revakovskyi.vartovyi.ui.components.VartovyiActionButtonStyle
 import com.revakovskyi.vartovyi.ui.theme.VartovyiTheme
 
 private const val ICON_SIZE_FRACTION = 0.5f
@@ -124,25 +123,18 @@ fun StatusBlock(
 
             Spacer(modifier = Modifier.weight(SPACER_BOTTOM_WEIGHT))
 
-            Button(
+            VartovyiActionButton(
+                text = buttonText,
                 onClick = {
                     hapticFeedback.performHapticFeedback(HapticFeedbackType.Confirm)
                     onToggle()
                 },
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = buttonContainerColor,
-                    contentColor = buttonContentColor,
-                ),
-                modifier = Modifier
-                    .widthIn(min = TOGGLE_BUTTON_MIN_WIDTH_DP.dp)
-                    .fillMaxWidth(TOGGLE_BUTTON_WIDTH_FRACTION)
-                    .height(VartovyiTheme.spacing.massive),
-            ) {
-                Text(
-                    text = buttonText,
-                    style = VartovyiTheme.typography.titleMedium,
-                )
-            }
+                style = VartovyiActionButtonStyle.Filled,
+                containerColor = buttonContainerColor,
+                contentColor = buttonContentColor,
+                minWidth = TOGGLE_BUTTON_MIN_WIDTH_DP.dp,
+                fillMaxWidthFraction = TOGGLE_BUTTON_WIDTH_FRACTION,
+            )
 
             Spacer(modifier = Modifier.weight(1f))
         }

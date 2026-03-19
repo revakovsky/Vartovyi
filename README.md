@@ -116,6 +116,13 @@ Android-додаток для моніторингу Telegram-сповіщень
 - [x] У `Settings` додано керування `alarmDurationSeconds` через `Slider` (5..300 с, крок 30) з live
   preview значення.
 - [x] У `Settings` додано керування `alarmVolumePercent` через `Slider` (0..100%, крок 10).
+- [x] На `Settings` додано loading-state (`LoadingOverlay`) під час первинного завантаження всіх
+  необхідних налаштувань.
+- [x] У `Settings` додано вибір мелодії тривоги через системний `RingtonePicker` з відображенням
+  вибраної назви.
+- [x] Кнопки `SettingsTestAlarmButton`, `LogClearButton`, `StatusBlock` toggle і кнопка вибору
+  мелодії
+  уніфіковано через спільний компонент `VartovyiActionButton`.
 
 ### Alarm
 
@@ -131,6 +138,8 @@ Android-додаток для моніторингу Telegram-сповіщень
   неблокуючий старт звуку.
 - [x] `alarmDurationSeconds` синхронізовано з авто-зупинкою `AlarmService`.
 - [x] `alarmVolumePercent` застосовується до `MediaPlayer` до старту звуку тривоги.
+- [x] `alarmSoundUri` (вибрана мелодія) зчитується в `AlarmService` перед стартом і використовується
+  для відтворення (fallback на системний alarm/ringtone).
 - [ ] `WAKE_LOCK` permission додано, але явне керування `PowerManager.WakeLock` в `AlarmService` ще
   не реалізовано.
 - [ ] Повна інтеграція DND bypass потребує перевірки каналів/дозволів на runtime.
@@ -215,10 +224,11 @@ Android-додаток для моніторингу Telegram-сповіщень
 
 - [x] Підв’язати `alarmDurationSeconds` до реальної зупинки `AlarmService`.
 - [x] Додати налаштування `alarmVolumePercent` та застосування в `AlarmService`.
+- [x] Додати вибір `alarmSoundUri` через системний `RingtonePicker` із персистентним збереженням.
 - [ ] Підв’язати `isVibrationEnabled` до поведінки `AlarmService`.
 - [ ] Додати короткий `WakeLock` в `AlarmService` (safe acquire/release) для надійного старту
   тривоги в deep sleep.
-- [ ] Додати preview/play тест звуку тривоги з Settings.
+- [x] Додати preview/play вибору звуку тривоги в Settings (через системний picker).
 
 ### Milestone F — Permissions hardening
 
@@ -280,6 +290,9 @@ Android-додаток для моніторингу Telegram-сповіщень
   тривоги через `Volume Up/Down` в `AlarmActivity`; у `Settings` додано `Alarm duration` slider
   (5..300 с, крок 30, live preview) і `Alarm volume` slider (0..100%, крок 10); у `AlarmService`
   гучність застосовується до `MediaPlayer` до старту відтворення.
+- `2026-03-19` — у `Settings` додано вибір мелодії тривоги через системний `RingtonePicker`
+  (прослуховування + збереження + відображення назви), loading-state на первинне завантаження
+  налаштувань і уніфіковано ключові кнопки через спільний `VartovyiActionButton`.
 
 ## 13) Узгоджені продукт-рішення (зафіксовано)
 
@@ -347,12 +360,14 @@ Android-додаток для моніторингу Telegram-сповіщень
     - Кнопка `Test Alarm` (запуск/стоп тестової тривоги).
     - Якщо monitoring `ACTIVE`, тест тривоги блокується зі snackbar-підказкою та переходом на
       `Home`.
+    - Під час первинного завантаження налаштувань показується `LoadingOverlay`.
     - Розклад роботи (enable + start/end time).
     - Налаштування тривоги:
+        - alarm sound — системний `RingtonePicker` (з можливістю прослухати), показ вибраної назви;
         - duration — `Slider` (5..300 с, крок 30) з live-оновленням значення під час перетягування;
         - volume — `Slider` (0..100%, крок 10);
         - vibration;
-        - alarm sound preview.
+        - збереження всіх параметрів у `DataStore`.
     - Джерела сповіщень (список Telegram-клієнтів).
     - Ліміт розміру журналу.
 
