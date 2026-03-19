@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.SnackbarDuration
 import androidx.compose.runtime.Composable
@@ -17,6 +18,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import com.revakovskyi.vartovyi.R
 import com.revakovskyi.vartovyi.ui.screen.settings.components.AlarmDurationSection
+import com.revakovskyi.vartovyi.ui.screen.settings.components.AlarmVolumeSection
 import com.revakovskyi.vartovyi.ui.screen.settings.components.SettingsTestAlarmButton
 import com.revakovskyi.vartovyi.ui.theme.VartovyiTheme
 import com.revakovskyi.vartovyi.ui.util.snackbar.SnackbarAction
@@ -84,7 +86,7 @@ private fun SettingsContent(
     ) {
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
-            modifier = modifier.fillMaxSize()
+            modifier = Modifier.fillMaxSize()
         ) {
             AlarmDurationSection(
                 durationSeconds = state.alarmDurationSeconds,
@@ -94,6 +96,16 @@ private fun SettingsContent(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(top = VartovyiTheme.spacing.standard)
+            )
+
+            Spacer(modifier = Modifier.height(VartovyiTheme.spacing.standard))
+
+            AlarmVolumeSection(
+                volumePercent = state.alarmVolumePercent,
+                onVolumeChange = { percent ->
+                    onAction(SettingsUiContract.Action.SetAlarmVolume(percent))
+                },
+                modifier = Modifier.fillMaxWidth()
             )
 
             Spacer(modifier = Modifier.weight(1f))

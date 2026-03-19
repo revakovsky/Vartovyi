@@ -11,6 +11,7 @@ import com.revakovskyi.vartovyi.domain.usecase.settings.ObserveLogSizeLimitUseCa
 import com.revakovskyi.vartovyi.domain.usecase.settings.ObserveScheduleSettingsUseCase
 import com.revakovskyi.vartovyi.domain.usecase.settings.ObserveTelegramPackagesUseCase
 import com.revakovskyi.vartovyi.domain.usecase.settings.SetAlarmDurationUseCase
+import com.revakovskyi.vartovyi.domain.usecase.settings.SetAlarmVolumeUseCase
 import com.revakovskyi.vartovyi.domain.usecase.settings.SetEndTimeUseCase
 import com.revakovskyi.vartovyi.domain.usecase.settings.SetLogSizeLimitUseCase
 import com.revakovskyi.vartovyi.domain.usecase.settings.SetScheduleEnabledUseCase
@@ -39,6 +40,7 @@ class SettingsViewModel(
     private val setStartTimeUseCase: SetStartTimeUseCase,
     private val setEndTimeUseCase: SetEndTimeUseCase,
     private val setAlarmDurationUseCase: SetAlarmDurationUseCase,
+    private val setAlarmVolumeUseCase: SetAlarmVolumeUseCase,
     private val setVibrationEnabledUseCase: SetVibrationEnabledUseCase,
     private val setTelegramPackagesUseCase: SetTelegramPackagesUseCase,
     private val setLogSizeLimitUseCase: SetLogSizeLimitUseCase,
@@ -68,6 +70,7 @@ class SettingsViewModel(
             is Action.SetStartTime -> setStartTime(action.time)
             is Action.SetEndTime -> setEndTime(action.time)
             is Action.SetAlarmDuration -> setAlarmDuration(action.seconds)
+            is Action.SetAlarmVolume -> setAlarmVolume(action.percent)
             is Action.SetVibrationEnabled -> setVibrationEnabled(action.enabled)
             is Action.SetTelegramPackages -> setTelegramPackages(action.packages)
             is Action.SetLogSizeLimit -> setLogSizeLimit(action.limit)
@@ -89,6 +92,7 @@ class SettingsViewModel(
                     startTime = scheduleSettings.startTime,
                     endTime = scheduleSettings.endTime,
                     alarmDurationSeconds = scheduleSettings.alarmDurationSeconds,
+                    alarmVolumePercent = scheduleSettings.alarmVolumePercent,
                     isVibrationEnabled = scheduleSettings.isVibrationEnabled,
                 )
             }
@@ -135,6 +139,10 @@ class SettingsViewModel(
 
     private fun setAlarmDuration(seconds: Int) {
         viewModelScope.launch { setAlarmDurationUseCase(seconds) }
+    }
+
+    private fun setAlarmVolume(percent: Int) {
+        viewModelScope.launch { setAlarmVolumeUseCase(percent) }
     }
 
     private fun setVibrationEnabled(enabled: Boolean) {

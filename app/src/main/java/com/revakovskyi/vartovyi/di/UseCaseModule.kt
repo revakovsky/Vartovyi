@@ -60,6 +60,8 @@ import com.revakovskyi.vartovyi.domain.usecase.settings.ObserveTelegramPackagesU
 import com.revakovskyi.vartovyi.domain.usecase.settings.ObserveTelegramPackagesUseCaseImpl
 import com.revakovskyi.vartovyi.domain.usecase.settings.SetAlarmDurationUseCase
 import com.revakovskyi.vartovyi.domain.usecase.settings.SetAlarmDurationUseCaseImpl
+import com.revakovskyi.vartovyi.domain.usecase.settings.SetAlarmVolumeUseCase
+import com.revakovskyi.vartovyi.domain.usecase.settings.SetAlarmVolumeUseCaseImpl
 import com.revakovskyi.vartovyi.domain.usecase.settings.SetEndTimeUseCase
 import com.revakovskyi.vartovyi.domain.usecase.settings.SetEndTimeUseCaseImpl
 import com.revakovskyi.vartovyi.domain.usecase.settings.SetLogSizeLimitUseCase
@@ -115,6 +117,7 @@ val useCaseModule = module {
     singleOf(::SetStartTimeUseCaseImpl) { bind<SetStartTimeUseCase>() }
     singleOf(::SetEndTimeUseCaseImpl) { bind<SetEndTimeUseCase>() }
     singleOf(::SetAlarmDurationUseCaseImpl) { bind<SetAlarmDurationUseCase>() }
+    singleOf(::SetAlarmVolumeUseCaseImpl) { bind<SetAlarmVolumeUseCase>() }
     singleOf(::SetVibrationEnabledUseCaseImpl) { bind<SetVibrationEnabledUseCase>() }
     singleOf(::SetTelegramPackagesUseCaseImpl) { bind<SetTelegramPackagesUseCase>() }
     singleOf(::SetLogSizeLimitUseCaseImpl) { bind<SetLogSizeLimitUseCase>() }

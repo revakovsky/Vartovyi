@@ -9,6 +9,7 @@ interface SettingsRepository {
     val startTime: Flow<String>
     val endTime: Flow<String>
     val alarmDurationSeconds: Flow<Int>
+    val alarmVolumePercent: Flow<Int>
     val isVibrationEnabled: Flow<Boolean>
     val selectedTelegramPackages: Flow<Set<String>>
     val logSizeLimit: Flow<Int>
@@ -20,6 +21,7 @@ interface SettingsRepository {
     suspend fun setStartTime(time: String)
     suspend fun setEndTime(time: String)
     suspend fun setAlarmDurationSeconds(seconds: Int)
+    suspend fun setAlarmVolumePercent(percent: Int)
     suspend fun setVibrationEnabled(enabled: Boolean)
     suspend fun setSelectedTelegramPackages(packages: Set<String>)
     suspend fun setLogSizeLimit(limit: Int)

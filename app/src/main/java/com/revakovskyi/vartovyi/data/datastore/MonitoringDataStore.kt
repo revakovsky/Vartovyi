@@ -20,6 +20,8 @@ private const val DATASTORE_NAME = "vartovyi_monitoring"
 private const val DEFAULT_START_TIME = "22:00"
 private const val DEFAULT_END_TIME = "07:00"
 private const val DEFAULT_TELEGRAM_PACKAGE = "org.telegram.messenger"
+private const val DEFAULT_ALARM_DURATION_SECONDS = 60
+private const val DEFAULT_ALARM_VOLUME_PERCENT = 100
 private const val DEFAULT_ALARM_RETRIGGER_COOLDOWN_MILLIS = 5 * 60 * 1000L
 
 private val Context.monitoringDataStore: DataStore<Preferences> by preferencesDataStore(
@@ -34,12 +36,15 @@ class MonitoringDataStore(private val context: Context) {
         val START_TIME = stringPreferencesKey("start_time")
         val END_TIME = stringPreferencesKey("end_time")
         val ALARM_DURATION_SECONDS = intPreferencesKey("alarm_duration_seconds")
+        val ALARM_VOLUME_PERCENT = intPreferencesKey("alarm_volume_percent")
         val VIBRATION_ENABLED = booleanPreferencesKey("vibration_enabled")
         val TELEGRAM_PACKAGES = stringSetPreferencesKey("telegram_packages")
         val LOG_SIZE_LIMIT = intPreferencesKey("log_size_limit")
         val ALARM_SOUND_URI = stringPreferencesKey("alarm_sound_uri")
-        val ALARM_RETRIGGER_COOLDOWN_DURATION_MILLIS = longPreferencesKey("alarm_retrigger_cooldown_duration_millis")
-        val ALARM_RETRIGGER_COOLDOWN_UNTIL_EPOCH_MILLIS = longPreferencesKey("alarm_retrigger_cooldown_until_epoch_millis")
+        val ALARM_RETRIGGER_COOLDOWN_DURATION_MILLIS =
+            longPreferencesKey("alarm_retrigger_cooldown_duration_millis")
+        val ALARM_RETRIGGER_COOLDOWN_UNTIL_EPOCH_MILLIS =
+            longPreferencesKey("alarm_retrigger_cooldown_until_epoch_millis")
     }
 
     val isMonitoringActive: Flow<Boolean> = context.monitoringDataStore.data
@@ -60,7 +65,11 @@ class MonitoringDataStore(private val context: Context) {
 
     val alarmDurationSeconds: Flow<Int> = context.monitoringDataStore.data
         .safeCatch()
-        .map { it[Keys.ALARM_DURATION_SECONDS] ?: 60 }
+        .map { it[Keys.ALARM_DURATION_SECONDS] ?: DEFAULT_ALARM_DURATION_SECONDS }
+
+    val alarmVolumePercent: Flow<Int> = context.monitoringDataStore.data
+        .safeCatch()
+        .map { it[Keys.ALARM_VOLUME_PERCENT] ?: DEFAULT_ALARM_VOLUME_PERCENT }
 
     val isVibrationEnabled: Flow<Boolean> = context.monitoringDataStore.data
         .safeCatch()
@@ -103,6 +112,10 @@ class MonitoringDataStore(private val context: Context) {
 
     suspend fun setAlarmDurationSeconds(seconds: Int) {
         context.monitoringDataStore.edit { it[Keys.ALARM_DURATION_SECONDS] = seconds }
+    }
+
+    suspend fun setAlarmVolumePercent(percent: Int) {
+        context.monitoringDataStore.edit { it[Keys.ALARM_VOLUME_PERCENT] = percent }
     }
 
     suspend fun setVibrationEnabled(enabled: Boolean) {
