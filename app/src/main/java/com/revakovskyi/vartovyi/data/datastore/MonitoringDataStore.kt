@@ -22,6 +22,7 @@ private const val DEFAULT_END_TIME = "07:00"
 private const val DEFAULT_TELEGRAM_PACKAGE = "org.telegram.messenger"
 private const val DEFAULT_ALARM_DURATION_SECONDS = 60
 private const val DEFAULT_ALARM_VOLUME_PERCENT = 100
+private const val DEFAULT_ALARM_SOUND_URI = ""
 private const val DEFAULT_ALARM_RETRIGGER_COOLDOWN_MILLIS = 5 * 60 * 1000L
 
 private val Context.monitoringDataStore: DataStore<Preferences> by preferencesDataStore(
@@ -71,6 +72,10 @@ class MonitoringDataStore(private val context: Context) {
         .safeCatch()
         .map { it[Keys.ALARM_VOLUME_PERCENT] ?: DEFAULT_ALARM_VOLUME_PERCENT }
 
+    val alarmSoundUri: Flow<String> = context.monitoringDataStore.data
+        .safeCatch()
+        .map { it[Keys.ALARM_SOUND_URI] ?: DEFAULT_ALARM_SOUND_URI }
+
     val isVibrationEnabled: Flow<Boolean> = context.monitoringDataStore.data
         .safeCatch()
         .map { it[Keys.VIBRATION_ENABLED] ?: true }
@@ -116,6 +121,10 @@ class MonitoringDataStore(private val context: Context) {
 
     suspend fun setAlarmVolumePercent(percent: Int) {
         context.monitoringDataStore.edit { it[Keys.ALARM_VOLUME_PERCENT] = percent }
+    }
+
+    suspend fun setAlarmSoundUri(uri: String) {
+        context.monitoringDataStore.edit { it[Keys.ALARM_SOUND_URI] = uri }
     }
 
     suspend fun setVibrationEnabled(enabled: Boolean) {

@@ -17,7 +17,7 @@ import kotlin.math.roundToInt
 
 private const val MIN_ALARM_VOLUME_PERCENT = 0
 private const val MAX_ALARM_VOLUME_PERCENT = 100
-private const val ALARM_VOLUME_STEP_PERCENT = 10
+private const val ALARM_VOLUME_STEP_PERCENT = 5
 private const val ALARM_VOLUME_SLIDER_WIDTH_FRACTION = 0.85f
 
 @Composable

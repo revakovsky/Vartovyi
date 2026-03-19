@@ -12,6 +12,7 @@ import android.media.AudioFocusRequest
 import android.media.AudioManager
 import android.media.MediaPlayer
 import android.media.RingtoneManager
+import android.net.Uri
 import android.os.Build
 import android.os.IBinder
 import android.os.VibrationEffect
@@ -20,6 +21,7 @@ import android.os.VibratorManager
 import android.util.Log
 import androidx.core.app.NotificationCompat
 import androidx.core.content.ContextCompat
+import androidx.core.net.toUri
 import com.revakovskyi.vartovyi.R
 import com.revakovskyi.vartovyi.domain.constants.AlarmContract
 import com.revakovskyi.vartovyi.domain.controllers.alarm.AlarmStateHolder
@@ -58,6 +60,7 @@ class AlarmService : Service() {
     private var currentSourceChannelName: String = EMPTY_VALUE
     private var currentSourceMessageText: String = EMPTY_VALUE
     private var currentAlarmVolume: Float = DEFAULT_ALARM_VOLUME_PERCENT / PERCENT_DIVISOR
+    private var currentAlarmSoundUri: Uri? = null
 
     private val alarmStateHolder: AlarmStateHolder by inject()
     private val observeScheduleSettingsUseCase: ObserveScheduleSettingsUseCase by inject()
@@ -96,7 +99,7 @@ class AlarmService : Service() {
         requestAudioFocus()
         ensureForegroundNotification()
         openAlarmActivityWithRetries()
-        startAlarmSoundWithResolvedVolume()
+        startAlarmSoundWithResolvedSettings()
         startVibration()
         scheduleAlarmAutoStop()
 
@@ -184,9 +187,10 @@ class AlarmService : Service() {
             .toLong() * MILLIS_IN_SECOND
     }
 
-    private fun startAlarmSoundWithResolvedVolume() {
+    private fun startAlarmSoundWithResolvedSettings() {
         serviceScope.launch {
             currentAlarmVolume = resolveAlarmVolume()
+            currentAlarmSoundUri = resolveAlarmSoundUri()
             if (!isAlarmActive.get()) return@launch
             startAlarmSound()
         }
@@ -202,6 +206,23 @@ class AlarmService : Service() {
         return alarmVolumePercent
             .coerceIn(0, 100)
             .toFloat() / PERCENT_DIVISOR
+    }
+
+    private suspend fun resolveAlarmSoundUri(): Uri? {
+        val alarmSoundUri = runCatching {
+            observeScheduleSettingsUseCase().first().alarmSoundUri
+        }.onFailure { throwable ->
+            Log.e(ALARM_TAG, "Failed to read alarm sound uri, fallback to default", throwable)
+        }.getOrDefault(EMPTY_VALUE)
+
+        val selectedAlarmSoundUri = alarmSoundUri.takeIf { it.isNotBlank() }?.toUri()
+
+        return selectedAlarmSoundUri ?: resolveDefaultAlarmSoundUri()
+    }
+
+    private fun resolveDefaultAlarmSoundUri(): Uri? {
+        return RingtoneManager.getDefaultUri(RingtoneManager.TYPE_ALARM)
+            ?: RingtoneManager.getDefaultUri(RingtoneManager.TYPE_RINGTONE)
     }
 
     private fun notifyAlarmStopped() {
@@ -327,9 +348,7 @@ class AlarmService : Service() {
 
         if (mediaPlayer?.isPlaying == true) return
 
-        val alarmUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_ALARM)
-            ?: RingtoneManager.getDefaultUri(RingtoneManager.TYPE_RINGTONE)
-            ?: return
+        val alarmUri = currentAlarmSoundUri ?: resolveDefaultAlarmSoundUri() ?: return
 
         try {
             mediaPlayer = MediaPlayer().apply {
