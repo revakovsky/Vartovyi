@@ -45,6 +45,8 @@ private const val EMPTY_VALUE = ""
 private const val ALARM_ACTIVITY_OPEN_RETRY_DELAY_MILLIS = 400L
 private const val ALARM_ACTIVITY_OPEN_MAX_RETRIES = 8
 private const val DEFAULT_ALARM_DURATION_SECONDS = 60
+private const val DEFAULT_ALARM_VOLUME_PERCENT = 100
+private const val PERCENT_DIVISOR = 100f
 private const val MILLIS_IN_SECOND = 1000L
 
 class AlarmService : Service() {
@@ -55,6 +57,7 @@ class AlarmService : Service() {
 
     private var currentSourceChannelName: String = EMPTY_VALUE
     private var currentSourceMessageText: String = EMPTY_VALUE
+    private var currentAlarmVolume: Float = DEFAULT_ALARM_VOLUME_PERCENT / PERCENT_DIVISOR
 
     private val alarmStateHolder: AlarmStateHolder by inject()
     private val observeScheduleSettingsUseCase: ObserveScheduleSettingsUseCase by inject()
@@ -93,7 +96,7 @@ class AlarmService : Service() {
         requestAudioFocus()
         ensureForegroundNotification()
         openAlarmActivityWithRetries()
-        startAlarmSound()
+        startAlarmSoundWithResolvedVolume()
         startVibration()
         scheduleAlarmAutoStop()
 
@@ -179,6 +182,26 @@ class AlarmService : Service() {
         return alarmDurationSeconds
             .coerceAtLeast(1)
             .toLong() * MILLIS_IN_SECOND
+    }
+
+    private fun startAlarmSoundWithResolvedVolume() {
+        serviceScope.launch {
+            currentAlarmVolume = resolveAlarmVolume()
+            if (!isAlarmActive.get()) return@launch
+            startAlarmSound()
+        }
+    }
+
+    private suspend fun resolveAlarmVolume(): Float {
+        val alarmVolumePercent = runCatching {
+            observeScheduleSettingsUseCase().first().alarmVolumePercent
+        }.onFailure { throwable ->
+            Log.e(ALARM_TAG, "Failed to read alarm volume, fallback to default", throwable)
+        }.getOrDefault(DEFAULT_ALARM_VOLUME_PERCENT)
+
+        return alarmVolumePercent
+            .coerceIn(0, 100)
+            .toFloat() / PERCENT_DIVISOR
     }
 
     private fun notifyAlarmStopped() {
@@ -300,6 +323,8 @@ class AlarmService : Service() {
     }
 
     private fun startAlarmSound() {
+        if (!isAlarmActive.get()) return
+
         if (mediaPlayer?.isPlaying == true) return
 
         val alarmUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_ALARM)
@@ -316,6 +341,7 @@ class AlarmService : Service() {
                 )
                 setDataSource(this@AlarmService, alarmUri)
                 isLooping = true
+                setVolume(currentAlarmVolume, currentAlarmVolume)
                 setOnPreparedListener { player ->
                     player.start()
                 }

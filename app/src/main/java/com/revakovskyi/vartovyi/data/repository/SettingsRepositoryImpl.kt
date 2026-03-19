@@ -13,6 +13,7 @@ class SettingsRepositoryImpl(
     override val startTime: Flow<String> = monitoringDataStore.startTime
     override val endTime: Flow<String> = monitoringDataStore.endTime
     override val alarmDurationSeconds: Flow<Int> = monitoringDataStore.alarmDurationSeconds
+    override val alarmVolumePercent: Flow<Int> = monitoringDataStore.alarmVolumePercent
     override val isVibrationEnabled: Flow<Boolean> = monitoringDataStore.isVibrationEnabled
     override val selectedTelegramPackages: Flow<Set<String>> = monitoringDataStore.selectedTelegramPackages
     override val logSizeLimit: Flow<Int> = monitoringDataStore.logSizeLimit
@@ -37,6 +38,10 @@ class SettingsRepositoryImpl(
 
     override suspend fun setAlarmDurationSeconds(seconds: Int) {
         monitoringDataStore.setAlarmDurationSeconds(seconds)
+    }
+
+    override suspend fun setAlarmVolumePercent(percent: Int) {
+        monitoringDataStore.setAlarmVolumePercent(percent)
     }
 
     override suspend fun setVibrationEnabled(enabled: Boolean) {

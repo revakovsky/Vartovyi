@@ -5,5 +5,6 @@ data class ScheduleSettings(
     val startTime: String,
     val endTime: String,
     val alarmDurationSeconds: Int,
+    val alarmVolumePercent: Int,
     val isVibrationEnabled: Boolean,
 )

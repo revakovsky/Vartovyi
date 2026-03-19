@@ -113,8 +113,9 @@ Android-додаток для моніторингу Telegram-сповіщень
 - [x] Snackbar queue вимкнено: новий snackbar скасовує попередній.
 - [x] Додано haptic feedback для add/remove дій у `Keywords`, для `VartovyiSwitch` та toggle-кнопки
   моніторингу.
-- [x] У `Settings` додано керування `alarmDurationSeconds` через `Slider` (5..300 с, крок 10) з live
+- [x] У `Settings` додано керування `alarmDurationSeconds` через `Slider` (5..300 с, крок 30) з live
   preview значення.
+- [x] У `Settings` додано керування `alarmVolumePercent` через `Slider` (0..100%, крок 10).
 
 ### Alarm
 
@@ -128,8 +129,8 @@ Android-додаток для моніторингу Telegram-сповіщень
 - [x] У `AlarmActivity` додано вимкнення тривоги апаратними клавішами гучності (`Volume Up/Down`).
 - [x] Прискорено показ `AlarmActivity`: пріоритезовано запуск UI, додано retry-відкриття activity та
   неблокуючий старт звуку.
-- [ ] Тривалість тривоги поки не синхронізована з авто-зупинкою `AlarmService` (
-  `alarmDurationSeconds`).
+- [x] `alarmDurationSeconds` синхронізовано з авто-зупинкою `AlarmService`.
+- [x] `alarmVolumePercent` застосовується до `MediaPlayer` до старту звуку тривоги.
 - [ ] `WAKE_LOCK` permission додано, але явне керування `PowerManager.WakeLock` в `AlarmService` ще
   не реалізовано.
 - [ ] Повна інтеграція DND bypass потребує перевірки каналів/дозволів на runtime.
@@ -212,7 +213,8 @@ Android-додаток для моніторингу Telegram-сповіщень
 
 ### Milestone E — Settings/Alarm completion
 
-- [ ] Підв’язати `alarmDurationSeconds` до реальної зупинки `AlarmService`.
+- [x] Підв’язати `alarmDurationSeconds` до реальної зупинки `AlarmService`.
+- [x] Додати налаштування `alarmVolumePercent` та застосування в `AlarmService`.
 - [ ] Підв’язати `isVibrationEnabled` до поведінки `AlarmService`.
 - [ ] Додати короткий `WakeLock` в `AlarmService` (safe acquire/release) для надійного старту
   тривоги в deep sleep.
@@ -275,10 +277,9 @@ Android-додаток для моніторингу Telegram-сповіщень
   через
   cooldown.
 - `2026-03-19` — stop у `TopBar` змінено на локальну зупинку лише поточної тривоги; додано stop
-  тривоги
-  через `Volume Up/Down` в `AlarmActivity`; у `Settings` додано `Alarm duration` slider (5..300 с,
-  крок
-  10, live preview значення).
+  тривоги через `Volume Up/Down` в `AlarmActivity`; у `Settings` додано `Alarm duration` slider
+  (5..300 с, крок 30, live preview) і `Alarm volume` slider (0..100%, крок 10); у `AlarmService`
+  гучність застосовується до `MediaPlayer` до старту відтворення.
 
 ## 13) Узгоджені продукт-рішення (зафіксовано)
 
@@ -348,7 +349,8 @@ Android-додаток для моніторингу Telegram-сповіщень
       `Home`.
     - Розклад роботи (enable + start/end time).
     - Налаштування тривоги:
-        - duration — `Slider` (5..300 с, крок 10) з live-оновленням значення під час перетягування;
+        - duration — `Slider` (5..300 с, крок 30) з live-оновленням значення під час перетягування;
+        - volume — `Slider` (0..100%, крок 10);
         - vibration;
         - alarm sound preview.
     - Джерела сповіщень (список Telegram-клієнтів).
