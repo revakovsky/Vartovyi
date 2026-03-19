@@ -23,6 +23,7 @@ import androidx.core.content.ContextCompat
 import com.revakovskyi.vartovyi.R
 import com.revakovskyi.vartovyi.domain.constants.AlarmContract
 import com.revakovskyi.vartovyi.domain.controllers.alarm.AlarmStateHolder
+import com.revakovskyi.vartovyi.domain.usecase.settings.ObserveScheduleSettingsUseCase
 import com.revakovskyi.vartovyi.ui.alarm.AlarmActivity
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -30,6 +31,7 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import org.koin.android.ext.android.inject
 import java.util.concurrent.atomic.AtomicBoolean
@@ -42,6 +44,8 @@ private const val RED_ACCENT_COLOR_RES_ID = android.R.color.holo_red_dark
 private const val EMPTY_VALUE = ""
 private const val ALARM_ACTIVITY_OPEN_RETRY_DELAY_MILLIS = 400L
 private const val ALARM_ACTIVITY_OPEN_MAX_RETRIES = 8
+private const val DEFAULT_ALARM_DURATION_SECONDS = 60
+private const val MILLIS_IN_SECOND = 1000L
 
 class AlarmService : Service() {
 
@@ -53,9 +57,11 @@ class AlarmService : Service() {
     private var currentSourceMessageText: String = EMPTY_VALUE
 
     private val alarmStateHolder: AlarmStateHolder by inject()
+    private val observeScheduleSettingsUseCase: ObserveScheduleSettingsUseCase by inject()
 
     private val serviceScope = CoroutineScope(SupervisorJob() + Dispatchers.Main.immediate)
     private var openAlarmActivityJob: Job? = null
+    private var alarmAutoStopJob: Job? = null
 
     private val isAlarmActive = AtomicBoolean(false)
 
@@ -89,6 +95,7 @@ class AlarmService : Service() {
         openAlarmActivityWithRetries()
         startAlarmSound()
         startVibration()
+        scheduleAlarmAutoStop()
 
         return START_NOT_STICKY
     }
@@ -102,6 +109,7 @@ class AlarmService : Service() {
         stopAlarmSound()
         stopVibration()
         openAlarmActivityJob?.cancel()
+        alarmAutoStopJob?.cancel()
         serviceScope.cancel()
     }
 
@@ -130,6 +138,7 @@ class AlarmService : Service() {
     private fun stopAlarmSafely() {
         if (!isAlarmActive.compareAndSet(true, false)) {
             alarmStateHolder.setRunning(false)
+            alarmAutoStopJob?.cancel()
             notifyAlarmStopped()
             stopForeground(STOP_FOREGROUND_REMOVE)
             stopSelf()
@@ -144,10 +153,32 @@ class AlarmService : Service() {
         stopVibration()
         releaseAudioFocus()
         openAlarmActivityJob?.cancel()
+        alarmAutoStopJob?.cancel()
 
         notifyAlarmStopped()
         stopForeground(STOP_FOREGROUND_REMOVE)
         stopSelf()
+    }
+
+    private fun scheduleAlarmAutoStop() {
+        alarmAutoStopJob?.cancel()
+        alarmAutoStopJob = serviceScope.launch {
+            val alarmDurationMillis = resolveAlarmDurationMillis()
+            delay(alarmDurationMillis)
+            stopAlarmSafely()
+        }
+    }
+
+    private suspend fun resolveAlarmDurationMillis(): Long {
+        val alarmDurationSeconds = runCatching {
+            observeScheduleSettingsUseCase().first().alarmDurationSeconds
+        }.onFailure { throwable ->
+            Log.e(ALARM_TAG, "Failed to read alarm duration, fallback to default", throwable)
+        }.getOrDefault(DEFAULT_ALARM_DURATION_SECONDS)
+
+        return alarmDurationSeconds
+            .coerceAtLeast(1)
+            .toLong() * MILLIS_IN_SECOND
     }
 
     private fun notifyAlarmStopped() {

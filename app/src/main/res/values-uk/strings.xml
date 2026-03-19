@@ -22,6 +22,8 @@
     <string name="settings_test_alarm">Тестувати тривогу</string>
     <string name="settings_stop_test_alarm">Зупинити тест</string>
     <string name="settings_test_alarm_disable_monitoring">Для тесту спочатку вимкніть моніторинг</string>
+    <string name="settings_alarm_duration_title">Тривалість тривоги</string>
+    <string name="settings_alarm_duration_value_seconds">%1$d с</string>
     <string name="settings_test_alarm_channel_name">Тестова тривога</string>
     <string name="settings_test_alarm_message_text">Це тестове повідомлення тривоги.</string>
     <string name="home_permissions_required_snackbar">Надайте обов’язкові дозволи перед активацією моніторингу</string>
