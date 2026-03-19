@@ -40,7 +40,7 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navOptions
 import com.revakovskyi.vartovyi.domain.usecase.alarm.ObserveAlarmRunningUseCase
-import com.revakovskyi.vartovyi.domain.usecase.emergency.StopEverythingUseCase
+import com.revakovskyi.vartovyi.domain.usecase.alarm.StopAlarmUseCase
 import com.revakovskyi.vartovyi.domain.usecase.monitoring.SyncMonitoringRuntimeUseCase
 import com.revakovskyi.vartovyi.navigation.BottomNavItem
 import com.revakovskyi.vartovyi.navigation.NavGraph
@@ -50,7 +50,6 @@ import com.revakovskyi.vartovyi.ui.components.VartovyiTopBar
 import com.revakovskyi.vartovyi.ui.screen.permissions.PermissionsViewModel
 import com.revakovskyi.vartovyi.ui.theme.VartovyiTheme
 import com.revakovskyi.vartovyi.ui.util.snackbar.SnackbarController
-import com.revakovskyi.vartovyi.ui.util.snackbar.SnackbarEvent
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import org.koin.android.ext.android.inject
@@ -62,7 +61,7 @@ class MainActivity : ComponentActivity() {
     private val permissionsViewModel: PermissionsViewModel by viewModel()
     private val observeAlarmRunningUseCase: ObserveAlarmRunningUseCase by inject()
     private val syncMonitoringRuntimeUseCase: SyncMonitoringRuntimeUseCase by inject()
-    private val stopEverythingUseCase: StopEverythingUseCase by inject()
+    private val stopAlarmUseCase: StopAlarmUseCase by inject()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -82,8 +81,6 @@ class MainActivity : ComponentActivity() {
                 val currentDestination = currentBackStackEntry?.destination
 
                 val snackbarHostState = remember { SnackbarHostState() }
-
-                val emergencyStopMessage = stringResource(R.string.emergency_stop_completed)
 
                 LaunchedEffect(Unit) {
                     SnackbarController.events.collectLatest { event ->
@@ -134,14 +131,7 @@ class MainActivity : ComponentActivity() {
                                 scrollBehavior = topBarScrollBehavior,
                                 onPermissionsClick = { navController.navigate(Routes.Permissions) },
                                 onEmergencyStopClick = {
-                                    lifecycleScope.launch {
-                                        stopEverythingUseCase()
-                                        updatePermissionsState()
-
-                                        SnackbarController.sendEvent(
-                                            SnackbarEvent(message = emergencyStopMessage),
-                                        )
-                                    }
+                                    lifecycleScope.launch { stopAlarmUseCase() }
                                 },
                             )
                         }

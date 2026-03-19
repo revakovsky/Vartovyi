@@ -5,7 +5,7 @@
     <string name="nav_log">Logs</string>
     <string name="nav_settings">Settings</string>
     <string name="permissions_icon_content_description">Open permissions screen</string>
-    <string name="emergency_stop_content_description">Stop everything</string>
+    <string name="emergency_stop_content_description">Stop Alarm</string>
     <string name="permissions_title">Permissions</string>
     <string name="permissions_back">Back</string>
     <string name="monitoring_active">Monitoring active</string>
