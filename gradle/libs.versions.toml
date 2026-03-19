@@ -7,9 +7,9 @@ ksp = "2.3.6"
 detekt = "1.23.8"
 
 # AndroidX
-coreKtx = "1.17.0"
-activityCompose = "1.12.4"
-composeBom = "2026.02.01"
+coreKtx = "1.18.0"
+activityCompose = "1.13.0"
+composeBom = "2026.03.00"
 navigationCompose = "2.9.7"
 workManager = "2.11.1"
 
@@ -17,11 +17,12 @@ workManager = "2.11.1"
 lifecycleRuntimeKtx = "2.10.0"
 
 # DB
-dataStore = "1.2.0"
+dataStore = "1.2.1"
 room = "2.8.4"
+paging = "3.4.2"
 
 # DI
-koin = "4.1.1"
+koin = "4.2.0"
 
 # Kotlinx
 kotlinxSerializationJson = "1.10.0"
@@ -60,6 +61,9 @@ androidx-datastore-preferences = { group = "androidx.datastore", name = "datasto
 androidx-room-runtime = { group = "androidx.room", name = "room-runtime", version.ref = "room" }
 androidx-room-ktx = { group = "androidx.room", name = "room-ktx", version.ref = "room" }
 androidx-room-compiler = { group = "androidx.room", name = "room-compiler", version.ref = "room" }
+androidx-room-paging = { group = "androidx.room", name = "room-paging", version.ref = "room" }
+androidx-paging-runtime = { group = "androidx.paging", name = "paging-runtime", version.ref = "paging" }
+androidx-paging-compose = { group = "androidx.paging", name = "paging-compose", version.ref = "paging" }
 
 # Koin
 koin-android = { group = "io.insert-koin", name = "koin-android", version.ref = "koin" }

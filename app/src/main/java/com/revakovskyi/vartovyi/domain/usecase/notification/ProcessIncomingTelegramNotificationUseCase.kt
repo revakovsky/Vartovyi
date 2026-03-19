@@ -8,6 +8,8 @@ import com.revakovskyi.vartovyi.domain.repository.KeywordsRepository
 import com.revakovskyi.vartovyi.domain.repository.LogRepository
 import com.revakovskyi.vartovyi.domain.repository.SettingsRepository
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import java.time.LocalTime
 import java.time.format.DateTimeFormatter
 import java.util.UUID
@@ -32,6 +34,8 @@ class ProcessIncomingTelegramNotificationUseCaseImpl(
     private val logRepository: LogRepository,
     private val alarmController: AlarmController,
 ) : ProcessIncomingTelegramNotificationUseCase {
+
+    private val triggerDecisionMutex = Mutex()
 
     override suspend operator fun invoke(payload: NotificationPayload): Boolean {
         if (payload.text.isBlank()) return false
@@ -85,43 +89,46 @@ class ProcessIncomingTelegramNotificationUseCaseImpl(
             return false
         }
 
-        val isAlarmRunning = alarmController.isAlarmRunning.first()
-        val cooldownUntilEpochMillis =
-            settingsRepository.alarmRetriggerCooldownUntilEpochMillis.first()
-        val currentEpochMillis = System.currentTimeMillis()
-        val isCooldownActive = cooldownUntilEpochMillis > currentEpochMillis
+        return triggerDecisionMutex.withLock {
+            val isAlarmRunning = alarmController.isAlarmRunning.first()
+            val cooldownUntilEpochMillis =
+                settingsRepository.alarmRetriggerCooldownUntilEpochMillis.first()
+            val currentEpochMillis = System.currentTimeMillis()
+            val isCooldownActive = cooldownUntilEpochMillis > currentEpochMillis
 
-        if (isAlarmRunning || isCooldownActive) {
-            addLogEntry(
+            if (isAlarmRunning || isCooldownActive) {
+                addLogEntry(
+                    payload = payload,
+                    senderName = senderName,
+                    effectiveTimestamp = effectiveTimestamp,
+                    matchedKeyword = matchedKeyword,
+                    status = AlertEventStatus.SKIPPED_COOLDOWN,
+                )
+                return@withLock true
+            }
+
+            val isLogInserted = addLogEntry(
                 payload = payload,
                 senderName = senderName,
                 effectiveTimestamp = effectiveTimestamp,
                 matchedKeyword = matchedKeyword,
-                status = AlertEventStatus.SKIPPED_COOLDOWN,
+                status = AlertEventStatus.ALARM_TRIGGERED,
             )
-            return true
+            if (!isLogInserted) return@withLock true
+
+            // TODO: Replace with value controlled from Settings screen.
+            val cooldownDurationMillis =
+                settingsRepository.alarmRetriggerCooldownDurationMillis.first()
+            settingsRepository.setAlarmRetriggerCooldownUntilEpochMillis(
+                untilEpochMillis = currentEpochMillis + cooldownDurationMillis,
+            )
+
+            alarmController.triggerAlarm(
+                sourceChannelName = senderName,
+                sourceMessageText = payload.text,
+            )
+            return@withLock true
         }
-
-        // TODO: Replace with value controlled from Settings screen.
-        val cooldownDurationMillis = settingsRepository.alarmRetriggerCooldownDurationMillis.first()
-        settingsRepository.setAlarmRetriggerCooldownUntilEpochMillis(
-            untilEpochMillis = currentEpochMillis + cooldownDurationMillis,
-        )
-
-        val isLogInserted = addLogEntry(
-            payload = payload,
-            senderName = senderName,
-            effectiveTimestamp = effectiveTimestamp,
-            matchedKeyword = matchedKeyword,
-            status = AlertEventStatus.ALARM_TRIGGERED,
-        )
-        if (!isLogInserted) return true
-
-        alarmController.triggerAlarm(
-            sourceChannelName = senderName,
-            sourceMessageText = payload.text,
-        )
-        return true
     }
 
     private suspend fun addLogEntry(

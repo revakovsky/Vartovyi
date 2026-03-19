@@ -83,6 +83,8 @@
     <string name="log_copy">Копіювати</string>
     <string name="log_channel_copied">Назву каналу скопійовано</string>
     <string name="log_message_copied">Повідомлення скопійовано</string>
+    <string name="log_load_failed">Не вдалося завантажити логи</string>
+    <string name="log_retry">Повторити</string>
     <string name="log_empty">Журнал порожній</string>
     <string name="log_empty_hint">Перехоплені сповіщення Telegram з’являться тут</string>
     <string name="log_clear">Очистити логи</string>

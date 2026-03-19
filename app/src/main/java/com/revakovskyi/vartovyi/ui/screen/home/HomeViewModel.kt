@@ -2,11 +2,10 @@ package com.revakovskyi.vartovyi.ui.screen.home
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.revakovskyi.vartovyi.domain.model.AlertEventStatus
 import com.revakovskyi.vartovyi.domain.model.MonitoringState
 import com.revakovskyi.vartovyi.domain.usecase.alarm.ObserveAlarmRetriggerCooldownUseCase
 import com.revakovskyi.vartovyi.domain.usecase.keywords.ObserveKeywordsUseCase
-import com.revakovskyi.vartovyi.domain.usecase.log.ObserveLogEntriesUseCase
+import com.revakovskyi.vartovyi.domain.usecase.log.ObserveLastAlarmTriggeredEventUseCase
 import com.revakovskyi.vartovyi.domain.usecase.monitoring.ObserveMonitoringStateUseCase
 import com.revakovskyi.vartovyi.domain.usecase.monitoring.ToggleMonitoringUseCase
 import com.revakovskyi.vartovyi.domain.usecase.settings.ObserveScheduleSettingsUseCase
@@ -29,7 +28,7 @@ class HomeViewModel(
     private val toggleMonitoringUseCase: ToggleMonitoringUseCase,
     private val observeScheduleSettingsUseCase: ObserveScheduleSettingsUseCase,
     private val observeKeywordsUseCase: ObserveKeywordsUseCase,
-    private val observeLogEntriesUseCase: ObserveLogEntriesUseCase,
+    private val observeLastAlarmTriggeredEventUseCase: ObserveLastAlarmTriggeredEventUseCase,
     private val observeAlarmRetriggerCooldownUseCase: ObserveAlarmRetriggerCooldownUseCase,
 ) : ViewModel() {
 
@@ -98,12 +97,10 @@ class HomeViewModel(
 
     private fun observeLastAlertEvent() {
         var isFirstEmission = true
-        observeLogEntriesUseCase().onEach { logEntries ->
+        observeLastAlarmTriggeredEventUseCase().onEach { lastAlarmTriggeredEvent ->
             _state.update {
                 it.copy(
-                    lastAlertEvent = logEntries.firstOrNull { event ->
-                        event.status == AlertEventStatus.ALARM_TRIGGERED
-                    }
+                    lastAlertEvent = lastAlarmTriggeredEvent
                 )
             }
             if (isFirstEmission) {
