@@ -71,6 +71,12 @@ fun TelegramChannelsSection(
             }
 
             if (isEnabled) {
+                Text(
+                    text = stringResource(R.string.keywords_telegram_channel_tip),
+                    style = VartovyiTheme.typography.bodySmall,
+                    color = VartovyiTheme.colors.onSurfaceVariant,
+                )
+
                 Column(
                     verticalArrangement = Arrangement.spacedBy(VartovyiTheme.spacing.medium),
                     modifier = Modifier.bringIntoViewRequester(bringIntoViewRequester),
@@ -101,12 +107,6 @@ fun TelegramChannelsSection(
                         }
                     }
                 }
-
-                Text(
-                    text = stringResource(R.string.keywords_telegram_channel_tip),
-                    style = VartovyiTheme.typography.bodySmall,
-                    color = VartovyiTheme.colors.onSurfaceVariant,
-                )
             } else {
                 Text(
                     text = stringResource(R.string.keywords_all_channels_monitored),
