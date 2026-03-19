@@ -113,6 +113,8 @@ Android-додаток для моніторингу Telegram-сповіщень
 - [x] Snackbar queue вимкнено: новий snackbar скасовує попередній.
 - [x] Додано haptic feedback для add/remove дій у `Keywords`, для `VartovyiSwitch` та toggle-кнопки
   моніторингу.
+- [x] У `Settings` додано керування `alarmDurationSeconds` через `Slider` (5..300 с, крок 10) з live
+  preview значення.
 
 ### Alarm
 
@@ -120,11 +122,14 @@ Android-додаток для моніторингу Telegram-сповіщень
 - [x] `AlarmActivity` підключена в `AndroidManifest`.
 - [x] Додано anti-duplicate guard для запуску тривоги (service/controller/use case).
 - [x] Stop-flow зроблено ідемпотентним (повторні stop виклики без побічних ефектів).
-- [x] Додано global emergency stop у `TopBar` (кнопка показується тільки коли alarm active).
+- [x] Додано stop-кнопку у `TopBar` (кнопка показується тільки коли alarm active).
+- [x] Stop-кнопка у `TopBar` зупиняє тільки поточну тривогу (без вимкнення monitoring).
 - [x] З `AlarmActivity` прибрано emergency-кнопку, залишено одну кнопку stop alarm.
+- [x] У `AlarmActivity` додано вимкнення тривоги апаратними клавішами гучності (`Volume Up/Down`).
 - [x] Прискорено показ `AlarmActivity`: пріоритезовано запуск UI, додано retry-відкриття activity та
   неблокуючий старт звуку.
-- [ ] Тривалість тривоги поки не синхронізована з налаштуваннями (`alarmDurationSeconds`).
+- [ ] Тривалість тривоги поки не синхронізована з авто-зупинкою `AlarmService` (
+  `alarmDurationSeconds`).
 - [ ] `WAKE_LOCK` permission додано, але явне керування `PowerManager.WakeLock` в `AlarmService` ще
   не реалізовано.
 - [ ] Повна інтеграція DND bypass потребує перевірки каналів/дозволів на runtime.
@@ -261,12 +266,19 @@ Android-додаток для моніторингу Telegram-сповіщень
   remove через `X`, trailing clear icon з tooltip).
 - `2026-03-16` — на `Home` додано deep-link поведінку для `Last alert`: перехід у `Logs` з
   автоскролом до відповідного запису за `id` (fallback на звичайний список, якщо запис видалено).
-- `2026-03-16` — додано захист від повторного alarm trigger через cooldown (`5 хв` за замовчуванням):
+- `2026-03-16` — додано захист від повторного alarm trigger через cooldown (`5 хв` за
+  замовчуванням):
   відлік працює тільки в життєвому циклі monitoring service, стан cooldown показується на `Home`,
   значення підготовлено до винесення в `Settings`.
 - `2026-03-16` — cooldown винесено в персистентний стан (`DataStore`) з відновленням після restart /
-  process death, а в лог-модель додано статус `SKIPPED_COOLDOWN` для явного позначення пропусків через
+  process death, а в лог-модель додано статус `SKIPPED_COOLDOWN` для явного позначення пропусків
+  через
   cooldown.
+- `2026-03-19` — stop у `TopBar` змінено на локальну зупинку лише поточної тривоги; додано stop
+  тривоги
+  через `Volume Up/Down` в `AlarmActivity`; у `Settings` додано `Alarm duration` slider (5..300 с,
+  крок
+  10, live preview значення).
 
 ## 13) Узгоджені продукт-рішення (зафіксовано)
 
@@ -274,7 +286,7 @@ Android-додаток для моніторингу Telegram-сповіщень
 - Channel filter: первинна реалізація через `notification title` в режимі **exact
   match + `ignoreCase`** (без `contains`).
 - Monitoring default state: при першому запуску — `OFF`.
-- Alarm duration mode: використовуємо окремий enum-тип (без "магічних" значень в `Int`).
+- Alarm duration mode: використовуємо числове значення в секундах (`Int`) з кроком слайдера в UI.
 
 ## 14) UI/UX специфікація (фільтрована, актуальна)
 
@@ -335,7 +347,10 @@ Android-додаток для моніторингу Telegram-сповіщень
     - Якщо monitoring `ACTIVE`, тест тривоги блокується зі snackbar-підказкою та переходом на
       `Home`.
     - Розклад роботи (enable + start/end time).
-    - Налаштування тривоги: duration, vibration, alarm sound preview.
+    - Налаштування тривоги:
+        - duration — `Slider` (5..300 с, крок 10) з live-оновленням значення під час перетягування;
+        - vibration;
+        - alarm sound preview.
     - Джерела сповіщень (список Telegram-клієнтів).
     - Ліміт розміру журналу.
 
@@ -348,6 +363,7 @@ Android-додаток для моніторингу Telegram-сповіщень
 
 - `AlarmActivity`: full-screen поверх lock screen.
 - Контент: сирена, заголовок `ТРИВОГА`, одна кнопка вимкнення тривоги.
+- `AlarmActivity`: `Volume Up/Down` теж вимикають поточну тривогу.
 - Окреме alarm-сповіщення: `HIGH`, `CATEGORY_ALARM`, full-screen intent, action `Вимкнути тривогу`,
   red accent, fallback-відкриття `AlarmActivity`.
 
@@ -363,4 +379,5 @@ Android-додаток для моніторингу Telegram-сповіщень
 - Для channel filter використовуємо `title exact match + ignoreCase` як базову стратегію.
 - Якщо в реальних тестах стабільність недостатня, додаємо fallback-режим як окрему, підтверджену
   зміну.
-- `Alarm duration` моделюємо enum-типом у domain/data/UI, без спец-чисел.
+- `Alarm duration` моделюємо числовим значенням у секундах (`Int`) з обмеженням діапазону та кроком
+  у UI.

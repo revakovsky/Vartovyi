@@ -22,6 +22,8 @@
     <string name="settings_test_alarm">Test alarm</string>
     <string name="settings_stop_test_alarm">Stop test</string>
     <string name="settings_test_alarm_disable_monitoring">Disable monitoring before testing alarm</string>
+    <string name="settings_alarm_duration_title">Alarm duration</string>
+    <string name="settings_alarm_duration_value_seconds">%1$d s</string>
     <string name="settings_test_alarm_channel_name">Test Alarm</string>
     <string name="settings_test_alarm_message_text">This is a test alarm notification.</string>
     <string name="home_permissions_required_snackbar">Grant required permissions before activating monitoring</string>

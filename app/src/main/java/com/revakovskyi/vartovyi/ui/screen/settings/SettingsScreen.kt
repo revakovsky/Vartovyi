@@ -1,8 +1,10 @@
 package com.revakovskyi.vartovyi.ui.screen.settings
 
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.SnackbarDuration
 import androidx.compose.runtime.Composable
@@ -14,6 +16,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import com.revakovskyi.vartovyi.R
+import com.revakovskyi.vartovyi.ui.screen.settings.components.AlarmDurationSection
 import com.revakovskyi.vartovyi.ui.screen.settings.components.SettingsTestAlarmButton
 import com.revakovskyi.vartovyi.ui.theme.VartovyiTheme
 import com.revakovskyi.vartovyi.ui.util.snackbar.SnackbarAction
@@ -73,13 +76,28 @@ private fun SettingsContent(
     val testAlarmSourceChannelName = stringResource(R.string.settings_test_alarm_channel_name)
     val testAlarmSourceMessageText = stringResource(R.string.settings_test_alarm_message_text)
 
-    Column(
-        horizontalAlignment = Alignment.CenterHorizontally,
+    Box(
+        contentAlignment = Alignment.TopCenter,
         modifier = modifier
             .fillMaxSize()
             .padding(horizontal = VartovyiTheme.spacing.standard)
     ) {
-        Spacer(modifier = Modifier.weight(1f))
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
+            modifier = modifier.fillMaxSize()
+        ) {
+            AlarmDurationSection(
+                durationSeconds = state.alarmDurationSeconds,
+                onDurationChange = { seconds ->
+                    onAction(SettingsUiContract.Action.SetAlarmDuration(seconds))
+                },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = VartovyiTheme.spacing.standard)
+            )
+
+            Spacer(modifier = Modifier.weight(1f))
+        }
 
         SettingsTestAlarmButton(
             isAlarmRunning = state.isAlarmRunning,
@@ -91,8 +109,10 @@ private fun SettingsContent(
                     )
                 )
             },
+            modifier = Modifier.align(Alignment.BottomCenter)
         )
     }
+
 }
 
 @Preview
