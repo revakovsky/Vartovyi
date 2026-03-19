@@ -6,6 +6,7 @@ import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.os.Bundle
+import android.view.KeyEvent
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.background
@@ -93,6 +94,18 @@ class AlarmActivity : ComponentActivity() {
         super.onStop()
         unregisterAlarmStopReceiver()
         isVisible.value = false
+    }
+
+    override fun onKeyDown(keyCode: Int, event: KeyEvent?): Boolean {
+        return when (keyCode) {
+            KeyEvent.KEYCODE_VOLUME_DOWN,
+            KeyEvent.KEYCODE_VOLUME_UP -> {
+                dismissAlarm()
+                true
+            }
+
+            else -> super.onKeyDown(keyCode, event)
+        }
     }
 
     private fun setupWindow() {
