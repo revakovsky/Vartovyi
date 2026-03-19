@@ -38,6 +38,10 @@ import com.revakovskyi.vartovyi.domain.usecase.log.AddLogEntryUseCase
 import com.revakovskyi.vartovyi.domain.usecase.log.AddLogEntryUseCaseImpl
 import com.revakovskyi.vartovyi.domain.usecase.log.ClearLogUseCase
 import com.revakovskyi.vartovyi.domain.usecase.log.ClearLogUseCaseImpl
+import com.revakovskyi.vartovyi.domain.usecase.log.GetLogEntryIndexUseCase
+import com.revakovskyi.vartovyi.domain.usecase.log.GetLogEntryIndexUseCaseImpl
+import com.revakovskyi.vartovyi.domain.usecase.log.ObserveLastAlarmTriggeredEventUseCase
+import com.revakovskyi.vartovyi.domain.usecase.log.ObserveLastAlarmTriggeredEventUseCaseImpl
 import com.revakovskyi.vartovyi.domain.usecase.log.ObserveLogEntriesUseCase
 import com.revakovskyi.vartovyi.domain.usecase.log.ObserveLogEntriesUseCaseImpl
 import com.revakovskyi.vartovyi.domain.usecase.monitoring.ObserveMonitoringStateUseCase
@@ -100,6 +104,8 @@ val useCaseModule = module {
 
     singleOf(::AddLogEntryUseCaseImpl) { bind<AddLogEntryUseCase>() }
     singleOf(::ObserveLogEntriesUseCaseImpl) { bind<ObserveLogEntriesUseCase>() }
+    singleOf(::ObserveLastAlarmTriggeredEventUseCaseImpl) { bind<ObserveLastAlarmTriggeredEventUseCase>() }
+    singleOf(::GetLogEntryIndexUseCaseImpl) { bind<GetLogEntryIndexUseCase>() }
     singleOf(::ClearLogUseCaseImpl) { bind<ClearLogUseCase>() }
 
     singleOf(::ObserveScheduleSettingsUseCaseImpl) { bind<ObserveScheduleSettingsUseCase>() }

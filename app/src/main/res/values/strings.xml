@@ -83,6 +83,8 @@
     <string name="log_copy">Copy</string>
     <string name="log_channel_copied">Channel name copied</string>
     <string name="log_message_copied">Message copied</string>
+    <string name="log_load_failed">Failed to load logs</string>
+    <string name="log_retry">Retry</string>
     <string name="log_empty">Log is empty</string>
     <string name="log_empty_hint">Captured Telegram notifications will appear here</string>
     <string name="log_clear">Clear logs</string>

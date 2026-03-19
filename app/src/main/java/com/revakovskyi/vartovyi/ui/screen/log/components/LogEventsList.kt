@@ -4,20 +4,25 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.paging.PagingData
+import androidx.paging.compose.LazyPagingItems
+import androidx.paging.compose.collectAsLazyPagingItems
 import com.revakovskyi.vartovyi.domain.model.AlertEvent
 import com.revakovskyi.vartovyi.domain.model.AlertEventStatus
 import com.revakovskyi.vartovyi.ui.theme.VartovyiTheme
+import kotlinx.coroutines.flow.flowOf
+
+private const val LOG_PLACEHOLDER_KEY_PREFIX = "log_placeholder_"
 
 @Composable
 fun LogEventsList(
     modifier: Modifier = Modifier,
     listState: LazyListState,
-    logEntries: List<AlertEvent>,
+    logEntries: LazyPagingItems<AlertEvent>,
     onCopyChannelClick: (channelName: String) -> Unit,
     onCopyMessageClick: (messageText: String) -> Unit,
 ) {
@@ -27,9 +32,13 @@ fun LogEventsList(
         modifier = modifier,
     ) {
         items(
-            items = logEntries,
-            key = { event -> event.id },
-        ) { event ->
+            count = logEntries.itemCount,
+            key = { index ->
+                logEntries.peek(index)?.id ?: "$LOG_PLACEHOLDER_KEY_PREFIX$index"
+            },
+        ) { index ->
+            val event = logEntries[index] ?: return@items
+
             LogEventItemCard(
                 event = event,
                 onCopyChannelClick = onCopyChannelClick,
@@ -43,10 +52,9 @@ fun LogEventsList(
 @Preview(name = "Log events list")
 @Composable
 private fun LogEventsListPreview() {
-    VartovyiTheme {
-        LogEventsList(
-            listState = rememberLazyListState(),
-            logEntries = listOf(
+    val previewLogEntries = flowOf(
+        PagingData.from(
+            listOf(
                 AlertEvent(
                     id = "1",
                     timestamp = 1_742_000_000_000,
@@ -74,7 +82,14 @@ private fun LogEventsListPreview() {
                     matchedKeyword = "air alert",
                     status = AlertEventStatus.SKIPPED_COOLDOWN,
                 ),
-            ),
+            )
+        )
+    ).collectAsLazyPagingItems()
+
+    VartovyiTheme {
+        LogEventsList(
+            listState = rememberLazyListState(),
+            logEntries = previewLogEntries,
             onCopyChannelClick = {},
             onCopyMessageClick = {},
         )

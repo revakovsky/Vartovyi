@@ -2,36 +2,40 @@ package com.revakovskyi.vartovyi.ui.screen.log
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.paging.PagingData
+import androidx.paging.cachedIn
+import com.revakovskyi.vartovyi.domain.model.AlertEvent
 import com.revakovskyi.vartovyi.domain.usecase.log.ClearLogUseCase
+import com.revakovskyi.vartovyi.domain.usecase.log.GetLogEntryIndexUseCase
 import com.revakovskyi.vartovyi.domain.usecase.log.ObserveLogEntriesUseCase
 import com.revakovskyi.vartovyi.ui.screen.log.LogUiContract.Action
 import com.revakovskyi.vartovyi.ui.screen.log.LogUiContract.Event
 import com.revakovskyi.vartovyi.ui.screen.log.LogUiContract.State
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.launchIn
-import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
 class LogViewModel(
-    private val observeLogEntriesUseCase: ObserveLogEntriesUseCase,
+    observeLogEntriesUseCase: ObserveLogEntriesUseCase,
+    private val getLogEntryIndexUseCase: GetLogEntryIndexUseCase,
     private val clearLogUseCase: ClearLogUseCase,
 ) : ViewModel() {
+
+    val pagedLogEntries: Flow<PagingData<AlertEvent>> =
+        observeLogEntriesUseCase()
+            .cachedIn(viewModelScope)
 
     private val _state = MutableStateFlow(State())
     val state: StateFlow<State> = _state.asStateFlow()
 
     private val _events = MutableSharedFlow<Event>()
     val events: SharedFlow<Event> = _events.asSharedFlow()
-
-    init {
-        observeLogEntries()
-    }
 
     fun onAction(action: Action) {
         when (action) {
@@ -43,10 +47,8 @@ class LogViewModel(
         }
     }
 
-    private fun observeLogEntries() {
-        observeLogEntriesUseCase().onEach { entries ->
-            _state.update { it.copy(logEntries = entries) }
-        }.launchIn(viewModelScope)
+    suspend fun getLogEntryIndexById(eventId: String): Int {
+        return getLogEntryIndexUseCase(eventId = eventId)
     }
 
     private fun openClearLogDialog() {

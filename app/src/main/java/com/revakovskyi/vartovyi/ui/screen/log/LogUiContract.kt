@@ -1,14 +1,12 @@
 package com.revakovskyi.vartovyi.ui.screen.log
 
 import androidx.compose.runtime.Immutable
-import com.revakovskyi.vartovyi.domain.model.AlertEvent
 
 interface LogUiContract {
 
     @Immutable
     data class State(
         val isLoading: Boolean = false,
-        val logEntries: List<AlertEvent> = emptyList(),
         val isClearDialogVisible: Boolean = false,
     )
 
