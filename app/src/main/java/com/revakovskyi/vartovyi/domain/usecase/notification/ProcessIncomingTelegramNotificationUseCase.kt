@@ -16,6 +16,7 @@ import java.util.UUID
 
 private const val EMPTY_MATCHED_KEYWORD = ""
 private const val TIME_PATTERN = "HH:mm"
+private const val TELEGRAM_PACKAGE_NAME = "org.telegram.messenger"
 
 interface ProcessIncomingTelegramNotificationUseCase {
     suspend operator fun invoke(payload: NotificationPayload): Boolean
@@ -40,8 +41,7 @@ class ProcessIncomingTelegramNotificationUseCaseImpl(
     override suspend operator fun invoke(payload: NotificationPayload): Boolean {
         if (payload.text.isBlank()) return false
 
-        val selectedTelegramPackages = settingsRepository.selectedTelegramPackages.first()
-        if (payload.packageName !in selectedTelegramPackages) return false
+        if (payload.packageName != TELEGRAM_PACKAGE_NAME) return false
 
         if (!settingsRepository.isMonitoringActive.first()) return false
 
@@ -116,7 +116,6 @@ class ProcessIncomingTelegramNotificationUseCaseImpl(
             )
             if (!isLogInserted) return@withLock true
 
-            // TODO: Replace with value controlled from Settings screen.
             val cooldownDurationMillis =
                 settingsRepository.alarmRetriggerCooldownDurationMillis.first()
             settingsRepository.setAlarmRetriggerCooldownUntilEpochMillis(

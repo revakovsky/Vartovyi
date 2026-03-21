@@ -22,8 +22,7 @@ class ObserveScheduleSettingsUseCaseImpl(
             settingsRepository.startTime,
             settingsRepository.endTime,
             settingsRepository.alarmDurationSeconds,
-            settingsRepository.isVibrationEnabled,
-        ) { isScheduleEnabled, startTime, endTime, alarmDurationSeconds, isVibrationEnabled ->
+        ) { isScheduleEnabled, startTime, endTime, alarmDurationSeconds ->
             ScheduleSettings(
                 isScheduleEnabled = isScheduleEnabled,
                 startTime = startTime,
@@ -31,7 +30,6 @@ class ObserveScheduleSettingsUseCaseImpl(
                 alarmDurationSeconds = alarmDurationSeconds,
                 alarmVolumePercent = DEFAULT_ALARM_VOLUME_PERCENT,
                 alarmSoundUri = DEFAULT_ALARM_SOUND_URI,
-                isVibrationEnabled = isVibrationEnabled,
             )
         }
 

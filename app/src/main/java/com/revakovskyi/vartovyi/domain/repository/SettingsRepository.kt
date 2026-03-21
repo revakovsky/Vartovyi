@@ -11,8 +11,6 @@ interface SettingsRepository {
     val alarmDurationSeconds: Flow<Int>
     val alarmVolumePercent: Flow<Int>
     val alarmSoundUri: Flow<String>
-    val isVibrationEnabled: Flow<Boolean>
-    val selectedTelegramPackages: Flow<Set<String>>
     val logSizeLimit: Flow<Int>
     val alarmRetriggerCooldownDurationMillis: Flow<Long>
     val alarmRetriggerCooldownUntilEpochMillis: Flow<Long>
@@ -24,8 +22,6 @@ interface SettingsRepository {
     suspend fun setAlarmDurationSeconds(seconds: Int)
     suspend fun setAlarmVolumePercent(percent: Int)
     suspend fun setAlarmSoundUri(uri: String)
-    suspend fun setVibrationEnabled(enabled: Boolean)
-    suspend fun setSelectedTelegramPackages(packages: Set<String>)
     suspend fun setLogSizeLimit(limit: Int)
     suspend fun setAlarmRetriggerCooldownDurationMillis(durationMillis: Long)
     suspend fun setAlarmRetriggerCooldownUntilEpochMillis(untilEpochMillis: Long)

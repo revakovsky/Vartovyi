@@ -7,18 +7,17 @@ import com.revakovskyi.vartovyi.domain.usecase.alarm.ObserveAlarmRunningUseCase
 import com.revakovskyi.vartovyi.domain.usecase.alarm.StopAlarmUseCase
 import com.revakovskyi.vartovyi.domain.usecase.alarm.TriggerAlarmUseCase
 import com.revakovskyi.vartovyi.domain.usecase.monitoring.ObserveMonitoringStateUseCase
+import com.revakovskyi.vartovyi.domain.usecase.settings.ObserveAlarmRetriggerCooldownDurationUseCase
 import com.revakovskyi.vartovyi.domain.usecase.settings.ObserveLogSizeLimitUseCase
 import com.revakovskyi.vartovyi.domain.usecase.settings.ObserveScheduleSettingsUseCase
-import com.revakovskyi.vartovyi.domain.usecase.settings.ObserveTelegramPackagesUseCase
 import com.revakovskyi.vartovyi.domain.usecase.settings.SetAlarmDurationUseCase
+import com.revakovskyi.vartovyi.domain.usecase.settings.SetAlarmRetriggerCooldownDurationUseCase
 import com.revakovskyi.vartovyi.domain.usecase.settings.SetAlarmSoundUriUseCase
 import com.revakovskyi.vartovyi.domain.usecase.settings.SetAlarmVolumeUseCase
 import com.revakovskyi.vartovyi.domain.usecase.settings.SetEndTimeUseCase
 import com.revakovskyi.vartovyi.domain.usecase.settings.SetLogSizeLimitUseCase
 import com.revakovskyi.vartovyi.domain.usecase.settings.SetScheduleEnabledUseCase
 import com.revakovskyi.vartovyi.domain.usecase.settings.SetStartTimeUseCase
-import com.revakovskyi.vartovyi.domain.usecase.settings.SetTelegramPackagesUseCase
-import com.revakovskyi.vartovyi.domain.usecase.settings.SetVibrationEnabledUseCase
 import com.revakovskyi.vartovyi.ui.screen.settings.SettingsUiContract.Action
 import com.revakovskyi.vartovyi.ui.screen.settings.SettingsUiContract.Event
 import com.revakovskyi.vartovyi.ui.screen.settings.SettingsUiContract.State
@@ -33,19 +32,20 @@ import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
+private const val SETTINGS_INITIAL_LOADING_SOURCES_TOTAL = 5
+
 class SettingsViewModel(
     private val observeScheduleSettingsUseCase: ObserveScheduleSettingsUseCase,
-    private val observeTelegramPackagesUseCase: ObserveTelegramPackagesUseCase,
     private val observeLogSizeLimitUseCase: ObserveLogSizeLimitUseCase,
+    private val observeAlarmRetriggerCooldownDurationUseCase: ObserveAlarmRetriggerCooldownDurationUseCase,
     private val setScheduleEnabledUseCase: SetScheduleEnabledUseCase,
     private val setStartTimeUseCase: SetStartTimeUseCase,
     private val setEndTimeUseCase: SetEndTimeUseCase,
     private val setAlarmDurationUseCase: SetAlarmDurationUseCase,
     private val setAlarmSoundUriUseCase: SetAlarmSoundUriUseCase,
     private val setAlarmVolumeUseCase: SetAlarmVolumeUseCase,
-    private val setVibrationEnabledUseCase: SetVibrationEnabledUseCase,
-    private val setTelegramPackagesUseCase: SetTelegramPackagesUseCase,
     private val setLogSizeLimitUseCase: SetLogSizeLimitUseCase,
+    private val setAlarmRetriggerCooldownDurationUseCase: SetAlarmRetriggerCooldownDurationUseCase,
     private val triggerAlarmUseCase: TriggerAlarmUseCase,
     private val stopAlarmUseCase: StopAlarmUseCase,
     private val observeAlarmRunningUseCase: ObserveAlarmRunningUseCase,
@@ -62,8 +62,8 @@ class SettingsViewModel(
 
     init {
         observeScheduleSettings()
-        observeTelegramPackages()
         observeLogSizeLimit()
+        observeAlarmRetriggerCooldownDuration()
         observeAlarmRunning()
         observeMonitoringState()
     }
@@ -76,16 +76,14 @@ class SettingsViewModel(
             is Action.SetAlarmDuration -> setAlarmDuration(action.seconds)
             is Action.SetAlarmSoundUri -> setAlarmSoundUri(action.uri)
             is Action.SetAlarmVolume -> setAlarmVolume(action.percent)
-            is Action.SetVibrationEnabled -> setVibrationEnabled(action.enabled)
-            is Action.SetTelegramPackages -> setTelegramPackages(action.packages)
             is Action.SetLogSizeLimit -> setLogSizeLimit(action.limit)
-            is Action.NavigateBack -> navigateBack()
-            is Action.ToggleTestAlarm -> {
-                toggleTestAlarm(
-                    sourceChannelName = action.sourceChannelName,
-                    sourceMessageText = action.sourceMessageText,
-                )
-            }
+            is Action.SetAlarmRetriggerCooldownDurationMillis ->
+                setAlarmRetriggerCooldownDurationMillis(durationMillis = action.durationMillis)
+
+            is Action.ToggleTestAlarm -> toggleTestAlarm(
+                sourceChannelName = action.sourceChannelName,
+                sourceMessageText = action.sourceMessageText,
+            )
         }
     }
 
@@ -100,21 +98,8 @@ class SettingsViewModel(
                     alarmDurationSeconds = scheduleSettings.alarmDurationSeconds,
                     alarmVolumePercent = scheduleSettings.alarmVolumePercent,
                     alarmSoundUri = scheduleSettings.alarmSoundUri,
-                    isVibrationEnabled = scheduleSettings.isVibrationEnabled,
                 )
             }
-
-            if (isFirstEmission) {
-                isFirstEmission = false
-                markSourceLoaded()
-            }
-        }.launchIn(viewModelScope)
-    }
-
-    private fun observeTelegramPackages() {
-        var isFirstEmission = true
-        observeTelegramPackagesUseCase().onEach { packages ->
-            _state.update { it.copy(selectedTelegramPackages = packages) }
 
             if (isFirstEmission) {
                 isFirstEmission = false
@@ -127,6 +112,20 @@ class SettingsViewModel(
         var isFirstEmission = true
         observeLogSizeLimitUseCase().onEach { limit ->
             _state.update { it.copy(logSizeLimit = limit) }
+
+            if (isFirstEmission) {
+                isFirstEmission = false
+                markSourceLoaded()
+            }
+        }.launchIn(viewModelScope)
+    }
+
+    private fun observeAlarmRetriggerCooldownDuration() {
+        var isFirstEmission = true
+        observeAlarmRetriggerCooldownDurationUseCase().onEach { durationMillis ->
+            _state.update {
+                it.copy(alarmRetriggerCooldownDurationMillis = durationMillis)
+            }
 
             if (isFirstEmission) {
                 isFirstEmission = false
@@ -164,7 +163,7 @@ class SettingsViewModel(
     private fun markSourceLoaded() {
         loadedSourcesCount++
 
-        if (loadedSourcesCount >= 5) {
+        if (loadedSourcesCount >= SETTINGS_INITIAL_LOADING_SOURCES_TOTAL) {
             _state.update { it.copy(isLoading = false) }
         }
     }
@@ -193,16 +192,14 @@ class SettingsViewModel(
         viewModelScope.launch { setAlarmVolumeUseCase(percent) }
     }
 
-    private fun setVibrationEnabled(enabled: Boolean) {
-        viewModelScope.launch { setVibrationEnabledUseCase(enabled) }
-    }
-
-    private fun setTelegramPackages(packages: Set<String>) {
-        viewModelScope.launch { setTelegramPackagesUseCase(packages) }
-    }
-
     private fun setLogSizeLimit(limit: Int) {
         viewModelScope.launch { setLogSizeLimitUseCase(limit) }
+    }
+
+    private fun setAlarmRetriggerCooldownDurationMillis(durationMillis: Long) {
+        viewModelScope.launch {
+            setAlarmRetriggerCooldownDurationUseCase(durationMillis)
+        }
     }
 
     private fun toggleTestAlarm(
@@ -224,10 +221,6 @@ class SettingsViewModel(
                 sourceMessageText = sourceMessageText,
             )
         }
-    }
-
-    private fun navigateBack() {
-        viewModelScope.launch { _events.emit(Event.NavigateBack) }
     }
 
 }

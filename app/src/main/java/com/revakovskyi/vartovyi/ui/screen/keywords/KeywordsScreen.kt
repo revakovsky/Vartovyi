@@ -20,6 +20,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
@@ -53,12 +54,14 @@ private const val KEYWORDS_CHIP_CLIP_LABEL = "keywords_chip"
 fun KeywordsScreen(
     viewModel: KeywordsViewModel = koinViewModel(),
 ) {
-    val hapticFeedback = LocalHapticFeedback.current
     val clipboardManager = LocalClipboard.current
-    val coroutineScope = androidx.compose.runtime.rememberCoroutineScope()
-    val chipCopiedMessage = stringResource(R.string.keywords_chip_copied)
+    val hapticFeedback = LocalHapticFeedback.current
 
     val state by viewModel.state.collectAsState()
+
+    val coroutineScope = rememberCoroutineScope()
+
+    val chipCopiedMessage = stringResource(R.string.keywords_chip_copied)
 
     ObserveSingleEvents(flow = viewModel.events) { event ->
         when (event) {
@@ -143,15 +146,15 @@ private fun KeywordsContent(
     }
 
     Column(
-        verticalArrangement = Arrangement.spacedBy(VartovyiTheme.spacing.medium),
+        verticalArrangement = Arrangement.spacedBy(VartovyiTheme.spacing.small),
         modifier = modifier
             .fillMaxSize()
             .imePadding()
             .verticalScroll(rememberScrollState())
             .padding(
-                start = VartovyiTheme.spacing.standard,
-                end = VartovyiTheme.spacing.standard,
-                bottom = VartovyiTheme.spacing.standard,
+                start = VartovyiTheme.spacing.small,
+                end = VartovyiTheme.spacing.small,
+                bottom = VartovyiTheme.spacing.small,
             )
     ) {
         KeywordsSection(

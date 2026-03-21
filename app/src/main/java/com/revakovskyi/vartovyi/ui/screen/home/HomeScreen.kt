@@ -94,7 +94,7 @@ private fun HomeContent(
 ) {
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
-        modifier = modifier.fillMaxSize(),
+        modifier = modifier.fillMaxSize()
     ) {
         StatusBlock(
             monitoringState = state.monitoringState,
@@ -108,13 +108,13 @@ private fun HomeContent(
                     onAction(HomeUiContract.Action.ToggleMonitoring)
                 }
             },
-            modifier = Modifier.weight(1f),
+            modifier = Modifier.weight(1f)
         )
 
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.spacedBy(VartovyiTheme.spacing.small),
-            modifier = Modifier.padding(horizontal = VartovyiTheme.spacing.standard),
+            modifier = Modifier.padding(horizontal = VartovyiTheme.spacing.small)
         ) {
             KeywordsCard(
                 keywords = state.keywords,

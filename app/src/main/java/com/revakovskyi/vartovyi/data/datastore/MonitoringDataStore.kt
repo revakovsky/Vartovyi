@@ -9,7 +9,6 @@ import androidx.datastore.preferences.core.emptyPreferences
 import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.datastore.preferences.core.longPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
-import androidx.datastore.preferences.core.stringSetPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
@@ -19,10 +18,10 @@ import java.io.IOException
 private const val DATASTORE_NAME = "vartovyi_monitoring"
 private const val DEFAULT_START_TIME = "22:00"
 private const val DEFAULT_END_TIME = "07:00"
-private const val DEFAULT_TELEGRAM_PACKAGE = "org.telegram.messenger"
 private const val DEFAULT_ALARM_DURATION_SECONDS = 60
 private const val DEFAULT_ALARM_VOLUME_PERCENT = 100
 private const val DEFAULT_ALARM_SOUND_URI = ""
+private const val DEFAULT_LOG_SIZE_LIMIT = 500
 private const val DEFAULT_ALARM_RETRIGGER_COOLDOWN_MILLIS = 5 * 60 * 1000L
 
 private val Context.monitoringDataStore: DataStore<Preferences> by preferencesDataStore(
@@ -38,8 +37,6 @@ class MonitoringDataStore(private val context: Context) {
         val END_TIME = stringPreferencesKey("end_time")
         val ALARM_DURATION_SECONDS = intPreferencesKey("alarm_duration_seconds")
         val ALARM_VOLUME_PERCENT = intPreferencesKey("alarm_volume_percent")
-        val VIBRATION_ENABLED = booleanPreferencesKey("vibration_enabled")
-        val TELEGRAM_PACKAGES = stringSetPreferencesKey("telegram_packages")
         val LOG_SIZE_LIMIT = intPreferencesKey("log_size_limit")
         val ALARM_SOUND_URI = stringPreferencesKey("alarm_sound_uri")
         val ALARM_RETRIGGER_COOLDOWN_DURATION_MILLIS =
@@ -76,17 +73,9 @@ class MonitoringDataStore(private val context: Context) {
         .safeCatch()
         .map { it[Keys.ALARM_SOUND_URI] ?: DEFAULT_ALARM_SOUND_URI }
 
-    val isVibrationEnabled: Flow<Boolean> = context.monitoringDataStore.data
-        .safeCatch()
-        .map { it[Keys.VIBRATION_ENABLED] ?: true }
-
-    val selectedTelegramPackages: Flow<Set<String>> = context.monitoringDataStore.data
-        .safeCatch()
-        .map { it[Keys.TELEGRAM_PACKAGES] ?: setOf(DEFAULT_TELEGRAM_PACKAGE) }
-
     val logSizeLimit: Flow<Int> = context.monitoringDataStore.data
         .safeCatch()
-        .map { it[Keys.LOG_SIZE_LIMIT] ?: 300 }
+        .map { it[Keys.LOG_SIZE_LIMIT] ?: DEFAULT_LOG_SIZE_LIMIT }
 
     val alarmRetriggerCooldownDurationMillis: Flow<Long> = context.monitoringDataStore.data
         .safeCatch()
@@ -125,14 +114,6 @@ class MonitoringDataStore(private val context: Context) {
 
     suspend fun setAlarmSoundUri(uri: String) {
         context.monitoringDataStore.edit { it[Keys.ALARM_SOUND_URI] = uri }
-    }
-
-    suspend fun setVibrationEnabled(enabled: Boolean) {
-        context.monitoringDataStore.edit { it[Keys.VIBRATION_ENABLED] = enabled }
-    }
-
-    suspend fun setSelectedTelegramPackages(packages: Set<String>) {
-        context.monitoringDataStore.edit { it[Keys.TELEGRAM_PACKAGES] = packages }
     }
 
     suspend fun setLogSizeLimit(limit: Int) {

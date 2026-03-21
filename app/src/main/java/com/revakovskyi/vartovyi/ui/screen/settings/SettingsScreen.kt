@@ -10,29 +10,34 @@ import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.Crossfade
 import androidx.compose.animation.core.tween
-import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.SnackbarDuration
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.core.net.toUri
 import com.revakovskyi.vartovyi.R
 import com.revakovskyi.vartovyi.ui.components.LoadingOverlay
 import com.revakovskyi.vartovyi.ui.screen.settings.components.AlarmDurationSection
 import com.revakovskyi.vartovyi.ui.screen.settings.components.AlarmSoundSection
 import com.revakovskyi.vartovyi.ui.screen.settings.components.AlarmVolumeSection
+import com.revakovskyi.vartovyi.ui.screen.settings.components.DataSettingsSection
+import com.revakovskyi.vartovyi.ui.screen.settings.components.ScheduleSettingsSection
+import com.revakovskyi.vartovyi.ui.screen.settings.components.SettingsSectionContainer
 import com.revakovskyi.vartovyi.ui.screen.settings.components.SettingsTestAlarmButton
 import com.revakovskyi.vartovyi.ui.theme.VartovyiTheme
 import com.revakovskyi.vartovyi.ui.util.snackbar.SnackbarAction
@@ -45,7 +50,6 @@ import org.koin.androidx.compose.koinViewModel
 @Composable
 fun SettingsScreen(
     viewModel: SettingsViewModel = koinViewModel(),
-    onNavigateBack: () -> Unit,
     onNavigateToHome: () -> Unit,
 ) {
     val context = LocalContext.current
@@ -57,6 +61,7 @@ fun SettingsScreen(
     val homeActionLabel = stringResource(R.string.nav_home)
     val defaultAlarmSoundTitle = stringResource(R.string.settings_alarm_sound_default)
     val alarmSoundPickerTitle = stringResource(R.string.settings_alarm_sound_picker_title)
+    val exportLogPendingMessage = stringResource(R.string.settings_data_export_log_pending_message)
 
     val selectedAlarmSoundTitle = remember(
         context,
@@ -84,7 +89,6 @@ fun SettingsScreen(
 
     ObserveSingleEvents(flow = viewModel.events) { event ->
         when (event) {
-            is SettingsUiContract.Event.NavigateBack -> onNavigateBack()
             is SettingsUiContract.Event.ShowDisableMonitoringForTestAlarm -> {
                 coroutineScope.launch {
                     SnackbarController.sendEvent(
@@ -99,8 +103,6 @@ fun SettingsScreen(
                     )
                 }
             }
-
-            else -> Unit
         }
     }
 
@@ -124,6 +126,13 @@ fun SettingsScreen(
                         )
                     )
                 },
+                onExportLogClick = {
+                    coroutineScope.launch {
+                        SnackbarController.sendEvent(
+                            SnackbarEvent(message = exportLogPendingMessage),
+                        )
+                    }
+                },
             )
         }
     }
@@ -136,26 +145,61 @@ private fun SettingsContent(
     selectedAlarmSoundTitle: String,
     onAction: (action: SettingsUiContract.Action) -> Unit,
     onChooseAlarmSound: () -> Unit,
+    onExportLogClick: () -> Unit,
 ) {
     val testAlarmSourceChannelName = stringResource(R.string.settings_test_alarm_channel_name)
     val testAlarmSourceMessageText = stringResource(R.string.settings_test_alarm_message_text)
+    val soundSectionTitle = stringResource(R.string.settings_section_sound)
+    val scheduleSectionTitle = stringResource(R.string.settings_section_schedule)
+    val dataSectionTitle = stringResource(R.string.settings_section_data)
 
-    Box(
-        contentAlignment = Alignment.TopCenter,
+    Column(
+        verticalArrangement = Arrangement.spacedBy(VartovyiTheme.spacing.small),
         modifier = modifier
             .fillMaxSize()
-            .padding(horizontal = VartovyiTheme.spacing.standard)
+            .padding(horizontal = VartovyiTheme.spacing.small)
+            .verticalScroll(rememberScrollState())
     ) {
-        Column(
-            horizontalAlignment = Alignment.CenterHorizontally,
-            modifier = Modifier.fillMaxSize()
+        SettingsTestAlarmButton(
+            isAlarmRunning = state.isAlarmRunning,
+            onClick = {
+                onAction(
+                    SettingsUiContract.Action.ToggleTestAlarm(
+                        sourceChannelName = testAlarmSourceChannelName,
+                        sourceMessageText = testAlarmSourceMessageText,
+                    )
+                )
+            },
+            modifier = Modifier.padding(bottom = VartovyiTheme.spacing.medium)
+        )
+
+        SettingsSectionContainer(
+            title = dataSectionTitle,
+        ) {
+            DataSettingsSection(
+                currentLogSizeLimit = state.logSizeLimit,
+                currentAlarmCooldownDurationMillis = state.alarmRetriggerCooldownDurationMillis,
+                onLogSizeLimitChange = { limit ->
+                    onAction(SettingsUiContract.Action.SetLogSizeLimit(limit))
+                },
+                onAlarmCooldownDurationChange = { durationMillis ->
+                    onAction(
+                        SettingsUiContract.Action.SetAlarmRetriggerCooldownDurationMillis(
+                            durationMillis
+                        )
+                    )
+                },
+                onExportLogClick = onExportLogClick,
+            )
+        }
+
+        SettingsSectionContainer(
+            title = soundSectionTitle,
         ) {
             AlarmSoundSection(
                 selectedSoundTitle = selectedAlarmSoundTitle,
                 onChooseSoundClick = onChooseAlarmSound,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(top = VartovyiTheme.spacing.standard)
+                modifier = Modifier.fillMaxWidth()
             )
 
             Spacer(modifier = Modifier.height(VartovyiTheme.spacing.standard))
@@ -165,9 +209,7 @@ private fun SettingsContent(
                 onDurationChange = { seconds ->
                     onAction(SettingsUiContract.Action.SetAlarmDuration(seconds))
                 },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(top = VartovyiTheme.spacing.standard)
+                modifier = Modifier.fillMaxWidth()
             )
 
             Spacer(modifier = Modifier.height(VartovyiTheme.spacing.standard))
@@ -179,36 +221,28 @@ private fun SettingsContent(
                 },
                 modifier = Modifier.fillMaxWidth()
             )
-
-            Spacer(modifier = Modifier.weight(1f))
         }
 
-        SettingsTestAlarmButton(
-            isAlarmRunning = state.isAlarmRunning,
-            onClick = {
-                onAction(
-                    SettingsUiContract.Action.ToggleTestAlarm(
-                        sourceChannelName = testAlarmSourceChannelName,
-                        sourceMessageText = testAlarmSourceMessageText,
-                    )
-                )
-            },
-            modifier = Modifier.align(Alignment.BottomCenter)
-        )
-    }
-
-}
-
-@Preview
-@Composable
-private fun SettingsContentPreview() {
-    VartovyiTheme {
-        SettingsContent(
-            state = SettingsUiContract.State(),
-            selectedAlarmSoundTitle = "Default alarm sound",
-            onAction = {},
-            onChooseAlarmSound = {},
-        )
+        SettingsSectionContainer(
+            title = scheduleSectionTitle,
+            titleTooltipText = stringResource(R.string.settings_section_schedule_tooltip),
+            modifier = Modifier.padding(bottom = VartovyiTheme.spacing.small)
+        ) {
+            ScheduleSettingsSection(
+                isScheduleEnabled = state.isScheduleEnabled,
+                startTime = state.startTime,
+                endTime = state.endTime,
+                onScheduleEnabledChange = { enabled ->
+                    onAction(SettingsUiContract.Action.SetScheduleEnabled(enabled))
+                },
+                onStartTimeChange = { time ->
+                    onAction(SettingsUiContract.Action.SetStartTime(time))
+                },
+                onEndTimeChange = { time ->
+                    onAction(SettingsUiContract.Action.SetEndTime(time))
+                },
+            )
+        }
     }
 }
 
@@ -218,7 +252,7 @@ private fun createAlarmSoundPickerIntent(
 ): Intent {
     val existingUri = existingAlarmSoundUri
         .takeIf { it.isNotBlank() }
-        ?.let { Uri.parse(it) }
+        ?.toUri()
         ?: RingtoneManager.getDefaultUri(RingtoneManager.TYPE_ALARM)
 
     return Intent(RingtoneManager.ACTION_RINGTONE_PICKER).apply {
@@ -266,11 +300,25 @@ private fun resolveAlarmSoundTitle(
 ): String {
     val selectedUri = alarmSoundUri
         .takeIf { it.isNotBlank() }
-        ?.let { Uri.parse(it) }
+        ?.toUri()
         ?: RingtoneManager.getDefaultUri(RingtoneManager.TYPE_ALARM)
         ?: return defaultAlarmSoundTitle
 
     return runCatching {
         RingtoneManager.getRingtone(context, selectedUri)?.getTitle(context)
     }.getOrNull()?.takeIf { it.isNotBlank() } ?: defaultAlarmSoundTitle
+}
+
+@Preview
+@Composable
+private fun SettingsContentPreview() {
+    VartovyiTheme {
+        SettingsContent(
+            state = SettingsUiContract.State(),
+            selectedAlarmSoundTitle = "Default alarm sound",
+            onAction = {},
+            onChooseAlarmSound = {},
+            onExportLogClick = {},
+        )
+    }
 }
