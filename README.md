@@ -15,8 +15,7 @@ Android-додаток для моніторингу Telegram-сповіщень
 
 ## 2) Що додаток має робити
 
-- Моніторити тільки вибрані Telegram-пакети (`org.telegram.messenger` та інші, які обере
-  користувач).
+- Моніторити сповіщення **тільки** з офіційного клієнта Telegram (`org.telegram.messenger`).
 - Підтримувати:
     - trigger-слова (позитивний тригер);
     - stop-слова (скасування тривоги навіть при trigger-збігу);
@@ -75,7 +74,7 @@ Android-додаток для моніторингу Telegram-сповіщень
 3. `TelegramListenerService` отримує нові Telegram-сповіщення.
 4. Повідомлення проходить фільтри:
     - моніторинг активний;
-    - дозволений пакет;
+    - пакет сповіщення — `org.telegram.messenger`;
     - (опційно) дозволений канал;
     - (опційно) вікно розкладу.
 5. `AnalyzeMessageUseCase` перевіряє trigger/stop-слова.
@@ -108,8 +107,8 @@ Android-додаток для моніторингу Telegram-сповіщень
 - [x] `Test Alarm` перенесено в `SettingsScreen` і підключено до реального alarm-flow.
 - [x] Якщо моніторинг активний, тест тривоги блокується зі snackbar-підказкою та action переходу на
   `Home`.
-- [x] Для `TopAppBar` підключено `TopAppBarScrollBehavior`: на `Logs` top bar ховається/з'являється
-  під час скролу.
+- [x] Для `TopAppBar` підключено `TopAppBarScrollBehavior` (`enterAlways`): на `Keywords`, `Logs` і
+  `Settings` top bar ховається/з'являється під час скролу.
 - [x] Snackbar queue вимкнено: новий snackbar скасовує попередній.
 - [x] Додано haptic feedback для add/remove дій у `Keywords`, для `VartovyiSwitch` та toggle-кнопки
   моніторингу.
@@ -120,6 +119,17 @@ Android-додаток для моніторингу Telegram-сповіщень
   необхідних налаштувань.
 - [x] У `Settings` додано вибір мелодії тривоги через системний `RingtonePicker` з відображенням
   вибраної назви.
+- [x] `Settings` згруповано в картки-секції: **Дані** (ліміт журналу 100/300/500/1000, пауза між
+  тривогами з підказками в діалозі, заглушка експорту з snackbar), **Звук** (мелодія, тривалість,
+  гучність), **Розклад роботи** (toggle + час + підказка в діалозі для секції).
+- [x] Тривалість **cooldown** між тривогами налаштовується на екрані (наприклад 1/3/5/10 хв) і
+  зберігається в `DataStore`; логіка тригера використовує актуальне значення.
+- [x] `LogScreen`: стан відображення списку (loading / error / empty / content) та дані для
+  підсвітки запису формуються у `LogViewModel`; UI лише синхронізує сигнали paging у `Action`.
+- [x] Для помилки завантаження журналу — `LogErrorState` з retry та кнопкою на базі
+  `VartovyiActionButton`.
+- [x] Крокові слайдери тривалості/гучності тривоги використовують спільний `VartovyiSettingSlider` з
+  опційним тактильним відгуком на дискретний крок.
 - [x] Кнопки `SettingsTestAlarmButton`, `LogClearButton`, `StatusBlock` toggle і кнопка вибору
   мелодії
   уніфіковано через спільний компонент `VartovyiActionButton`.
@@ -164,7 +174,8 @@ Android-додаток для моніторингу Telegram-сповіщень
 - [x] Додано use case обробки вхідного Telegram notification (фільтри + лог + alarm trigger).
 - [x] Matching trigger-ключових слів переведено на `TriggerKeywordRule` з підтримкою `WORD` /
   `ALL_WORDS` / `PHRASE` замість простого `contains`.
-- [x] Додано anti-retrigger cooldown для alarm trigger (default `5 хв`): повторний alarm trigger
+- [x] Додано anti-retrigger cooldown для alarm trigger (дефолт **5 хв**, тривалість змінюється в
+  `Settings`): повторний alarm trigger
   блокується до завершення cooldown; відлік працює в coroutine scope `MonitoringForegroundService`,
   а сам cooldown персиститься в `DataStore` (відновлення після restart / process death).
 - [x] Для логів додано окремий статус `SKIPPED_COOLDOWN` (подія зафіксована, але alarm trigger
@@ -190,7 +201,7 @@ Android-додаток для моніторингу Telegram-сповіщень
 - [x] Реалізувати `TelegramListenerService.onNotificationPosted`:
     - [x] витяг `packageName`, `title`, `text`, `postTime`;
     - [x] пропуск порожніх/службових нотифікацій;
-    - [x] фільтр за вибраними Telegram-пакетами.
+    - [x] фільтр пакета: тільки `org.telegram.messenger`.
 - [x] Додати use case `ProcessIncomingNotificationUseCase`:
     - [x] завантаження keywords/stop-words/channels/settings;
     - [x] виклик логіки аналізу повідомлення;
@@ -293,6 +304,10 @@ Android-додаток для моніторингу Telegram-сповіщень
 - `2026-03-19` — у `Settings` додано вибір мелодії тривоги через системний `RingtonePicker`
   (прослуховування + збереження + відображення назви), loading-state на первинне завантаження
   налаштувань і уніфіковано ключові кнопки через спільний `VartovyiActionButton`.
+- `2026-03-20` — `Settings`: секції Дані/Звук/Розклад, ліміт журналу та налаштовуваний cooldown;
+  фільтр вхідних сповіщень лише для `org.telegram.messenger`; прибрано зайві prefs (вібрація, список
+  пакетів). `Log`: presentation state у ViewModel, `LogErrorState` + retry. Top bar `enterAlways` на
+  `Keywords`; тактильний відгук на кроках слайдерів у `VartovyiSettingSlider`; оновлено README.
 
 ## 13) Узгоджені продукт-рішення (зафіксовано)
 
@@ -354,22 +369,21 @@ Android-додаток для моніторингу Telegram-сповіщень
     - Список перехоплених подій (включно з пропущеними).
     - Стани елементів: alarm / skipped.
     - Очищення через confirm-діалог.
-    - Empty-state.
+    - Empty-state, loading, error + retry.
+    - Відображення списку керується станом з `ViewModel` (див. as-is).
 
 - **Settings**
-    - Кнопка `Test Alarm` (запуск/стоп тестової тривоги).
+    - Кнопка `Test Alarm` зверху контенту (запуск/стоп тестової тривоги).
     - Якщо monitoring `ACTIVE`, тест тривоги блокується зі snackbar-підказкою та переходом на
       `Home`.
     - Під час первинного завантаження налаштувань показується `LoadingOverlay`.
-    - Розклад роботи (enable + start/end time).
-    - Налаштування тривоги:
-        - alarm sound — системний `RingtonePicker` (з можливістю прослухати), показ вибраної назви;
-        - duration — `Slider` (5..300 с, крок 30) з live-оновленням значення під час перетягування;
-        - volume — `Slider` (0..100%, крок 10);
-        - vibration;
-        - збереження всіх параметрів у `DataStore`.
-    - Джерела сповіщень (список Telegram-клієнтів).
-    - Ліміт розміру журналу.
+    - Секція **Дані**: ліміт розміру журналу (чіпи + діалог-підказка), пауза між тривогами (чіпи +
+      діалог), кнопка експорту (поки заглушка + snackbar).
+    - Секція **Звук**: мелодія (`RingtonePicker` + назва), тривалість і гучність через
+      `VartovyiSettingSlider` (з тактильним кроком).
+    - Секція **Розклад роботи**: toggle, час початку/кінця, підказка для секції в діалозі.
+    - Збереження параметрів у `DataStore` (без окремого списку Telegram-пакетів і без окремого
+      перемикача вібрації в налаштуваннях).
 
 - **Permissions**
     - Повний перелік критичних/рекомендованих дозволів.

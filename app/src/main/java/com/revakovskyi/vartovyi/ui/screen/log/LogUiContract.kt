@@ -4,13 +4,27 @@ import androidx.compose.runtime.Immutable
 
 interface LogUiContract {
 
+    enum class LogContentViewState {
+        Loading, Error, Empty, Content,
+    }
+
     @Immutable
     data class State(
-        val isLoading: Boolean = false,
+        val contentViewState: LogContentViewState = LogContentViewState.Loading,
+        val highlightLogEntryId: String? = null,
+        val highlightedLogEntryIndex: Int = -1,
         val isClearDialogVisible: Boolean = false,
     )
 
     sealed interface Action {
+        data class SyncLogListPresentation(
+            val isRefreshLoading: Boolean,
+            val isRefreshError: Boolean,
+            val itemCount: Int,
+        ) : Action
+
+        data class SyncHighlightLogEntry(val logEntryId: String?) : Action
+
         data object OpenClearLogDialog : Action
         data object DismissClearLogDialog : Action
         data object ConfirmClearLog : Action

@@ -39,6 +39,8 @@ class LogViewModel(
 
     fun onAction(action: Action) {
         when (action) {
+            is Action.SyncLogListPresentation -> syncLogListPresentation(action = action)
+            is Action.SyncHighlightLogEntry -> syncHighlightLogEntry(logEntryId = action.logEntryId)
             is Action.OpenClearLogDialog -> openClearLogDialog()
             is Action.DismissClearLogDialog -> dismissClearLogDialog()
             is Action.ConfirmClearLog -> confirmClearLog()
@@ -47,8 +49,45 @@ class LogViewModel(
         }
     }
 
-    suspend fun getLogEntryIndexById(eventId: String): Int {
-        return getLogEntryIndexUseCase(eventId = eventId)
+    private fun syncLogListPresentation(action: Action.SyncLogListPresentation) {
+        val derivedContentViewState = resolveLogContentViewState(
+            isRefreshLoading = action.isRefreshLoading,
+            isRefreshError = action.isRefreshError,
+            itemCount = action.itemCount,
+        )
+
+        _state.update { current ->
+            if (current.contentViewState == derivedContentViewState) current
+            else current.copy(contentViewState = derivedContentViewState)
+        }
+    }
+
+    private fun syncHighlightLogEntry(logEntryId: String?) {
+        viewModelScope.launch {
+            val resolvedIndex =
+                if (logEntryId == null) -1
+                else getLogEntryIndexUseCase(eventId = logEntryId)
+
+            _state.update { current ->
+                current.copy(
+                    highlightLogEntryId = logEntryId,
+                    highlightedLogEntryIndex = resolvedIndex,
+                )
+            }
+        }
+    }
+
+    private fun resolveLogContentViewState(
+        isRefreshLoading: Boolean,
+        isRefreshError: Boolean,
+        itemCount: Int,
+    ): LogUiContract.LogContentViewState {
+        return when {
+            isRefreshLoading -> LogUiContract.LogContentViewState.Loading
+            isRefreshError -> LogUiContract.LogContentViewState.Error
+            itemCount == 0 -> LogUiContract.LogContentViewState.Empty
+            else -> LogUiContract.LogContentViewState.Content
+        }
     }
 
     private fun openClearLogDialog() {

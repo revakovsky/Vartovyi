@@ -43,6 +43,9 @@ fun AlarmDurationSection(
         valueRange = MIN_ALARM_DURATION_SECONDS.toFloat()..MAX_ALARM_DURATION_SECONDS.toFloat(),
         steps = ((MAX_ALARM_DURATION_SECONDS - MIN_ALARM_DURATION_SECONDS) / ALARM_DURATION_STEP_SECONDS) - 1,
         sliderWidthFraction = ALARM_DURATION_SLIDER_WIDTH_FRACTION,
+        discreteValueForHaptics = { rawValue ->
+            snapToAlarmDurationStep(rawValue).toFloat()
+        },
         onValueChange = { value ->
             val snappedDurationSeconds = snapToAlarmDurationStep(value)
             val snappedSliderValue = snappedDurationSeconds.toFloat()

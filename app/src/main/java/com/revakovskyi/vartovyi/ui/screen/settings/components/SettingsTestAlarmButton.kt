@@ -1,6 +1,5 @@
 package com.revakovskyi.vartovyi.ui.screen.settings.components
 
-import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -21,8 +20,6 @@ fun SettingsTestAlarmButton(
     isAlarmRunning: Boolean,
     onClick: () -> Unit,
 ) {
-    val buttonModifier = modifier.padding(vertical = VartovyiTheme.spacing.standard)
-
     if (isAlarmRunning) {
         VartovyiActionButton(
             text = stringResource(R.string.settings_stop_test_alarm),
@@ -32,7 +29,7 @@ fun SettingsTestAlarmButton(
             contentColor = VartovyiTheme.colors.onErrorContainer,
             icon = ImageVector.vectorResource(R.drawable.alarm),
             maxWidth = TEST_BUTTON_MAX_WIDTH_DP.dp,
-            modifier = buttonModifier
+            modifier = modifier
         )
     } else {
         VartovyiActionButton(
@@ -44,7 +41,7 @@ fun SettingsTestAlarmButton(
             icon = ImageVector.vectorResource(R.drawable.alarm),
             iconTint = VartovyiTheme.colors.error,
             maxWidth = TEST_BUTTON_MAX_WIDTH_DP.dp,
-            modifier = buttonModifier
+            modifier = modifier
         )
     }
 }

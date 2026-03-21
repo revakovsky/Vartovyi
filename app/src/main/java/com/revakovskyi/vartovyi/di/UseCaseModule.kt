@@ -52,14 +52,16 @@ import com.revakovskyi.vartovyi.domain.usecase.monitoring.ToggleMonitoringUseCas
 import com.revakovskyi.vartovyi.domain.usecase.monitoring.ToggleMonitoringUseCaseImpl
 import com.revakovskyi.vartovyi.domain.usecase.notification.ProcessIncomingTelegramNotificationUseCase
 import com.revakovskyi.vartovyi.domain.usecase.notification.ProcessIncomingTelegramNotificationUseCaseImpl
+import com.revakovskyi.vartovyi.domain.usecase.settings.ObserveAlarmRetriggerCooldownDurationUseCase
+import com.revakovskyi.vartovyi.domain.usecase.settings.ObserveAlarmRetriggerCooldownDurationUseCaseImpl
 import com.revakovskyi.vartovyi.domain.usecase.settings.ObserveLogSizeLimitUseCase
 import com.revakovskyi.vartovyi.domain.usecase.settings.ObserveLogSizeLimitUseCaseImpl
 import com.revakovskyi.vartovyi.domain.usecase.settings.ObserveScheduleSettingsUseCase
 import com.revakovskyi.vartovyi.domain.usecase.settings.ObserveScheduleSettingsUseCaseImpl
-import com.revakovskyi.vartovyi.domain.usecase.settings.ObserveTelegramPackagesUseCase
-import com.revakovskyi.vartovyi.domain.usecase.settings.ObserveTelegramPackagesUseCaseImpl
 import com.revakovskyi.vartovyi.domain.usecase.settings.SetAlarmDurationUseCase
 import com.revakovskyi.vartovyi.domain.usecase.settings.SetAlarmDurationUseCaseImpl
+import com.revakovskyi.vartovyi.domain.usecase.settings.SetAlarmRetriggerCooldownDurationUseCase
+import com.revakovskyi.vartovyi.domain.usecase.settings.SetAlarmRetriggerCooldownDurationUseCaseImpl
 import com.revakovskyi.vartovyi.domain.usecase.settings.SetAlarmSoundUriUseCase
 import com.revakovskyi.vartovyi.domain.usecase.settings.SetAlarmSoundUriUseCaseImpl
 import com.revakovskyi.vartovyi.domain.usecase.settings.SetAlarmVolumeUseCase
@@ -72,10 +74,6 @@ import com.revakovskyi.vartovyi.domain.usecase.settings.SetScheduleEnabledUseCas
 import com.revakovskyi.vartovyi.domain.usecase.settings.SetScheduleEnabledUseCaseImpl
 import com.revakovskyi.vartovyi.domain.usecase.settings.SetStartTimeUseCase
 import com.revakovskyi.vartovyi.domain.usecase.settings.SetStartTimeUseCaseImpl
-import com.revakovskyi.vartovyi.domain.usecase.settings.SetTelegramPackagesUseCase
-import com.revakovskyi.vartovyi.domain.usecase.settings.SetTelegramPackagesUseCaseImpl
-import com.revakovskyi.vartovyi.domain.usecase.settings.SetVibrationEnabledUseCase
-import com.revakovskyi.vartovyi.domain.usecase.settings.SetVibrationEnabledUseCaseImpl
 import org.koin.core.module.dsl.bind
 import org.koin.core.module.dsl.singleOf
 import org.koin.dsl.module
@@ -113,16 +111,15 @@ val useCaseModule = module {
     singleOf(::ClearLogUseCaseImpl) { bind<ClearLogUseCase>() }
 
     singleOf(::ObserveScheduleSettingsUseCaseImpl) { bind<ObserveScheduleSettingsUseCase>() }
-    singleOf(::ObserveTelegramPackagesUseCaseImpl) { bind<ObserveTelegramPackagesUseCase>() }
     singleOf(::ObserveLogSizeLimitUseCaseImpl) { bind<ObserveLogSizeLimitUseCase>() }
+    singleOf(::ObserveAlarmRetriggerCooldownDurationUseCaseImpl) { bind<ObserveAlarmRetriggerCooldownDurationUseCase>() }
     singleOf(::SetScheduleEnabledUseCaseImpl) { bind<SetScheduleEnabledUseCase>() }
     singleOf(::SetStartTimeUseCaseImpl) { bind<SetStartTimeUseCase>() }
     singleOf(::SetEndTimeUseCaseImpl) { bind<SetEndTimeUseCase>() }
     singleOf(::SetAlarmDurationUseCaseImpl) { bind<SetAlarmDurationUseCase>() }
     singleOf(::SetAlarmSoundUriUseCaseImpl) { bind<SetAlarmSoundUriUseCase>() }
     singleOf(::SetAlarmVolumeUseCaseImpl) { bind<SetAlarmVolumeUseCase>() }
-    singleOf(::SetVibrationEnabledUseCaseImpl) { bind<SetVibrationEnabledUseCase>() }
-    singleOf(::SetTelegramPackagesUseCaseImpl) { bind<SetTelegramPackagesUseCase>() }
     singleOf(::SetLogSizeLimitUseCaseImpl) { bind<SetLogSizeLimitUseCase>() }
+    singleOf(::SetAlarmRetriggerCooldownDurationUseCaseImpl) { bind<SetAlarmRetriggerCooldownDurationUseCase>() }
 
 }

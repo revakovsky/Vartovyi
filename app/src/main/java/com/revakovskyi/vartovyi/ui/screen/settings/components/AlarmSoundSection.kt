@@ -45,7 +45,8 @@ fun AlarmSoundSection(
         VartovyiActionButton(
             text = stringResource(R.string.settings_alarm_sound_choose_button),
             onClick = onChooseSoundClick,
-            style = VartovyiActionButtonStyle.Filled,
+            style = VartovyiActionButtonStyle.Outlined,
+            borderColor = VartovyiTheme.colors.primary,
             maxWidth = TEST_BUTTON_MAX_WIDTH_DP.dp,
         )
     }

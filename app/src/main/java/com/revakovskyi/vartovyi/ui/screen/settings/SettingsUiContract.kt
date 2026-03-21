@@ -13,9 +13,8 @@ interface SettingsUiContract {
         val alarmDurationSeconds: Int = 60,
         val alarmVolumePercent: Int = 100,
         val alarmSoundUri: String = "",
-        val isVibrationEnabled: Boolean = true,
-        val selectedTelegramPackages: Set<String> = setOf("org.telegram.messenger"),
         val logSizeLimit: Int = 500,
+        val alarmRetriggerCooldownDurationMillis: Long = 5 * 60 * 1000L,
         val isMonitoringActive: Boolean = false,
         val isAlarmRunning: Boolean = false,
     )
@@ -27,10 +26,8 @@ interface SettingsUiContract {
         data class SetAlarmDuration(val seconds: Int) : Action
         data class SetAlarmVolume(val percent: Int) : Action
         data class SetAlarmSoundUri(val uri: String) : Action
-        data class SetVibrationEnabled(val enabled: Boolean) : Action
-        data class SetTelegramPackages(val packages: Set<String>) : Action
         data class SetLogSizeLimit(val limit: Int) : Action
-        data object NavigateBack : Action
+        data class SetAlarmRetriggerCooldownDurationMillis(val durationMillis: Long) : Action
         data class ToggleTestAlarm(
             val sourceChannelName: String,
             val sourceMessageText: String,
@@ -38,10 +35,7 @@ interface SettingsUiContract {
     }
 
     sealed interface Event {
-        data object SettingsSaved : Event
-        data object NavigateBack : Event
         data object ShowDisableMonitoringForTestAlarm : Event
-        data class Error(val message: String) : Event
     }
 
 }

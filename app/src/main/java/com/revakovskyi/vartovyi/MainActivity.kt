@@ -222,7 +222,9 @@ class MainActivity : ComponentActivity() {
     @Composable
     private fun provideTopBarScrollBehavior(selectedNavItem: BottomNavItem?): TopAppBarScrollBehavior =
         when (selectedNavItem) {
-            BottomNavItem.Logs -> TopAppBarDefaults.enterAlwaysScrollBehavior(state = rememberTopAppBarState())
+            BottomNavItem.Keywords,
+            BottomNavItem.Logs,
+            BottomNavItem.Settings -> TopAppBarDefaults.enterAlwaysScrollBehavior(state = rememberTopAppBarState())
             else -> TopAppBarDefaults.pinnedScrollBehavior(state = rememberTopAppBarState())
         }
 
