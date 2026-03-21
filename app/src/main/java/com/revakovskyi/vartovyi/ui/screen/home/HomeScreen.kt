@@ -3,6 +3,7 @@ package com.revakovskyi.vartovyi.ui.screen.home
 import androidx.compose.animation.Crossfade
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -10,9 +11,15 @@ import androidx.compose.material3.SnackbarDuration
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.layout.LayoutCoordinates
+import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import com.revakovskyi.vartovyi.R
@@ -20,6 +27,7 @@ import com.revakovskyi.vartovyi.domain.model.AlertEvent
 import com.revakovskyi.vartovyi.domain.model.AlertEventStatus
 import com.revakovskyi.vartovyi.domain.model.MonitoringState
 import com.revakovskyi.vartovyi.ui.components.LoadingOverlay
+import com.revakovskyi.vartovyi.ui.screen.home.components.HomeMonitoringActiveContentEffect
 import com.revakovskyi.vartovyi.ui.screen.home.components.KeywordsCard
 import com.revakovskyi.vartovyi.ui.screen.home.components.LastAlertCard
 import com.revakovskyi.vartovyi.ui.screen.home.components.StatusBlock
@@ -92,47 +100,69 @@ private fun HomeContent(
     onAction: (action: HomeUiContract.Action) -> Unit,
     onShowPermissionsRequiredMessage: () -> Unit,
 ) {
-    Column(
-        horizontalAlignment = Alignment.CenterHorizontally,
-        modifier = modifier.fillMaxSize()
-    ) {
-        StatusBlock(
-            monitoringState = state.monitoringState,
-            alarmRetriggerCooldownMillis = state.alarmRetriggerCooldownMillis,
-            onToggle = {
-                val isTryingToActivate = state.monitoringState != MonitoringState.ACTIVE
+    var homeContentLayoutCoordinates by remember { mutableStateOf<LayoutCoordinates?>(null) }
+    var securityIconCenterInHomeContent by remember { mutableStateOf<Offset?>(null) }
 
-                if (isTryingToActivate && !isRequiredPermissionsGranted) {
-                    onShowPermissionsRequiredMessage()
-                } else {
-                    onAction(HomeUiContract.Action.ToggleMonitoring)
-                }
-            },
-            modifier = Modifier.weight(1f)
-        )
+    Box(
+        modifier = modifier
+            .fillMaxSize()
+            .onGloballyPositioned { coordinates ->
+                homeContentLayoutCoordinates = coordinates
+            }
+    ) {
+        if (state.monitoringState == MonitoringState.ACTIVE) {
+            HomeMonitoringActiveContentEffect(
+                ringCenterInParent = securityIconCenterInHomeContent,
+                modifier = Modifier.fillMaxSize(),
+            )
+        }
 
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(VartovyiTheme.spacing.small),
-            modifier = Modifier.padding(horizontal = VartovyiTheme.spacing.small)
+            modifier = Modifier.fillMaxSize(),
         ) {
-            KeywordsCard(
-                keywords = state.keywords,
-                onAddKeywords = { onAction(HomeUiContract.Action.NavigateToKeywords) },
-                onMoreClick = { onAction(HomeUiContract.Action.NavigateToKeywords) },
+            StatusBlock(
+                monitoringState = state.monitoringState,
+                alarmRetriggerCooldownMillis = state.alarmRetriggerCooldownMillis,
+                onToggle = {
+                    val isTryingToActivate = state.monitoringState != MonitoringState.ACTIVE
+
+                    if (isTryingToActivate && !isRequiredPermissionsGranted) {
+                        onShowPermissionsRequiredMessage()
+                    } else {
+                        onAction(HomeUiContract.Action.ToggleMonitoring)
+                    }
+                },
+                homeContentLayoutCoordinates = { homeContentLayoutCoordinates },
+                onSecurityIconCenterInHomeContentChanged = { center ->
+                    securityIconCenterInHomeContent = center
+                },
+                modifier = Modifier.weight(1f),
             )
 
-            LastAlertCard(
-                lastAlertEvent = state.lastAlertEvent,
-                onClick = {
-                    onAction(
-                        HomeUiContract.Action.NavigateToLog(
-                            logEntryId = state.lastAlertEvent?.id,
-                        ),
-                    )
-                },
-                modifier = Modifier.padding(bottom = VartovyiTheme.spacing.small)
-            )
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.spacedBy(VartovyiTheme.spacing.small),
+                modifier = Modifier.padding(horizontal = VartovyiTheme.spacing.small),
+            ) {
+                KeywordsCard(
+                    keywords = state.keywords,
+                    onAddKeywords = { onAction(HomeUiContract.Action.NavigateToKeywords) },
+                    onMoreClick = { onAction(HomeUiContract.Action.NavigateToKeywords) },
+                )
+
+                LastAlertCard(
+                    lastAlertEvent = state.lastAlertEvent,
+                    onClick = {
+                        onAction(
+                            HomeUiContract.Action.NavigateToLog(
+                                logEntryId = state.lastAlertEvent?.id,
+                            ),
+                        )
+                    },
+                    modifier = Modifier.padding(bottom = VartovyiTheme.spacing.small),
+                )
+            }
         }
     }
 }
