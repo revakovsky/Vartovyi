@@ -309,13 +309,45 @@ private fun resolveAlarmSoundTitle(
     }.getOrNull()?.takeIf { it.isNotBlank() } ?: defaultAlarmSoundTitle
 }
 
-@Preview
+@Preview(
+    name = "Settings — default",
+    heightDp = 1000,
+)
 @Composable
 private fun SettingsContentPreview() {
     VartovyiTheme {
         SettingsContent(
-            state = SettingsUiContract.State(),
+            state = SettingsUiContract.State(
+                isLoading = false,
+            ),
             selectedAlarmSoundTitle = "Default alarm sound",
+            onAction = {},
+            onChooseAlarmSound = {},
+            onExportLogClick = {},
+        )
+    }
+}
+
+@Preview(
+    name = "Settings — schedule on, test alarm",
+    heightDp = 1050,
+)
+@Composable
+private fun SettingsContentPreviewScheduleAndAlarm() {
+    VartovyiTheme {
+        SettingsContent(
+            state = SettingsUiContract.State(
+                isLoading = false,
+                isScheduleEnabled = true,
+                startTime = "08:30",
+                endTime = "18:00",
+                alarmDurationSeconds = 90,
+                alarmVolumePercent = 72,
+                logSizeLimit = 1000,
+                alarmRetriggerCooldownDurationMillis = 10 * 60 * 1000L,
+                isAlarmRunning = true,
+            ),
+            selectedAlarmSoundTitle = "Custom ringtone",
             onAction = {},
             onChooseAlarmSound = {},
             onExportLogClick = {},

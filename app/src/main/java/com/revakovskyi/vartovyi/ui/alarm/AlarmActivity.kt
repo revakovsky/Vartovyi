@@ -9,8 +9,13 @@ import android.os.Bundle
 import android.view.KeyEvent
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.compose.foundation.background
+import androidx.compose.animation.core.RepeatMode
+import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.rememberInfiniteTransition
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -27,10 +32,17 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
+import androidx.compose.ui.layout.LayoutCoordinates
+import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.style.TextAlign
@@ -43,6 +55,9 @@ import com.revakovskyi.vartovyi.service.alarm.AlarmService
 import com.revakovskyi.vartovyi.ui.theme.VartovyiTheme
 
 private const val ALARM_ICON_SIZE_DP = 128
+private const val ALARM_SCREEN_PULSE_SCALE_MIN = 0.93f
+private const val ALARM_SCREEN_PULSE_SCALE_MAX = 1.09f
+private const val ALARM_SCREEN_PULSE_DURATION_MS = 1350
 private const val DISMISS_BUTTON_MIN_WIDTH_DP = 200
 private const val DISMISS_BUTTON_WIDTH_FRACTION = 0.7f
 private const val EMPTY_VALUE = ""
@@ -99,7 +114,8 @@ class AlarmActivity : ComponentActivity() {
     override fun onKeyDown(keyCode: Int, event: KeyEvent?): Boolean {
         return when (keyCode) {
             KeyEvent.KEYCODE_VOLUME_DOWN,
-            KeyEvent.KEYCODE_VOLUME_UP -> {
+            KeyEvent.KEYCODE_VOLUME_UP,
+                -> {
                 dismissAlarm()
                 true
             }
@@ -167,73 +183,135 @@ private fun AlarmContent(
     sourceMessageText: String,
     onDismiss: () -> Unit,
 ) {
-    Column(
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.SpaceEvenly,
+    val hapticFeedback = LocalHapticFeedback.current
+
+    var alarmContentRootCoordinates by remember { mutableStateOf<LayoutCoordinates?>(null) }
+    var alarmIconCenterInContent by remember { mutableStateOf<Offset?>(null) }
+
+    val alarmScreenPulseTransition = rememberInfiniteTransition(label = "alarm_screen_pulse")
+
+    val alarmScreenPulseScale by alarmScreenPulseTransition.animateFloat(
+        initialValue = ALARM_SCREEN_PULSE_SCALE_MIN,
+        targetValue = ALARM_SCREEN_PULSE_SCALE_MAX,
+        animationSpec = infiniteRepeatable(
+            animation = tween(durationMillis = ALARM_SCREEN_PULSE_DURATION_MS),
+            repeatMode = RepeatMode.Reverse,
+        ),
+        label = "alarm_screen_pulse_scale",
+    )
+
+    Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(VartovyiTheme.colors.background)
-            .padding(VartovyiTheme.spacing.standard),
+            .onGloballyPositioned { coordinates ->
+                alarmContentRootCoordinates = coordinates
+            }
     ) {
-        Icon(
-            imageVector = ImageVector.vectorResource(R.drawable.alarm),
-            contentDescription = null,
-            tint = VartovyiTheme.colors.error,
-            modifier = Modifier.size(ALARM_ICON_SIZE_DP.dp),
+        AlarmScreenAnimatedBackground(
+            effectCenterInParent = alarmIconCenterInContent,
+            modifier = Modifier.fillMaxSize(),
         )
 
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center,
-            modifier = Modifier.fillMaxWidth()
+            verticalArrangement = Arrangement.SpaceEvenly,
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(VartovyiTheme.spacing.standard),
         ) {
-            Text(
-                text = stringResource(R.string.alarm_title),
-                style = VartovyiTheme.typography.headlineLarge,
-                color = VartovyiTheme.colors.error,
-                textAlign = TextAlign.Center,
+            Icon(
+                imageVector = ImageVector.vectorResource(R.drawable.alarm),
+                contentDescription = null,
+                tint = VartovyiTheme.colors.error,
+                modifier = Modifier
+                    .size(ALARM_ICON_SIZE_DP.dp)
+                    .onGloballyPositioned { iconCoordinates ->
+                        val rootCoordinates = alarmContentRootCoordinates
+                        if (
+                            rootCoordinates == null ||
+                            !rootCoordinates.isAttached ||
+                            !iconCoordinates.isAttached
+                        ) {
+                            return@onGloballyPositioned
+                        }
+
+                        val topLeftInRoot = rootCoordinates.localPositionOf(
+                            sourceCoordinates = iconCoordinates,
+                            relativeToSource = Offset.Zero,
+                        )
+                        val iconCenterInRoot = topLeftInRoot + Offset(
+                            x = iconCoordinates.size.width / 2f,
+                            y = iconCoordinates.size.height / 2f,
+                        )
+
+                        alarmIconCenterInContent = iconCenterInRoot
+                    }
+                    .graphicsLayer {
+                        scaleX = alarmScreenPulseScale
+                        scaleY = alarmScreenPulseScale
+                    }
             )
 
-            if (sourceChannelName.isNotBlank() || sourceMessageText.isNotBlank()) {
-                Spacer(modifier = Modifier.height(VartovyiTheme.spacing.extraLarge))
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Center,
+                modifier = Modifier.fillMaxWidth(),
+            ) {
+                Text(
+                    text = stringResource(R.string.alarm_title),
+                    style = VartovyiTheme.typography.headlineLarge,
+                    color = VartovyiTheme.colors.error,
+                    textAlign = TextAlign.Center,
+                )
 
-                if (sourceChannelName.isNotBlank()) {
-                    Text(
-                        text = sourceChannelName,
-                        style = VartovyiTheme.typography.titleLarge,
-                        color = VartovyiTheme.colors.onPrimary,
-                        textAlign = TextAlign.Center,
-                    )
-                }
+                if (sourceChannelName.isNotBlank() || sourceMessageText.isNotBlank()) {
+                    Spacer(modifier = Modifier.height(VartovyiTheme.spacing.extraLarge))
 
-                if (sourceMessageText.isNotBlank()) {
-                    Spacer(modifier = Modifier.height(VartovyiTheme.spacing.medium))
+                    if (sourceChannelName.isNotBlank()) {
+                        Text(
+                            text = sourceChannelName,
+                            style = VartovyiTheme.typography.titleLarge,
+                            color = VartovyiTheme.colors.onPrimary,
+                            textAlign = TextAlign.Center,
+                        )
+                    }
 
-                    Text(
-                        text = sourceMessageText,
-                        style = VartovyiTheme.typography.bodyLarge,
-                        color = VartovyiTheme.colors.onBackground,
-                        textAlign = TextAlign.Center,
-                    )
+                    if (sourceMessageText.isNotBlank()) {
+                        Spacer(modifier = Modifier.height(VartovyiTheme.spacing.medium))
+
+                        Text(
+                            text = sourceMessageText,
+                            style = VartovyiTheme.typography.bodyLarge,
+                            color = VartovyiTheme.colors.onBackground,
+                            textAlign = TextAlign.Center,
+                        )
+                    }
                 }
             }
-        }
 
-        Button(
-            onClick = onDismiss,
-            colors = ButtonDefaults.buttonColors(
-                containerColor = VartovyiTheme.colors.errorContainer,
-                contentColor = VartovyiTheme.colors.onErrorContainer,
-            ),
-            modifier = Modifier
-                .widthIn(min = DISMISS_BUTTON_MIN_WIDTH_DP.dp)
-                .fillMaxWidth(DISMISS_BUTTON_WIDTH_FRACTION)
-                .height(VartovyiTheme.spacing.massive),
-        ) {
-            Text(
-                text = stringResource(R.string.alarm_dismiss),
-                style = VartovyiTheme.typography.titleMedium,
-            )
+            Button(
+                onClick = {
+                    hapticFeedback.performHapticFeedback(HapticFeedbackType.Confirm)
+                    onDismiss()
+                },
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = VartovyiTheme.colors.errorContainer,
+                    contentColor = VartovyiTheme.colors.onErrorContainer,
+                ),
+                modifier = Modifier
+                    .widthIn(min = DISMISS_BUTTON_MIN_WIDTH_DP.dp)
+                    .fillMaxWidth(DISMISS_BUTTON_WIDTH_FRACTION)
+                    .height(VartovyiTheme.spacing.massive)
+                    .graphicsLayer {
+                        scaleX = alarmScreenPulseScale
+                        scaleY = alarmScreenPulseScale
+                    }
+            ) {
+                Text(
+                    text = stringResource(R.string.alarm_dismiss),
+                    style = VartovyiTheme.typography.titleMedium,
+                )
+            }
         }
     }
 }

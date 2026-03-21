@@ -10,9 +10,11 @@ import androidx.activity.ComponentActivity
 import androidx.activity.SystemBarStyle
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.foundation.layout.exclude
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.ime
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -30,6 +32,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.res.stringResource
 import androidx.core.app.NotificationManagerCompat
@@ -39,8 +42,10 @@ import androidx.navigation.NavDestination.Companion.hasRoute
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navOptions
+import com.revakovskyi.vartovyi.domain.model.MonitoringState
 import com.revakovskyi.vartovyi.domain.usecase.alarm.ObserveAlarmRunningUseCase
 import com.revakovskyi.vartovyi.domain.usecase.alarm.StopAlarmUseCase
+import com.revakovskyi.vartovyi.domain.usecase.monitoring.ObserveMonitoringStateUseCase
 import com.revakovskyi.vartovyi.domain.usecase.monitoring.SyncMonitoringRuntimeUseCase
 import com.revakovskyi.vartovyi.navigation.BottomNavItem
 import com.revakovskyi.vartovyi.navigation.NavGraph
@@ -49,6 +54,7 @@ import com.revakovskyi.vartovyi.ui.components.VartovyiBottomBar
 import com.revakovskyi.vartovyi.ui.components.VartovyiTopBar
 import com.revakovskyi.vartovyi.ui.screen.permissions.PermissionsViewModel
 import com.revakovskyi.vartovyi.ui.theme.VartovyiTheme
+import com.revakovskyi.vartovyi.ui.theme.appRootBackground
 import com.revakovskyi.vartovyi.ui.util.snackbar.SnackbarController
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
@@ -60,6 +66,7 @@ class MainActivity : ComponentActivity() {
 
     private val permissionsViewModel: PermissionsViewModel by viewModel()
     private val observeAlarmRunningUseCase: ObserveAlarmRunningUseCase by inject()
+    private val observeMonitoringStateUseCase: ObserveMonitoringStateUseCase by inject()
     private val syncMonitoringRuntimeUseCase: SyncMonitoringRuntimeUseCase by inject()
     private val stopAlarmUseCase: StopAlarmUseCase by inject()
 
@@ -75,6 +82,8 @@ class MainActivity : ComponentActivity() {
             VartovyiTheme {
                 val permissionsState by permissionsViewModel.state.collectAsState()
                 val isAlarmRunning by observeAlarmRunningUseCase().collectAsState(initial = false)
+                val monitoringState by observeMonitoringStateUseCase()
+                    .collectAsState(initial = MonitoringState.INACTIVE)
 
                 val navController = rememberNavController()
                 val currentBackStackEntry by navController.currentBackStackEntryAsState()
@@ -118,53 +127,62 @@ class MainActivity : ComponentActivity() {
                     null -> ""
                 }
 
-                Scaffold(
-                    contentWindowInsets = ScaffoldDefaults.contentWindowInsets.exclude(WindowInsets.ime),
-                    containerColor = VartovyiTheme.colors.background,
-                    modifier = Modifier.nestedScroll(topBarScrollBehavior.nestedScrollConnection),
-                    topBar = {
-                        if (showBars) {
-                            VartovyiTopBar(
-                                title = topBarTitle,
-                                hasMissingPermissions = permissionsState.hasMissingPermissions,
-                                isEmergencyStopVisible = isAlarmRunning,
-                                scrollBehavior = topBarScrollBehavior,
-                                onPermissionsClick = { navController.navigate(Routes.Permissions) },
-                                onEmergencyStopClick = {
-                                    lifecycleScope.launch { stopAlarmUseCase() }
-                                },
-                            )
-                        }
-                    },
-                    bottomBar = {
-                        if (showBars) {
-                            VartovyiBottomBar(
-                                selectedRoute = selectedNavItem.route,
-                                onNavigate = { route ->
-                                    navController.navigate(
-                                        route = route,
-                                        navOptions = navOptions {
-                                            popUpTo<Routes.Home> { saveState = true }
-                                            launchSingleTop = true
-                                            restoreState = true
-                                        },
-                                    )
-                                },
-                            )
-                        }
-                    },
-                    snackbarHost = {
-                        SnackbarHost(hostState = snackbarHostState)
-                    },
-                ) { paddingValues ->
-                    NavGraph(
-                        navController = navController,
-                        isRequiredPermissionsGranted = permissionsState.allGranted,
-                        onRefreshPermissions = ::updatePermissionsState,
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .appRootBackground(monitoringState = monitoringState)
+                ) {
+                    Scaffold(
+                        contentWindowInsets = ScaffoldDefaults.contentWindowInsets
+                            .exclude(WindowInsets.ime),
+                        containerColor = Color.Transparent,
                         modifier = Modifier
-                            .padding(paddingValues)
-                            .consumeWindowInsets(paddingValues)
-                    )
+                            .fillMaxSize()
+                            .nestedScroll(topBarScrollBehavior.nestedScrollConnection),
+                        topBar = {
+                            if (showBars) {
+                                VartovyiTopBar(
+                                    title = topBarTitle,
+                                    hasMissingPermissions = permissionsState.hasMissingPermissions,
+                                    isEmergencyStopVisible = isAlarmRunning,
+                                    scrollBehavior = topBarScrollBehavior,
+                                    onPermissionsClick = { navController.navigate(Routes.Permissions) },
+                                    onEmergencyStopClick = {
+                                        lifecycleScope.launch { stopAlarmUseCase() }
+                                    },
+                                )
+                            }
+                        },
+                        bottomBar = {
+                            if (showBars) {
+                                VartovyiBottomBar(
+                                    selectedRoute = selectedNavItem.route,
+                                    onNavigate = { route ->
+                                        navController.navigate(
+                                            route = route,
+                                            navOptions = navOptions {
+                                                popUpTo<Routes.Home> { saveState = true }
+                                                launchSingleTop = true
+                                                restoreState = true
+                                            },
+                                        )
+                                    },
+                                )
+                            }
+                        },
+                        snackbarHost = {
+                            SnackbarHost(hostState = snackbarHostState)
+                        },
+                    ) { paddingValues ->
+                        NavGraph(
+                            navController = navController,
+                            isRequiredPermissionsGranted = permissionsState.allGranted,
+                            onRefreshPermissions = ::updatePermissionsState,
+                            modifier = Modifier
+                                .padding(paddingValues)
+                                .consumeWindowInsets(paddingValues)
+                        )
+                    }
                 }
             }
         }
@@ -224,7 +242,9 @@ class MainActivity : ComponentActivity() {
         when (selectedNavItem) {
             BottomNavItem.Keywords,
             BottomNavItem.Logs,
-            BottomNavItem.Settings -> TopAppBarDefaults.enterAlwaysScrollBehavior(state = rememberTopAppBarState())
+            BottomNavItem.Settings,
+                -> TopAppBarDefaults.enterAlwaysScrollBehavior(state = rememberTopAppBarState())
+
             else -> TopAppBarDefaults.pinnedScrollBehavior(state = rememberTopAppBarState())
         }
 
