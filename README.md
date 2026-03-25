@@ -54,12 +54,12 @@ Android-додаток для моніторингу Telegram-сповіщень
 
 **Що є в репозиторії:**
 
-| Модуль                   | Роль                                                                                                                        |
-|--------------------------|-----------------------------------------------------------------------------------------------------------------------------|
-| `:app`                   | Android application, UI, DI wiring, Room (поки реалізації data-layer часто ще тут у пакеті `com.revakovskyi.vartovyi.data`) |
-| `:domain`                | Чистий Kotlin (use cases, контракти репозиторіїв) — `group`/`version` з каталогу версій                                     |
-| `:data`                  | Android library; `namespace` задано в `data/build.gradle.kts`. Вихідний код data-layer поступово переноситься з `:app`      |
-| `build-logic/convention` | Плагіни `vartovyi.android.*`, `vartovyi.jvm.library`, `vartovyi.android.room`; спільна конфігурація SDK/Compose/JVM         |
+| Модуль                   | Роль                                                                                                                                                                                                 |
+|--------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `:app`                   | Android application: Compose UI, сервіси (`service/`), `receiver/`, Koin (`AppModule`, `ViewModelModule`), `startKoin` у `VartovyiApp`                                                               |
+| `:domain`                | JVM library (`vartovyi.jvm.library`): моделі, інтерфейси репозиторіїв, use cases, доменні контролери, `KeywordMatcher`, Koin `useCaseModule`; `group`/`version` з Version Catalog                     |
+| `:data`                  | Android library (`vartovyi.android.library` + `vartovyi.android.room`): DataStore, Room, mappers, реалізації репозиторіїв, Koin `databaseModule` та `repositoryModule`; `namespace` у `data/build.gradle.kts` |
+| `build-logic/convention` | Плагіни `vartovyi.android.*`, `vartovyi.jvm.library`, `vartovyi.android.room`; спільна конфігурація SDK/Compose/JVM                                                                                  |
 
 **Плагіни в модулях** — через **`alias(libs.plugins.…)`** з `libs.versions.toml`. У **кореневому**
 `build.gradle.kts`
@@ -70,10 +70,8 @@ Android-додаток для моніторингу Telegram-сповіщень
 потрібно
 `enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")` у `settings.gradle.kts`).
 
-Детальні правила, пріоритети та edge cases (compileSdk DSL, `kotlinx-coroutines-core` у domain, що
-не
-класти в порожній `:data`) — у **[CLAUDE.md](CLAUDE.md)** у розділі **Gradle, Version Catalog, and
-build-logic**.
+Детальні правила, пріоритети та edge cases (compileSdk DSL, залежності між `:app` / `:domain` /
+`:data`) — у **[CLAUDE.md](CLAUDE.md)** у розділі **Gradle, Version Catalog, and build-logic**.
 
 ## 5) Архітектура і шари
 
@@ -84,23 +82,24 @@ build-logic**.
 Ключові правила:
 
 - `ViewModel` інжектить тільки `UseCase`.
-- Domain-шар без Android-залежностей.
+- Domain-шар — окремий Gradle-модуль `:domain` без Android framework API; для журналу з paging у контракті використовується `androidx.paging.PagingData` (залежність `paging-common` у `:domain`).
 - Репозиторії та mappers ізольовані по шарах.
 - Навігація в `NavGraph`, екрани не працюють напряму з `NavController`.
 
 ## 6) Поточна структура модулів/пакетів
 
-**Gradle-модулі:** `:app`, `:domain`, `:data` (див. також §4.1). У пакетах усередині `:app` логіка
-залишається
-в `com.revakovskyi.vartovyi.*` за шарами:
+**Gradle-модулі:** `:app`, `:domain`, `:data` (див. також §4.1).
+
+**`:domain`** (корінь пакетів `com.revakovskyi.vartovyi.*`): `model/`, `repository/` (інтерфейси), `usecase/`, `controllers/`, `constants/`, `utils/`, `di/UseCaseModule.kt`.
+
+**`:data`** (пакет `com.revakovskyi.vartovyi.data.*`): `datastore/`, `db/`, `mappers/`, `repository/` (реалізації), `di/DatabaseModule.kt`, `di/RepositoryModule.kt`. Реалізації та інфраструктура Room/DataStore — `internal` у межах модуля, публічні лише Koin-модулі для підключення з `:app`.
+
+**`:app`** (`com.revakovskyi.vartovyi.*`):
 
 - `ui/` — екрани, контракти, компоненти, тема, навігація
-- `domain/` — моделі, use cases, repository interfaces
-- `data/` — repository implementations, DataStore, Room, mappers (поступовий перенос у модуль
-  `:data`)
-- `service/` — `TelegramListenerService`, `AlarmService`
+- `service/` — `TelegramListenerService`, `AlarmService`, monitoring
 - `receiver/` — `BootReceiver`
-- `di/` — Koin modules
+- `di/` — `AppModule`, `ViewModelModule` (решта Koin-модулів — у `:domain` та `:data`)
 
 ## 7) Runtime-процес (цільова модель роботи)
 
@@ -214,8 +213,8 @@ build-logic**.
 ### Domain / Data
 
 - [x] `AnalyzeMessageUseCase` існує.
-- [x] `KeywordMatcher`, `SettingsRepository`, `KeywordsRepository`, `LogRepository` реалізовані.
-- [x] Room для журналу (`AlertEventDao`, entity, mappers) реалізований.
+- [x] `KeywordMatcher`, інтерфейси `SettingsRepository`, `KeywordsRepository`, `LogRepository` у `:domain`; реалізації — у `:data`.
+- [x] Room для журналу (`AlertEventDao`, entity, mappers) у модулі `:data`.
 - [x] Додано use case обробки вхідного Telegram notification (фільтри + лог + alarm trigger).
 - [x] Matching trigger-ключових слів переведено на `TriggerKeywordRule` з підтримкою `WORD` /
   `ALL_WORDS` / `PHRASE` замість простого `contains`.
@@ -313,10 +312,12 @@ build-logic**.
 ## 12) Change log (короткий)
 
 - `2026-03-25` — Додано composite `build-logic` з convention-плагінами `vartovyi.*`, розширено
-  Version
-  Catalog (`bundles`, метадані SDK/app), type-safe `projects.domain` / `projects.data`; інструкції з
-  Gradle зібрано в `CLAUDE.md` (§ Gradle, Version Catalog, and build-logic); оновлено README (§4.1,
-  §6).
+  Version Catalog (`bundles`, метадані SDK/app), type-safe `projects.domain` / `projects.data`;
+  інструкції з Gradle зібрано в `CLAUDE.md` (§ Gradle, Version Catalog, and build-logic). Узгоджено
+  модулі з кодом: `:domain` (JVM) — use cases, інтерфейси репозиторіїв, `useCaseModule`; `:data`
+  (Android) — DataStore, Room, реалізації репозиторіїв, `databaseModule` / `repositoryModule`; у
+  `:data` реалізації позначені `internal` де можливо. README (§4.1, §5, §6, Domain/Data as-is)
+  оновлено.
 - `2026-03-13` — README перетворено у повну специфікацію проєкту + єдиний TODO-roadmap для подальшої
   роботи.
 - `2026-03-13` — реалізовано базовий Telegram notification pipeline (`onNotificationPosted` +

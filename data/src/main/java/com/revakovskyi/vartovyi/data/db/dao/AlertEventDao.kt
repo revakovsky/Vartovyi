@@ -9,7 +9,7 @@ import com.revakovskyi.vartovyi.data.db.entity.AlertEventEntity
 import kotlinx.coroutines.flow.Flow
 
 @Dao
-interface AlertEventDao {
+internal interface AlertEventDao {
 
     @Query("SELECT * FROM alert_events ORDER BY timestamp DESC, id DESC")
     fun getAllPaged(): PagingSource<Int, AlertEventEntity>

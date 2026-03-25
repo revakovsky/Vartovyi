@@ -20,7 +20,7 @@ private val Context.keywordsDataStore: DataStore<Preferences> by preferencesData
     name = DATASTORE_NAME
 )
 
-class KeywordsDataStore(private val context: Context) {
+internal class KeywordsDataStore(private val context: Context) {
 
     private object Keys {
         val KEYWORDS = stringPreferencesKey("keywords")

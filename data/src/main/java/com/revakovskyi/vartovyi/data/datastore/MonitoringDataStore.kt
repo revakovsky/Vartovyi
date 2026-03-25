@@ -28,7 +28,7 @@ private val Context.monitoringDataStore: DataStore<Preferences> by preferencesDa
     name = DATASTORE_NAME
 )
 
-class MonitoringDataStore(private val context: Context) {
+internal class MonitoringDataStore(private val context: Context) {
 
     private object Keys {
         val MONITORING_ACTIVE = booleanPreferencesKey("monitoring_active")

@@ -13,7 +13,7 @@ import androidx.room.PrimaryKey
         ),
     ],
 )
-data class AlertEventEntity(
+internal data class AlertEventEntity(
     @PrimaryKey val id: String,
     val timestamp: Long,
     val senderPackage: String,

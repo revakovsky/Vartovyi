@@ -1,4 +1,4 @@
-package com.revakovskyi.vartovyi.di
+package com.revakovskyi.vartovyi.data.di
 
 import com.revakovskyi.vartovyi.data.repository.KeywordsRepositoryImpl
 import com.revakovskyi.vartovyi.data.repository.LogRepositoryImpl

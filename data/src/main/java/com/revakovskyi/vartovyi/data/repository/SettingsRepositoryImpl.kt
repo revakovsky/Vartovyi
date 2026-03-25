@@ -4,7 +4,7 @@ import com.revakovskyi.vartovyi.data.datastore.MonitoringDataStore
 import com.revakovskyi.vartovyi.repository.SettingsRepository
 import kotlinx.coroutines.flow.Flow
 
-class SettingsRepositoryImpl(
+internal class SettingsRepositoryImpl(
     private val monitoringDataStore: MonitoringDataStore,
 ) : SettingsRepository {
 
