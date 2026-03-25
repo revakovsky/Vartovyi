@@ -1,12 +1,12 @@
 package com.revakovskyi.vartovyi.ui.alarm
 
-import android.app.KeyguardManager
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.os.Bundle
 import android.view.KeyEvent
+import android.view.WindowManager
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.animation.core.RepeatMode
@@ -79,7 +79,7 @@ class AlarmActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setupWindow()
+        configureAlarmWindow()
         updateAlarmContentFromIntent(intent)
 
         setContent {
@@ -100,7 +100,6 @@ class AlarmActivity : ComponentActivity() {
 
     override fun onStart() {
         super.onStart()
-        dismissKeyguardIfPossible()
         registerAlarmStopReceiver()
         isVisible.value = true
     }
@@ -124,9 +123,10 @@ class AlarmActivity : ComponentActivity() {
         }
     }
 
-    private fun setupWindow() {
+    private fun configureAlarmWindow() {
         setShowWhenLocked(true)
         setTurnScreenOn(true)
+        window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
     }
 
     private fun dismissAlarm() {
@@ -143,11 +143,6 @@ class AlarmActivity : ComponentActivity() {
             intent?.getStringExtra(AlarmContract.EXTRA_SOURCE_CHANNEL_NAME).orEmpty()
         sourceMessageText =
             intent?.getStringExtra(AlarmContract.EXTRA_SOURCE_MESSAGE_TEXT).orEmpty()
-    }
-
-    private fun dismissKeyguardIfPossible() {
-        val keyguardManager = getSystemService(KeyguardManager::class.java)
-        keyguardManager.requestDismissKeyguard(this, null)
     }
 
     private fun registerAlarmStopReceiver() {
