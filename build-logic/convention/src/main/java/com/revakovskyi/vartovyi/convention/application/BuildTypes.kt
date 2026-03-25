@@ -1,0 +1,36 @@
+package com.revakovskyi.vartovyi.convention.application
+
+import com.android.build.api.dsl.ApplicationExtension
+import com.android.build.api.dsl.LibraryExtension
+
+internal fun configureVartovyiApplicationBuildTypes(
+    applicationExtension: ApplicationExtension,
+) {
+    applicationExtension.buildTypes.getByName("debug") {
+        isMinifyEnabled = false
+        proguardFiles(
+            applicationExtension.getDefaultProguardFile("proguard-android-optimize.txt"),
+            "proguard-rules.pro"
+        )
+    }
+    applicationExtension.buildTypes.getByName("release") {
+        isMinifyEnabled = true
+        isShrinkResources = true
+        proguardFiles(
+            applicationExtension.getDefaultProguardFile("proguard-android-optimize.txt"),
+            "proguard-rules.pro"
+        )
+    }
+}
+
+internal fun configureVartovyiLibraryBuildTypes(
+    libraryExtension: LibraryExtension,
+) {
+    libraryExtension.buildTypes.getByName("release") {
+        isMinifyEnabled = false
+        proguardFiles(
+            libraryExtension.getDefaultProguardFile("proguard-android-optimize.txt"),
+            "proguard-rules.pro"
+        )
+    }
+}
