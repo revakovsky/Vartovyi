@@ -1,7 +1,7 @@
 package com.revakovskyi.vartovyi.data.repository
 
 import com.revakovskyi.vartovyi.data.datastore.KeywordsDataStore
-import com.revakovskyi.vartovyi.domain.repository.KeywordsRepository
+import com.revakovskyi.vartovyi.repository.KeywordsRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
 

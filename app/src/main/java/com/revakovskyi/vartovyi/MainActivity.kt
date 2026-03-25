@@ -42,11 +42,7 @@ import androidx.navigation.NavDestination.Companion.hasRoute
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navOptions
-import com.revakovskyi.vartovyi.domain.model.MonitoringState
-import com.revakovskyi.vartovyi.domain.usecase.alarm.ObserveAlarmRunningUseCase
-import com.revakovskyi.vartovyi.domain.usecase.alarm.StopAlarmUseCase
-import com.revakovskyi.vartovyi.domain.usecase.monitoring.ObserveMonitoringStateUseCase
-import com.revakovskyi.vartovyi.domain.usecase.monitoring.SyncMonitoringRuntimeUseCase
+import com.revakovskyi.vartovyi.model.MonitoringState
 import com.revakovskyi.vartovyi.navigation.BottomNavItem
 import com.revakovskyi.vartovyi.navigation.NavGraph
 import com.revakovskyi.vartovyi.navigation.Routes
@@ -56,6 +52,10 @@ import com.revakovskyi.vartovyi.ui.screen.permissions.PermissionsViewModel
 import com.revakovskyi.vartovyi.ui.theme.VartovyiTheme
 import com.revakovskyi.vartovyi.ui.theme.appRootBackground
 import com.revakovskyi.vartovyi.ui.util.snackbar.SnackbarController
+import com.revakovskyi.vartovyi.usecase.alarm.ObserveAlarmRunningUseCase
+import com.revakovskyi.vartovyi.usecase.alarm.StopAlarmUseCase
+import com.revakovskyi.vartovyi.usecase.monitoring.ObserveMonitoringStateUseCase
+import com.revakovskyi.vartovyi.usecase.monitoring.SyncMonitoringRuntimeUseCase
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import org.koin.android.ext.android.inject

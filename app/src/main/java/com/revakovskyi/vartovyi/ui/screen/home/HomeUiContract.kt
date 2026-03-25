@@ -1,8 +1,8 @@
 package com.revakovskyi.vartovyi.ui.screen.home
 
 import androidx.compose.runtime.Immutable
-import com.revakovskyi.vartovyi.domain.model.AlertEvent
-import com.revakovskyi.vartovyi.domain.model.MonitoringState
+import com.revakovskyi.vartovyi.model.AlertEvent
+import com.revakovskyi.vartovyi.model.MonitoringState
 
 interface HomeUiContract {
 

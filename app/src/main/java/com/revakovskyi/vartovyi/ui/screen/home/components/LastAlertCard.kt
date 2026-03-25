@@ -18,8 +18,8 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.revakovskyi.vartovyi.R
-import com.revakovskyi.vartovyi.domain.model.AlertEvent
-import com.revakovskyi.vartovyi.domain.model.AlertEventStatus
+import com.revakovskyi.vartovyi.model.AlertEvent
+import com.revakovskyi.vartovyi.model.AlertEventStatus
 import com.revakovskyi.vartovyi.ui.theme.VartovyiTheme
 import java.text.SimpleDateFormat
 import java.util.Date

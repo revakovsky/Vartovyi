@@ -2,16 +2,16 @@ package com.revakovskyi.vartovyi.ui.screen.home
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.revakovskyi.vartovyi.domain.model.MonitoringState
-import com.revakovskyi.vartovyi.domain.usecase.alarm.ObserveAlarmRetriggerCooldownUseCase
-import com.revakovskyi.vartovyi.domain.usecase.keywords.ObserveKeywordsUseCase
-import com.revakovskyi.vartovyi.domain.usecase.log.ObserveLastAlarmTriggeredEventUseCase
-import com.revakovskyi.vartovyi.domain.usecase.monitoring.ObserveMonitoringStateUseCase
-import com.revakovskyi.vartovyi.domain.usecase.monitoring.ToggleMonitoringUseCase
-import com.revakovskyi.vartovyi.domain.usecase.settings.ObserveScheduleSettingsUseCase
+import com.revakovskyi.vartovyi.model.MonitoringState
 import com.revakovskyi.vartovyi.ui.screen.home.HomeUiContract.Action
 import com.revakovskyi.vartovyi.ui.screen.home.HomeUiContract.Event
 import com.revakovskyi.vartovyi.ui.screen.home.HomeUiContract.State
+import com.revakovskyi.vartovyi.usecase.alarm.ObserveAlarmRetriggerCooldownUseCase
+import com.revakovskyi.vartovyi.usecase.keywords.ObserveKeywordsUseCase
+import com.revakovskyi.vartovyi.usecase.log.ObserveLastAlarmTriggeredEventUseCase
+import com.revakovskyi.vartovyi.usecase.monitoring.ObserveMonitoringStateUseCase
+import com.revakovskyi.vartovyi.usecase.monitoring.ToggleMonitoringUseCase
+import com.revakovskyi.vartovyi.usecase.settings.ObserveScheduleSettingsUseCase
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow

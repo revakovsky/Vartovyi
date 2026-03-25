@@ -1,8 +1,8 @@
 package com.revakovskyi.vartovyi.ui.screen.keywords
 
 import androidx.compose.runtime.Immutable
-import com.revakovskyi.vartovyi.domain.model.TriggerKeywordRule
-import com.revakovskyi.vartovyi.domain.model.TriggerKeywordRuleType
+import com.revakovskyi.vartovyi.model.TriggerKeywordRule
+import com.revakovskyi.vartovyi.model.TriggerKeywordRuleType
 
 interface KeywordsUiContract {
 

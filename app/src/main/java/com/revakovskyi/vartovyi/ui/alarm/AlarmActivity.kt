@@ -50,7 +50,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
 import com.revakovskyi.vartovyi.R
-import com.revakovskyi.vartovyi.domain.constants.AlarmContract
+import com.revakovskyi.vartovyi.constants.AlarmContract
 import com.revakovskyi.vartovyi.service.alarm.AlarmService
 import com.revakovskyi.vartovyi.ui.theme.VartovyiTheme
 

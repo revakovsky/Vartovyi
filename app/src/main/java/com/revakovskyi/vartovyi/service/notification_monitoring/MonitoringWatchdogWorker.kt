@@ -6,8 +6,8 @@ import androidx.work.ExistingPeriodicWorkPolicy
 import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkManager
 import androidx.work.WorkerParameters
-import com.revakovskyi.vartovyi.domain.controllers.notification_monitoring.MonitoringController
-import com.revakovskyi.vartovyi.domain.repository.SettingsRepository
+import com.revakovskyi.vartovyi.controllers.notification_monitoring.MonitoringController
+import com.revakovskyi.vartovyi.repository.SettingsRepository
 import kotlinx.coroutines.flow.first
 import org.koin.core.context.GlobalContext
 import java.util.concurrent.TimeUnit

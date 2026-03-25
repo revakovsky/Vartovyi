@@ -7,9 +7,9 @@ import androidx.paging.map
 import com.revakovskyi.vartovyi.data.db.dao.AlertEventDao
 import com.revakovskyi.vartovyi.data.mappers.toDomain
 import com.revakovskyi.vartovyi.data.mappers.toEntity
-import com.revakovskyi.vartovyi.domain.model.AlertEvent
-import com.revakovskyi.vartovyi.domain.model.AlertEventStatus
-import com.revakovskyi.vartovyi.domain.repository.LogRepository
+import com.revakovskyi.vartovyi.model.AlertEvent
+import com.revakovskyi.vartovyi.model.AlertEventStatus
+import com.revakovskyi.vartovyi.repository.LogRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import java.security.MessageDigest

@@ -23,10 +23,10 @@ import androidx.core.app.NotificationCompat
 import androidx.core.content.ContextCompat
 import androidx.core.net.toUri
 import com.revakovskyi.vartovyi.R
-import com.revakovskyi.vartovyi.domain.constants.AlarmContract
-import com.revakovskyi.vartovyi.domain.controllers.alarm.AlarmStateHolder
-import com.revakovskyi.vartovyi.domain.usecase.settings.ObserveScheduleSettingsUseCase
+import com.revakovskyi.vartovyi.constants.AlarmContract
+import com.revakovskyi.vartovyi.controllers.alarm.AlarmStateHolder
 import com.revakovskyi.vartovyi.ui.alarm.AlarmActivity
+import com.revakovskyi.vartovyi.usecase.settings.ObserveScheduleSettingsUseCase
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
