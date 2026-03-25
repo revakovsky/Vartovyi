@@ -12,8 +12,8 @@ import androidx.core.app.NotificationCompat
 import androidx.core.content.ContextCompat
 import com.revakovskyi.vartovyi.MainActivity
 import com.revakovskyi.vartovyi.R
-import com.revakovskyi.vartovyi.domain.controllers.alarm.AlarmRetriggerCooldownStateHolder
-import com.revakovskyi.vartovyi.domain.repository.SettingsRepository
+import com.revakovskyi.vartovyi.controllers.alarm.AlarmRetriggerCooldownStateHolder
+import com.revakovskyi.vartovyi.repository.SettingsRepository
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob

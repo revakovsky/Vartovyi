@@ -2,9 +2,9 @@ package com.revakovskyi.vartovyi.service.alarm
 
 import android.content.Context
 import android.content.Intent
-import com.revakovskyi.vartovyi.domain.constants.AlarmContract
-import com.revakovskyi.vartovyi.domain.controllers.alarm.AlarmController
-import com.revakovskyi.vartovyi.domain.controllers.alarm.AlarmStateHolder
+import com.revakovskyi.vartovyi.constants.AlarmContract
+import com.revakovskyi.vartovyi.controllers.alarm.AlarmController
+import com.revakovskyi.vartovyi.controllers.alarm.AlarmStateHolder
 import kotlinx.coroutines.flow.Flow
 import java.util.concurrent.atomic.AtomicBoolean
 

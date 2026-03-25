@@ -3,8 +3,8 @@ package com.revakovskyi.vartovyi.service
 import android.app.Notification
 import android.service.notification.NotificationListenerService
 import android.service.notification.StatusBarNotification
-import com.revakovskyi.vartovyi.domain.usecase.notification.NotificationPayload
-import com.revakovskyi.vartovyi.domain.usecase.notification.ProcessIncomingTelegramNotificationUseCase
+import com.revakovskyi.vartovyi.usecase.notification.NotificationPayload
+import com.revakovskyi.vartovyi.usecase.notification.ProcessIncomingTelegramNotificationUseCase
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob

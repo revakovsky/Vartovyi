@@ -31,8 +31,8 @@ import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import com.revakovskyi.vartovyi.R
-import com.revakovskyi.vartovyi.domain.model.TriggerKeywordRule
-import com.revakovskyi.vartovyi.domain.model.TriggerKeywordRuleType
+import com.revakovskyi.vartovyi.model.TriggerKeywordRule
+import com.revakovskyi.vartovyi.model.TriggerKeywordRuleType
 import com.revakovskyi.vartovyi.ui.components.LoadingOverlay
 import com.revakovskyi.vartovyi.ui.components.VartovyiDialog
 import com.revakovskyi.vartovyi.ui.screen.keywords.components.KeywordsSection

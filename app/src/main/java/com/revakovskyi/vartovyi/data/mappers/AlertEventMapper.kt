@@ -1,8 +1,8 @@
 package com.revakovskyi.vartovyi.data.mappers
 
 import com.revakovskyi.vartovyi.data.db.entity.AlertEventEntity
-import com.revakovskyi.vartovyi.domain.model.AlertEvent
-import com.revakovskyi.vartovyi.domain.model.AlertEventStatus
+import com.revakovskyi.vartovyi.model.AlertEvent
+import com.revakovskyi.vartovyi.model.AlertEventStatus
 
 fun AlertEventEntity.toDomain(): AlertEvent = AlertEvent(
     id = id,

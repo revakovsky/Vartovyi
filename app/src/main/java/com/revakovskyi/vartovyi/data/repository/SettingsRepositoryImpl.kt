@@ -1,7 +1,7 @@
 package com.revakovskyi.vartovyi.data.repository
 
 import com.revakovskyi.vartovyi.data.datastore.MonitoringDataStore
-import com.revakovskyi.vartovyi.domain.repository.SettingsRepository
+import com.revakovskyi.vartovyi.repository.SettingsRepository
 import kotlinx.coroutines.flow.Flow
 
 class SettingsRepositoryImpl(

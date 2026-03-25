@@ -34,7 +34,7 @@ import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.revakovskyi.vartovyi.R
-import com.revakovskyi.vartovyi.domain.model.MonitoringState
+import com.revakovskyi.vartovyi.model.MonitoringState
 import com.revakovskyi.vartovyi.ui.components.VartovyiActionButton
 import com.revakovskyi.vartovyi.ui.components.VartovyiActionButtonStyle
 import com.revakovskyi.vartovyi.ui.theme.VartovyiTheme

@@ -4,13 +4,13 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.paging.PagingData
 import androidx.paging.cachedIn
-import com.revakovskyi.vartovyi.domain.model.AlertEvent
-import com.revakovskyi.vartovyi.domain.usecase.log.ClearLogUseCase
-import com.revakovskyi.vartovyi.domain.usecase.log.GetLogEntryIndexUseCase
-import com.revakovskyi.vartovyi.domain.usecase.log.ObserveLogEntriesUseCase
+import com.revakovskyi.vartovyi.model.AlertEvent
 import com.revakovskyi.vartovyi.ui.screen.log.LogUiContract.Action
 import com.revakovskyi.vartovyi.ui.screen.log.LogUiContract.Event
 import com.revakovskyi.vartovyi.ui.screen.log.LogUiContract.State
+import com.revakovskyi.vartovyi.usecase.log.ClearLogUseCase
+import com.revakovskyi.vartovyi.usecase.log.GetLogEntryIndexUseCase
+import com.revakovskyi.vartovyi.usecase.log.ObserveLogEntriesUseCase
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow

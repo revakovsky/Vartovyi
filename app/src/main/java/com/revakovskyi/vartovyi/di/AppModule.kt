@@ -1,9 +1,9 @@
 package com.revakovskyi.vartovyi.di
 
-import com.revakovskyi.vartovyi.domain.controllers.alarm.AlarmController
-import com.revakovskyi.vartovyi.domain.controllers.alarm.AlarmRetriggerCooldownStateHolder
-import com.revakovskyi.vartovyi.domain.controllers.alarm.AlarmStateHolder
-import com.revakovskyi.vartovyi.domain.controllers.notification_monitoring.MonitoringController
+import com.revakovskyi.vartovyi.controllers.alarm.AlarmController
+import com.revakovskyi.vartovyi.controllers.alarm.AlarmRetriggerCooldownStateHolder
+import com.revakovskyi.vartovyi.controllers.alarm.AlarmStateHolder
+import com.revakovskyi.vartovyi.controllers.notification_monitoring.MonitoringController
 import com.revakovskyi.vartovyi.service.alarm.AlarmControllerImpl
 import com.revakovskyi.vartovyi.service.notification_monitoring.MonitoringControllerImpl
 import com.revakovskyi.vartovyi.utils.KeywordMatcher

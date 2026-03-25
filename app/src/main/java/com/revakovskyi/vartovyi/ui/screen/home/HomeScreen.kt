@@ -23,9 +23,9 @@ import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import com.revakovskyi.vartovyi.R
-import com.revakovskyi.vartovyi.domain.model.AlertEvent
-import com.revakovskyi.vartovyi.domain.model.AlertEventStatus
-import com.revakovskyi.vartovyi.domain.model.MonitoringState
+import com.revakovskyi.vartovyi.model.AlertEvent
+import com.revakovskyi.vartovyi.model.AlertEventStatus
+import com.revakovskyi.vartovyi.model.MonitoringState
 import com.revakovskyi.vartovyi.ui.components.LoadingOverlay
 import com.revakovskyi.vartovyi.ui.screen.home.components.HomeMonitoringActiveContentEffect
 import com.revakovskyi.vartovyi.ui.screen.home.components.KeywordsCard

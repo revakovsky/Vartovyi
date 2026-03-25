@@ -25,8 +25,8 @@ import androidx.paging.PagingData
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
 import com.revakovskyi.vartovyi.R
-import com.revakovskyi.vartovyi.domain.model.AlertEvent
-import com.revakovskyi.vartovyi.domain.model.AlertEventStatus
+import com.revakovskyi.vartovyi.model.AlertEvent
+import com.revakovskyi.vartovyi.model.AlertEventStatus
 import com.revakovskyi.vartovyi.ui.components.LoadingOverlay
 import com.revakovskyi.vartovyi.ui.components.VartovyiDialog
 import com.revakovskyi.vartovyi.ui.screen.log.components.LogClearButton
