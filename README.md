@@ -43,7 +43,37 @@ Android-додаток для моніторингу Telegram-сповіщень
 - **DI:** Koin
 - **Navigation:** Navigation Compose (type-safe routes, `@Serializable`)
 - **Storage:** DataStore Preferences + Room (журнал)
-- **Build:** Gradle Kotlin DSL + Version Catalog
+- **Build:** Gradle Kotlin DSL + Version Catalog (`gradle/libs.versions.toml`), composite *
+  *`build-logic`**
+  з convention-плагінами `vartovyi.*`, type-safe **`projects.*`** для залежностей між модулями
+
+## 4.1) Gradle, модулі та build-logic
+
+**Навіщо:** єдине джерело версій, менше копіпасти в `build.gradle.kts`, узгоджені правила для AGP 9+
+(без застарілого `compileSdkVersion`, якщо є заміна), чіткі межі `:app` / `:domain` / `:data`.
+
+**Що є в репозиторії:**
+
+| Модуль                   | Роль                                                                                                                        |
+|--------------------------|-----------------------------------------------------------------------------------------------------------------------------|
+| `:app`                   | Android application, UI, DI wiring, Room (поки реалізації data-layer часто ще тут у пакеті `com.revakovskyi.vartovyi.data`) |
+| `:domain`                | Чистий Kotlin (use cases, контракти репозиторіїв) — `group`/`version` з каталогу версій                                     |
+| `:data`                  | Android library; `namespace` задано в `data/build.gradle.kts`. Вихідний код data-layer поступово переноситься з `:app`      |
+| `build-logic/convention` | Плагіни `vartovyi.android.*`, `vartovyi.jvm.library`, `vartovyi.android.room`; спільна конфігурація SDK/Compose/JVM         |
+
+**Плагіни в модулях** — через **`alias(libs.plugins.…)`** з `libs.versions.toml`. У **кореневому**
+`build.gradle.kts`
+є `apply false` лише для **стандартних** плагінів (AGP, Kotlin, KSP, Detekt тощо); **не** додавати
+`apply false` для `vartovyi.*` — це конфліктує з `includeBuild("build-logic")` у Gradle.
+
+**Залежності між модулями:** `implementation(projects.domain)`, `implementation(projects.data)` (
+потрібно
+`enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")` у `settings.gradle.kts`).
+
+Детальні правила, пріоритети та edge cases (compileSdk DSL, `kotlinx-coroutines-core` у domain, що
+не
+класти в порожній `:data`) — у **[CLAUDE.md](CLAUDE.md)** у розділі **Gradle, Version Catalog, and
+build-logic**.
 
 ## 5) Архітектура і шари
 
@@ -60,9 +90,14 @@ Android-додаток для моніторингу Telegram-сповіщень
 
 ## 6) Поточна структура модулів/пакетів
 
+**Gradle-модулі:** `:app`, `:domain`, `:data` (див. також §4.1). У пакетах усередині `:app` логіка
+залишається
+в `com.revakovskyi.vartovyi.*` за шарами:
+
 - `ui/` — екрани, контракти, компоненти, тема, навігація
 - `domain/` — моделі, use cases, repository interfaces
-- `data/` — repository implementations, DataStore, Room, mappers
+- `data/` — repository implementations, DataStore, Room, mappers (поступовий перенос у модуль
+  `:data`)
 - `service/` — `TelegramListenerService`, `AlarmService`
 - `receiver/` — `BootReceiver`
 - `di/` — Koin modules
@@ -277,6 +312,11 @@ Android-додаток для моніторингу Telegram-сповіщень
 
 ## 12) Change log (короткий)
 
+- `2026-03-25` — Додано composite `build-logic` з convention-плагінами `vartovyi.*`, розширено
+  Version
+  Catalog (`bundles`, метадані SDK/app), type-safe `projects.domain` / `projects.data`; інструкції з
+  Gradle зібрано в `CLAUDE.md` (§ Gradle, Version Catalog, and build-logic); оновлено README (§4.1,
+  §6).
 - `2026-03-13` — README перетворено у повну специфікацію проєкту + єдиний TODO-roadmap для подальшої
   роботи.
 - `2026-03-13` — реалізовано базовий Telegram notification pipeline (`onNotificationPosted` +
