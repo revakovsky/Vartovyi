@@ -5,7 +5,7 @@ import com.revakovskyi.vartovyi.repository.KeywordsRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
 
-class KeywordsRepositoryImpl(
+internal class KeywordsRepositoryImpl(
     private val keywordsDataStore: KeywordsDataStore,
 ) : KeywordsRepository {
 

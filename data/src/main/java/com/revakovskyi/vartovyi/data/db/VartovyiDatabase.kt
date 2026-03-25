@@ -10,7 +10,7 @@ import com.revakovskyi.vartovyi.data.db.entity.AlertEventEntity
     version = 2,
     exportSchema = false,
 )
-abstract class VartovyiDatabase : RoomDatabase() {
+internal abstract class VartovyiDatabase : RoomDatabase() {
 
     abstract fun alertEventDao(): AlertEventDao
 

@@ -1,9 +1,9 @@
 package com.revakovskyi.vartovyi
 
 import android.app.Application
+import com.revakovskyi.vartovyi.data.di.databaseModule
+import com.revakovskyi.vartovyi.data.di.repositoryModule
 import com.revakovskyi.vartovyi.di.appModule
-import com.revakovskyi.vartovyi.di.databaseModule
-import com.revakovskyi.vartovyi.di.repositoryModule
 import com.revakovskyi.vartovyi.di.useCaseModule
 import com.revakovskyi.vartovyi.di.viewModelModule
 import org.koin.android.ext.koin.androidContext

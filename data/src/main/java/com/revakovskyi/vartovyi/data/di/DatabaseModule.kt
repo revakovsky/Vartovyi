@@ -1,4 +1,4 @@
-package com.revakovskyi.vartovyi.di
+package com.revakovskyi.vartovyi.data.di
 
 import androidx.room.Room
 import com.revakovskyi.vartovyi.data.datastore.KeywordsDataStore

@@ -24,7 +24,7 @@ private val ALARM_TRIGGERED_STATUS_VALUE = AlertEventStatus.ALARM_TRIGGERED.name
 private const val PAGE_SIZE = 50
 private const val PREFETCH_DISTANCE = 20
 
-class LogRepositoryImpl(
+internal class LogRepositoryImpl(
     private val alertEventDao: AlertEventDao,
 ) : LogRepository {
 
@@ -40,6 +40,7 @@ class LogRepositoryImpl(
     ).flow.map { pagingData ->
         pagingData.map { entity -> entity.toDomain() }
     }
+
     override val lastAlarmTriggeredEvent: Flow<AlertEvent?> =
         alertEventDao.getLastByStatus(ALARM_TRIGGERED_STATUS_VALUE)
             .map { entity -> entity?.toDomain() }

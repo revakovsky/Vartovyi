@@ -1,6 +1,5 @@
 plugins {
     alias(libs.plugins.vartovyi.android.application.compose)
-    alias(libs.plugins.vartovyi.android.room)
     alias(libs.plugins.kotlin.serialization)
     alias(libs.plugins.detekt)
 }
@@ -20,8 +19,6 @@ dependencies {
     implementation(projects.data)
 
     implementation(libs.androidx.work.runtime.ktx)
-    implementation(libs.androidx.datastore.preferences)
-    implementation(libs.androidx.room.paging)
     implementation(libs.androidx.paging.runtime)
     implementation(libs.androidx.paging.compose)
 
