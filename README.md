@@ -54,12 +54,12 @@ Android-додаток для моніторингу Telegram-сповіщень
 
 **Що є в репозиторії:**
 
-| Модуль                   | Роль                                                                                                                                                                                                 |
-|--------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| `:app`                   | Android application: Compose UI, сервіси (`service/`), `receiver/`, Koin (`AppModule`, `ViewModelModule`), `startKoin` у `VartovyiApp`                                                               |
-| `:domain`                | JVM library (`vartovyi.jvm.library`): моделі, інтерфейси репозиторіїв, use cases, доменні контролери, `KeywordMatcher`, Koin `useCaseModule`; `group`/`version` з Version Catalog                     |
+| Модуль                   | Роль                                                                                                                                                                                                          |
+|--------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `:app`                   | Android application: Compose UI, сервіси (`service/`), `receiver/`, Koin (`AppModule`, `ViewModelModule`), `startKoin` у `VartovyiApp`                                                                        |
+| `:domain`                | JVM library (`vartovyi.jvm.library`): моделі, інтерфейси репозиторіїв, use cases, доменні контролери, `KeywordMatcher`, Koin `useCaseModule`; `group`/`version` з Version Catalog                             |
 | `:data`                  | Android library (`vartovyi.android.library` + `vartovyi.android.room`): DataStore, Room, mappers, реалізації репозиторіїв, Koin `databaseModule` та `repositoryModule`; `namespace` у `data/build.gradle.kts` |
-| `build-logic/convention` | Плагіни `vartovyi.android.*`, `vartovyi.jvm.library`, `vartovyi.android.room`; спільна конфігурація SDK/Compose/JVM                                                                                  |
+| `build-logic/convention` | Плагіни `vartovyi.android.*`, `vartovyi.jvm.library`, `vartovyi.android.room`; спільна конфігурація SDK/Compose/JVM                                                                                           |
 
 **Плагіни в модулях** — через **`alias(libs.plugins.…)`** з `libs.versions.toml`. У **кореневому**
 `build.gradle.kts`
@@ -82,7 +82,8 @@ Android-додаток для моніторингу Telegram-сповіщень
 Ключові правила:
 
 - `ViewModel` інжектить тільки `UseCase`.
-- Domain-шар — окремий Gradle-модуль `:domain` без Android framework API; для журналу з paging у контракті використовується `androidx.paging.PagingData` (залежність `paging-common` у `:domain`).
+- Domain-шар — окремий Gradle-модуль `:domain` без Android framework API; для журналу з paging у
+  контракті використовується `androidx.paging.PagingData` (залежність `paging-common` у `:domain`).
 - Репозиторії та mappers ізольовані по шарах.
 - Навігація в `NavGraph`, екрани не працюють напряму з `NavController`.
 
@@ -90,9 +91,13 @@ Android-додаток для моніторингу Telegram-сповіщень
 
 **Gradle-модулі:** `:app`, `:domain`, `:data` (див. також §4.1).
 
-**`:domain`** (корінь пакетів `com.revakovskyi.vartovyi.*`): `model/`, `repository/` (інтерфейси), `usecase/`, `controllers/`, `constants/`, `utils/`, `di/UseCaseModule.kt`.
+**`:domain`** (корінь пакетів `com.revakovskyi.vartovyi.*`): `model/`, `repository/` (інтерфейси),
+`usecase/`, `controllers/`, `constants/`, `utils/`, `di/UseCaseModule.kt`.
 
-**`:data`** (пакет `com.revakovskyi.vartovyi.data.*`): `datastore/`, `db/`, `mappers/`, `repository/` (реалізації), `di/DatabaseModule.kt`, `di/RepositoryModule.kt`. Реалізації та інфраструктура Room/DataStore — `internal` у межах модуля, публічні лише Koin-модулі для підключення з `:app`.
+**`:data`** (пакет `com.revakovskyi.vartovyi.data.*`): `datastore/`, `db/`, `mappers/`,
+`repository/` (реалізації), `di/DatabaseModule.kt`, `di/RepositoryModule.kt`. Реалізації та
+інфраструктура Room/DataStore — `internal` у межах модуля, публічні лише Koin-модулі для підключення
+з `:app`.
 
 **`:app`** (`com.revakovskyi.vartovyi.*`):
 
@@ -156,6 +161,10 @@ Android-додаток для моніторингу Telegram-сповіщень
 - [x] `Settings` згруповано в картки-секції: **Дані** (ліміт журналу 100/300/500/1000, пауза між
   тривогами з підказками в діалозі, заглушка експорту з snackbar), **Звук** (мелодія, тривалість,
   гучність), **Розклад роботи** (toggle + час + підказка в діалозі для секції).
+- [x] `Settings` секції перетворено на accordion-контейнери: стартово згорнуті, анімоване
+  розкриття/згортання, іконка `down` з анімацією, одночасно відкрита тільки одна секція.
+- [x] `Settings` секції автоматично згортаються при покиданні екрана; виняток — сценарій запуску
+  `Test Alarm` (overlay поверх `Settings` не скидає стан секцій).
 - [x] Тривалість **cooldown** між тривогами налаштовується на екрані (наприклад 1/3/5/10 хв) і
   зберігається в `DataStore`; логіка тригера використовує актуальне значення.
 - [x] `LogScreen`: стан відображення списку (loading / error / empty / content) та дані для
@@ -169,6 +178,8 @@ Android-додаток для моніторингу Telegram-сповіщень
   уніфіковано через спільний компонент `VartovyiActionButton`.
 - [x] **Корінь додатку (`MainActivity`):** анімований фон залежно від `MonitoringState` (окремі
   градієнти/розташування для неактивного та активного моніторингу, плавний перехід).
+- [x] **Кореневий фон (`appRootBackground`):** у станах `INACTIVE` та `ACTIVE` центр градієнта
+  анімовано "блукає" по всій площі екрана; параметри анімації винесено в константи.
 - [x] **Home (активний моніторинг):** сигнальні кільця на весь `HomeContent`, центр анімації
   прив’язаний до центру іконки щита; пульс іконки `security_on`; коли моніторинг вимкнено — легкий
   пульс лише на кнопці «Активувати».
@@ -213,7 +224,8 @@ Android-додаток для моніторингу Telegram-сповіщень
 ### Domain / Data
 
 - [x] `AnalyzeMessageUseCase` існує.
-- [x] `KeywordMatcher`, інтерфейси `SettingsRepository`, `KeywordsRepository`, `LogRepository` у `:domain`; реалізації — у `:data`.
+- [x] `KeywordMatcher`, інтерфейси `SettingsRepository`, `KeywordsRepository`, `LogRepository` у
+  `:domain`; реалізації — у `:data`.
 - [x] Room для журналу (`AlertEventDao`, entity, mappers) у модулі `:data`.
 - [x] Додано use case обробки вхідного Telegram notification (фільтри + лог + alarm trigger).
 - [x] Matching trigger-ключових слів переведено на `TriggerKeywordRule` з підтримкою `WORD` /
@@ -239,6 +251,45 @@ Android-додаток для моніторингу Telegram-сповіщень
 
 > Цей список є основним джерелом правди для прогресу. Після кожної завершеної задачі оновлюємо
 > статус тут.
+>
+> Нижче — актуальний пріоритезований backlog під підготовку до релізу в Store.
+
+### P0 — Release blocker (зробити перед публікацією)
+
+- [ ] Запустити повний прогін **release** збірки на краші (smoke + ключові user flows).
+- [ ] Додати `WakeLock` safe acquire/release в `AlarmService` для надійного старту тривоги в deep
+  sleep.
+- [ ] Підготувати і опублікувати `Privacy Policy` + заповнити `Data safety` + додати Terms/пояснення
+  обробки даних.
+- [ ] Додати базову in-app інструкцію користування + окрему повну інструкцію (web/markdown), і
+  додати посилання на неї в `Settings`.
+- [ ] Додати відображення версії додатку (`versionName`/`versionCode`) в `Settings/About`.
+- [ ] Додати `Reset settings to defaults` (із confirm-діалогом).
+- [ ] Додати vendor-specific guide для фонової стабільності (Xiaomi/Samsung/Huawei: autostart,
+  battery optimization, lock in recents/background allow).
+- [ ] Додати Crashlytics + базову продуктову аналітику (мінімум ключових подій alarm/monitoring).
+- [ ] Прогнати ручне тестування на різних розмірах екранів і різних вендорах.
+- [ ] Підготувати release checklist (передпублікаційний чек).
+
+### P1 — High priority (після P0, до масштабування функціоналу)
+
+- [ ] Додати можливість імпорту/експорту пресетів keywords у файл (backup/restore сценарій).
+- [ ] Додати керування "за часами" у розширеному вигляді (кілька вікон/днів тижня/профілів) поверх
+  поточного schedule.
+- [ ] Додати екран `About/Support` (версія, політики, інструкція, контакти).
+- [ ] Додати мінімальні non-fatal технічні події (діагностика причин фейлів alarm start/stop/sync).
+- [ ] Додати інтеграційні тести критичного пайплайна (monitoring -> match -> alarm -> stop).
+
+### P2 — Next wave / expansion
+
+- [ ] Додати логін через Firebase і синхронізацію keywords між пристроями.
+- [ ] Додати Wear OS companion (Pixel Watch/Galaxy Watch Wear OS): отримання сигналу тривоги на
+  годиннику + кнопка stop + синхронний stop тривоги на телефоні.
+- [ ] Додати feature flags для ризикових фіч (cloud sync, wearable sync) для контрольованого
+  rollout.
+- [ ] Додати multi-presets для `Keywords`: імпорт готових пресетів без ручного вводу, незалежне
+  керування багатьма пресетами, одночасна активація кількох пресетів (`ON/OFF` по кожному),
+  окреме збереження та експорт/імпорт для кожного пресету.
 
 ### Milestone A — Core monitoring pipeline (найвищий пріоритет)
 
@@ -311,6 +362,12 @@ Android-додаток для моніторингу Telegram-сповіщень
 
 ## 12) Change log (короткий)
 
+- `2026-03-26` — `Settings`: секції переведено в accordion (анімоване розкриття, іконка `down`,
+  одночасно відкрита тільки одна секція), уніфіковано фон/контраст карток та заголовків; додано
+  автозгортання секцій при покиданні `Settings` з винятком `Test Alarm` overlay. `MainActivity`:
+  `appRootBackground` оновлено — "блукаючий" градієнт працює і для `INACTIVE`, і для `ACTIVE`;
+  магічні числові параметри анімації винесено в константи. Сформовано пріоритезований backlog для
+  релізу в Store (P0/P1/P2).
 - `2026-03-25` — Додано composite `build-logic` з convention-плагінами `vartovyi.*`, розширено
   Version Catalog (`bundles`, метадані SDK/app), type-safe `projects.domain` / `projects.data`;
   інструкції з Gradle зібрано в `CLAUDE.md` (§ Gradle, Version Catalog, and build-logic). Узгоджено
