@@ -21,6 +21,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.SnackbarDuration
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
@@ -30,6 +31,9 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.core.net.toUri
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
+import androidx.lifecycle.compose.LocalLifecycleOwner
 import com.revakovskyi.vartovyi.R
 import com.revakovskyi.vartovyi.ui.components.LoadingOverlay
 import com.revakovskyi.vartovyi.ui.screen.settings.components.AlarmDurationSection
@@ -47,12 +51,15 @@ import com.revakovskyi.vartovyi.utils.ObserveSingleEvents
 import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
 
+private const val SETTINGS_LOADING_CROSSFADE_DURATION_MILLIS = 500
+
 @Composable
 fun SettingsScreen(
     viewModel: SettingsViewModel = koinViewModel(),
     onNavigateToHome: () -> Unit,
 ) {
     val context = LocalContext.current
+    val lifecycleOwner = LocalLifecycleOwner.current
     val state by viewModel.state.collectAsState()
 
     val coroutineScope = rememberCoroutineScope()
@@ -106,9 +113,23 @@ fun SettingsScreen(
         }
     }
 
+    DisposableEffect(lifecycleOwner) {
+        val observer = LifecycleEventObserver { _, event ->
+            if (event == Lifecycle.Event.ON_STOP) {
+                viewModel.onAction(SettingsUiContract.Action.CollapseSectionsOnScreenStop)
+            }
+        }
+
+        lifecycleOwner.lifecycle.addObserver(observer)
+
+        onDispose {
+            lifecycleOwner.lifecycle.removeObserver(observer)
+        }
+    }
+
     Crossfade(
         targetState = state.isLoading,
-        animationSpec = tween(durationMillis = 500),
+        animationSpec = tween(durationMillis = SETTINGS_LOADING_CROSSFADE_DURATION_MILLIS),
         label = "settings_loading_crossfade",
     ) { isLoading ->
         if (isLoading) {
@@ -170,11 +191,19 @@ private fun SettingsContent(
                     )
                 )
             },
-            modifier = Modifier.padding(bottom = VartovyiTheme.spacing.medium)
+            modifier = Modifier.padding(vertical = VartovyiTheme.spacing.medium)
         )
 
         SettingsSectionContainer(
             title = dataSectionTitle,
+            isExpanded = state.expandedSection == SettingsUiContract.SettingsSection.DATA,
+            onHeaderClick = {
+                onAction(
+                    SettingsUiContract.Action.ToggleSection(
+                        section = SettingsUiContract.SettingsSection.DATA,
+                    ),
+                )
+            },
         ) {
             DataSettingsSection(
                 currentLogSizeLimit = state.logSizeLimit,
@@ -195,6 +224,14 @@ private fun SettingsContent(
 
         SettingsSectionContainer(
             title = soundSectionTitle,
+            isExpanded = state.expandedSection == SettingsUiContract.SettingsSection.SOUND,
+            onHeaderClick = {
+                onAction(
+                    SettingsUiContract.Action.ToggleSection(
+                        section = SettingsUiContract.SettingsSection.SOUND,
+                    ),
+                )
+            },
         ) {
             AlarmSoundSection(
                 selectedSoundTitle = selectedAlarmSoundTitle,
@@ -226,6 +263,14 @@ private fun SettingsContent(
         SettingsSectionContainer(
             title = scheduleSectionTitle,
             titleTooltipText = stringResource(R.string.settings_section_schedule_tooltip),
+            isExpanded = state.expandedSection == SettingsUiContract.SettingsSection.SCHEDULE,
+            onHeaderClick = {
+                onAction(
+                    SettingsUiContract.Action.ToggleSection(
+                        section = SettingsUiContract.SettingsSection.SCHEDULE,
+                    ),
+                )
+            },
             modifier = Modifier.padding(bottom = VartovyiTheme.spacing.small)
         ) {
             ScheduleSettingsSection(
