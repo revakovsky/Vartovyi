@@ -19,6 +19,11 @@ private fun tabNavOptions() = navOptions {
     restoreState = true
 }
 
+private fun logHighlightNavOptions() = navOptions {
+    popUpTo<Routes.Home> { saveState = true }
+    restoreState = false
+}
+
 @Composable
 fun NavGraph(
     modifier: Modifier = Modifier,
@@ -43,7 +48,7 @@ fun NavGraph(
                 onNavigateToLog = { logEntryId ->
                     navController.navigate(
                         route = Routes.Log(highlightedLogEntryId = logEntryId),
-                        navOptions = tabNavOptions()
+                        navOptions = logHighlightNavOptions()
                     )
                 },
                 onNavigateToPermissions = { navController.navigate(Routes.Permissions) },
