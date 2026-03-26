@@ -16,8 +16,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import com.revakovskyi.vartovyi.R
-import com.revakovskyi.vartovyi.ui.components.VartovyiActionButton
-import com.revakovskyi.vartovyi.ui.components.VartovyiActionButtonStyle
 import com.revakovskyi.vartovyi.ui.screen.keywords.components.SectionTitle
 import com.revakovskyi.vartovyi.ui.theme.VartovyiTheme
 
@@ -121,24 +119,25 @@ fun DataSettingsSection(
             }
         }
 
-        Spacer(modifier = Modifier.height(VartovyiTheme.spacing.standard))
-
-        Text(
-            text = stringResource(R.string.settings_data_export_log_title),
-            style = VartovyiTheme.typography.titleMedium,
-            color = VartovyiTheme.colors.onSurface,
-        )
-
-        Spacer(modifier = Modifier.height(VartovyiTheme.spacing.standard))
-
-        VartovyiActionButton(
-            text = stringResource(R.string.settings_data_export_log_button),
-            onClick = onExportLogClick,
-            style = VartovyiActionButtonStyle.Outlined,
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(VartovyiTheme.spacing.massive)
-        )
+        // TODO: add in future when it will be ready to use!
+//        Spacer(modifier = Modifier.height(VartovyiTheme.spacing.standard))
+//
+//        Text(
+//            text = stringResource(R.string.settings_data_export_log_title),
+//            style = VartovyiTheme.typography.titleMedium,
+//            color = VartovyiTheme.colors.onSurface,
+//        )
+//
+//        Spacer(modifier = Modifier.height(VartovyiTheme.spacing.standard))
+//
+//        VartovyiActionButton(
+//            text = stringResource(R.string.settings_data_export_log_button),
+//            onClick = onExportLogClick,
+//            style = VartovyiActionButtonStyle.Outlined,
+//            modifier = Modifier
+//                .fillMaxWidth()
+//                .height(VartovyiTheme.spacing.massive)
+//        )
     }
 }
 

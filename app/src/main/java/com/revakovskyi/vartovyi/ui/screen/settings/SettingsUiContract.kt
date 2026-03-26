@@ -4,6 +4,10 @@ import androidx.compose.runtime.Immutable
 
 interface SettingsUiContract {
 
+    enum class SettingsSection {
+        DATA, SOUND, SCHEDULE,
+    }
+
     @Immutable
     data class State(
         val isLoading: Boolean = true,
@@ -17,6 +21,7 @@ interface SettingsUiContract {
         val alarmRetriggerCooldownDurationMillis: Long = 5 * 60 * 1000L,
         val isMonitoringActive: Boolean = false,
         val isAlarmRunning: Boolean = false,
+        val expandedSection: SettingsSection? = null,
     )
 
     sealed interface Action {
@@ -32,6 +37,9 @@ interface SettingsUiContract {
             val sourceChannelName: String,
             val sourceMessageText: String,
         ) : Action
+
+        data class ToggleSection(val section: SettingsSection) : Action
+        data object CollapseSectionsOnScreenStop : Action
     }
 
     sealed interface Event {

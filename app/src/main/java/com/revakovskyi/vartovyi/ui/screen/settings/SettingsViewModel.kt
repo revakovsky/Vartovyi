@@ -59,6 +59,7 @@ class SettingsViewModel(
     val events: SharedFlow<Event> = _events.asSharedFlow()
 
     private var loadedSourcesCount = 0
+    private var skipCollapseOnNextScreenStop = false
 
     init {
         observeScheduleSettings()
@@ -84,6 +85,9 @@ class SettingsViewModel(
                 sourceChannelName = action.sourceChannelName,
                 sourceMessageText = action.sourceMessageText,
             )
+
+            is Action.ToggleSection -> toggleSection(section = action.section)
+            is Action.CollapseSectionsOnScreenStop -> collapseSectionsOnScreenStop()
         }
     }
 
@@ -216,10 +220,32 @@ class SettingsViewModel(
         if (state.value.isAlarmRunning) {
             stopAlarmUseCase()
         } else {
+            skipCollapseOnNextScreenStop = true
             triggerAlarmUseCase(
                 sourceChannelName = sourceChannelName,
                 sourceMessageText = sourceMessageText,
             )
+        }
+    }
+
+    private fun toggleSection(section: SettingsUiContract.SettingsSection) {
+        _state.update { currentState ->
+            val nextExpandedSection =
+                if (currentState.expandedSection == section) null
+                else section
+            currentState.copy(expandedSection = nextExpandedSection)
+        }
+    }
+
+    private fun collapseSectionsOnScreenStop() {
+        if (skipCollapseOnNextScreenStop) {
+            skipCollapseOnNextScreenStop = false
+            return
+        }
+
+        _state.update { currentState ->
+            if (currentState.expandedSection == null) currentState
+            else currentState.copy(expandedSection = null)
         }
     }
 
