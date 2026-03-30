@@ -212,8 +212,9 @@ Android-додаток для моніторингу Telegram-сповіщень
 - [x] `AlarmActivity`: анімований фон (`AlarmScreenAnimatedBackground`) у тонах `error` /
   `background` — пульсуючий радіальний відтінок і кільця від **центру іконки тривоги**; та сама
   пульсація масштабу для іконки та кнопки вимкнення (синхронно).
-- [ ] `WAKE_LOCK` permission додано, але явне керування `PowerManager.WakeLock` в `AlarmService` ще
-  не реалізовано.
+- [x] `AlarmService`: `PowerManager.PARTIAL_WAKE_LOCK` — timeout `alarmDuration + 30 с`, одне
+  читання
+  тривалості на цикл тривоги (разом з auto-stop), release у stop/destroy.
 - [ ] Повна інтеграція DND bypass потребує перевірки каналів/дозволів на runtime.
 
 ### Monitoring / Telegram listener
@@ -265,8 +266,8 @@ Android-додаток для моніторингу Telegram-сповіщень
 
 - [x] Запустити повний прогін **release** збірки на краші (smoke + ключові user flows) — успішно
   протестовано; повторний обов'язковий прогін перед релізом не потрібен.
-- [ ] Додати `WakeLock` safe acquire/release в `AlarmService` для надійного старту тривоги в deep
-  sleep.
+- [x] Додати `WakeLock` safe acquire/release в `AlarmService` для надійного старту тривоги в deep
+  sleep (timeout прив’язано до тривалості тривоги + 30 с).
 - [ ] Підготувати і опублікувати `Privacy Policy` + заповнити `Data safety` + додати Terms/пояснення
   обробки даних.
 - [ ] Додати базову in-app інструкцію користування + окрему повну інструкцію (web/markdown), і
@@ -319,7 +320,8 @@ Android-додаток для моніторингу Telegram-сповіщень
   поверненні
   з `RingtonePicker` стан розкритої секції зберігається. `Keywords`: tooltip доповнено інформацією
   про case-insensitive matching; виправлено довгі чіпси (іконка видалення не зникає); додано
-  confirm-діалог перед видаленням чіпсів.
+  confirm-діалог перед видаленням чіпсів. `AlarmService`: `WakeLock` з timeout
+  `alarmDuration + 30 с` (замість фіксованого максимуму).
 - `2026-03-26` — `Settings`: секції переведено в accordion (анімоване розкриття, іконка `down`,
   одночасно відкрита тільки одна секція), уніфіковано фон/контраст карток та заголовків; додано
   автозгортання секцій при покиданні `Settings` з винятком `Test Alarm` overlay. `MainActivity`:

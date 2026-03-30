@@ -15,6 +15,7 @@ import android.media.RingtoneManager
 import android.net.Uri
 import android.os.Build
 import android.os.IBinder
+import android.os.PowerManager
 import android.os.VibrationEffect
 import android.os.Vibrator
 import android.os.VibratorManager
@@ -50,12 +51,15 @@ private const val DEFAULT_ALARM_DURATION_SECONDS = 60
 private const val DEFAULT_ALARM_VOLUME_PERCENT = 100
 private const val PERCENT_DIVISOR = 100f
 private const val MILLIS_IN_SECOND = 1000L
+private const val WAKE_LOCK_TAG = "Vartovyi:AlarmWakeLock"
+private const val WAKE_LOCK_BUFFER_MILLIS = 15_000L
 
 class AlarmService : Service() {
 
     private var mediaPlayer: MediaPlayer? = null
     private var vibrator: Vibrator? = null
     private var audioFocusRequest: AudioFocusRequest? = null
+    private var wakeLock: PowerManager.WakeLock? = null
 
     private var currentSourceChannelName: String = EMPTY_VALUE
     private var currentSourceMessageText: String = EMPTY_VALUE
@@ -111,6 +115,7 @@ class AlarmService : Service() {
         alarmStateHolder.setRunning(false)
         isAlarmActive.set(false)
 
+        releaseWakeLock()
         releaseAudioFocus()
         stopAlarmSound()
         stopVibration()
@@ -146,6 +151,7 @@ class AlarmService : Service() {
             alarmStateHolder.setRunning(false)
             alarmAutoStopJob?.cancel()
             notifyAlarmStopped()
+            releaseWakeLock()
             stopForeground(STOP_FOREGROUND_REMOVE)
             stopSelf()
             return
@@ -157,6 +163,7 @@ class AlarmService : Service() {
 
         stopAlarmSound()
         stopVibration()
+        releaseWakeLock()
         releaseAudioFocus()
         openAlarmActivityJob?.cancel()
         alarmAutoStopJob?.cancel()
@@ -170,6 +177,15 @@ class AlarmService : Service() {
         alarmAutoStopJob?.cancel()
         alarmAutoStopJob = serviceScope.launch {
             val alarmDurationMillis = resolveAlarmDurationMillis()
+            if (!isAlarmActive.get()) return@launch
+
+            val wakeLockTimeoutMillis = alarmDurationMillis + WAKE_LOCK_BUFFER_MILLIS
+            acquireWakeLock(wakeLockTimeoutMillis)
+            if (!isAlarmActive.get()) {
+                releaseWakeLock()
+                return@launch
+            }
+
             delay(alarmDurationMillis)
             stopAlarmSafely()
         }
@@ -334,6 +350,42 @@ class AlarmService : Service() {
 
         audioFocusRequest = focusRequest
         getSystemService(AudioManager::class.java).requestAudioFocus(focusRequest)
+    }
+
+    private fun acquireWakeLock(timeoutMillis: Long) {
+        if (!isAlarmActive.get()) return
+
+        releaseWakeLock()
+
+        val powerManager = getSystemService(PowerManager::class.java)
+        val newWakeLock = powerManager.newWakeLock(
+            PowerManager.PARTIAL_WAKE_LOCK, WAKE_LOCK_TAG
+        ).apply { setReferenceCounted(false) }
+
+        try {
+            newWakeLock.acquire(timeoutMillis)
+            if (!isAlarmActive.get()) {
+                if (newWakeLock.isHeld) {
+                    newWakeLock.release()
+                }
+                return
+            }
+            wakeLock = newWakeLock
+        } catch (throwable: Throwable) {
+            Log.e(ALARM_TAG, "Failed to acquire wake lock", throwable)
+        }
+    }
+
+    private fun releaseWakeLock() {
+        val currentWakeLock = wakeLock ?: return
+
+        try {
+            if (currentWakeLock.isHeld) currentWakeLock.release()
+        } catch (throwable: Throwable) {
+            Log.e(ALARM_TAG, "Failed to release wake lock", throwable)
+        }
+
+        wakeLock = null
     }
 
     private fun releaseAudioFocus() {
