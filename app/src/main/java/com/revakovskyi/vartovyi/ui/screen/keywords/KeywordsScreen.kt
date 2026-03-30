@@ -113,6 +113,23 @@ fun KeywordsScreen(
             onDismiss = { viewModel.onAction(KeywordsUiContract.Action.DismissDuplicateWordDialog) },
         )
     }
+
+    state.pendingRemoval?.let { pendingRemoval ->
+        val pendingRemovalValue = when (pendingRemoval) {
+            is KeywordsUiContract.PendingRemoval.Keyword -> pendingRemoval.keywordRule.displayValue
+            is KeywordsUiContract.PendingRemoval.StopWord -> pendingRemoval.stopWord
+            is KeywordsUiContract.PendingRemoval.TelegramChannel -> pendingRemoval.channel
+        }
+
+        VartovyiDialog(
+            title = stringResource(R.string.keywords_remove_dialog_title),
+            message = stringResource(R.string.keywords_remove_dialog_message, pendingRemovalValue),
+            confirmText = stringResource(R.string.keywords_remove_dialog_confirm),
+            dismissText = stringResource(R.string.keywords_remove_dialog_dismiss),
+            onConfirm = { viewModel.onAction(KeywordsUiContract.Action.ConfirmPendingRemoval) },
+            onDismiss = { viewModel.onAction(KeywordsUiContract.Action.DismissPendingRemovalDialog) },
+        )
+    }
 }
 
 @OptIn(ExperimentalLayoutApi::class)

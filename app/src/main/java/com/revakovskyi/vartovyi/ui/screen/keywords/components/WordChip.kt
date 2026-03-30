@@ -2,8 +2,7 @@ package com.revakovskyi.vartovyi.ui.screen.keywords.components
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.combinedClickable
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Icon
@@ -16,6 +15,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.vectorResource
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import com.revakovskyi.vartovyi.R
 import com.revakovskyi.vartovyi.ui.theme.VartovyiTheme
@@ -41,9 +41,7 @@ fun WordChip(
                 onLongClick = onLongPress,
             )
     ) {
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(VartovyiTheme.spacing.extraSmall),
+        Box(
             modifier = Modifier.padding(
                 start = VartovyiTheme.spacing.small,
                 end = VartovyiTheme.spacing.small,
@@ -55,6 +53,11 @@ fun WordChip(
                 text = text,
                 style = VartovyiTheme.typography.bodyMedium,
                 color = contentColor,
+                maxLines = 2,
+                overflow = TextOverflow.Ellipsis,
+                modifier = Modifier.padding(
+                    end = VartovyiTheme.spacing.medium + VartovyiTheme.spacing.extraSmall,
+                ),
             )
 
             Icon(
@@ -62,6 +65,7 @@ fun WordChip(
                 contentDescription = null,
                 tint = contentColor.copy(alpha = CLOSE_ICON_ALPHA),
                 modifier = Modifier
+                    .align(Alignment.CenterEnd)
                     .size(VartovyiTheme.spacing.medium)
                     .clickable(onClick = onRemove),
             )

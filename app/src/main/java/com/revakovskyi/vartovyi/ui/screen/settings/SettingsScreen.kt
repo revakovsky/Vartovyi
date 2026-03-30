@@ -140,6 +140,7 @@ fun SettingsScreen(
                 onAction = viewModel::onAction,
                 selectedAlarmSoundTitle = selectedAlarmSoundTitle,
                 onChooseAlarmSound = {
+                    viewModel.onAction(SettingsUiContract.Action.StartExternalPickerNavigation)
                     alarmSoundPickerLauncher.launch(
                         createAlarmSoundPickerIntent(
                             existingAlarmSoundUri = state.alarmSoundUri,

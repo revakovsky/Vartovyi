@@ -6,6 +6,12 @@ import com.revakovskyi.vartovyi.model.TriggerKeywordRuleType
 
 interface KeywordsUiContract {
 
+    sealed interface PendingRemoval {
+        data class Keyword(val keywordRule: TriggerKeywordRule) : PendingRemoval
+        data class StopWord(val stopWord: String) : PendingRemoval
+        data class TelegramChannel(val channel: String) : PendingRemoval
+    }
+
     @Immutable
     data class State(
         val isLoading: Boolean = true,
@@ -18,6 +24,7 @@ interface KeywordsUiContract {
         val telegramChannels: List<String> = emptyList(),
         val inputTelegramChannel: String = "",
         val duplicateWord: String? = null,
+        val pendingRemoval: PendingRemoval? = null,
     )
 
     sealed interface Action {
@@ -33,6 +40,8 @@ interface KeywordsUiContract {
         data object AddTelegramChannel : Action
         data class RemoveTelegramChannel(val channel: String) : Action
         data object DismissDuplicateWordDialog : Action
+        data object ConfirmPendingRemoval : Action
+        data object DismissPendingRemovalDialog : Action
     }
 
     sealed interface Event {
