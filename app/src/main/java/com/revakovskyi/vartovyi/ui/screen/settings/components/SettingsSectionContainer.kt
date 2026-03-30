@@ -8,6 +8,7 @@ import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -124,7 +125,11 @@ private fun SettingsSectionTitleRow(
         horizontalArrangement = Arrangement.spacedBy(VartovyiTheme.spacing.small),
         modifier = Modifier
             .fillMaxWidth()
-            .clickable { onHeaderClick() }
+            .clickable(
+                interactionSource = remember { MutableInteractionSource() },
+                indication = null,
+                onClick = onHeaderClick,
+            )
     ) {
         Row(
             verticalAlignment = Alignment.CenterVertically,
@@ -138,10 +143,11 @@ private fun SettingsSectionTitleRow(
                 text = title,
                 style = VartovyiTheme.typography.titleMedium,
                 color = VartovyiTheme.colors.onSurface,
-                modifier = Modifier.weight(1f),
             )
 
             if (tooltipText != null) {
+                Spacer(modifier = Modifier.width(VartovyiTheme.spacing.micro))
+
                 FilledTonalIconButton(
                     onClick = { showDialog = true },
                     colors = IconButtonDefaults.filledTonalIconButtonColors(
@@ -158,9 +164,9 @@ private fun SettingsSectionTitleRow(
                         modifier = Modifier.size(VartovyiTheme.spacing.standard)
                     )
                 }
-
-                Spacer(modifier = Modifier.width(VartovyiTheme.spacing.small))
             }
+
+            Spacer(modifier = Modifier.weight(1f))
 
             Icon(
                 imageVector = ImageVector.vectorResource(R.drawable.down),

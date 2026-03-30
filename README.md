@@ -264,6 +264,7 @@ Android-додаток для моніторингу Telegram-сповіщень
 - [ ] Додати базову in-app інструкцію користування + окрему повну інструкцію (web/markdown), і
   додати посилання на неї в `Settings`.
 - [ ] Додати відображення версії додатку (`versionName`/`versionCode`) в `Settings/About`.
+- [ ] Оновити іконку додатку (launcher icon + adaptive icon + monochrome для Android 13+).
 - [ ] Додати `Reset settings to defaults` (із confirm-діалогом).
 - [ ] Додати vendor-specific guide для фонової стабільності (Xiaomi/Samsung/Huawei: autostart,
   battery optimization, lock in recents/background allow).
@@ -290,66 +291,6 @@ Android-додаток для моніторингу Telegram-сповіщень
 - [ ] Додати multi-presets для `Keywords`: імпорт готових пресетів без ручного вводу, незалежне
   керування багатьма пресетами, одночасна активація кількох пресетів (`ON/OFF` по кожному),
   окреме збереження та експорт/імпорт для кожного пресету.
-
-### Milestone A — Core monitoring pipeline (найвищий пріоритет)
-
-- [x] Реалізувати `TelegramListenerService.onNotificationPosted`:
-    - [x] витяг `packageName`, `title`, `text`, `postTime`;
-    - [x] пропуск порожніх/службових нотифікацій;
-    - [x] фільтр пакета: тільки `org.telegram.messenger`.
-- [x] Додати use case `ProcessIncomingNotificationUseCase`:
-    - [x] завантаження keywords/stop-words/channels/settings;
-    - [x] виклик логіки аналізу повідомлення;
-    - [x] формування результату (ALARM/SKIPPED).
-- [x] Інтегрувати запуск `TriggerAlarmUseCase` тільки на релевантному match.
-- [x] Інтегрувати `AddLogEntryUseCase` для кожної обробленої події.
-
-### Milestone B — Monitoring lifecycle / reliability
-
-- [x] Додати monitoring foreground service з постійним low-importance notification.
-- [x] Прив’язати `Home ToggleMonitoring` до старту/зупинки monitoring service.
-- [x] Реалізувати `BootReceiver` (відновлення моніторингу після reboot, якщо було active).
-- [x] Додати watchdog через `WorkManager` для самовідновлення monitor service.
-
-### Milestone C — Home integration
-
-- [x] Показувати `lastAlertEvent` із реального джерела (log flow).
-- [x] Перенести `Test Alarm` у `SettingsScreen` (та прибрати з `HomeScreen`).
-- [ ] Показати статус сервісу моніторингу (`isListenerServiceActive` / health check).
-
-### Milestone D — Log model enhancement
-
-- [ ] Розширити модель журналу під стани:
-    - [ ] `ALARM_TRIGGERED`
-    - [ ] `SKIPPED_NO_KEYWORD`
-    - [ ] `SKIPPED_STOP_WORD`
-    - [ ] `SKIPPED_CHANNEL_FILTER`
-- [ ] Оновити Room schema + mapper + UI логу під нову модель.
-
-### Milestone E — Settings/Alarm completion
-
-- [x] Підв’язати `alarmDurationSeconds` до реальної зупинки `AlarmService`.
-- [x] Додати налаштування `alarmVolumePercent` та застосування в `AlarmService`.
-- [x] Додати вибір `alarmSoundUri` через системний `RingtonePicker` із персистентним збереженням.
-- [ ] Підв’язати `isVibrationEnabled` до поведінки `AlarmService`.
-- [ ] Додати короткий `WakeLock` в `AlarmService` (safe acquire/release) для надійного старту
-  тривоги в deep sleep.
-- [x] Додати preview/play вибору звуку тривоги в Settings (через системний picker).
-
-### Milestone F — Permissions hardening
-
-- [x] Повний чек усіх required/recommended permissions.
-- [x] Динамічна логіка для API 33+/34+ (POST_NOTIFICATIONS, full-screen intent).
-- [x] Авто-рефреш permission статусів на `PermissionsScreen` при `ON_RESUME`.
-- [x] Узгоджені переходи в системні налаштування для Notifications / Full-screen / Battery / DND.
-- [ ] Vendor-specific автозапуск гайд (Xiaomi/Samsung/Huawei).
-
-### Milestone G — QA / release readiness
-
-- [ ] Інструментальні/інтеграційні перевірки основного пайплайна.
-- [ ] Ручний тест-план для нічного сценарію.
-- [ ] Полірування UX станів помилок/підказок.
-- [ ] Підготовка release checklist.
 
 ## 11) Правило оновлення цього README
 
