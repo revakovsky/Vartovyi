@@ -7,6 +7,7 @@ internal fun configureVartovyiApplicationBuildTypes(
     applicationExtension: ApplicationExtension,
 ) {
     applicationExtension.buildTypes.getByName("debug") {
+        applicationIdSuffix = ".debug"
         isMinifyEnabled = false
         proguardFiles(
             applicationExtension.getDefaultProguardFile("proguard-android-optimize.txt"),
