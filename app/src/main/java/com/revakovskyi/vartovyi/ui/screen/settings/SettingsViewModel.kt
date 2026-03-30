@@ -86,6 +86,7 @@ class SettingsViewModel(
                 sourceMessageText = action.sourceMessageText,
             )
 
+            is Action.StartExternalPickerNavigation -> startExternalPickerNavigation()
             is Action.ToggleSection -> toggleSection(section = action.section)
             is Action.CollapseSectionsOnScreenStop -> collapseSectionsOnScreenStop()
         }
@@ -235,6 +236,10 @@ class SettingsViewModel(
                 else section
             currentState.copy(expandedSection = nextExpandedSection)
         }
+    }
+
+    private fun startExternalPickerNavigation() {
+        skipCollapseOnNextScreenStop = true
     }
 
     private fun collapseSectionsOnScreenStop() {

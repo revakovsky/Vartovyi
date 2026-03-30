@@ -22,8 +22,13 @@ class AndroidApplicationConventionPlugin : Plugin<Project> {
                     versionName = libs.findVersion("versionName").get().toString()
                     testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
                 }
+
                 configureKotlinAndroid(this)
-                configureVartovyiApplicationBuildTypes(this)
+
+                configureVartovyiApplicationBuildTypes(
+                    project = this@run,
+                    applicationExtension = this,
+                )
             }
         }
     }

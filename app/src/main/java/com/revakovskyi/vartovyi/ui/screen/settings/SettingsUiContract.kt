@@ -38,6 +38,7 @@ interface SettingsUiContract {
             val sourceMessageText: String,
         ) : Action
 
+        data object StartExternalPickerNavigation : Action
         data class ToggleSection(val section: SettingsSection) : Action
         data object CollapseSectionsOnScreenStop : Action
     }

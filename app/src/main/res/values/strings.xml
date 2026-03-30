@@ -66,7 +66,7 @@
     <string name="emergency_stop">Stop everything</string>
     <string name="emergency_stop_completed">Monitoring and alarm are stopped</string>
     <string name="keywords_trigger_words">Trigger words</string>
-    <string name="keywords_trigger_tooltip">Add alert rules here.\n\nMode \"Word\":\n- matches a standalone word in the message;\n- example: \"nd\" should match \"alert in nd\", but should not match \"fundament\".\n\nMode \"All words\":\n- all entered words must be present in the message (order does not matter);\n- example: \"rocket + kharkiv\" matches \"rocket to kharkiv\" and \"a rocket is flying to kharkiv\", but does not match \"rocket to kyiv\".\n\nMode \"Phrase\":\n- matches a specific phrase;\n- example: \"rocket to kharkiv\" matches only when this exact phrase is present.\n\nTip:\n- use \"All words\" or \"Phrase\" for precise alerts;\n- use \"Word\" for broader alerts.</string>
+    <string name="keywords_trigger_tooltip">Add alert rules here.\n\nMode \"Word\":\n- matches a standalone word in the message;\n- example: \"nd\" should match \"alert in nd\", but should not match \"fundament\".\n\nMode \"All words\":\n- all entered words must be present in the message (order does not matter);\n- example: \"rocket + kharkiv\" matches \"rocket to kharkiv\" and \"a rocket is flying to kharkiv\", but does not match \"rocket to kyiv\".\n\nMode \"Phrase\":\n- matches a specific phrase;\n- example: \"rocket to kharkiv\" matches only when this exact phrase is present.\n\nTip:\n- use \"All words\" or \"Phrase\" for precise alerts;\n- use \"Word\" for broader alerts;\n- letter case is ignored (uppercase/lowercase does not affect matching).</string>
     <string name="keywords_trigger_hint">e.g. Saltivka</string>
     <string name="keywords_trigger_hint_word">e.g. rocket</string>
     <string name="keywords_trigger_hint_all_words">e.g. rocket + kharkiv</string>
@@ -87,6 +87,10 @@
     <string name="keywords_duplicate_title">Already in the list</string>
     <string name="keywords_duplicate_message">"%s" is already in the list.</string>
     <string name="keywords_duplicate_confirm">OK</string>
+    <string name="keywords_remove_dialog_title">Delete item?</string>
+    <string name="keywords_remove_dialog_message">The item "%s" will be removed from the list.</string>
+    <string name="keywords_remove_dialog_confirm">Delete</string>
+    <string name="keywords_remove_dialog_dismiss">Cancel</string>
     <string name="keywords_chip_copied">Chip text copied</string>
     <string name="permissions_warning">Grant all required permissions for stable background monitoring</string>
     <string name="permissions_listener_title">Notification access</string>

@@ -67,6 +67,8 @@ class KeywordsViewModel(
             is Action.AddTelegramChannel -> addTelegramChannel()
             is Action.RemoveTelegramChannel -> removeTelegramChannel(action.channel)
             is Action.DismissDuplicateWordDialog -> dismissDuplicateWordDialog()
+            is Action.ConfirmPendingRemoval -> confirmPendingRemoval()
+            is Action.DismissPendingRemovalDialog -> dismissPendingRemovalDialog()
         }
     }
 
@@ -144,9 +146,10 @@ class KeywordsViewModel(
     }
 
     private fun removeKeyword(keyword: TriggerKeywordRule) {
-        viewModelScope.launch {
-            removeKeywordUseCase(keyword.storageValue)
-            _events.emit(Event.KeywordRemoved)
+        _state.update {
+            it.copy(
+                pendingRemoval = KeywordsUiContract.PendingRemoval.Keyword(keyword)
+            )
         }
     }
 
@@ -168,9 +171,10 @@ class KeywordsViewModel(
     }
 
     private fun removeStopWord(stopWord: String) {
-        viewModelScope.launch {
-            removeStopWordUseCase(stopWord)
-            _events.emit(Event.StopWordRemoved)
+        _state.update {
+            it.copy(
+                pendingRemoval = KeywordsUiContract.PendingRemoval.StopWord(stopWord)
+            )
         }
     }
 
@@ -200,14 +204,44 @@ class KeywordsViewModel(
     }
 
     private fun removeTelegramChannel(channel: String) {
-        viewModelScope.launch {
-            removeTelegramChannelUseCase(channel)
-            _events.emit(Event.TelegramChannelRemoved)
+        _state.update {
+            it.copy(
+                pendingRemoval = KeywordsUiContract.PendingRemoval.TelegramChannel(channel)
+            )
         }
     }
 
     private fun dismissDuplicateWordDialog() {
         _state.update { it.copy(duplicateWord = null) }
+    }
+
+    private fun confirmPendingRemoval() {
+        val pendingRemoval = _state.value.pendingRemoval ?: return
+
+        viewModelScope.launch {
+            when (pendingRemoval) {
+                is KeywordsUiContract.PendingRemoval.Keyword -> {
+                    removeKeywordUseCase(pendingRemoval.keywordRule.storageValue)
+                    _events.emit(Event.KeywordRemoved)
+                }
+
+                is KeywordsUiContract.PendingRemoval.StopWord -> {
+                    removeStopWordUseCase(pendingRemoval.stopWord)
+                    _events.emit(Event.StopWordRemoved)
+                }
+
+                is KeywordsUiContract.PendingRemoval.TelegramChannel -> {
+                    removeTelegramChannelUseCase(pendingRemoval.channel)
+                    _events.emit(Event.TelegramChannelRemoved)
+                }
+            }
+
+            _state.update { it.copy(pendingRemoval = null) }
+        }
+    }
+
+    private fun dismissPendingRemovalDialog() {
+        _state.update { it.copy(pendingRemoval = null) }
     }
 
     private fun triggerRuleTypeOrder(type: TriggerKeywordRuleType): Int {

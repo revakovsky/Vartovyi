@@ -2,8 +2,10 @@ package com.revakovskyi.vartovyi.convention.application
 
 import com.android.build.api.dsl.ApplicationExtension
 import com.android.build.api.dsl.LibraryExtension
+import org.gradle.api.Project
 
 internal fun configureVartovyiApplicationBuildTypes(
+    project: Project,
     applicationExtension: ApplicationExtension,
 ) {
     applicationExtension.buildTypes.getByName("debug") {
