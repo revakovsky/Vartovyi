@@ -268,8 +268,14 @@ Android-додаток для моніторингу Telegram-сповіщень
   протестовано; повторний обов'язковий прогін перед релізом не потрібен.
 - [x] Додати `WakeLock` safe acquire/release в `AlarmService` для надійного старту тривоги в deep
   sleep (timeout прив’язано до тривалості тривоги + 30 с).
-- [ ] Підготувати і опублікувати `Privacy Policy` + заповнити `Data safety` + додати Terms/пояснення
-  обробки даних.
+- [x] Підготувати і опублікувати `Privacy Policy` та `Terms of Use` (Google Sites, canonical HTTPS
+  URL):
+  - Privacy Policy: `https://sites.google.com/view/vartovyi-privacy-policy`
+  - Terms of Use: `https://sites.google.com/view/vartovyi-terms-of-use`
+- [ ] Додати legal consent flow у застосунок: gate в `MainActivity` (loading -> consent/main) +
+  DataStore `legalVersion`/`acceptedVersion`.
+- [ ] Додати посилання на `Privacy Policy` і `Terms of Use` в `Settings` (Chrome Custom Tabs).
+- [ ] Додати `values-ru/strings.xml` для legal рядків.
 - [ ] Додати базову in-app інструкцію користування + окрему повну інструкцію (web/markdown), і
   додати посилання на неї в `Settings`.
 - [ ] Додати відображення версії додатку (`versionName`/`versionCode`) в `Settings/About`.
@@ -314,6 +320,10 @@ Android-додаток для моніторингу Telegram-сповіщень
 
 ## 12) Change log (короткий)
 
+- `2026-03-31` — підготовлено та опубліковано юридичні сторінки в Google Sites:
+  `Privacy Policy` (`https://sites.google.com/view/vartovyi-privacy-policy`) і `Terms of Use` (
+  `https://sites.google.com/view/vartovyi-terms-of-use`); у P0 canonical legal URLs відмічено як
+  виконані.
 - `2026-03-30` — release signing перенесено з `app/build.gradle.kts` у `build-logic` convention
   (`AndroidApplicationConventionPlugin` + `application/BuildTypes.kt`); для `:data` додано
   `consumer-rules.pro` (фікс падіння `mergeReleaseConsumerProguardFiles`). `Settings`: при
@@ -392,6 +402,14 @@ Android-додаток для моніторингу Telegram-сповіщень
   match + `ignoreCase`** (без `contains`).
 - Monitoring default state: при першому запуску — `OFF`.
 - Alarm duration mode: використовуємо числове значення в секундах (`Int`) з кроком слайдера в UI.
+- Canonical legal URLs (Google Sites):
+  - Privacy Policy: `https://sites.google.com/view/vartovyi-privacy-policy`
+  - Terms of Use: `https://sites.google.com/view/vartovyi-terms-of-use`
+- Юридичні сторінки: **тільки дельти до вже опублікованого тексту** —
+  [`LEGAL_PATCH_ONLY.md`](LEGAL_PATCH_ONLY.md). Повні тексти (як архів) —
+  [`LEGAL_COPY_PASTE_MASTER.md`](LEGAL_COPY_PASTE_MASTER.md); старі гайди —
+  [`PRIVACY_POLICY_SITE_GUIDE.md`](PRIVACY_POLICY_SITE_GUIDE.md),
+  [`TERMS_OF_USE_SITE_GUIDE.md`](TERMS_OF_USE_SITE_GUIDE.md).
 
 ## 14) UI/UX специфікація (фільтрована, актуальна)
 
