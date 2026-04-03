@@ -76,6 +76,12 @@ Android-додаток для моніторингу Telegram-сповіщень
 Детальні правила, пріоритети та edge cases (compileSdk DSL, залежності між `:app` / `:domain` /
 `:data`) — у **[CLAUDE.md](CLAUDE.md)** у розділі **Gradle, Version Catalog, and build-logic**.
 
+У **`build-logic/convention/.../BuildTypes.kt`** для `:app` може бути задано `signingConfigs` (
+release) і
+підключення до `defaultConfig` (локальна збірка з тестовим keystore). Для CI / публічного
+репозиторію
+шлях і паролі варто виносити в secrets або локальні файли, які не комітяться.
+
 ## 5) Архітектура і шари
 
 Напрямок залежностей:
@@ -225,7 +231,8 @@ canonical URL політики/умов), `utils/`, `di/UseCaseModule.kt`.
 - [x] Stop-кнопка у `TopBar` зупиняє тільки поточну тривогу (без вимкнення monitoring).
 - [x] З `AlarmActivity` прибрано emergency-кнопку, залишено одну кнопку stop alarm.
 - [x] У `AlarmActivity` додано вимкнення тривоги апаратними клавішами гучності (`Volume Up/Down`).
-- [x] Прискорено показ `AlarmActivity`: пріоритезовано запуск UI, додано retry-відкриття activity та
+- [x] Прискорено показ `AlarmActivity`: пріоритезовано запуск UI, додано retry-відкриття activity (
+  крок **500 ms**, до **3** спроб `0..ALARM_ACTIVITY_OPEN_MAX_RETRIES` при `MAX_RETRIES = 2`) та
   неблокуючий старт звуку.
 - [x] `alarmDurationSeconds` синхронізовано з авто-зупинкою `AlarmService`.
 - [x] `alarmVolumePercent` застосовується до `MediaPlayer` до старту звуку тривоги.
@@ -234,9 +241,10 @@ canonical URL політики/умов), `utils/`, `di/UseCaseModule.kt`.
 - [x] `AlarmActivity`: анімований фон (`AlarmScreenAnimatedBackground`) у тонах `error` /
   `background` — пульсуючий радіальний відтінок і кільця від **центру іконки тривоги**; та сама
   пульсація масштабу для іконки та кнопки вимкнення (синхронно).
-- [x] `AlarmService`: `PowerManager.PARTIAL_WAKE_LOCK` — timeout `alarmDuration + 30 с`, одне
-  читання
-  тривалості на цикл тривоги (разом з auto-stop), release у stop/destroy.
+- [x] `AlarmService`: `PowerManager.PARTIAL_WAKE_LOCK` — на старті циклу тривоги одразу
+  `acquire` з timeout **30 с** (`INITIAL_WAKE_LOCK_TIMEOUT_MILLIS`), далі після читання тривалості
+  lock перевизначається на **тривалість тривоги + 15 с** буферу (`WAKE_LOCK_BUFFER_MILLIS`); одне
+  читання тривалості на цикл (разом з auto-stop), release у stop/destroy.
 - [ ] Повна інтеграція DND bypass потребує перевірки каналів/дозволів на runtime.
 
 ### Monitoring / Telegram listener
@@ -291,7 +299,7 @@ canonical URL політики/умов), `utils/`, `di/UseCaseModule.kt`.
 - [x] Запустити повний прогін **release** збірки на краші (smoke + ключові user flows) — успішно
   протестовано; повторний обов'язковий прогін перед релізом не потрібен.
 - [x] Додати `WakeLock` safe acquire/release в `AlarmService` для надійного старту тривоги в deep
-  sleep (timeout прив’язано до тривалості тривоги + 30 с).
+  sleep (ранній lock **30 с**; основний timeout — тривалість тривоги + **15 с** буферу).
 - [x] Підготувати і опублікувати `Privacy Policy` та `Terms of Use` (Google Sites, canonical HTTPS
   URL):
   - Privacy Policy: `https://sites.google.com/view/vartovyi-privacy-policy`
@@ -351,6 +359,10 @@ canonical URL політики/умов), `utils/`, `di/UseCaseModule.kt`.
   `CustomTabsHelper`; `MainViewModel` + `MainUiContract` для shell; повний `values-ru/strings.xml`;
   винесено допоміжні утиліти (`PermissionsChecker`, `TopBarScrollBehaviorHelper`). Залежність
   `androidx.browser:browser` для Custom Tabs (див. Version Catalog).
+- `2026-04-03` — **AlarmService:** ранній `PARTIAL_WAKE_LOCK` на **30 с** у `onStartCommand`; після
+  розрахунку тривалості lock перевизначається на `alarmDuration + 15 с` буфер; retry відкриття
+  `AlarmActivity`: **500 ms**, **3** спроби. **Convention `BuildTypes`:** release `signingConfig` на
+  `defaultConfig` для локальної збірки (креденшли не для публічного репо без заміни).
 - `2026-03-31` — підготовлено та опубліковано юридичні сторінки в Google Sites:
   `Privacy Policy` (`https://sites.google.com/view/vartovyi-privacy-policy`) і `Terms of Use` (
   `https://sites.google.com/view/vartovyi-terms-of-use`); у P0 canonical legal URLs відмічено як
