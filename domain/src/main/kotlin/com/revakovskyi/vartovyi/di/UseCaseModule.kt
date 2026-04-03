@@ -34,6 +34,10 @@ import com.revakovskyi.vartovyi.usecase.keywords.RemoveTelegramChannelUseCase
 import com.revakovskyi.vartovyi.usecase.keywords.RemoveTelegramChannelUseCaseImpl
 import com.revakovskyi.vartovyi.usecase.keywords.ToggleTelegramChannelFilterUseCase
 import com.revakovskyi.vartovyi.usecase.keywords.ToggleTelegramChannelFilterUseCaseImpl
+import com.revakovskyi.vartovyi.usecase.legal.AcceptCurrentLegalDocumentsUseCase
+import com.revakovskyi.vartovyi.usecase.legal.AcceptCurrentLegalDocumentsUseCaseImpl
+import com.revakovskyi.vartovyi.usecase.legal.ObserveLegalConsentStateUseCase
+import com.revakovskyi.vartovyi.usecase.legal.ObserveLegalConsentStateUseCaseImpl
 import com.revakovskyi.vartovyi.usecase.log.AddLogEntryUseCase
 import com.revakovskyi.vartovyi.usecase.log.AddLogEntryUseCaseImpl
 import com.revakovskyi.vartovyi.usecase.log.ClearLogUseCase
@@ -109,6 +113,9 @@ val useCaseModule = module {
     singleOf(::ObserveLastAlarmTriggeredEventUseCaseImpl) { bind<ObserveLastAlarmTriggeredEventUseCase>() }
     singleOf(::GetLogEntryIndexUseCaseImpl) { bind<GetLogEntryIndexUseCase>() }
     singleOf(::ClearLogUseCaseImpl) { bind<ClearLogUseCase>() }
+
+    singleOf(::ObserveLegalConsentStateUseCaseImpl) { bind<ObserveLegalConsentStateUseCase>() }
+    singleOf(::AcceptCurrentLegalDocumentsUseCaseImpl) { bind<AcceptCurrentLegalDocumentsUseCase>() }
 
     singleOf(::ObserveScheduleSettingsUseCaseImpl) { bind<ObserveScheduleSettingsUseCase>() }
     singleOf(::ObserveLogSizeLimitUseCaseImpl) { bind<ObserveLogSizeLimitUseCase>() }

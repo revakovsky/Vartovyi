@@ -52,6 +52,12 @@
     <string name="settings_test_alarm_message_text">Це тестове повідомлення тривоги.</string>
     <string name="home_permissions_required_snackbar">Надайте обов’язкові дозволи перед активацією моніторингу</string>
     <string name="home_permissions_required_snackbar_action">Дозволи</string>
+    <string name="legal_consent_title">Перед початком</string>
+    <string name="legal_consent_description">Щоб продовжити, перегляньте Privacy Policy та Terms of Use. Натискаючи «Підтвердити», ви підтверджуєте, що ознайомилися та погодилися з цими документами.</string>
+    <string name="legal_consent_open_privacy">Відкрити Privacy Policy</string>
+    <string name="legal_consent_open_terms">Відкрити Terms of Use</string>
+    <string name="legal_consent_confirm">Підтвердити</string>
+    <string name="legal_consent_refuse">Відмовитись</string>
     <string name="monitoring_channel_name">Моніторинг</string>
     <string name="monitoring_channel_description">Статус моніторингу Вартового</string>
     <string name="monitoring_notification_title">Вартовий активний</string>
