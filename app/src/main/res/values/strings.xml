@@ -52,6 +52,12 @@
     <string name="settings_test_alarm_message_text">This is a test alarm notification.</string>
     <string name="home_permissions_required_snackbar">Grant required permissions before activating monitoring</string>
     <string name="home_permissions_required_snackbar_action">Permissions</string>
+    <string name="legal_consent_title">Before you start</string>
+    <string name="legal_consent_description">To continue, review Privacy Policy and Terms of Use. By tapping Confirm, you acknowledge that you have read and accepted these documents.</string>
+    <string name="legal_consent_open_privacy">Open Privacy Policy</string>
+    <string name="legal_consent_open_terms">Open Terms of Use</string>
+    <string name="legal_consent_confirm">Confirm</string>
+    <string name="legal_consent_refuse">Refuse</string>
     <string name="monitoring_channel_name">Monitoring</string>
     <string name="monitoring_channel_description">Vartovyi monitoring status</string>
     <string name="monitoring_notification_title">Vartovyi is active</string>
