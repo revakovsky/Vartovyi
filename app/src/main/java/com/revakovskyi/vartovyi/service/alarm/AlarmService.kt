@@ -45,14 +45,17 @@ private val VIBRATION_PATTERN = longArrayOf(0, 700, 300)
 private const val ALARM_TAG = "AlarmService"
 private const val RED_ACCENT_COLOR_RES_ID = android.R.color.holo_red_dark
 private const val EMPTY_VALUE = ""
-private const val ALARM_ACTIVITY_OPEN_RETRY_DELAY_MILLIS = 400L
-private const val ALARM_ACTIVITY_OPEN_MAX_RETRIES = 8
+private const val ALARM_ACTIVITY_OPEN_RETRY_DELAY_MILLIS = 500L
+private const val ALARM_ACTIVITY_OPEN_MAX_RETRIES = 2
 private const val DEFAULT_ALARM_DURATION_SECONDS = 60
 private const val DEFAULT_ALARM_VOLUME_PERCENT = 100
 private const val PERCENT_DIVISOR = 100f
 private const val MILLIS_IN_SECOND = 1000L
 private const val WAKE_LOCK_TAG = "Vartovyi:AlarmWakeLock"
 private const val WAKE_LOCK_BUFFER_MILLIS = 15_000L
+private const val INITIAL_WAKE_LOCK_TIMEOUT_MILLIS = 30_000L
+private const val SCREEN_WAKE_LOCK_TAG = "Vartovyi:ScreenWake"
+private const val SCREEN_WAKE_LOCK_TIMEOUT_MILLIS = 10_000L
 
 class AlarmService : Service() {
 
@@ -60,6 +63,7 @@ class AlarmService : Service() {
     private var vibrator: Vibrator? = null
     private var audioFocusRequest: AudioFocusRequest? = null
     private var wakeLock: PowerManager.WakeLock? = null
+    private var screenWakeLock: PowerManager.WakeLock? = null
 
     private var currentSourceChannelName: String = EMPTY_VALUE
     private var currentSourceMessageText: String = EMPTY_VALUE
@@ -91,6 +95,10 @@ class AlarmService : Service() {
             return START_NOT_STICKY
         }
 
+        acquireWakeLock(INITIAL_WAKE_LOCK_TIMEOUT_MILLIS)
+        AlarmControllerImpl.releaseServiceStartWakeLock()
+        wakeUpScreen()
+
         currentSourceChannelName = intent?.getStringExtra(
             AlarmContract.EXTRA_SOURCE_CHANNEL_NAME
         ).orEmpty()
@@ -115,6 +123,7 @@ class AlarmService : Service() {
         alarmStateHolder.setRunning(false)
         isAlarmActive.set(false)
 
+        releaseScreenWakeLock()
         releaseWakeLock()
         releaseAudioFocus()
         stopAlarmSound()
@@ -151,6 +160,7 @@ class AlarmService : Service() {
             alarmStateHolder.setRunning(false)
             alarmAutoStopJob?.cancel()
             notifyAlarmStopped()
+            releaseScreenWakeLock()
             releaseWakeLock()
             stopForeground(STOP_FOREGROUND_REMOVE)
             stopSelf()
@@ -163,6 +173,7 @@ class AlarmService : Service() {
 
         stopAlarmSound()
         stopVibration()
+        releaseScreenWakeLock()
         releaseWakeLock()
         releaseAudioFocus()
         openAlarmActivityJob?.cancel()
@@ -386,6 +397,38 @@ class AlarmService : Service() {
         }
 
         wakeLock = null
+    }
+
+    @Suppress("DEPRECATION")
+    private fun wakeUpScreen() {
+        val powerManager = getSystemService(PowerManager::class.java)
+        if (powerManager.isInteractive) return
+
+        try {
+            screenWakeLock = powerManager.newWakeLock(
+                PowerManager.FULL_WAKE_LOCK
+                        or PowerManager.ACQUIRE_CAUSES_WAKEUP
+                        or PowerManager.ON_AFTER_RELEASE,
+                SCREEN_WAKE_LOCK_TAG,
+            ).apply {
+                setReferenceCounted(false)
+                acquire(SCREEN_WAKE_LOCK_TIMEOUT_MILLIS)
+            }
+        } catch (throwable: Throwable) {
+            Log.e(ALARM_TAG, "Failed to acquire screen wake lock", throwable)
+        }
+    }
+
+    private fun releaseScreenWakeLock() {
+        try {
+            screenWakeLock?.let { lock ->
+                if (lock.isHeld) lock.release()
+            }
+        } catch (throwable: Throwable) {
+            Log.e(ALARM_TAG, "Failed to release screen wake lock", throwable)
+        }
+
+        screenWakeLock = null
     }
 
     private fun releaseAudioFocus() {
