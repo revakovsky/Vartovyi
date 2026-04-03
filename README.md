@@ -25,6 +25,9 @@ Android-додаток для моніторингу Telegram-сповіщень
 - Відновлювати роботу після reboot (`BOOT_COMPLETED`) та контролювати живучість (
   watchdog/WorkManager).
 - Давати керування через екрани: `Home`, `Keywords`, `Logs`, `Settings`, `Permissions`.
+- До першого доступу до основного UI показувати екран згоди з юридичними документами (privacy /
+  terms)
+  та зберігати прийняту версію документів локально.
 
 ## 3) Що додаток не має робити
 
@@ -92,7 +95,8 @@ Android-додаток для моніторингу Telegram-сповіщень
 **Gradle-модулі:** `:app`, `:domain`, `:data` (див. також §4.1).
 
 **`:domain`** (корінь пакетів `com.revakovskyi.vartovyi.*`): `model/`, `repository/` (інтерфейси),
-`usecase/`, `controllers/`, `constants/`, `utils/`, `di/UseCaseModule.kt`.
+`usecase/`, `controllers/`, `constants/` (зокрема `LegalDocumentsContract`: версія документів та
+canonical URL політики/умов), `utils/`, `di/UseCaseModule.kt`.
 
 **`:data`** (пакет `com.revakovskyi.vartovyi.data.*`): `datastore/`, `db/`, `mappers/`,
 `repository/` (реалізації), `di/DatabaseModule.kt`, `di/RepositoryModule.kt`. Реалізації та
@@ -101,13 +105,18 @@ Android-додаток для моніторингу Telegram-сповіщень
 
 **`:app`** (`com.revakovskyi.vartovyi.*`):
 
-- `ui/` — екрани, контракти, компоненти, тема, навігація
+- `ui/` — екрани, контракти, компоненти, тема, навігація; `ui/screen/legal/` — згода з документами;
+  `ui/util/` — допоміжні речі (наприклад `CustomTabsHelper`, перевірка дозволів, scroll behavior top
+  bar)
 - `service/` — `TelegramListenerService`, `AlarmService`, monitoring
 - `receiver/` — `BootReceiver`
 - `di/` — `AppModule`, `ViewModelModule` (решта Koin-модулів — у `:domain` та `:data`)
 
 ## 7) Runtime-процес (цільова модель роботи)
 
+0. Після холодного старту: якщо збережена версія прийнятих документів не збігається з поточною в
+   `LegalDocumentsContract`, показується екран згоди; після підтвердження зберігається актуальна
+   версія і відкривається основний UI. Відмова завершує процес (`finish()`).
 1. Користувач вмикає моніторинг на `Home`.
 2. Запускається monitoring foreground service (persistent notification).
 3. `TelegramListenerService` отримує нові Telegram-сповіщення.
@@ -192,6 +201,19 @@ Android-додаток для моніторингу Telegram-сповіщень
   пульс лише на кнопці «Активувати».
 - [x] **`LoadingOverlay`:** спільний модуль `MonitoringActiveIconSignals.kt` (пульс іконки +
   кільця) для екранів завантаження.
+- [x] **Legal consent (перед основним UI):** `LegalConsentScreen` + `LegalConsentViewModel` (MVI),
+  гейт у `MainActivity`: `LoadingOverlay` → екран згоди (кнопки відкриття політики/умов у **Chrome
+  Custom Tabs** через `CustomTabsHelper.openCustomChromeTab`) → основний контент з `NavGraph` після
+  прийняття; мінімальна затримка перед показом форми згоди для стабільного UX; відмова завершує
+  activity.
+- [x] **Юридичний стан:** `LegalConsentRepository` + `LegalConsentDataStore` (окремий DataStore
+  `accepted_legal_documents_version`), use cases `ObserveLegalConsentStateUseCase` /
+  `AcceptCurrentLegalDocumentsUseCase`; поточна версія документів і URL політики/умов — у
+  `LegalDocumentsContract` (`:domain`).
+- [x] **`MainActivity`:** винесено логіку моніторингу/тривоги в `MainViewModel` + `MainUiContract`
+  (shell більше не тримає всю логіку inline).
+- [x] **Локалізація:** повний `values-ru/strings.xml` (паралельно до `values` та `values-uk`);
+  рядки legal додано в усі три набори.
 
 ### Alarm
 
@@ -246,6 +268,8 @@ Android-додаток для моніторингу Telegram-сповіщень
   пропущено через активний cooldown/вже активну тривогу).
 - [x] Дедуплікація логу переведена на атомарний DB-рівень (`signature` + `UNIQUE` + `INSERT IGNORE`)
   без pre-check race condition.
+- [x] `LegalConsentRepository` / `LegalConsentRepositoryImpl` + `LegalConsentDataStore` для згоди з
+  юридичною версією документів (`CURRENT_LEGAL_DOCUMENTS_VERSION` у domain).
 
 ## 9) Особливості та ризики
 
@@ -272,10 +296,10 @@ Android-додаток для моніторингу Telegram-сповіщень
   URL):
   - Privacy Policy: `https://sites.google.com/view/vartovyi-privacy-policy`
   - Terms of Use: `https://sites.google.com/view/vartovyi-terms-of-use`
-- [ ] Додати legal consent flow у застосунок: gate в `MainActivity` (loading -> consent/main) +
-  DataStore `legalVersion`/`acceptedVersion`.
+- [x] Додати legal consent flow у застосунок: gate в `MainActivity` (loading → consent → main) +
+  DataStore `accepted_legal_documents_version` (порівняння з `CURRENT_LEGAL_DOCUMENTS_VERSION`).
 - [ ] Додати посилання на `Privacy Policy` і `Terms of Use` в `Settings` (Chrome Custom Tabs).
-- [ ] Додати `values-ru/strings.xml` для legal рядків.
+- [x] Додати/розширити `values-ru/strings.xml` (повний набір рядків додатку, включно з legal).
 - [ ] Додати базову in-app інструкцію користування + окрему повну інструкцію (web/markdown), і
   додати посилання на неї в `Settings`.
 - [ ] Додати відображення версії додатку (`versionName`/`versionCode`) в `Settings/About`.
@@ -320,6 +344,13 @@ Android-додаток для моніторингу Telegram-сповіщень
 
 ## 12) Change log (короткий)
 
+- `2026-04-03` — **Legal consent:** гейт у `MainActivity` (loading, екран згоди з посиланнями на
+  політику/умови в Custom Tabs, підтвердження зберігає версію в DataStore), `LegalConsentScreen` /
+  `ViewModel`, репозиторій + use cases; константи URL і версії документів у
+  `LegalDocumentsContract`;
+  `CustomTabsHelper`; `MainViewModel` + `MainUiContract` для shell; повний `values-ru/strings.xml`;
+  винесено допоміжні утиліти (`PermissionsChecker`, `TopBarScrollBehaviorHelper`). Залежність
+  `androidx.browser:browser` для Custom Tabs (див. Version Catalog).
 - `2026-03-31` — підготовлено та опубліковано юридичні сторінки в Google Sites:
   `Privacy Policy` (`https://sites.google.com/view/vartovyi-privacy-policy`) і `Terms of Use` (
   `https://sites.google.com/view/vartovyi-terms-of-use`); у P0 canonical legal URLs відмічено як
@@ -402,7 +433,9 @@ Android-додаток для моніторингу Telegram-сповіщень
   match + `ignoreCase`** (без `contains`).
 - Monitoring default state: при першому запуску — `OFF`.
 - Alarm duration mode: використовуємо числове значення в секундах (`Int`) з кроком слайдера в UI.
-- Canonical legal URLs (Google Sites):
+- Canonical legal URLs (Google Sites) — дублюються в коді як `PRIVACY_POLICY_URL` /
+  `TERMS_OF_USE_URL` у [
+  `LegalDocumentsContract`](domain/src/main/kotlin/com/revakovskyi/vartovyi/constants/LegalDocumentsContract.kt):
   - Privacy Policy: `https://sites.google.com/view/vartovyi-privacy-policy`
   - Terms of Use: `https://sites.google.com/view/vartovyi-terms-of-use`
 - Юридичні сторінки: **тільки дельти до вже опублікованого тексту** —
@@ -506,8 +539,10 @@ Android-додаток для моніторингу Telegram-сповіщень
 
 ### 14.7 Shell / global chrome
 
-- Єдина `MainActivity`: під контентом навігації — анімований кореневий фон, що змінюється за
-  `MonitoringState` (неактивний / активний моніторинг), без хардкоду кольорів поза темою.
+- Єдина `MainActivity`: спочатку гейт legal consent (`LoadingOverlay` → `LegalConsentScreen` або
+  основний UI), далі під контентом навігації — анімований кореневий фон, що змінюється за
+  `MonitoringState` (неактивний / активний моніторинг), без хардкоду кольорів поза темою; стан
+  моніторингу/тривоги для shell — через `MainViewModel`.
 
 ### 14.8 Notes for implementation
 
