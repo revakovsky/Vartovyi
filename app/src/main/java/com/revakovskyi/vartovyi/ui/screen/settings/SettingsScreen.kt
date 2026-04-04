@@ -1,11 +1,6 @@
 package com.revakovskyi.vartovyi.ui.screen.settings
 
 import android.app.Activity
-import android.content.Context
-import android.content.Intent
-import android.media.RingtoneManager
-import android.net.Uri
-import android.os.Build
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.Crossfade
@@ -22,7 +17,6 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.SnackbarDuration
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -30,20 +24,23 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.core.net.toUri
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.revakovskyi.vartovyi.R
 import com.revakovskyi.vartovyi.ui.components.LoadingOverlay
 import com.revakovskyi.vartovyi.ui.screen.settings.components.AlarmDurationSection
 import com.revakovskyi.vartovyi.ui.screen.settings.components.AlarmSoundSection
 import com.revakovskyi.vartovyi.ui.screen.settings.components.AlarmVolumeSection
 import com.revakovskyi.vartovyi.ui.screen.settings.components.DataSettingsSection
+import com.revakovskyi.vartovyi.ui.screen.settings.components.LegalDocumentsSettingsSection
 import com.revakovskyi.vartovyi.ui.screen.settings.components.ScheduleSettingsSection
 import com.revakovskyi.vartovyi.ui.screen.settings.components.SettingsSectionContainer
 import com.revakovskyi.vartovyi.ui.screen.settings.components.SettingsTestAlarmButton
 import com.revakovskyi.vartovyi.ui.theme.VartovyiTheme
+import com.revakovskyi.vartovyi.ui.util.AlarmSoundPickerHelper
+import com.revakovskyi.vartovyi.ui.util.openCustomChromeTab
 import com.revakovskyi.vartovyi.ui.util.snackbar.SnackbarAction
 import com.revakovskyi.vartovyi.ui.util.snackbar.SnackbarController
 import com.revakovskyi.vartovyi.ui.util.snackbar.SnackbarEvent
@@ -60,7 +57,8 @@ fun SettingsScreen(
 ) {
     val context = LocalContext.current
     val lifecycleOwner = LocalLifecycleOwner.current
-    val state by viewModel.state.collectAsState()
+
+    val state by viewModel.state.collectAsStateWithLifecycle()
 
     val coroutineScope = rememberCoroutineScope()
 
@@ -75,7 +73,7 @@ fun SettingsScreen(
         state.alarmSoundUri,
         defaultAlarmSoundTitle,
     ) {
-        resolveAlarmSoundTitle(
+        AlarmSoundPickerHelper.resolveAlarmSoundTitle(
             context = context,
             alarmSoundUri = state.alarmSoundUri,
             defaultAlarmSoundTitle = defaultAlarmSoundTitle,
@@ -87,7 +85,7 @@ fun SettingsScreen(
     ) { result ->
         if (result.resultCode != Activity.RESULT_OK) return@rememberLauncherForActivityResult
 
-        val selectedAlarmSoundUri = parsePickedAlarmSoundUri(result.data)
+        val selectedAlarmSoundUri = AlarmSoundPickerHelper.parsePickedAlarmSoundUri(result.data)
             ?.toString()
             .orEmpty()
 
@@ -109,6 +107,10 @@ fun SettingsScreen(
                         )
                     )
                 }
+            }
+
+            is SettingsUiContract.Event.OpenUrl -> {
+                openCustomChromeTab(context = context, url = event.url)
             }
         }
     }
@@ -142,7 +144,7 @@ fun SettingsScreen(
                 onChooseAlarmSound = {
                     viewModel.onAction(SettingsUiContract.Action.StartExternalPickerNavigation)
                     alarmSoundPickerLauncher.launch(
-                        createAlarmSoundPickerIntent(
+                        AlarmSoundPickerHelper.createAlarmSoundPickerIntent(
                             existingAlarmSoundUri = state.alarmSoundUri,
                             pickerTitle = alarmSoundPickerTitle,
                         )
@@ -171,9 +173,6 @@ private fun SettingsContent(
 ) {
     val testAlarmSourceChannelName = stringResource(R.string.settings_test_alarm_channel_name)
     val testAlarmSourceMessageText = stringResource(R.string.settings_test_alarm_message_text)
-    val soundSectionTitle = stringResource(R.string.settings_section_sound)
-    val scheduleSectionTitle = stringResource(R.string.settings_section_schedule)
-    val dataSectionTitle = stringResource(R.string.settings_section_data)
 
     Column(
         verticalArrangement = Arrangement.spacedBy(VartovyiTheme.spacing.small),
@@ -196,7 +195,7 @@ private fun SettingsContent(
         )
 
         SettingsSectionContainer(
-            title = dataSectionTitle,
+            title = stringResource(R.string.settings_section_data),
             isExpanded = state.expandedSection == SettingsUiContract.SettingsSection.DATA,
             onHeaderClick = {
                 onAction(
@@ -224,7 +223,7 @@ private fun SettingsContent(
         }
 
         SettingsSectionContainer(
-            title = soundSectionTitle,
+            title = stringResource(R.string.settings_section_sound),
             isExpanded = state.expandedSection == SettingsUiContract.SettingsSection.SOUND,
             onHeaderClick = {
                 onAction(
@@ -262,7 +261,7 @@ private fun SettingsContent(
         }
 
         SettingsSectionContainer(
-            title = scheduleSectionTitle,
+            title = stringResource(R.string.settings_section_schedule),
             titleTooltipText = stringResource(R.string.settings_section_schedule_tooltip),
             isExpanded = state.expandedSection == SettingsUiContract.SettingsSection.SCHEDULE,
             onHeaderClick = {
@@ -272,7 +271,6 @@ private fun SettingsContent(
                     ),
                 )
             },
-            modifier = Modifier.padding(bottom = VartovyiTheme.spacing.small)
         ) {
             ScheduleSettingsSection(
                 isScheduleEnabled = state.isScheduleEnabled,
@@ -289,70 +287,29 @@ private fun SettingsContent(
                 },
             )
         }
+
+        SettingsSectionContainer(
+            title = stringResource(R.string.settings_section_info),
+            isExpanded = state.expandedSection == SettingsUiContract.SettingsSection.LEGAL,
+            onHeaderClick = {
+                onAction(
+                    SettingsUiContract.Action.ToggleSection(
+                        section = SettingsUiContract.SettingsSection.LEGAL,
+                    ),
+                )
+            },
+            modifier = Modifier.padding(bottom = VartovyiTheme.spacing.small)
+        ) {
+            LegalDocumentsSettingsSection(
+                onPrivacyPolicyClick = {
+                    onAction(SettingsUiContract.Action.OpenPrivacyPolicy)
+                },
+                onTermsOfUseClick = {
+                    onAction(SettingsUiContract.Action.OpenTermsOfUse)
+                },
+            )
+        }
     }
-}
-
-private fun createAlarmSoundPickerIntent(
-    existingAlarmSoundUri: String,
-    pickerTitle: String,
-): Intent {
-    val existingUri = existingAlarmSoundUri
-        .takeIf { it.isNotBlank() }
-        ?.toUri()
-        ?: RingtoneManager.getDefaultUri(RingtoneManager.TYPE_ALARM)
-
-    return Intent(RingtoneManager.ACTION_RINGTONE_PICKER).apply {
-        putExtra(
-            RingtoneManager.EXTRA_RINGTONE_TYPE,
-            RingtoneManager.TYPE_ALARM,
-        )
-        putExtra(
-            RingtoneManager.EXTRA_RINGTONE_TITLE,
-            pickerTitle,
-        )
-        putExtra(
-            RingtoneManager.EXTRA_RINGTONE_SHOW_DEFAULT,
-            true,
-        )
-        putExtra(
-            RingtoneManager.EXTRA_RINGTONE_SHOW_SILENT,
-            false,
-        )
-        putExtra(
-            RingtoneManager.EXTRA_RINGTONE_EXISTING_URI,
-            existingUri,
-        )
-    }
-}
-
-private fun parsePickedAlarmSoundUri(intent: Intent?): Uri? {
-    if (intent == null) return null
-
-    return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-        intent.getParcelableExtra(
-            RingtoneManager.EXTRA_RINGTONE_PICKED_URI,
-            Uri::class.java,
-        )
-    } else {
-        @Suppress("DEPRECATION")
-        intent.getParcelableExtra(RingtoneManager.EXTRA_RINGTONE_PICKED_URI)
-    }
-}
-
-private fun resolveAlarmSoundTitle(
-    context: Context,
-    alarmSoundUri: String,
-    defaultAlarmSoundTitle: String,
-): String {
-    val selectedUri = alarmSoundUri
-        .takeIf { it.isNotBlank() }
-        ?.toUri()
-        ?: RingtoneManager.getDefaultUri(RingtoneManager.TYPE_ALARM)
-        ?: return defaultAlarmSoundTitle
-
-    return runCatching {
-        RingtoneManager.getRingtone(context, selectedUri)?.getTitle(context)
-    }.getOrNull()?.takeIf { it.isNotBlank() } ?: defaultAlarmSoundTitle
 }
 
 @Preview(

@@ -34,6 +34,7 @@
     <string name="settings_section_schedule">Розклад роботи</string>
     <string name="settings_section_schedule_tooltip">Якщо увімкнено, перевірка ключових слів і тривога діють лише в межах обраного інтервалу часу (час пристрою). Поза цим вікном збіг ігнорується і тривога не лунає; події можуть з’являтися в журналі як пропущені. Якщо вимкнено, моніторинг працює цілодобово.</string>
     <string name="settings_section_data">Дані</string>
+    <string name="settings_section_info">Інфо</string>
     <string name="settings_schedule_enabled_title">Працювати за розкладом</string>
     <string name="settings_schedule_start_title">Початок</string>
     <string name="settings_schedule_end_title">Кінець</string>
