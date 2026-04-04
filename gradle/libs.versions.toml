@@ -20,10 +20,10 @@ androidTools = "32.1.0"
 # AndroidX
 coreKtx = "1.18.0"
 activityCompose = "1.13.0"
-composeBom = "2026.03.00"
+composeBom = "2026.03.01"
 navigationCompose = "2.9.7"
-workManager = "2.11.1"
-browser = "1.9.0"
+workManager = "2.11.2"
+browser = "1.10.0"
 
 # Lifecycle
 lifecycleRuntimeKtx = "2.10.0"
@@ -42,6 +42,11 @@ coroutinesAndroid = "1.10.2"
 
 # Detekt
 detekt = "1.23.8"
+
+# Firebase
+firebaseCrashlytics = "20.0.4"
+googleGmsGoogleServices = "4.4.4"
+googleFirebaseCrashlytics = "3.0.6"
 
 #---------------------------------------------------------------------------------------------------
 
@@ -102,6 +107,9 @@ kotlinx-coroutines-android = { group = "org.jetbrains.kotlinx", name = "kotlinx-
 # Detekt
 detekt-formatting = { group = "io.gitlab.arturbosch.detekt", name = "detekt-formatting", version.ref = "detekt" }
 
+# Firebase
+firebase-crashlytics = { group = "com.google.firebase", name = "firebase-crashlytics", version.ref = "firebaseCrashlytics" }
+
 #---------------------------------------------------------------------------------------------------
 
 [plugins]
@@ -114,6 +122,10 @@ kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", versi
 detekt = { id = "io.gitlab.arturbosch.detekt", version.ref = "detekt" }
 jetbrains-kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
 room = { id = "androidx.room", version.ref = "room" }
+
+# Firebase
+google-gms-google-services = { id = "com.google.gms.google-services", version.ref = "googleGmsGoogleServices" }
+google-firebase-crashlytics = { id = "com.google.firebase.crashlytics", version.ref = "googleFirebaseCrashlytics" }
 
 vartovyi-android-application = { id = "vartovyi.android.application", version = "unspecified" }
 vartovyi-android-application-compose = { id = "vartovyi.android.application.compose", version = "unspecified" }

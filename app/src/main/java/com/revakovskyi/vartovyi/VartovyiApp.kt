@@ -1,6 +1,7 @@
 package com.revakovskyi.vartovyi
 
 import android.app.Application
+import com.google.firebase.crashlytics.FirebaseCrashlytics
 import com.revakovskyi.vartovyi.data.di.databaseModule
 import com.revakovskyi.vartovyi.data.di.repositoryModule
 import com.revakovskyi.vartovyi.di.appModule
@@ -15,7 +16,12 @@ class VartovyiApp : Application() {
 
     override fun onCreate() {
         super.onCreate()
+        initCrashlytics()
         initKoin()
+    }
+
+    private fun initCrashlytics() {
+        FirebaseCrashlytics.getInstance().isCrashlyticsCollectionEnabled = true
     }
 
     private fun initKoin() {

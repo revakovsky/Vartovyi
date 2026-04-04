@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "381106326718",
+    "project_id": "vartovyi",
+    "storage_bucket": "vartovyi.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:381106326718:android:9a3eaa0511f4956cd3a2ef",
+        "android_client_info": {
+          "package_name": "com.revakovskyi.vartovyi"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBY_0KpAIXfYNeLmemIj1KazueMvwdEcAA"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:381106326718:android:580c96e0d644771fd3a2ef",
+        "android_client_info": {
+          "package_name": "com.revakovskyi.vartovyi.debug"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBY_0KpAIXfYNeLmemIj1KazueMvwdEcAA"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
