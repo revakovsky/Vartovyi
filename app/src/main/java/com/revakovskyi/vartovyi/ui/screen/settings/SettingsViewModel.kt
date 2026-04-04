@@ -2,6 +2,8 @@ package com.revakovskyi.vartovyi.ui.screen.settings
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.revakovskyi.vartovyi.constants.PRIVACY_POLICY_URL
+import com.revakovskyi.vartovyi.constants.TERMS_OF_USE_URL
 import com.revakovskyi.vartovyi.model.MonitoringState
 import com.revakovskyi.vartovyi.ui.screen.settings.SettingsUiContract.Action
 import com.revakovskyi.vartovyi.ui.screen.settings.SettingsUiContract.Event
@@ -89,6 +91,8 @@ class SettingsViewModel(
             is Action.StartExternalPickerNavigation -> startExternalPickerNavigation()
             is Action.ToggleSection -> toggleSection(section = action.section)
             is Action.CollapseSectionsOnScreenStop -> collapseSectionsOnScreenStop()
+            is Action.OpenPrivacyPolicy -> openPrivacyPolicyUrl()
+            is Action.OpenTermsOfUse -> openTermsOfUseUrl()
         }
     }
 
@@ -251,6 +255,20 @@ class SettingsViewModel(
         _state.update { currentState ->
             if (currentState.expandedSection == null) currentState
             else currentState.copy(expandedSection = null)
+        }
+    }
+
+    private fun openPrivacyPolicyUrl() {
+        skipCollapseOnNextScreenStop = true
+        viewModelScope.launch {
+            _events.emit(Event.OpenUrl(url = PRIVACY_POLICY_URL))
+        }
+    }
+
+    private fun openTermsOfUseUrl() {
+        skipCollapseOnNextScreenStop = true
+        viewModelScope.launch {
+            _events.emit(Event.OpenUrl(url = TERMS_OF_USE_URL))
         }
     }
 

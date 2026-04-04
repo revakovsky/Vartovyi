@@ -34,6 +34,7 @@
     <string name="settings_section_schedule">Рабочий график</string>
     <string name="settings_section_schedule_tooltip">Если включено, проверка ключевых слов и тревоги действуют только в выбранном интервале времени (локальное время устройства). Вне этого окна совпадения пропускаются и тревога не срабатывает; соответствующие события могут по-прежнему отображаться в журнале как пропущенные. Если выключено, мониторинг работает круглосуточно.</string>
     <string name="settings_section_data">Данные</string>
+    <string name="settings_section_info">Инфо</string>
     <string name="settings_schedule_enabled_title">Работать по расписанию</string>
     <string name="settings_schedule_start_title">Начало</string>
     <string name="settings_schedule_end_title">Конец</string>

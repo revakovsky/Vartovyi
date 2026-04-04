@@ -16,6 +16,7 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.sp
 import com.revakovskyi.vartovyi.R
@@ -103,10 +104,13 @@ val VartovyiTypography = Typography(
     ),
 )
 
+val Typography.bodyLink: TextStyle
+    get() = bodyLarge.copy(textDecoration = TextDecoration.Underline)
+
 @Preview(
     name = "Typography scale",
     widthDp = 360,
-    heightDp = 800,
+    heightDp = 880,
     showBackground = true,
     backgroundColor = 0xFF0D1117,
 )
@@ -253,6 +257,20 @@ private fun TypographyPreview() {
                         text = "22:15:04",
                         style = VartovyiTheme.typography.labelSmall,
                         color = VartovyiTheme.colors.onBackground
+                    )
+                },
+            )
+
+            HorizontalDivider(color = VartovyiTheme.colors.outline)
+
+            TypographyRow(
+                name = "bodyLink",
+                sample = "16sp Normal + underline",
+                style = @Composable {
+                    Text(
+                        text = "Посилання",
+                        style = VartovyiTheme.typography.bodyLink,
+                        color = VartovyiTheme.colors.primary
                     )
                 },
             )

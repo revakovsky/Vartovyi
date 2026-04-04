@@ -187,6 +187,11 @@ canonical URL політики/умов), `utils/`, `di/UseCaseModule.kt`.
   розкриття/згортання, іконка `down` з анімацією, одночасно відкрита тільки одна секція.
 - [x] `Settings` секції автоматично згортаються при покиданні екрана; виняток — сценарій запуску
   `Test Alarm` (overlay поверх `Settings` не скидає стан секцій).
+- [x] `Settings`: остання секція-акордеон **Info** — текстові посилання Privacy Policy / Terms of
+  Use
+  (типографіка `bodyLink`, Chrome Custom Tabs; секція не згортається після переходу за посиланням,
+  як для `RingtonePicker`). `LegalDocumentsSettingsSection`, URL з `LegalDocumentsContract`.
+  Вибір мелодії: інтент/парсинг/назва через `AlarmSoundPickerHelper`.
 - [x] Тривалість **cooldown** між тривогами налаштовується на екрані (наприклад 1/3/5/10 хв) і
   зберігається в `DataStore`; логіка тригера використовує актуальне значення.
 - [x] `LogScreen`: стан відображення списку (loading / error / empty / content) та дані для
@@ -306,7 +311,8 @@ canonical URL політики/умов), `utils/`, `di/UseCaseModule.kt`.
   - Terms of Use: `https://sites.google.com/view/vartovyi-terms-of-use`
 - [x] Додати legal consent flow у застосунок: gate в `MainActivity` (loading → consent → main) +
   DataStore `accepted_legal_documents_version` (порівняння з `CURRENT_LEGAL_DOCUMENTS_VERSION`).
-- [ ] Додати посилання на `Privacy Policy` і `Terms of Use` в `Settings` (Chrome Custom Tabs).
+- [x] Додати посилання на `Privacy Policy` і `Terms of Use` в `Settings` (Chrome Custom Tabs,
+  секція-акордеон **Info** внизу екрана; текст-посилання `bodyLink`).
 - [x] Додати/розширити `values-ru/strings.xml` (повний набір рядків додатку, включно з legal).
 - [ ] Додати базову in-app інструкцію користування + окрему повну інструкцію (web/markdown), і
   додати посилання на неї в `Settings`.
@@ -524,6 +530,8 @@ canonical URL політики/умов), `utils/`, `di/UseCaseModule.kt`.
     - Секція **Звук**: мелодія (`RingtonePicker` + назва), тривалість і гучність через
       `VartovyiSettingSlider` (з тактильним кроком).
     - Секція **Розклад роботи**: toggle, час початку/кінця, підказка для секції в діалозі.
+  - Остання секція **Info** (accordion): текстові посилання (`bodyLink`, primary) на Privacy Policy
+    та Terms of Use (Custom Tabs; згортання секції не скидається при відкритті посилання).
     - Збереження параметрів у `DataStore` (без окремого списку Telegram-пакетів і без окремого
       перемикача вібрації в налаштуваннях).
 

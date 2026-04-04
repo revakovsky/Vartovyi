@@ -5,7 +5,7 @@ import androidx.compose.runtime.Immutable
 interface SettingsUiContract {
 
     enum class SettingsSection {
-        DATA, SOUND, SCHEDULE,
+        DATA, SOUND, SCHEDULE, LEGAL,
     }
 
     @Immutable
@@ -41,10 +41,13 @@ interface SettingsUiContract {
         data object StartExternalPickerNavigation : Action
         data class ToggleSection(val section: SettingsSection) : Action
         data object CollapseSectionsOnScreenStop : Action
+        data object OpenPrivacyPolicy : Action
+        data object OpenTermsOfUse : Action
     }
 
     sealed interface Event {
         data object ShowDisableMonitoringForTestAlarm : Event
+        data class OpenUrl(val url: String) : Event
     }
 
 }
