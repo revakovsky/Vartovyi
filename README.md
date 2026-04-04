@@ -381,6 +381,9 @@ canonical URL політики/умов), `utils/`, `di/UseCaseModule.kt`.
 
 ## 12) Change log (короткий)
 
+- `2026-04-04` — **Debug app name:** у debug-збірці назва додатку змінюється на `Vartovyi Debug` /
+  `Вартовий Debug` (uk) через debug source set (`src/debug/res/values*/strings.xml`); release і
+  маніфест не змінювались.
 - `2026-04-03` — **P0 roadmap:** прибрано окремий OEM-only пункт; **ручне тестування** об’єднує
   різні розміри екранів і вендори (зокрема Xiaomi/Samsung/Huawei), QA, не in-app guide. У P0 додано
   **імпорт/експорт ключових слів**; відповідний пункт прибрано з P1. Раніше: vendor guide не
