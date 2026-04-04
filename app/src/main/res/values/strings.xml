@@ -35,6 +35,8 @@
     <string name="settings_section_schedule_tooltip">When enabled, keyword checks and alarms apply only inside the selected time range (device local time). Outside that window, matching is skipped and no alarm is triggered; relevant events may still appear in the log as skipped. When disabled, monitoring behaves as active around the clock.</string>
     <string name="settings_section_data">Data</string>
     <string name="settings_section_info">Info</string>
+    <string name="settings_version_number" translatable="false">version: %1$s</string>
+    <string name="settings_produced_by" translatable="false">produced by Revakovskyi</string>
     <string name="settings_schedule_enabled_title">Work by schedule</string>
     <string name="settings_schedule_start_title">Start</string>
     <string name="settings_schedule_end_title">End</string>

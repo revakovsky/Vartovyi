@@ -38,6 +38,7 @@ import com.revakovskyi.vartovyi.ui.screen.settings.components.LegalDocumentsSett
 import com.revakovskyi.vartovyi.ui.screen.settings.components.ScheduleSettingsSection
 import com.revakovskyi.vartovyi.ui.screen.settings.components.SettingsSectionContainer
 import com.revakovskyi.vartovyi.ui.screen.settings.components.SettingsTestAlarmButton
+import com.revakovskyi.vartovyi.ui.screen.settings.components.SettingsVersionFooter
 import com.revakovskyi.vartovyi.ui.theme.VartovyiTheme
 import com.revakovskyi.vartovyi.ui.util.AlarmSoundPickerHelper
 import com.revakovskyi.vartovyi.ui.util.openCustomChromeTab
@@ -171,6 +172,15 @@ private fun SettingsContent(
     onChooseAlarmSound: () -> Unit,
     onExportLogClick: () -> Unit,
 ) {
+    val context = LocalContext.current
+
+    val applicationVersionName = remember(context) {
+        runCatching {
+            @Suppress("DEPRECATION")
+            context.packageManager.getPackageInfo(context.packageName, 0).versionName
+        }.getOrNull().orEmpty()
+    }
+
     val testAlarmSourceChannelName = stringResource(R.string.settings_test_alarm_channel_name)
     val testAlarmSourceMessageText = stringResource(R.string.settings_test_alarm_message_text)
 
@@ -298,7 +308,6 @@ private fun SettingsContent(
                     ),
                 )
             },
-            modifier = Modifier.padding(bottom = VartovyiTheme.spacing.small)
         ) {
             LegalDocumentsSettingsSection(
                 onPrivacyPolicyClick = {
@@ -309,6 +318,16 @@ private fun SettingsContent(
                 },
             )
         }
+
+        Spacer(modifier = Modifier.weight(1f))
+
+        SettingsVersionFooter(
+            versionName = applicationVersionName,
+            modifier = Modifier.padding(
+                top = VartovyiTheme.spacing.medium,
+                bottom = VartovyiTheme.spacing.large,
+            )
+        )
     }
 }
 

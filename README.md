@@ -316,8 +316,9 @@ canonical URL політики/умов), `utils/`, `di/UseCaseModule.kt`.
 - [x] Додати/розширити `values-ru/strings.xml` (повний набір рядків додатку, включно з legal).
 - [ ] Додати базову in-app інструкцію користування + окрему повну інструкцію (web/markdown), і
   додати посилання на неї в `Settings`.
-- [ ] Додати відображення версії додатку (`versionName`/`versionCode`) в `Settings/About`.
-- [ ] Оновити іконку додатку (launcher icon + adaptive icon + monochrome для Android 13+).
+- [x] Додати відображення версії додатку (`versionName`) внизу `Settings` (центр, приглушений текст,
+  рядок produced by).
+- [x] Оновити іконку додатку (launcher icon + adaptive icon + monochrome для Android 13+).
 - [ ] Додати `Reset settings to defaults` (із confirm-діалогом).
 - [ ] Додати vendor-specific guide для фонової стабільності (Xiaomi/Samsung/Huawei: autostart,
   battery optimization, lock in recents/background allow).
@@ -532,6 +533,8 @@ canonical URL політики/умов), `utils/`, `di/UseCaseModule.kt`.
     - Секція **Розклад роботи**: toggle, час початку/кінця, підказка для секції в діалозі.
   - Остання секція **Info** (accordion): текстові посилання (`bodyLink`, primary) на Privacy Policy
     та Terms of Use (Custom Tabs; згортання секції не скидається при відкритті посилання).
+  - Під усім контентом: `versionName` і produced by (приглушений колір, по центру, окремо від
+    секцій).
     - Збереження параметрів у `DataStore` (без окремого списку Telegram-пакетів і без окремого
       перемикача вібрації в налаштуваннях).
 
