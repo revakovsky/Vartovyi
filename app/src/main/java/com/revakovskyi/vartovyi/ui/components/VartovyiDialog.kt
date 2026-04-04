@@ -20,6 +20,7 @@ fun VartovyiDialog(
     confirmText: String,
     shape: Shape = VartovyiTheme.shapes.large,
     containerColor: Color = VartovyiTheme.colors.surface,
+    confirmContentColor: Color = VartovyiTheme.colors.primary,
     dismissText: String? = null,
     onConfirm: (() -> Unit)? = null,
     onDismiss: () -> Unit,
@@ -51,7 +52,7 @@ fun VartovyiDialog(
                 Text(
                     text = confirmText,
                     style = VartovyiTheme.typography.labelLarge,
-                    color = VartovyiTheme.colors.primary,
+                    color = confirmContentColor,
                 )
             }
         },

@@ -18,6 +18,8 @@ import com.revakovskyi.vartovyi.usecase.keywords.AddStopWordUseCase
 import com.revakovskyi.vartovyi.usecase.keywords.AddStopWordUseCaseImpl
 import com.revakovskyi.vartovyi.usecase.keywords.AddTelegramChannelUseCase
 import com.revakovskyi.vartovyi.usecase.keywords.AddTelegramChannelUseCaseImpl
+import com.revakovskyi.vartovyi.usecase.keywords.ClearKeywordsScreenDataUseCase
+import com.revakovskyi.vartovyi.usecase.keywords.ClearKeywordsScreenDataUseCaseImpl
 import com.revakovskyi.vartovyi.usecase.keywords.ObserveKeywordsUseCase
 import com.revakovskyi.vartovyi.usecase.keywords.ObserveKeywordsUseCaseImpl
 import com.revakovskyi.vartovyi.usecase.keywords.ObserveStopWordsUseCase
@@ -62,6 +64,8 @@ import com.revakovskyi.vartovyi.usecase.settings.ObserveLogSizeLimitUseCase
 import com.revakovskyi.vartovyi.usecase.settings.ObserveLogSizeLimitUseCaseImpl
 import com.revakovskyi.vartovyi.usecase.settings.ObserveScheduleSettingsUseCase
 import com.revakovskyi.vartovyi.usecase.settings.ObserveScheduleSettingsUseCaseImpl
+import com.revakovskyi.vartovyi.usecase.settings.ResetAppToFactoryDefaultsUseCase
+import com.revakovskyi.vartovyi.usecase.settings.ResetAppToFactoryDefaultsUseCaseImpl
 import com.revakovskyi.vartovyi.usecase.settings.SetAlarmDurationUseCase
 import com.revakovskyi.vartovyi.usecase.settings.SetAlarmDurationUseCaseImpl
 import com.revakovskyi.vartovyi.usecase.settings.SetAlarmRetriggerCooldownDurationUseCase
@@ -96,6 +100,8 @@ val useCaseModule = module {
     singleOf(::ToggleMonitoringUseCaseImpl) { bind<ToggleMonitoringUseCase>() }
     singleOf(::ProcessIncomingTelegramNotificationUseCaseImpl) { bind<ProcessIncomingTelegramNotificationUseCase>() }
 
+    singleOf(::ClearKeywordsScreenDataUseCaseImpl) { bind<ClearKeywordsScreenDataUseCase>() }
+
     singleOf(::ObserveKeywordsUseCaseImpl) { bind<ObserveKeywordsUseCase>() }
     singleOf(::ObserveStopWordsUseCaseImpl) { bind<ObserveStopWordsUseCase>() }
     singleOf(::AddKeywordUseCaseImpl) { bind<AddKeywordUseCase>() }
@@ -128,5 +134,7 @@ val useCaseModule = module {
     singleOf(::SetAlarmVolumeUseCaseImpl) { bind<SetAlarmVolumeUseCase>() }
     singleOf(::SetLogSizeLimitUseCaseImpl) { bind<SetLogSizeLimitUseCase>() }
     singleOf(::SetAlarmRetriggerCooldownDurationUseCaseImpl) { bind<SetAlarmRetriggerCooldownDurationUseCase>() }
+
+    singleOf(::ResetAppToFactoryDefaultsUseCaseImpl) { bind<ResetAppToFactoryDefaultsUseCase>() }
 
 }

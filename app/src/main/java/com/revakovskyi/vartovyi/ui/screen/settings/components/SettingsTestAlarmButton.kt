@@ -6,13 +6,10 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
 import com.revakovskyi.vartovyi.R
 import com.revakovskyi.vartovyi.ui.components.VartovyiActionButton
 import com.revakovskyi.vartovyi.ui.components.VartovyiActionButtonStyle
 import com.revakovskyi.vartovyi.ui.theme.VartovyiTheme
-
-private const val TEST_BUTTON_MAX_WIDTH_DP = 450
 
 @Composable
 fun SettingsTestAlarmButton(
@@ -28,7 +25,6 @@ fun SettingsTestAlarmButton(
             containerColor = VartovyiTheme.colors.errorContainer,
             contentColor = VartovyiTheme.colors.onErrorContainer,
             icon = ImageVector.vectorResource(R.drawable.alarm),
-            maxWidth = TEST_BUTTON_MAX_WIDTH_DP.dp,
             modifier = modifier
         )
     } else {
@@ -40,7 +36,6 @@ fun SettingsTestAlarmButton(
             borderColor = VartovyiTheme.colors.error,
             icon = ImageVector.vectorResource(R.drawable.alarm),
             iconTint = VartovyiTheme.colors.error,
-            maxWidth = TEST_BUTTON_MAX_WIDTH_DP.dp,
             modifier = modifier
         )
     }

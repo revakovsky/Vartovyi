@@ -10,6 +10,7 @@ import com.revakovskyi.vartovyi.ui.screen.keywords.KeywordsUiContract.State
 import com.revakovskyi.vartovyi.usecase.keywords.AddKeywordUseCase
 import com.revakovskyi.vartovyi.usecase.keywords.AddStopWordUseCase
 import com.revakovskyi.vartovyi.usecase.keywords.AddTelegramChannelUseCase
+import com.revakovskyi.vartovyi.usecase.keywords.ClearKeywordsScreenDataUseCase
 import com.revakovskyi.vartovyi.usecase.keywords.ObserveKeywordsUseCase
 import com.revakovskyi.vartovyi.usecase.keywords.ObserveStopWordsUseCase
 import com.revakovskyi.vartovyi.usecase.keywords.ObserveTelegramChannelFilterEnabledUseCase
@@ -41,6 +42,7 @@ class KeywordsViewModel(
     private val addTelegramChannelUseCase: AddTelegramChannelUseCase,
     private val removeTelegramChannelUseCase: RemoveTelegramChannelUseCase,
     private val toggleTelegramChannelFilterUseCase: ToggleTelegramChannelFilterUseCase,
+    private val clearKeywordsScreenDataUseCase: ClearKeywordsScreenDataUseCase,
 ) : ViewModel() {
 
     private val _state = MutableStateFlow(State())
@@ -69,6 +71,9 @@ class KeywordsViewModel(
             is Action.DismissDuplicateWordDialog -> dismissDuplicateWordDialog()
             is Action.ConfirmPendingRemoval -> confirmPendingRemoval()
             is Action.DismissPendingRemovalDialog -> dismissPendingRemovalDialog()
+            is Action.OpenClearKeywordsDialog -> openClearKeywordsDialog()
+            is Action.DismissClearKeywordsDialog -> dismissClearKeywordsDialog()
+            is Action.ConfirmClearKeywords -> confirmClearKeywords()
         }
     }
 
@@ -90,18 +95,18 @@ class KeywordsViewModel(
                 )
             )
 
-            _state.update {
-                it.copy(
+            _state.update { currentState ->
+                currentState.copy(
                     keywords = sortedKeywords,
                     stopWords = stopWords,
                     telegramChannels = telegramChannels,
                     isTelegramChannelFilterEnabled = isTelegramChannelFilterEnabled,
+                    isLoading = if (isFirstEmission) false else currentState.isLoading,
                 )
             }
 
             if (isFirstEmission) {
                 isFirstEmission = false
-                _state.update { it.copy(isLoading = false) }
             }
         }.launchIn(viewModelScope)
     }
@@ -242,6 +247,36 @@ class KeywordsViewModel(
 
     private fun dismissPendingRemovalDialog() {
         _state.update { it.copy(pendingRemoval = null) }
+    }
+
+    private fun openClearKeywordsDialog() {
+        _state.update { currentState ->
+            currentState.copy(isClearKeywordsDialogVisible = true)
+        }
+    }
+
+    private fun dismissClearKeywordsDialog() {
+        _state.update { currentState ->
+            currentState.copy(isClearKeywordsDialogVisible = false)
+        }
+    }
+
+    private fun confirmClearKeywords() {
+        viewModelScope.launch {
+            clearKeywordsScreenDataUseCase()
+            _state.update { currentState ->
+                currentState.copy(
+                    isClearKeywordsDialogVisible = false,
+                    inputKeyword = "",
+                    inputStopWord = "",
+                    inputTelegramChannel = "",
+                    duplicateWord = null,
+                    pendingRemoval = null,
+                    selectedTriggerKeywordRuleType = TriggerKeywordRuleType.WORD,
+                )
+            }
+            _events.emit(Event.KeywordsScreenDataCleared)
+        }
     }
 
     private fun triggerRuleTypeOrder(type: TriggerKeywordRuleType): Int {

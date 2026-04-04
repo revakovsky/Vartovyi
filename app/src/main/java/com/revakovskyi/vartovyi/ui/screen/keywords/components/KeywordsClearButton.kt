@@ -1,4 +1,4 @@
-package com.revakovskyi.vartovyi.ui.screen.log.components
+package com.revakovskyi.vartovyi.ui.screen.keywords.components
 
 import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
@@ -11,13 +11,13 @@ import com.revakovskyi.vartovyi.ui.components.VartovyiActionButtonStyle
 import com.revakovskyi.vartovyi.ui.theme.VartovyiTheme
 
 @Composable
-fun LogClearButton(
+fun KeywordsClearButton(
     modifier: Modifier = Modifier,
     isEnabled: Boolean = true,
     onClick: () -> Unit,
 ) {
     VartovyiActionButton(
-        text = stringResource(R.string.log_clear),
+        text = stringResource(R.string.keywords_clear),
         onClick = onClick,
         style = VartovyiActionButtonStyle.Outlined,
         enabled = isEnabled,
@@ -27,22 +27,22 @@ fun LogClearButton(
     )
 }
 
-@Preview(name = "Log clear button - enabled")
+@Preview(name = "Keywords clear — enabled")
 @Composable
-private fun LogClearButtonEnabledPreview() {
+private fun KeywordsClearButtonEnabledPreview() {
     VartovyiTheme {
-        LogClearButton(
+        KeywordsClearButton(
             isEnabled = true,
             onClick = {},
         )
     }
 }
 
-@Preview(name = "Log clear button - disabled")
+@Preview(name = "Keywords clear — disabled")
 @Composable
-private fun LogClearButtonDisabledPreview() {
+private fun KeywordsClearButtonDisabledPreview() {
     VartovyiTheme {
-        LogClearButton(
+        KeywordsClearButton(
             isEnabled = false,
             onClick = {},
         )

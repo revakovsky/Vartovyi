@@ -31,6 +31,7 @@ fun DataSettingsSection(
     onLogSizeLimitChange: (limit: Int) -> Unit,
     onAlarmCooldownDurationChange: (durationMillis: Long) -> Unit,
     onExportLogClick: () -> Unit,
+    onResetToFactoryDefaultsClick: () -> Unit,
 ) {
     val sortedLogSizeOptions = remember { LOG_SIZE_OPTIONS.sorted() }
     val sortedCooldownDurationOptionsMinutes = remember {
@@ -119,6 +120,13 @@ fun DataSettingsSection(
             }
         }
 
+        Spacer(modifier = Modifier.height(VartovyiTheme.spacing.large))
+
+        SettingsResetFactoryDefaultsButton(
+            onClick = onResetToFactoryDefaultsClick,
+            modifier = Modifier.fillMaxWidth()
+        )
+
         // TODO: add in future when it will be ready to use!
 //        Spacer(modifier = Modifier.height(VartovyiTheme.spacing.standard))
 //
@@ -151,6 +159,7 @@ private fun DataSettingsSectionPreview() {
             onLogSizeLimitChange = {},
             onAlarmCooldownDurationChange = {},
             onExportLogClick = {},
+            onResetToFactoryDefaultsClick = {},
         )
     }
 }

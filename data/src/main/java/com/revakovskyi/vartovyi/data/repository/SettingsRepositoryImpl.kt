@@ -59,4 +59,8 @@ internal class SettingsRepositoryImpl(
         monitoringDataStore.setAlarmRetriggerCooldownUntilEpochMillis(untilEpochMillis)
     }
 
+    override suspend fun clearAllMonitoringPreferences() {
+        monitoringDataStore.clearAllPreferences()
+    }
+
 }

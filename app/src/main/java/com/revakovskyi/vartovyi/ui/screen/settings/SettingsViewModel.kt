@@ -15,6 +15,7 @@ import com.revakovskyi.vartovyi.usecase.monitoring.ObserveMonitoringStateUseCase
 import com.revakovskyi.vartovyi.usecase.settings.ObserveAlarmRetriggerCooldownDurationUseCase
 import com.revakovskyi.vartovyi.usecase.settings.ObserveLogSizeLimitUseCase
 import com.revakovskyi.vartovyi.usecase.settings.ObserveScheduleSettingsUseCase
+import com.revakovskyi.vartovyi.usecase.settings.ResetAppToFactoryDefaultsUseCase
 import com.revakovskyi.vartovyi.usecase.settings.SetAlarmDurationUseCase
 import com.revakovskyi.vartovyi.usecase.settings.SetAlarmRetriggerCooldownDurationUseCase
 import com.revakovskyi.vartovyi.usecase.settings.SetAlarmSoundUriUseCase
@@ -52,6 +53,7 @@ class SettingsViewModel(
     private val stopAlarmUseCase: StopAlarmUseCase,
     private val observeAlarmRunningUseCase: ObserveAlarmRunningUseCase,
     private val observeMonitoringStateUseCase: ObserveMonitoringStateUseCase,
+    private val resetAppToFactoryDefaultsUseCase: ResetAppToFactoryDefaultsUseCase,
 ) : ViewModel() {
 
     private val _state = MutableStateFlow(State())
@@ -93,6 +95,9 @@ class SettingsViewModel(
             is Action.CollapseSectionsOnScreenStop -> collapseSectionsOnScreenStop()
             is Action.OpenPrivacyPolicy -> openPrivacyPolicyUrl()
             is Action.OpenTermsOfUse -> openTermsOfUseUrl()
+            is Action.ShowResetToFactoryDefaultsDialog -> showResetToFactoryDefaultsDialog()
+            is Action.DismissResetToFactoryDefaultsDialog -> dismissResetToFactoryDefaultsDialog()
+            is Action.ConfirmResetToFactoryDefaults -> confirmResetToFactoryDefaults()
         }
     }
 
@@ -269,6 +274,31 @@ class SettingsViewModel(
         skipCollapseOnNextScreenStop = true
         viewModelScope.launch {
             _events.emit(Event.OpenUrl(url = TERMS_OF_USE_URL))
+        }
+    }
+
+    private fun showResetToFactoryDefaultsDialog() {
+        _state.update { currentState ->
+            currentState.copy(isResetToFactoryDefaultsDialogVisible = true)
+        }
+    }
+
+    private fun dismissResetToFactoryDefaultsDialog() {
+        _state.update { currentState ->
+            currentState.copy(isResetToFactoryDefaultsDialogVisible = false)
+        }
+    }
+
+    private fun confirmResetToFactoryDefaults() {
+        viewModelScope.launch {
+            resetAppToFactoryDefaultsUseCase()
+            _state.update { currentState ->
+                currentState.copy(
+                    isResetToFactoryDefaultsDialogVisible = false,
+                    expandedSection = null,
+                )
+            }
+            _events.emit(Event.ShowFactoryResetCompleted)
         }
     }
 
