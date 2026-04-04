@@ -22,6 +22,7 @@ interface SettingsUiContract {
         val isMonitoringActive: Boolean = false,
         val isAlarmRunning: Boolean = false,
         val expandedSection: SettingsSection? = null,
+        val isResetToFactoryDefaultsDialogVisible: Boolean = false,
     )
 
     sealed interface Action {
@@ -43,11 +44,15 @@ interface SettingsUiContract {
         data object CollapseSectionsOnScreenStop : Action
         data object OpenPrivacyPolicy : Action
         data object OpenTermsOfUse : Action
+        data object ShowResetToFactoryDefaultsDialog : Action
+        data object DismissResetToFactoryDefaultsDialog : Action
+        data object ConfirmResetToFactoryDefaults : Action
     }
 
     sealed interface Event {
         data object ShowDisableMonitoringForTestAlarm : Event
         data class OpenUrl(val url: String) : Event
+        data object ShowFactoryResetCompleted : Event
     }
 
 }

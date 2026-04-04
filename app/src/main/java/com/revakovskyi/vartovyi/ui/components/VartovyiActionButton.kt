@@ -4,6 +4,7 @@ import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
@@ -22,6 +23,7 @@ import androidx.compose.ui.unit.dp
 import com.revakovskyi.vartovyi.ui.theme.VartovyiTheme
 
 private const val BORDER_STROKE_WIDTH_DP = 1
+private const val BUTTON_MAX_WIDTH = 450
 
 enum class VartovyiActionButtonStyle {
     Filled,
@@ -42,7 +44,7 @@ fun VartovyiActionButton(
     iconTint: Color = contentColor,
     iconSize: Dp = VartovyiTheme.spacing.large,
     minWidth: Dp = Dp.Unspecified,
-    maxWidth: Dp = Dp.Unspecified,
+    maxWidth: Dp = BUTTON_MAX_WIDTH.dp,
     fillMaxWidthFraction: Float = 1f,
     height: Dp = VartovyiTheme.spacing.massive,
 ) {
@@ -52,6 +54,7 @@ fun VartovyiActionButton(
             max = maxWidth,
         )
         .fillMaxWidth(fillMaxWidthFraction)
+        .padding(horizontal = VartovyiTheme.spacing.small)
         .height(height)
 
     if (style == VartovyiActionButtonStyle.Filled) {

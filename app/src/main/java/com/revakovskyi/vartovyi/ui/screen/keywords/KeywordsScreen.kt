@@ -22,6 +22,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.ClipEntry
@@ -35,6 +36,7 @@ import com.revakovskyi.vartovyi.model.TriggerKeywordRule
 import com.revakovskyi.vartovyi.model.TriggerKeywordRuleType
 import com.revakovskyi.vartovyi.ui.components.LoadingOverlay
 import com.revakovskyi.vartovyi.ui.components.VartovyiDialog
+import com.revakovskyi.vartovyi.ui.screen.keywords.components.KeywordsClearButton
 import com.revakovskyi.vartovyi.ui.screen.keywords.components.KeywordsSection
 import com.revakovskyi.vartovyi.ui.screen.keywords.components.StopWordsSection
 import com.revakovskyi.vartovyi.ui.screen.keywords.components.TelegramChannelsSection
@@ -62,6 +64,7 @@ fun KeywordsScreen(
     val coroutineScope = rememberCoroutineScope()
 
     val chipCopiedMessage = stringResource(R.string.keywords_chip_copied)
+    val keywordsClearedMessage = stringResource(R.string.keywords_clear_completed)
 
     ObserveSingleEvents(flow = viewModel.events) { event ->
         when (event) {
@@ -73,6 +76,14 @@ fun KeywordsScreen(
             is KeywordsUiContract.Event.TelegramChannelRemoved,
                 -> {
                 hapticFeedback.performHapticFeedback(HapticFeedbackType.Confirm)
+            }
+
+            is KeywordsUiContract.Event.KeywordsScreenDataCleared -> {
+                coroutineScope.launch {
+                    SnackbarController.sendEvent(
+                        SnackbarEvent(message = keywordsClearedMessage),
+                    )
+                }
             }
         }
     }
@@ -130,6 +141,17 @@ fun KeywordsScreen(
             onDismiss = { viewModel.onAction(KeywordsUiContract.Action.DismissPendingRemovalDialog) },
         )
     }
+
+    if (state.isClearKeywordsDialogVisible) {
+        VartovyiDialog(
+            title = stringResource(R.string.keywords_clear_dialog_title),
+            message = stringResource(R.string.keywords_clear_dialog_message),
+            confirmText = stringResource(R.string.keywords_clear_dialog_confirm),
+            dismissText = stringResource(R.string.keywords_clear_dialog_dismiss),
+            onDismiss = { viewModel.onAction(KeywordsUiContract.Action.DismissClearKeywordsDialog) },
+            onConfirm = { viewModel.onAction(KeywordsUiContract.Action.ConfirmClearKeywords) },
+        )
+    }
 }
 
 @OptIn(ExperimentalLayoutApi::class)
@@ -163,6 +185,7 @@ private fun KeywordsContent(
     }
 
     Column(
+        horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(VartovyiTheme.spacing.small),
         modifier = modifier
             .fillMaxSize()
@@ -238,14 +261,20 @@ private fun KeywordsContent(
                 else if (activeBivr == telegramBivr) activeBivr = null
             },
         )
+
+        KeywordsClearButton(
+            isEnabled = state.hasKeywordDataToClear,
+            onClick = { onAction(KeywordsUiContract.Action.OpenClearKeywordsDialog) },
+        )
     }
 }
 
-@Preview(name = "Keywords — empty")
+@Preview(name = "Keywords — empty", heightDp = 900)
 @Composable
 private fun KeywordsContentEmptyPreview() {
     VartovyiTheme {
         KeywordsContent(
+            modifier = Modifier.fillMaxSize(),
             state = KeywordsUiContract.State(),
             onCopyChip = {},
             onAction = {},
@@ -253,11 +282,12 @@ private fun KeywordsContentEmptyPreview() {
     }
 }
 
-@Preview(name = "Keywords — with data")
+@Preview(name = "Keywords — with data", heightDp = 900)
 @Composable
 private fun KeywordsContentWithDataPreview() {
     VartovyiTheme {
         KeywordsContent(
+            modifier = Modifier.fillMaxSize(),
             state = KeywordsUiContract.State(
                 keywords = listOf(
                     TriggerKeywordRule.fromStorageValue("Салтівка"),
@@ -272,11 +302,12 @@ private fun KeywordsContentWithDataPreview() {
     }
 }
 
-@Preview(name = "Keywords — Telegram filter on")
+@Preview(name = "Keywords — Telegram filter on", heightDp = 900)
 @Composable
 private fun KeywordsContentTelegramFilterPreview() {
     VartovyiTheme {
         KeywordsContent(
+            modifier = Modifier.fillMaxSize(),
             state = KeywordsUiContract.State(
                 keywords = listOf(
                     TriggerKeywordRule.fromStorageValue("Салтівка"),

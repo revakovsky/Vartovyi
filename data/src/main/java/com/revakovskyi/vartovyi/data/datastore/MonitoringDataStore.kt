@@ -132,6 +132,12 @@ internal class MonitoringDataStore(private val context: Context) {
         }
     }
 
+    suspend fun clearAllPreferences() {
+        context.monitoringDataStore.edit { preferences ->
+            preferences.clear()
+        }
+    }
+
     private fun Flow<Preferences>.safeCatch(): Flow<Preferences> =
         catch { e -> if (e is IOException) emit(emptyPreferences()) else throw e }
 

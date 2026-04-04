@@ -60,4 +60,8 @@ internal class KeywordsRepositoryImpl(
         keywordsDataStore.setTelegramChannelFilterEnabled(enabled)
     }
 
+    override suspend fun clearAllKeywordsPreferences() {
+        keywordsDataStore.clearAllPreferences()
+    }
+
 }

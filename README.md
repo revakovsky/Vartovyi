@@ -91,6 +91,13 @@ release) і
 Ключові правила:
 
 - `ViewModel` інжектить тільки `UseCase`.
+- Усередині **одного** use case **не** викликаються інші use case; допускаються виклики *
+  *інтерфейсів
+  репозиторіїв** і доменних **контролерів** (`AlarmController`, `MonitoringController` для
+  зупинки тривоги / синхронізації foreground-моніторингу). Спільна логіка sync —
+  `MonitoringRuntimeSync.kt`
+  (`syncMonitoringRuntimeWithSettings`), також використовується в
+  `SyncMonitoringRuntimeUseCaseImpl`.
 - Domain-шар — окремий Gradle-модуль `:domain` без Android framework API; для журналу з paging у
   контракті використовується `androidx.paging.PagingData` (залежність `paging-common` у `:domain`).
 - Репозиторії та mappers ізольовані по шарах.
@@ -200,9 +207,8 @@ canonical URL політики/умов), `utils/`, `di/UseCaseModule.kt`.
   `VartovyiActionButton`.
 - [x] Крокові слайдери тривалості/гучності тривоги використовують спільний `VartovyiSettingSlider` з
   опційним тактильним відгуком на дискретний крок.
-- [x] Кнопки `SettingsTestAlarmButton`, `LogClearButton`, `StatusBlock` toggle і кнопка вибору
-  мелодії
-  уніфіковано через спільний компонент `VartovyiActionButton`.
+- [x] Кнопки `SettingsTestAlarmButton`, `LogClearButton`, `KeywordsClearButton`, `StatusBlock`
+  toggle і кнопка вибору мелодії уніфіковано через спільний компонент `VartovyiActionButton`.
 - [x] **Корінь додатку (`MainActivity`):** анімований фон залежно від `MonitoringState` (окремі
   градієнти/розташування для неактивного та активного моніторингу, плавний перехід).
 - [x] **Кореневий фон (`appRootBackground`):** у станах `INACTIVE` та `ACTIVE` центр градієнта
@@ -283,6 +289,19 @@ canonical URL політики/умов), `utils/`, `di/UseCaseModule.kt`.
   без pre-check race condition.
 - [x] `LegalConsentRepository` / `LegalConsentRepositoryImpl` + `LegalConsentDataStore` для згоди з
   юридичною версією документів (`CURRENT_LEGAL_DOCUMENTS_VERSION` у domain).
+- [x] **Скидання до заводських (`Settings` → секція Дані):** червона кнопка, `VartovyiDialog` з
+  поясненням; `ResetAppToFactoryDefaultsUseCase` — зупинка тривоги (`AlarmController`), очищення
+  monitoring/keywords DataStore (`preferences.clear()`), очищення журналу (
+  `LogRepository.clearLog()`),
+  `syncMonitoringRuntimeWithSettings` для узгодження foreground-моніторингу; запис прийняття legal
+  **не** скидається.
+- [x] **Очистка списків Keywords:** нижня фіксована кнопка (layout як у `Log`: `weight` + кнопка),
+  confirm-діалог; `ClearKeywordsScreenDataUseCase` — зупинка тривоги, `monitoring = false` +
+  cooldown
+  `0`, очищення keywords DataStore, sync моніторингу; інші налаштування (звук, розклад, ліміт
+  журналу)
+  не чіпаються; у `KeywordsUiContract.State` прапорець «чи є що чистити» обчислюється getter-ом від
+  збережених списків і стану фільтра каналів.
 
 ## 9) Особливості та ризики
 
@@ -319,7 +338,8 @@ canonical URL політики/умов), `utils/`, `di/UseCaseModule.kt`.
 - [x] Додати відображення версії додатку (`versionName`) внизу `Settings` (центр, приглушений текст,
   рядок produced by).
 - [x] Оновити іконку додатку (launcher icon + adaptive icon + monochrome для Android 13+).
-- [ ] Додати `Reset settings to defaults` (із confirm-діалогом).
+- [x] Скинути налаштування до заводських у `Settings` (секція **Дані**, confirm-діалог; див. §8
+  as-is).
 - [ ] Додати vendor-specific guide для фонової стабільності (Xiaomi/Samsung/Huawei: autostart,
   battery optimization, lock in recents/background allow).
 - [ ] Додати Crashlytics + базову продуктову аналітику (мінімум ключових подій alarm/monitoring).
@@ -359,6 +379,13 @@ canonical URL політики/умов), `utils/`, `di/UseCaseModule.kt`.
 
 ## 12) Change log (короткий)
 
+- `2026-04-03` — **Скидання даних:** `ResetAppToFactoryDefaultsUseCase` (Settings → Дані) та
+  `ClearKeywordsScreenDataUseCase` (Keywords — нижня кнопка очищення списків); обидва сценарії
+  зупиняють тривогу, вимикають моніторинг і синхронізують foreground-service; factory reset
+  додатково
+  очищує monitoring DataStore і журнал; use case не викликають інші use case — репозиторії +
+  контролери, спільний `syncMonitoringRuntimeWithSettings` у `MonitoringRuntimeSync.kt`. README
+  оновлено (as-is, §5, P0, §14.4).
 - `2026-04-03` — **Legal consent:** гейт у `MainActivity` (loading, екран згоди з посиланнями на
   політику/умови в Custom Tabs, підтвердження зберігає версію в DataStore), `LegalConsentScreen` /
   `ViewModel`, репозиторій + use cases; константи URL і версії документів у
@@ -513,6 +540,10 @@ canonical URL політики/умов), `utils/`, `di/UseCaseModule.kt`.
     - Trigger rules (режими `WORD` / `ALL_WORDS` / `PHRASE`, додавання/видалення, tooltip).
     - Stop words (додавання/видалення, tooltip, візуально відмінні chips).
     - Telegram channel filter (toggle + список каналів, якщо увімкнено).
+  - Знизу екрана — `KeywordsClearButton` (як `LogClearButton`: скрол з `weight(1f)` + фіксована
+    кнопка), enabled коли є збережені дані для очищення; confirm-діалог; після підтвердження —
+    `ClearKeywordsScreenDataUseCase` (тривога стоп, моніторинг вимкнено, keywords DataStore
+    очищено).
 
 - **Log**
     - Список перехоплених подій (включно з пропущеними).
@@ -527,7 +558,9 @@ canonical URL політики/умов), `utils/`, `di/UseCaseModule.kt`.
       `Home`.
     - Під час первинного завантаження налаштувань показується `LoadingOverlay`.
     - Секція **Дані**: ліміт розміру журналу (чіпи + діалог-підказка), пауза між тривогами (чіпи +
-      діалог), кнопка експорту (поки заглушка + snackbar).
+      діалог), кнопка експорту (поки заглушка + snackbar); червона кнопка **Скинути налаштування**
+      (outlined error) з confirm-діалогом — повне скидання до заводських (
+      `ResetAppToFactoryDefaultsUseCase`).
     - Секція **Звук**: мелодія (`RingtonePicker` + назва), тривалість і гучність через
       `VartovyiSettingSlider` (з тактильним кроком).
     - Секція **Розклад роботи**: toggle, час початку/кінця, підказка для секції в діалозі.

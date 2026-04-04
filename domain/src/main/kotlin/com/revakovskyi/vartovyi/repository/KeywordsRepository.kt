@@ -16,5 +16,6 @@ interface KeywordsRepository {
     suspend fun addTelegramChannel(channel: String)
     suspend fun removeTelegramChannel(channel: String)
     suspend fun setTelegramChannelFilterEnabled(enabled: Boolean)
+    suspend fun clearAllKeywordsPreferences()
 
 }

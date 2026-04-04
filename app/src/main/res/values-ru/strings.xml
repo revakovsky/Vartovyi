@@ -49,6 +49,12 @@
     <string name="settings_data_export_log_title">Экспорт журнала</string>
     <string name="settings_data_export_log_button">Экспортировать журнал</string>
     <string name="settings_data_export_log_pending_message">Экспорт пока недоступен. Это действие будет добавлено в будущем обновлении.</string>
+    <string name="settings_reset_factory_button">Сбросить настройки</string>
+    <string name="settings_reset_factory_dialog_title">Сбросить все настройки?</string>
+    <string name="settings_reset_factory_dialog_message">Все настройки приложения вернутся к заводским (звук, расписание, лимит журнала, пауза между тревогами). Мониторинг будет выключен.\n\nКлючевые слова, стоп-слова, каналы Telegram и фильтры каналов будут очищены.\n\nЖурнал событий будет удалён.\n\nПодтверждение Privacy Policy и Terms of Use сохранится — повторно соглашаться не придётся.\n\nЭто действие нельзя отменить.</string>
+    <string name="settings_reset_factory_dialog_confirm">Сбросить</string>
+    <string name="settings_reset_factory_dialog_dismiss">Отмена</string>
+    <string name="settings_reset_factory_completed">Настройки сброшены к заводским</string>
     <string name="settings_test_alarm_channel_name">Тестовая тревога</string>
     <string name="settings_test_alarm_message_text">Это тестовое уведомление тревоги.</string>
     <string name="home_permissions_required_snackbar">Предоставьте необходимые разрешения перед включением мониторинга</string>
@@ -129,5 +135,11 @@
     <string name="log_clear_dialog_message">Будут удалены все сохранённые записи журнала на этом устройстве. Используйте, если нужно сбросить историю или убрать чувствительные данные уведомлений.</string>
     <string name="log_clear_dialog_confirm">Очистить</string>
     <string name="log_clear_dialog_dismiss">Отмена</string>
+    <string name="keywords_clear">Очистить все списки</string>
+    <string name="keywords_clear_dialog_title">Очистить все данные ключевых слов?</string>
+    <string name="keywords_clear_dialog_message">Все ключевые слова, стоп-слова и списки каналов Telegram будут удалены. Фильтр каналов будет выключен.\n\nЕсли сейчас играет тревога, она остановится. Мониторинг будет выключен.\n\nЭто действие нельзя отменить.</string>
+    <string name="keywords_clear_dialog_confirm">Очистить</string>
+    <string name="keywords_clear_dialog_dismiss">Отмена</string>
+    <string name="keywords_clear_completed">Списки ключевых слов очищены</string>
     <string name="ok">ОК</string>
 </resources>

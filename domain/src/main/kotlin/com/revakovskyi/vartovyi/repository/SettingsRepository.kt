@@ -25,5 +25,6 @@ interface SettingsRepository {
     suspend fun setLogSizeLimit(limit: Int)
     suspend fun setAlarmRetriggerCooldownDurationMillis(durationMillis: Long)
     suspend fun setAlarmRetriggerCooldownUntilEpochMillis(untilEpochMillis: Long)
+    suspend fun clearAllMonitoringPreferences()
 
 }

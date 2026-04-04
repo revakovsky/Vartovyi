@@ -75,6 +75,12 @@ internal class KeywordsDataStore(private val context: Context) {
         context.keywordsDataStore.edit { it[Keys.TELEGRAM_CHANNEL_FILTER_ENABLED] = enabled }
     }
 
+    suspend fun clearAllPreferences() {
+        context.keywordsDataStore.edit { preferences ->
+            preferences.clear()
+        }
+    }
+
     private fun Flow<Preferences>.safeCatch(): Flow<Preferences> =
         catch { e ->
             if (e is IOException) emit(emptyPreferences()) else throw e

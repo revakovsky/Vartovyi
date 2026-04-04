@@ -6,6 +6,7 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.Crossfade
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -30,6 +31,7 @@ import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.revakovskyi.vartovyi.R
 import com.revakovskyi.vartovyi.ui.components.LoadingOverlay
+import com.revakovskyi.vartovyi.ui.components.VartovyiDialog
 import com.revakovskyi.vartovyi.ui.screen.settings.components.AlarmDurationSection
 import com.revakovskyi.vartovyi.ui.screen.settings.components.AlarmSoundSection
 import com.revakovskyi.vartovyi.ui.screen.settings.components.AlarmVolumeSection
@@ -68,6 +70,7 @@ fun SettingsScreen(
     val defaultAlarmSoundTitle = stringResource(R.string.settings_alarm_sound_default)
     val alarmSoundPickerTitle = stringResource(R.string.settings_alarm_sound_picker_title)
     val exportLogPendingMessage = stringResource(R.string.settings_data_export_log_pending_message)
+    val factoryResetCompletedMessage = stringResource(R.string.settings_reset_factory_completed)
 
     val selectedAlarmSoundTitle = remember(
         context,
@@ -113,6 +116,14 @@ fun SettingsScreen(
             is SettingsUiContract.Event.OpenUrl -> {
                 openCustomChromeTab(context = context, url = event.url)
             }
+
+            is SettingsUiContract.Event.ShowFactoryResetCompleted -> {
+                coroutineScope.launch {
+                    SnackbarController.sendEvent(
+                        SnackbarEvent(message = factoryResetCompletedMessage),
+                    )
+                }
+            }
         }
     }
 
@@ -130,33 +141,51 @@ fun SettingsScreen(
         }
     }
 
-    Crossfade(
-        targetState = state.isLoading,
-        animationSpec = tween(durationMillis = SETTINGS_LOADING_CROSSFADE_DURATION_MILLIS),
-        label = "settings_loading_crossfade",
-    ) { isLoading ->
-        if (isLoading) {
-            LoadingOverlay()
-        } else {
-            SettingsContent(
-                state = state,
-                onAction = viewModel::onAction,
-                selectedAlarmSoundTitle = selectedAlarmSoundTitle,
-                onChooseAlarmSound = {
-                    viewModel.onAction(SettingsUiContract.Action.StartExternalPickerNavigation)
-                    alarmSoundPickerLauncher.launch(
-                        AlarmSoundPickerHelper.createAlarmSoundPickerIntent(
-                            existingAlarmSoundUri = state.alarmSoundUri,
-                            pickerTitle = alarmSoundPickerTitle,
+    Box(modifier = Modifier.fillMaxSize()) {
+        Crossfade(
+            targetState = state.isLoading,
+            animationSpec = tween(durationMillis = SETTINGS_LOADING_CROSSFADE_DURATION_MILLIS),
+            label = "settings_loading_crossfade",
+        ) { isLoading ->
+            if (isLoading) {
+                LoadingOverlay()
+            } else {
+                SettingsContent(
+                    state = state,
+                    onAction = viewModel::onAction,
+                    selectedAlarmSoundTitle = selectedAlarmSoundTitle,
+                    onChooseAlarmSound = {
+                        viewModel.onAction(SettingsUiContract.Action.StartExternalPickerNavigation)
+                        alarmSoundPickerLauncher.launch(
+                            AlarmSoundPickerHelper.createAlarmSoundPickerIntent(
+                                existingAlarmSoundUri = state.alarmSoundUri,
+                                pickerTitle = alarmSoundPickerTitle,
+                            )
                         )
-                    )
+                    },
+                    onExportLogClick = {
+                        coroutineScope.launch {
+                            SnackbarController.sendEvent(
+                                SnackbarEvent(message = exportLogPendingMessage),
+                            )
+                        }
+                    },
+                )
+            }
+        }
+
+        if (state.isResetToFactoryDefaultsDialogVisible) {
+            VartovyiDialog(
+                title = stringResource(R.string.settings_reset_factory_dialog_title),
+                message = stringResource(R.string.settings_reset_factory_dialog_message),
+                confirmText = stringResource(R.string.settings_reset_factory_dialog_confirm),
+                confirmContentColor = VartovyiTheme.colors.error,
+                dismissText = stringResource(R.string.settings_reset_factory_dialog_dismiss),
+                onConfirm = {
+                    viewModel.onAction(SettingsUiContract.Action.ConfirmResetToFactoryDefaults)
                 },
-                onExportLogClick = {
-                    coroutineScope.launch {
-                        SnackbarController.sendEvent(
-                            SnackbarEvent(message = exportLogPendingMessage),
-                        )
-                    }
+                onDismiss = {
+                    viewModel.onAction(SettingsUiContract.Action.DismissResetToFactoryDefaultsDialog)
                 },
             )
         }
@@ -229,6 +258,9 @@ private fun SettingsContent(
                     )
                 },
                 onExportLogClick = onExportLogClick,
+                onResetToFactoryDefaultsClick = {
+                    onAction(SettingsUiContract.Action.ShowResetToFactoryDefaultsDialog)
+                },
             )
         }
 

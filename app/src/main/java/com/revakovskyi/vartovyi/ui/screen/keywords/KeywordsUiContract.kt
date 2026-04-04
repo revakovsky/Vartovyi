@@ -25,7 +25,15 @@ interface KeywordsUiContract {
         val inputTelegramChannel: String = "",
         val duplicateWord: String? = null,
         val pendingRemoval: PendingRemoval? = null,
-    )
+        val isClearKeywordsDialogVisible: Boolean = false,
+    ) {
+
+        val hasKeywordDataToClear: Boolean
+            get() = keywords.isNotEmpty() ||
+                    stopWords.isNotEmpty() ||
+                    telegramChannels.isNotEmpty() ||
+                    isTelegramChannelFilterEnabled
+    }
 
     sealed interface Action {
         data class SelectTriggerKeywordRuleType(val type: TriggerKeywordRuleType) : Action
@@ -42,6 +50,9 @@ interface KeywordsUiContract {
         data object DismissDuplicateWordDialog : Action
         data object ConfirmPendingRemoval : Action
         data object DismissPendingRemovalDialog : Action
+        data object OpenClearKeywordsDialog : Action
+        data object DismissClearKeywordsDialog : Action
+        data object ConfirmClearKeywords : Action
     }
 
     sealed interface Event {
@@ -51,6 +62,7 @@ interface KeywordsUiContract {
         data object StopWordRemoved : Event
         data object TelegramChannelAdded : Event
         data object TelegramChannelRemoved : Event
+        data object KeywordsScreenDataCleared : Event
     }
 
 }
