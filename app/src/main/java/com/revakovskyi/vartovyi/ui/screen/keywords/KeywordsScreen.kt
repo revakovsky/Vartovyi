@@ -6,8 +6,10 @@ import androidx.compose.animation.core.tween
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.isImeVisible
 import androidx.compose.foundation.layout.padding
@@ -20,7 +22,6 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -36,16 +37,17 @@ import com.revakovskyi.vartovyi.model.TriggerKeywordRule
 import com.revakovskyi.vartovyi.model.TriggerKeywordRuleType
 import com.revakovskyi.vartovyi.ui.components.LoadingOverlay
 import com.revakovskyi.vartovyi.ui.components.VartovyiDialog
+import com.revakovskyi.vartovyi.ui.screen.keywords.components.KeywordsBackupRow
 import com.revakovskyi.vartovyi.ui.screen.keywords.components.KeywordsClearButton
 import com.revakovskyi.vartovyi.ui.screen.keywords.components.KeywordsSection
 import com.revakovskyi.vartovyi.ui.screen.keywords.components.StopWordsSection
 import com.revakovskyi.vartovyi.ui.screen.keywords.components.TelegramChannelsSection
 import com.revakovskyi.vartovyi.ui.theme.VartovyiTheme
+import com.revakovskyi.vartovyi.ui.util.rememberKeywordsBackupHelper
 import com.revakovskyi.vartovyi.ui.util.snackbar.SnackbarController
 import com.revakovskyi.vartovyi.ui.util.snackbar.SnackbarEvent
 import com.revakovskyi.vartovyi.utils.ObserveSingleEvents
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
 
 /** Delay to let the keyboard fully animate open before scrolling the active field into view. */
@@ -61,10 +63,16 @@ fun KeywordsScreen(
 
     val state by viewModel.state.collectAsState()
 
-    val coroutineScope = rememberCoroutineScope()
-
     val chipCopiedMessage = stringResource(R.string.keywords_chip_copied)
     val keywordsClearedMessage = stringResource(R.string.keywords_clear_completed)
+    val importSuccessMessage = stringResource(R.string.keywords_import_success)
+    val exportSuccessMessage = stringResource(R.string.keywords_export_success)
+    val exportErrorMessage = stringResource(R.string.keywords_export_error)
+    val importInvalidFormatMessage = stringResource(R.string.keywords_import_invalid_format)
+    val importUnsupportedVersion = stringResource(R.string.keywords_import_unsupported_version)
+    val importWriteErrorMessage = stringResource(R.string.keywords_import_write_error)
+
+    val backupHelper = rememberKeywordsBackupHelper(onAction = viewModel::onAction)
 
     ObserveSingleEvents(flow = viewModel.events) { event ->
         when (event) {
@@ -74,17 +82,67 @@ fun KeywordsScreen(
             is KeywordsUiContract.Event.StopWordRemoved,
             is KeywordsUiContract.Event.TelegramChannelAdded,
             is KeywordsUiContract.Event.TelegramChannelRemoved,
-                -> {
-                hapticFeedback.performHapticFeedback(HapticFeedbackType.Confirm)
+                -> hapticFeedback.performHapticFeedback(HapticFeedbackType.Confirm)
+
+            is KeywordsUiContract.Event.ChipCopied -> {
+                hapticFeedback.performHapticFeedback(HapticFeedbackType.LongPress)
+                SnackbarController.sendEvent(SnackbarEvent(message = chipCopiedMessage))
+
+                clipboardManager.setClipEntry(
+                    ClipEntry(ClipData.newPlainText(KEYWORDS_CHIP_CLIP_LABEL, event.text))
+                )
             }
 
             is KeywordsUiContract.Event.KeywordsScreenDataCleared -> {
-                coroutineScope.launch {
-                    SnackbarController.sendEvent(
-                        SnackbarEvent(message = keywordsClearedMessage),
-                    )
-                }
+                SnackbarController.sendEvent(
+                    SnackbarEvent(message = keywordsClearedMessage),
+                )
             }
+
+            is KeywordsUiContract.Event.KeywordsExportSuccess -> {
+                SnackbarController.sendEvent(
+                    SnackbarEvent(message = exportSuccessMessage),
+                )
+            }
+
+            is KeywordsUiContract.Event.KeywordsExportError -> {
+                SnackbarController.sendEvent(
+                    SnackbarEvent(message = exportErrorMessage),
+                )
+            }
+
+            is KeywordsUiContract.Event.KeywordsImportSuccess -> {
+                SnackbarController.sendEvent(
+                    SnackbarEvent(message = importSuccessMessage),
+                )
+            }
+
+            is KeywordsUiContract.Event.KeywordsImportInvalidFormat -> {
+                SnackbarController.sendEvent(
+                    SnackbarEvent(message = importInvalidFormatMessage)
+                )
+            }
+
+            is KeywordsUiContract.Event.KeywordsImportUnsupportedVersion -> {
+                SnackbarController.sendEvent(
+                    SnackbarEvent(
+                        message = String.format(
+                            importUnsupportedVersion,
+                            event.fileVersion
+                        )
+                    ),
+                )
+            }
+
+            is KeywordsUiContract.Event.KeywordsImportWriteError -> {
+                SnackbarController.sendEvent(
+                    SnackbarEvent(message = importWriteErrorMessage),
+                )
+            }
+
+            is KeywordsUiContract.Event.LaunchExportFilePicker,
+            is KeywordsUiContract.Event.LaunchImportFilePicker,
+                -> backupHelper.handleEvent(event)
         }
     }
 
@@ -99,19 +157,6 @@ fun KeywordsScreen(
             KeywordsContent(
                 state = state,
                 onAction = viewModel::onAction,
-                onCopyChip = { text ->
-                    hapticFeedback.performHapticFeedback(HapticFeedbackType.LongPress)
-                    coroutineScope.launch {
-                        clipboardManager.setClipEntry(
-                            ClipEntry(
-                                ClipData.newPlainText(KEYWORDS_CHIP_CLIP_LABEL, text),
-                            )
-                        )
-                        SnackbarController.sendEvent(
-                            SnackbarEvent(message = chipCopiedMessage),
-                        )
-                    }
-                },
             )
         }
     }
@@ -159,7 +204,6 @@ fun KeywordsScreen(
 private fun KeywordsContent(
     modifier: Modifier = Modifier,
     state: KeywordsUiContract.State,
-    onCopyChip: (text: String) -> Unit,
     onAction: (action: KeywordsUiContract.Action) -> Unit,
 ) {
     val focusManager = LocalFocusManager.current
@@ -214,7 +258,7 @@ private fun KeywordsContent(
                 onAction(KeywordsUiContract.Action.UpdateKeywordInput(value))
             },
             onAdd = { onAction(KeywordsUiContract.Action.AddKeyword) },
-            onCopy = onCopyChip,
+            onCopy = { text -> onAction(KeywordsUiContract.Action.CopyChip(text)) },
             onRemove = { keywordRule ->
                 onAction(KeywordsUiContract.Action.RemoveKeyword(keywordRule))
             },
@@ -232,7 +276,7 @@ private fun KeywordsContent(
                 onAction(KeywordsUiContract.Action.UpdateStopWordInput(value))
             },
             onAdd = { onAction(KeywordsUiContract.Action.AddStopWord) },
-            onCopy = onCopyChip,
+            onCopy = { text -> onAction(KeywordsUiContract.Action.CopyChip(text)) },
             onRemove = { stopWord ->
                 onAction(KeywordsUiContract.Action.RemoveStopWord(stopWord))
             },
@@ -252,7 +296,7 @@ private fun KeywordsContent(
                 onAction(KeywordsUiContract.Action.UpdateTelegramChannelInput(value))
             },
             onAdd = { onAction(KeywordsUiContract.Action.AddTelegramChannel) },
-            onCopy = onCopyChip,
+            onCopy = { text -> onAction(KeywordsUiContract.Action.CopyChip(text)) },
             onRemove = { channel ->
                 onAction(KeywordsUiContract.Action.RemoveTelegramChannel(channel))
             },
@@ -262,9 +306,20 @@ private fun KeywordsContent(
             },
         )
 
+        Spacer(modifier = Modifier.height(VartovyiTheme.spacing.small))
+
+        KeywordsBackupRow(
+            isExportEnabled = state.canExport,
+            onExportClick = { onAction(KeywordsUiContract.Action.ExportKeywords) },
+            onImportClick = { onAction(KeywordsUiContract.Action.RequestImport) },
+        )
+
+        Spacer(modifier = Modifier.height(VartovyiTheme.spacing.small))
+
         KeywordsClearButton(
             isEnabled = state.hasKeywordDataToClear,
             onClick = { onAction(KeywordsUiContract.Action.OpenClearKeywordsDialog) },
+            modifier = Modifier.padding(bottom = VartovyiTheme.spacing.small)
         )
     }
 }
@@ -276,7 +331,6 @@ private fun KeywordsContentEmptyPreview() {
         KeywordsContent(
             modifier = Modifier.fillMaxSize(),
             state = KeywordsUiContract.State(),
-            onCopyChip = {},
             onAction = {},
         )
     }
@@ -296,7 +350,6 @@ private fun KeywordsContentWithDataPreview() {
                 ),
                 stopWords = listOf("відбій", "чисто", "минула"),
             ),
-            onCopyChip = {},
             onAction = {},
         )
     }
@@ -317,7 +370,6 @@ private fun KeywordsContentTelegramFilterPreview() {
                 isTelegramChannelFilterEnabled = true,
                 telegramChannels = listOf("@air_alert_ua", "@kharkiv_alarm"),
             ),
-            onCopyChip = {},
             onAction = {},
         )
     }

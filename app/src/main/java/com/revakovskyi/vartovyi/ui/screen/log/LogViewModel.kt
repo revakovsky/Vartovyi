@@ -11,13 +11,12 @@ import com.revakovskyi.vartovyi.ui.screen.log.LogUiContract.State
 import com.revakovskyi.vartovyi.usecase.log.ClearLogUseCase
 import com.revakovskyi.vartovyi.usecase.log.GetLogEntryIndexUseCase
 import com.revakovskyi.vartovyi.usecase.log.ObserveLogEntriesUseCase
+import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
@@ -34,8 +33,8 @@ class LogViewModel(
     private val _state = MutableStateFlow(State())
     val state: StateFlow<State> = _state.asStateFlow()
 
-    private val _events = MutableSharedFlow<Event>()
-    val events: SharedFlow<Event> = _events.asSharedFlow()
+    private val _events = Channel<Event>(Channel.BUFFERED)
+    val events: Flow<Event> = _events.receiveAsFlow()
 
     fun onAction(action: Action) {
         when (action) {
@@ -114,7 +113,7 @@ class LogViewModel(
 
     private fun copyChannelName(channelName: String) {
         viewModelScope.launch {
-            _events.emit(
+            _events.send(
                 Event.CopyChannelNameRequested(
                     channelName = channelName,
                 ),
@@ -124,7 +123,7 @@ class LogViewModel(
 
     private fun copyMessageText(messageText: String) {
         viewModelScope.launch {
-            _events.emit(
+            _events.send(
                 Event.CopyMessageTextRequested(
                     messageText = messageText,
                 ),

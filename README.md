@@ -302,6 +302,26 @@ canonical URL політики/умов), `utils/`, `di/UseCaseModule.kt`.
   журналу)
   не чіпаються; у `KeywordsUiContract.State` прапорець «чи є що чистити» обчислюється getter-ом від
   збережених списків і стану фільтра каналів.
+- [x] **Backup Keywords (експорт / імпорт):** кнопки Export та Import у нижній частині
+  `KeywordsScreen`; export — SAF `CreateDocument`, import — SAF `OpenDocument`; формат `JSON`
+  (`KeywordsBackup`: `version`, `keywords`, `stopWords`, `telegramChannels`,
+  `isTelegramChannelFilterEnabled`); `ExportKeywordsUseCase` повертає `ExportResult`
+  (`Success(jsonContent)` / `Error`), `ImportKeywordsUseCase` повертає `ImportResult` (`Success` /
+  `InvalidFormat` / `UnsupportedVersion`); усі IO-операції обгорнуті в `try/catch`; версія завжди
+  записується у файл (`encodeDefaults = true`); поле `version` перевіряється при імпорті — файли
+  майбутніх версій відхиляються з окремим повідомленням; кнопка Export заблокована (`enabled =
+  false`) коли немає жодного ключового слова (`canExport` getter у `State`); уся логіка
+  SAF-взаємодії
+  інкапсульована у `KeywordsBackupHelper` (scoped до composition, без витоку пам'яті); результати
+  повертаються через `Action` → ViewModel → `Event` → snackbar на `KeywordsScreen`.
+- [x] **`VartovyiActionButton` Outlined — автоматичний disabled стан:** кольори тексту, іконки та
+  рамки при `enabled = false` обчислюються всередині компонента (`onSurfaceVariant`); колсайти
+  передають тільки `enabled`, без `if (isEnabled)` умов зовні.
+- [x] **ViewModel events: `Channel` замість `MutableSharedFlow`:** усі ViewModel (`HomeViewModel`,
+  `KeywordsViewModel`, `LogViewModel`, `SettingsViewModel`, `PermissionsViewModel`,
+  `LegalConsentViewModel`) перейшли з `MutableSharedFlow<Event>(extraBufferCapacity = 1)` на
+  `Channel<Event>(Channel.BUFFERED)` + `receiveAsFlow()`; семантично точніше (point-to-point),
+  природне буферування при lifecycle-переходах, `emit` замінено на `send`.
 
 ## 9) Особливості та ризики
 
@@ -341,7 +361,7 @@ canonical URL політики/умов), `utils/`, `di/UseCaseModule.kt`.
 - [x] Додати Crashlytics + базову продуктову аналітику (мінімум ключових подій alarm/monitoring) —
   лише Crashlytics (автоматичний збір крашів); аналітика навмисно пропущена (privacy-чутливий
   застосунок, журнал подій вже є в Room).
-- [ ] Додати **імпорт та експорт ключових слів** (файл, сценарій backup/restore).
+- [x] Додати **імпорт та експорт ключових слів** (файл, сценарій backup/restore).
 - [ ] Додати базову in-app інструкцію користування + окрему повну інструкцію (web/markdown), і
   додати посилання на неї в `Settings`.
 - [ ] Прогнати **ручне тестування**: різні **розміри екранів** і різні **вендори** (у тому числі

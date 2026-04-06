@@ -1,5 +1,6 @@
 package com.revakovskyi.vartovyi.ui.screen.keywords
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.revakovskyi.vartovyi.model.TriggerKeywordRule
@@ -11,6 +12,10 @@ import com.revakovskyi.vartovyi.usecase.keywords.AddKeywordUseCase
 import com.revakovskyi.vartovyi.usecase.keywords.AddStopWordUseCase
 import com.revakovskyi.vartovyi.usecase.keywords.AddTelegramChannelUseCase
 import com.revakovskyi.vartovyi.usecase.keywords.ClearKeywordsScreenDataUseCase
+import com.revakovskyi.vartovyi.usecase.keywords.ExportKeywordsUseCase
+import com.revakovskyi.vartovyi.usecase.keywords.ExportResult
+import com.revakovskyi.vartovyi.usecase.keywords.ImportKeywordsUseCase
+import com.revakovskyi.vartovyi.usecase.keywords.ImportResult
 import com.revakovskyi.vartovyi.usecase.keywords.ObserveKeywordsUseCase
 import com.revakovskyi.vartovyi.usecase.keywords.ObserveStopWordsUseCase
 import com.revakovskyi.vartovyi.usecase.keywords.ObserveTelegramChannelFilterEnabledUseCase
@@ -19,16 +24,18 @@ import com.revakovskyi.vartovyi.usecase.keywords.RemoveKeywordUseCase
 import com.revakovskyi.vartovyi.usecase.keywords.RemoveStopWordUseCase
 import com.revakovskyi.vartovyi.usecase.keywords.RemoveTelegramChannelUseCase
 import com.revakovskyi.vartovyi.usecase.keywords.ToggleTelegramChannelFilterUseCase
-import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+
+private const val TAG = "KeywordsViewModel"
 
 class KeywordsViewModel(
     private val observeKeywordsUseCase: ObserveKeywordsUseCase,
@@ -43,13 +50,15 @@ class KeywordsViewModel(
     private val removeTelegramChannelUseCase: RemoveTelegramChannelUseCase,
     private val toggleTelegramChannelFilterUseCase: ToggleTelegramChannelFilterUseCase,
     private val clearKeywordsScreenDataUseCase: ClearKeywordsScreenDataUseCase,
+    private val exportKeywordsUseCase: ExportKeywordsUseCase,
+    private val importKeywordsUseCase: ImportKeywordsUseCase,
 ) : ViewModel() {
 
     private val _state = MutableStateFlow(State())
     val state: StateFlow<State> = _state.asStateFlow()
 
-    private val _events = MutableSharedFlow<Event>()
-    val events: SharedFlow<Event> = _events.asSharedFlow()
+    private val _events = Channel<Event>(Channel.BUFFERED)
+    val events: Flow<Event> = _events.receiveAsFlow()
 
     init {
         observeKeywords()
@@ -74,6 +83,13 @@ class KeywordsViewModel(
             is Action.OpenClearKeywordsDialog -> openClearKeywordsDialog()
             is Action.DismissClearKeywordsDialog -> dismissClearKeywordsDialog()
             is Action.ConfirmClearKeywords -> confirmClearKeywords()
+            is Action.CopyChip -> copyChip(action.text)
+            is Action.ExportKeywords -> exportKeywords()
+            is Action.NotifyExportSuccess -> notifyExportSuccess()
+            is Action.NotifyExportError -> notifyExportError()
+            is Action.RequestImport -> requestImport()
+            is Action.ImportKeywords -> importKeywords(action.jsonContent)
+            is Action.NotifyImportReadError -> notifyImportReadError()
         }
     }
 
@@ -146,7 +162,7 @@ class KeywordsViewModel(
         viewModelScope.launch {
             addKeywordUseCase(newKeywordRule.storageValue)
             _state.update { it.copy(inputKeyword = "") }
-            _events.emit(Event.KeywordAdded)
+            _events.send(Event.KeywordAdded)
         }
     }
 
@@ -171,7 +187,7 @@ class KeywordsViewModel(
         viewModelScope.launch {
             addStopWordUseCase(stopWord)
             _state.update { it.copy(inputStopWord = "") }
-            _events.emit(Event.StopWordAdded)
+            _events.send(Event.StopWordAdded)
         }
     }
 
@@ -204,7 +220,7 @@ class KeywordsViewModel(
         viewModelScope.launch {
             addTelegramChannelUseCase(channel)
             _state.update { it.copy(inputTelegramChannel = "") }
-            _events.emit(Event.TelegramChannelAdded)
+            _events.send(Event.TelegramChannelAdded)
         }
     }
 
@@ -227,17 +243,17 @@ class KeywordsViewModel(
             when (pendingRemoval) {
                 is KeywordsUiContract.PendingRemoval.Keyword -> {
                     removeKeywordUseCase(pendingRemoval.keywordRule.storageValue)
-                    _events.emit(Event.KeywordRemoved)
+                    _events.send(Event.KeywordRemoved)
                 }
 
                 is KeywordsUiContract.PendingRemoval.StopWord -> {
                     removeStopWordUseCase(pendingRemoval.stopWord)
-                    _events.emit(Event.StopWordRemoved)
+                    _events.send(Event.StopWordRemoved)
                 }
 
                 is KeywordsUiContract.PendingRemoval.TelegramChannel -> {
                     removeTelegramChannelUseCase(pendingRemoval.channel)
-                    _events.emit(Event.TelegramChannelRemoved)
+                    _events.send(Event.TelegramChannelRemoved)
                 }
             }
 
@@ -275,7 +291,61 @@ class KeywordsViewModel(
                     selectedTriggerKeywordRuleType = TriggerKeywordRuleType.WORD,
                 )
             }
-            _events.emit(Event.KeywordsScreenDataCleared)
+            _events.send(Event.KeywordsScreenDataCleared)
+        }
+    }
+
+    private fun copyChip(text: String) {
+        viewModelScope.launch { _events.send(Event.ChipCopied(text)) }
+    }
+
+    private fun exportKeywords() {
+        viewModelScope.launch {
+            when (val result = exportKeywordsUseCase()) {
+                is ExportResult.Success -> _events.send(Event.LaunchExportFilePicker(result.jsonContent))
+                is ExportResult.Error -> {
+                    Log.e(TAG, "exportKeywords: failed to build backup", result.exception)
+                    _events.send(Event.KeywordsExportError)
+                }
+            }
+        }
+    }
+
+    private fun notifyExportSuccess() {
+        viewModelScope.launch { _events.send(Event.KeywordsExportSuccess) }
+    }
+
+    private fun notifyExportError() {
+        viewModelScope.launch { _events.send(Event.KeywordsExportError) }
+    }
+
+    private fun notifyImportReadError() {
+        viewModelScope.launch { _events.send(Event.KeywordsImportInvalidFormat) }
+    }
+
+    private fun requestImport() {
+        viewModelScope.launch { _events.send(Event.LaunchImportFilePicker) }
+    }
+
+    private fun importKeywords(jsonContent: String) {
+        viewModelScope.launch {
+            when (val result = importKeywordsUseCase(jsonContent)) {
+                is ImportResult.Success -> _events.send(Event.KeywordsImportSuccess)
+
+                is ImportResult.InvalidFormat -> {
+                    Log.e(TAG, "importKeywords: exception", result.exception)
+                    _events.send(Event.KeywordsImportInvalidFormat)
+                }
+
+                is ImportResult.WriteError -> {
+                    Log.e(TAG, "importKeywords: write error", result.exception)
+                    _events.send(Event.KeywordsImportWriteError)
+                }
+
+                is ImportResult.UnsupportedVersion -> {
+                    _events.send(Event.KeywordsImportUnsupportedVersion(result.fileVersion))
+                }
+            }
         }
     }
 

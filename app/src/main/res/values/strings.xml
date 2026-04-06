@@ -143,5 +143,13 @@
     <string name="keywords_clear_dialog_confirm">Clear</string>
     <string name="keywords_clear_dialog_dismiss">Cancel</string>
     <string name="keywords_clear_completed">Keyword lists were cleared</string>
+    <string name="keywords_export">Export</string>
+    <string name="keywords_import">Import</string>
+    <string name="keywords_export_success">Keywords exported successfully</string>
+    <string name="keywords_export_error">Export failed: could not write the file</string>
+    <string name="keywords_import_success">Keywords imported successfully</string>
+    <string name="keywords_import_invalid_format">Import failed: the file is corrupted or has wrong format</string>
+    <string name="keywords_import_unsupported_version">Import failed: backup version %1$d is not supported</string>
+    <string name="keywords_import_write_error">Import failed: unable to save data</string>
     <string name="ok">OK</string>
 </resources>

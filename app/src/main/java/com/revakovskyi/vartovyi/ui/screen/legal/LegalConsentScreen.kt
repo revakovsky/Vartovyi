@@ -96,7 +96,6 @@ private fun LegalConsentContent(
             onClick = { onAction(LegalConsentUiContract.Action.OpenPrivacyPolicy) },
             style = VartovyiActionButtonStyle.Outlined,
             enabled = !state.isLoading,
-            contentColor = VartovyiTheme.colors.onPrimary,
             borderColor = VartovyiTheme.colors.primary,
             modifier = Modifier.fillMaxWidth()
         )
@@ -106,7 +105,6 @@ private fun LegalConsentContent(
             onClick = { onAction(LegalConsentUiContract.Action.OpenTermsOfUse) },
             style = VartovyiActionButtonStyle.Outlined,
             enabled = !state.isLoading,
-            contentColor = VartovyiTheme.colors.onPrimary,
             borderColor = VartovyiTheme.colors.primary,
             modifier = Modifier.fillMaxWidth()
         )
@@ -126,7 +124,6 @@ private fun LegalConsentContent(
             onClick = { onAction(LegalConsentUiContract.Action.Refuse) },
             style = VartovyiActionButtonStyle.Outlined,
             enabled = !state.isLoading,
-            contentColor = VartovyiTheme.colors.onPrimary,
             borderColor = VartovyiTheme.colors.error,
             modifier = Modifier
                 .fillMaxWidth()
