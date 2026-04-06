@@ -2,7 +2,9 @@ package com.revakovskyi.vartovyi.ui.screen.settings.components
 
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.tooling.preview.Preview
 import com.revakovskyi.vartovyi.R
 import com.revakovskyi.vartovyi.ui.components.VartovyiActionButton
@@ -20,6 +22,7 @@ fun SettingsResetFactoryDefaultsButton(
         style = VartovyiActionButtonStyle.Outlined,
         contentColor = VartovyiTheme.colors.error,
         borderColor = VartovyiTheme.colors.error,
+        icon = ImageVector.vectorResource(R.drawable.delete),
         modifier = modifier
     )
 }

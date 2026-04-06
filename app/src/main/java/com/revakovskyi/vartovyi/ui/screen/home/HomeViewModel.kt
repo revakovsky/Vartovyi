@@ -12,14 +12,14 @@ import com.revakovskyi.vartovyi.usecase.log.ObserveLastAlarmTriggeredEventUseCas
 import com.revakovskyi.vartovyi.usecase.monitoring.ObserveMonitoringStateUseCase
 import com.revakovskyi.vartovyi.usecase.monitoring.ToggleMonitoringUseCase
 import com.revakovskyi.vartovyi.usecase.settings.ObserveScheduleSettingsUseCase
-import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
@@ -35,8 +35,8 @@ class HomeViewModel(
     private val _state = MutableStateFlow(State())
     val state: StateFlow<State> = _state.asStateFlow()
 
-    private val _events = MutableSharedFlow<Event>()
-    val events: SharedFlow<Event> = _events.asSharedFlow()
+    private val _events = Channel<Event>(Channel.BUFFERED)
+    val events: Flow<Event> = _events.receiveAsFlow()
 
     private var loadedSourcesCount = 0
 
@@ -133,12 +133,12 @@ class HomeViewModel(
     }
 
     private fun navigateToKeywords() {
-        viewModelScope.launch { _events.emit(Event.NavigateToKeywords) }
+        viewModelScope.launch { _events.send(Event.NavigateToKeywords) }
     }
 
     private fun navigateToLog(logEntryId: String?) {
         viewModelScope.launch {
-            _events.emit(
+            _events.send(
                 Event.NavigateToLog(
                     logEntryId = logEntryId,
                 ),

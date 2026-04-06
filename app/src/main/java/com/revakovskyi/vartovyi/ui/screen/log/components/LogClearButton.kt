@@ -3,7 +3,9 @@ package com.revakovskyi.vartovyi.ui.screen.log.components
 import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.tooling.preview.Preview
 import com.revakovskyi.vartovyi.R
 import com.revakovskyi.vartovyi.ui.components.VartovyiActionButton
@@ -21,8 +23,8 @@ fun LogClearButton(
         onClick = onClick,
         style = VartovyiActionButtonStyle.Outlined,
         enabled = isEnabled,
-        contentColor = if (isEnabled) VartovyiTheme.colors.onPrimary else VartovyiTheme.colors.onSurfaceVariant,
-        borderColor = if (isEnabled) VartovyiTheme.colors.primary else VartovyiTheme.colors.onSurfaceVariant,
+        borderColor = VartovyiTheme.colors.primary,
+        icon = ImageVector.vectorResource(R.drawable.delete),
         modifier = modifier.padding(vertical = VartovyiTheme.spacing.standard)
     )
 }

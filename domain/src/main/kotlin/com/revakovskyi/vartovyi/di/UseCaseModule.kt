@@ -20,6 +20,10 @@ import com.revakovskyi.vartovyi.usecase.keywords.AddTelegramChannelUseCase
 import com.revakovskyi.vartovyi.usecase.keywords.AddTelegramChannelUseCaseImpl
 import com.revakovskyi.vartovyi.usecase.keywords.ClearKeywordsScreenDataUseCase
 import com.revakovskyi.vartovyi.usecase.keywords.ClearKeywordsScreenDataUseCaseImpl
+import com.revakovskyi.vartovyi.usecase.keywords.ExportKeywordsUseCase
+import com.revakovskyi.vartovyi.usecase.keywords.ExportKeywordsUseCaseImpl
+import com.revakovskyi.vartovyi.usecase.keywords.ImportKeywordsUseCase
+import com.revakovskyi.vartovyi.usecase.keywords.ImportKeywordsUseCaseImpl
 import com.revakovskyi.vartovyi.usecase.keywords.ObserveKeywordsUseCase
 import com.revakovskyi.vartovyi.usecase.keywords.ObserveKeywordsUseCaseImpl
 import com.revakovskyi.vartovyi.usecase.keywords.ObserveStopWordsUseCase
@@ -113,6 +117,8 @@ val useCaseModule = module {
     singleOf(::AddTelegramChannelUseCaseImpl) { bind<AddTelegramChannelUseCase>() }
     singleOf(::RemoveTelegramChannelUseCaseImpl) { bind<RemoveTelegramChannelUseCase>() }
     singleOf(::ToggleTelegramChannelFilterUseCaseImpl) { bind<ToggleTelegramChannelFilterUseCase>() }
+    singleOf(::ExportKeywordsUseCaseImpl) { bind<ExportKeywordsUseCase>() }
+    singleOf(::ImportKeywordsUseCaseImpl) { bind<ImportKeywordsUseCase>() }
 
     singleOf(::AddLogEntryUseCaseImpl) { bind<AddLogEntryUseCase>() }
     singleOf(::ObserveLogEntriesUseCaseImpl) { bind<ObserveLogEntriesUseCase>() }

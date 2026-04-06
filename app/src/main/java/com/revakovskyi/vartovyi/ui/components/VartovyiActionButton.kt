@@ -85,12 +85,18 @@ fun VartovyiActionButton(
             )
         }
     } else {
+        val effectiveContentColor =
+            if (enabled) contentColor else VartovyiTheme.colors.onSurfaceVariant
+        val effectiveBorderColor =
+            if (enabled) borderColor else VartovyiTheme.colors.onSurfaceVariant
+        val effectiveIconTint = if (enabled) iconTint else VartovyiTheme.colors.onSurfaceVariant
+
         OutlinedButton(
             onClick = onClick,
             enabled = enabled,
             border = BorderStroke(
                 width = BORDER_STROKE_WIDTH_DP.dp,
-                color = borderColor,
+                color = effectiveBorderColor,
             ),
             modifier = buttonModifier
         ) {
@@ -98,7 +104,7 @@ fun VartovyiActionButton(
                 Icon(
                     imageVector = icon,
                     contentDescription = null,
-                    tint = iconTint,
+                    tint = effectiveIconTint,
                     modifier = Modifier.size(iconSize),
                 )
 
@@ -108,7 +114,7 @@ fun VartovyiActionButton(
             Text(
                 text = text,
                 style = VartovyiTheme.typography.titleMedium,
-                color = contentColor,
+                color = effectiveContentColor,
             )
         }
     }
@@ -135,6 +141,20 @@ private fun VartovyiActionButtonOutlinedPreview() {
             text = "Clear logs",
             onClick = {},
             style = VartovyiActionButtonStyle.Outlined,
+            modifier = Modifier.fillMaxWidth()
+        )
+    }
+}
+
+@Preview
+@Composable
+private fun VartovyiActionButtonOutlinedDisabledPreview() {
+    VartovyiTheme {
+        VartovyiActionButton(
+            text = "Clear logs",
+            onClick = {},
+            style = VartovyiActionButtonStyle.Outlined,
+            enabled = false,
             modifier = Modifier.fillMaxWidth()
         )
     }

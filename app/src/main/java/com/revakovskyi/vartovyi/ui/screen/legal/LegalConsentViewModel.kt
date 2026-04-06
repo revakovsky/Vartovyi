@@ -6,15 +6,15 @@ import com.revakovskyi.vartovyi.constants.PRIVACY_POLICY_URL
 import com.revakovskyi.vartovyi.constants.TERMS_OF_USE_URL
 import com.revakovskyi.vartovyi.usecase.legal.AcceptCurrentLegalDocumentsUseCase
 import com.revakovskyi.vartovyi.usecase.legal.ObserveLegalConsentStateUseCase
+import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
@@ -26,8 +26,8 @@ class LegalConsentViewModel(
     private val _state = MutableStateFlow(LegalConsentUiContract.State())
     val state: StateFlow<LegalConsentUiContract.State> = _state.asStateFlow()
 
-    private val _events = MutableSharedFlow<LegalConsentUiContract.Event>()
-    val events: SharedFlow<LegalConsentUiContract.Event> = _events.asSharedFlow()
+    private val _events = Channel<LegalConsentUiContract.Event>(Channel.BUFFERED)
+    val events: Flow<LegalConsentUiContract.Event> = _events.receiveAsFlow()
 
     init {
         observeLegalConsentStateUseCase()
@@ -63,7 +63,7 @@ class LegalConsentViewModel(
 
     private fun emitOpenUrl(url: String) {
         viewModelScope.launch {
-            _events.emit(LegalConsentUiContract.Event.OpenUrl(url = url))
+            _events.send(LegalConsentUiContract.Event.OpenUrl(url = url))
         }
     }
 
@@ -75,7 +75,7 @@ class LegalConsentViewModel(
 
     private fun refuse() {
         viewModelScope.launch {
-            _events.emit(LegalConsentUiContract.Event.CloseApplication)
+            _events.send(LegalConsentUiContract.Event.CloseApplication)
         }
     }
 

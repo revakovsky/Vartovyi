@@ -24,14 +24,14 @@ import com.revakovskyi.vartovyi.usecase.settings.SetEndTimeUseCase
 import com.revakovskyi.vartovyi.usecase.settings.SetLogSizeLimitUseCase
 import com.revakovskyi.vartovyi.usecase.settings.SetScheduleEnabledUseCase
 import com.revakovskyi.vartovyi.usecase.settings.SetStartTimeUseCase
-import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
@@ -59,8 +59,8 @@ class SettingsViewModel(
     private val _state = MutableStateFlow(State())
     val state: StateFlow<State> = _state.asStateFlow()
 
-    private val _events = MutableSharedFlow<Event>()
-    val events: SharedFlow<Event> = _events.asSharedFlow()
+    private val _events = Channel<Event>(Channel.BUFFERED)
+    val events: Flow<Event> = _events.receiveAsFlow()
 
     private var loadedSourcesCount = 0
     private var skipCollapseOnNextScreenStop = false
@@ -222,7 +222,7 @@ class SettingsViewModel(
     ) {
         if (state.value.isMonitoringActive) {
             viewModelScope.launch {
-                _events.emit(Event.ShowDisableMonitoringForTestAlarm)
+                _events.send(Event.ShowDisableMonitoringForTestAlarm)
             }
             return
         }
@@ -266,14 +266,14 @@ class SettingsViewModel(
     private fun openPrivacyPolicyUrl() {
         skipCollapseOnNextScreenStop = true
         viewModelScope.launch {
-            _events.emit(Event.OpenUrl(url = PRIVACY_POLICY_URL))
+            _events.send(Event.OpenUrl(url = PRIVACY_POLICY_URL))
         }
     }
 
     private fun openTermsOfUseUrl() {
         skipCollapseOnNextScreenStop = true
         viewModelScope.launch {
-            _events.emit(Event.OpenUrl(url = TERMS_OF_USE_URL))
+            _events.send(Event.OpenUrl(url = TERMS_OF_USE_URL))
         }
     }
 
@@ -298,7 +298,7 @@ class SettingsViewModel(
                     expandedSection = null,
                 )
             }
-            _events.emit(Event.ShowFactoryResetCompleted)
+            _events.send(Event.ShowFactoryResetCompleted)
         }
     }
 
