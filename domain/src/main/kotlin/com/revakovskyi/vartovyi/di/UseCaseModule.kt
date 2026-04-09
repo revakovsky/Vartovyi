@@ -62,6 +62,10 @@ import com.revakovskyi.vartovyi.usecase.monitoring.ToggleMonitoringUseCase
 import com.revakovskyi.vartovyi.usecase.monitoring.ToggleMonitoringUseCaseImpl
 import com.revakovskyi.vartovyi.usecase.notification.ProcessIncomingTelegramNotificationUseCase
 import com.revakovskyi.vartovyi.usecase.notification.ProcessIncomingTelegramNotificationUseCaseImpl
+import com.revakovskyi.vartovyi.usecase.onboarding.ObserveOnboardingCompletedUseCase
+import com.revakovskyi.vartovyi.usecase.onboarding.ObserveOnboardingCompletedUseCaseImpl
+import com.revakovskyi.vartovyi.usecase.onboarding.SetOnboardingCompletedUseCase
+import com.revakovskyi.vartovyi.usecase.onboarding.SetOnboardingCompletedUseCaseImpl
 import com.revakovskyi.vartovyi.usecase.settings.ObserveAlarmRetriggerCooldownDurationUseCase
 import com.revakovskyi.vartovyi.usecase.settings.ObserveAlarmRetriggerCooldownDurationUseCaseImpl
 import com.revakovskyi.vartovyi.usecase.settings.ObserveLogSizeLimitUseCase
@@ -128,6 +132,8 @@ val useCaseModule = module {
 
     singleOf(::ObserveLegalConsentStateUseCaseImpl) { bind<ObserveLegalConsentStateUseCase>() }
     singleOf(::AcceptCurrentLegalDocumentsUseCaseImpl) { bind<AcceptCurrentLegalDocumentsUseCase>() }
+    singleOf(::ObserveOnboardingCompletedUseCaseImpl) { bind<ObserveOnboardingCompletedUseCase>() }
+    singleOf(::SetOnboardingCompletedUseCaseImpl) { bind<SetOnboardingCompletedUseCase>() }
 
     singleOf(::ObserveScheduleSettingsUseCaseImpl) { bind<ObserveScheduleSettingsUseCase>() }
     singleOf(::ObserveLogSizeLimitUseCaseImpl) { bind<ObserveLogSizeLimitUseCase>() }

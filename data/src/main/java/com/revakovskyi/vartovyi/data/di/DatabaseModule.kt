@@ -4,6 +4,7 @@ import androidx.room.Room
 import com.revakovskyi.vartovyi.data.datastore.KeywordsDataStore
 import com.revakovskyi.vartovyi.data.datastore.LegalConsentDataStore
 import com.revakovskyi.vartovyi.data.datastore.MonitoringDataStore
+import com.revakovskyi.vartovyi.data.datastore.OnboardingDataStore
 import com.revakovskyi.vartovyi.data.db.VartovyiDatabase
 import com.revakovskyi.vartovyi.data.db.dao.AlertEventDao
 import org.koin.android.ext.koin.androidContext
@@ -17,6 +18,7 @@ val databaseModule = module {
     singleOf(::MonitoringDataStore)
     singleOf(::KeywordsDataStore)
     singleOf(::LegalConsentDataStore)
+    singleOf(::OnboardingDataStore)
 
     single<VartovyiDatabase> {
         Room.databaseBuilder(
