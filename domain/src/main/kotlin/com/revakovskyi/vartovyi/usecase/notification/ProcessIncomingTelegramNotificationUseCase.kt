@@ -16,7 +16,18 @@ import java.util.UUID
 
 private const val EMPTY_MATCHED_KEYWORD = ""
 private const val TIME_PATTERN = "HH:mm"
-private const val TELEGRAM_PACKAGE_NAME = "org.telegram.messenger"
+
+private const val TELEGRAM_PACKAGE_OFFICIAL = "org.telegram.messenger"
+private const val TELEGRAM_PACKAGE_OFFICIAL_WEB = "org.telegram.messenger.web"
+private const val TELEGRAM_PACKAGE_X = "org.thunderdog.challegram"
+private const val TELEGRAM_PACKAGE_NEKO_X = "com.nekox.messenger"
+
+private val TELEGRAM_PACKAGES = setOf(
+    TELEGRAM_PACKAGE_OFFICIAL,
+    TELEGRAM_PACKAGE_OFFICIAL_WEB,
+    TELEGRAM_PACKAGE_X,
+    TELEGRAM_PACKAGE_NEKO_X,
+)
 
 interface ProcessIncomingTelegramNotificationUseCase {
     suspend operator fun invoke(payload: NotificationPayload): Boolean
@@ -41,7 +52,7 @@ class ProcessIncomingTelegramNotificationUseCaseImpl(
     override suspend operator fun invoke(payload: NotificationPayload): Boolean {
         if (payload.text.isBlank()) return false
 
-        if (payload.packageName != TELEGRAM_PACKAGE_NAME) return false
+        if (payload.packageName !in TELEGRAM_PACKAGES) return false
 
         if (!settingsRepository.isMonitoringActive.first()) return false
 
