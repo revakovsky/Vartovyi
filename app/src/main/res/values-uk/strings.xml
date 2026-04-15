@@ -30,9 +30,10 @@
     <string name="settings_alarm_duration_value_seconds">%1$d с</string>
     <string name="settings_alarm_volume_title">Гучність тривоги</string>
     <string name="settings_alarm_volume_value_percent">%1$d%%</string>
+    <string name="settings_alarm_volume_tooltip">Окремий рівень гучності сирени, незалежний від загальної гучності пристрою:\n\n• 0% — беззвучний режим.\n• 100% — максимальна гучність.</string>
     <string name="settings_section_sound">Звук</string>
     <string name="settings_section_schedule">Розклад роботи</string>
-    <string name="settings_section_schedule_tooltip">Якщо увімкнено, перевірка ключових слів і тривога діють лише в межах обраного інтервалу часу (час пристрою). Поза цим вікном збіг ігнорується і тривога не лунає; події можуть з’являтися в журналі як пропущені. Якщо вимкнено, моніторинг працює цілодобово.</string>
+    <string name="settings_section_schedule_tooltip">Якщо увімкнено, перевірка ключових слів і тривога діють лише в межах обраного інтервалу часу (час пристрою). Поза цим вікном збіг ігнорується і тривога не лунає; події можуть з\’являтися в журналі як пропущені.\n\nПриклад: задайте початок о 22:00 і кінець о 07:00 — Vartovyi буде активний лише вночі і зупиниться вдень автоматично, без вашої участі.\n\nЯкщо вимкнено, моніторинг працює цілодобово.</string>
     <string name="settings_section_data">Дані</string>
     <string name="settings_section_info">Інфо</string>
     <string name="settings_schedule_enabled_title">Працювати за розкладом</string>
@@ -45,7 +46,7 @@
     <string name="settings_data_log_size_value_items">%1$d</string>
     <string name="settings_data_alarm_cooldown_title">Пауза між тривогами</string>
     <string name="settings_data_alarm_cooldown_value_minutes">%1$d хв</string>
-    <string name="settings_data_alarm_cooldown_tooltip">Після спрацювання тривоги повторні спрацювання блокуються на вибраний час. Це допомагає уникнути безперервних циклів тривоги через дубльовані сповіщення.</string>
+    <string name="settings_data_alarm_cooldown_tooltip">Після спрацювання тривоги повторні спрацювання блокуються на вибраний час. Повідомлення з ключовими словами протягом паузи продовжують потрапляти до журналу — сирена просто не вмикається.\n\nЦе допомагає уникнути дублювання сигналу, якщо канал надсилає кілька повідомлень підряд про одну й ту саму ціль.</string>
     <string name="settings_data_export_log_title">Експорт журналу</string>
     <string name="settings_data_export_log_button">Експортувати журнал</string>
     <string name="settings_data_export_log_pending_message">Експорт ще недоступний. Цю дію буде додано в одному з наступних оновлень.</string>
@@ -79,8 +80,7 @@
     <string name="emergency_stop">Вимкнути тривогу</string>
     <string name="emergency_stop_completed">Моніторинг і тривогу вимкнено</string>
     <string name="keywords_trigger_words">Тригер-слова</string>
-    <string name="keywords_trigger_tooltip">Тут ви додаєте правила, за якими спрацьовує тривога.\n\nРежим «Слово»:\n- шукає окреме слово в повідомленні;\n- приклад: «нд» спрацює на «тривога в нд», але не має спрацьовувати на «фундамент».\n\nРежим «Усі слова»:\n- у повідомленні мають бути всі задані слова (порядок не важливий);\n- приклад: «ракета + харків» спрацює на «ракета на харків» і «по харкову летить ракета», але не спрацює на «ракета на київ».\n\nРежим «Фраза»:\n- шукає конкретну фразу;\n- приклад: «ракета на харків» спрацює тільки коли в тексті є саме ця фраза.\n\nПорада:\n- для точності використовуйте «Усі слова» або «Фраза»;\n- для загальних спрацювань використовуйте «Слово»;\n- регістр не враховується (великі/малі літери не впливають на збіг).</string>
-    <string name="keywords_trigger_hint">Наприклад: Салтівка</string>
+    <string name="keywords_trigger_tooltip">Тут ви додаєте правила, за якими спрацьовує тривога.\n\nРежим «Слово»:\n- шукає окреме слово в повідомленні;\n- приклад: «нд» спрацює на «тривога в нд», але не має спрацьовувати на «фундамент».\n\nРежим «Усі слова»:\n- у повідомленні мають бути всі задані слова (порядок не важливий);\n- слова можна вводити через пробіл, кому або знак «+»;\n- приклад: «ракета + харків» спрацює на «ракета на харків» і «по харкову летить ракета», але не спрацює на «ракета на київ».\n\nРежим «Фраза»:\n- шукає конкретну фразу;\n- лапки додавати не потрібно;\n- регістр не враховується (великі/малі літери не впливають на збіг);\n- приклад: «ракета на харків» спрацює тільки коли в тексті є саме ця фраза.\n\nПорада:\n- для точності використовуйте «Усі слова» або «Фраза»;\n- для загальних спрацювань використовуйте «Слово»;\n- після першого сповіщення відкрийте екран Журнал і скопіюйте потрібні слова прямо звідти.</string>
     <string name="keywords_trigger_hint_word">Наприклад: ракета</string>
     <string name="keywords_trigger_hint_all_words">Наприклад: ракета + харків</string>
     <string name="keywords_trigger_hint_phrase">Наприклад: ракета на харків</string>
@@ -90,13 +90,14 @@
     <string name="keywords_input_clear">Очистити</string>
     <string name="keywords_input_clear_tooltip">Очищає введений текст у цьому полі</string>
     <string name="keywords_stop_words">Стоп-слова</string>
-    <string name="keywords_stop_tooltip">Повідомлення не спричинить тривогу, якщо містить будь-яке стоп-слово</string>
+    <string name="keywords_stop_tooltip">Повідомлення не спричинить тривогу, якщо містить будь-яке стоп-слово.\n\nРегістр не враховується (великі/малі літери не впливають на збіг).\n\nКорисно для фільтрації повідомлень про відбій, де ваші ключові слова теж можуть з\'явитися.\n\nПриклад: якщо тригер «Київ», а стоп-слово «відбій» — повідомлення «відбій, загрози для Київ більше немає» не запустить сирену.</string>
     <string name="keywords_stop_hint">Наприклад: відбій</string>
     <string name="keywords_telegram_channels">Канали Telegram</string>
     <string name="keywords_optional">Необов\'язково</string>
     <string name="keywords_all_channels_monitored">Відстежуються всі канали</string>
     <string name="keywords_telegram_channel_hint">Наприклад: @air_alert_ua</string>
     <string name="keywords_telegram_channel_tip">Тривога спрацює тільки від повідомлень з цих каналів</string>
+    <string name="keywords_telegram_channel_tooltip">Введіть назву каналу так, як вона відображається у списку чатів Telegram.\n\nEmoji вводити не обов\'язково — достатньо текстової частини. Наприклад, для «🚨 Повітряні цілі Київ» можна ввести просто «Київ».\n\nПеревірка нечутлива до регістру.</string>
     <string name="keywords_duplicate_title">Вже є у списку</string>
     <string name="keywords_duplicate_message">«%s» вже є у списку.</string>
     <string name="keywords_duplicate_confirm">Зрозуміло</string>
@@ -122,7 +123,7 @@
     <string name="permissions_recommended">Рекомендований</string>
     <string name="log_alarm">Тривога</string>
     <string name="log_skipped">Пропущено</string>
-    <string name="log_skipped_cooldown">Пропущено (cooldown)</string>
+    <string name="log_skipped_cooldown">Пропущено (пауза)</string>
     <string name="log_copy">Копіювати</string>
     <string name="log_channel_copied">Назву каналу скопійовано</string>
     <string name="log_message_copied">Повідомлення скопійовано</string>
@@ -135,6 +136,9 @@
     <string name="log_clear_dialog_message">Це видалить усі збережені записи журналу з цього пристрою. Використовуйте це, коли потрібно скинути історію або прибрати чутливі дані зі сповіщень.</string>
     <string name="log_clear_dialog_confirm">Очистити</string>
     <string name="log_clear_dialog_dismiss">Скасувати</string>
+    <string name="log_info_tooltip">Про журнал</string>
+    <string name="log_info_dialog_title">Як читати журнал</string>
+    <string name="log_info_dialog_body">Тут відображаються всі сповіщення Telegram, отримані під час активного моніторингу.\n\nСтатуси записів:\n• Тривога — ключове слово знайдено, сирена спрацювала.\n• Пропущено (пауза) — ключове слово знайдено, але ще не минув час затримки між тривогами, який задається в налаштуваннях додатку.\n• Пропущено — збігів немає.\n\nЩоб скопіювати назву каналу або текст повідомлення, натискайте відповідні кнопки праворуч.</string>
     <string name="keywords_clear">Очистити всі списки</string>
     <string name="keywords_clear_dialog_title">Очистити всі дані ключових слів?</string>
     <string name="keywords_clear_dialog_message">Усі ключові слова, стоп-слова та списки каналів Telegram буде видалено. Фільтр каналів буде вимкнено.\n\nЯкщо зараз грає тривога, вона зупиниться. Моніторинг буде вимкнено.\n\nЦю дію неможливо скасувати.</string>
@@ -150,4 +154,27 @@
     <string name="keywords_import_unsupported_version">Помилка імпорту: версія резервного копіювання %1$d не підтримується</string>
     <string name="keywords_import_write_error">Помилка імпорту: не вдалося зберегти дані</string>
     <string name="ok">OK</string>
+
+    <string name="onboarding_back">Назад</string>
+    <string name="onboarding_next">Далі</string>
+    <string name="onboarding_complete">Готово</string>
+    <string name="onboarding_skip">Пропустити</string>
+    <string name="onboarding_open_permissions">Відкрити дозволи</string>
+
+    <string name="onboarding_welcome_title">Vartovyi — ваш цифровий вартовий</string>
+    <string name="onboarding_welcome_body">Додаток моніторить Telegram сповіщення у фоні та миттєво подає гучну сирену, як тільки повідомлення містить ваше ключове слово.\n\nНалаштуй один раз — захищений завжди.\n\nНайважливіше налаштування — це ключові слова-фільтри, які визначають, на які повідомлення Vartovyi буде реагувати сиреною. Без них додаток не знатиме, що для вас є небезпекою.</string>
+
+    <string name="onboarding_telegram_title">Налаштуйте Telegram</string>
+    <string name="onboarding_telegram_body_1">Встановіть Telegram з Google Play. Підтримуються офіційний Telegram, Telegram X та NekoX.\n\nЗнайдіть і підпишіться на канал оповіщень вашого міста або регіону.</string>
+    <string name="onboarding_telegram_body_2">⚠️ Увімкніть сповіщення для каналу — без них Vartovyi не отримає жодного повідомлення. Рекомендуємо без звуку: сирену подасть сам додаток.</string>
+
+    <string name="onboarding_permissions_title">Надайте дозволи</string>
+    <string name="onboarding_permissions_body">Обов\'язкові — без них додаток не працює:\n• Доступ до сповіщень\n• Показ власних сповіщень\n• Необмежена робота у фоні (батарея)\n\nРекомендовані — для повного захисту:\n• Режим «Не турбувати»\n• Повноекранні сповіщення\n\nДетальний опис кожного дозволу є на екрані Дозволи в додатку.</string>
+
+    <string name="onboarding_keywords_title">Налаштуйте ключові слова</string>
+    <string name="onboarding_keywords_body">Ключові слова — головне налаштування. Саме вони визначають, коли спрацює сирена.\n\nТригер-слова — повідомлення з цими словами запустить тривогу. Доступно три режими: Слово, Всі слова, Фраза.\n\nСтоп-слова — якщо слово знайдено у повідомленні, тривога не спрацює.\n\nФільтр каналів — необов\'язково. Обмежує моніторинг лише обраними Telegram-каналами.\n\n💡 Найзручніший спосіб: після першого спрацювання відкрийте екран Журнал і скопіюйте слова прямо звідти.</string>
+    <string name="onboarding_open_keywords">Відкрити ключові слова</string>
+
+    <string name="onboarding_launch_title">Запустіть та перевірте</string>
+    <string name="onboarding_launch_body">Натисніть кнопку «Активувати» на головному екрані — щит засвітиться, і моніторинг запуститься.\n\nПеред першим бойовим використанням рекомендуємо перевірити роботу:\n• Попросіть когось надіслати повідомлення з вашим тригерним словом у відстежуваний канал.\n• Або надішліть тестове повідомлення самому собі (якщо канал дозволяє).\n\nЯкщо сирена не спрацювала — відкрийте екран Журнал і перевірте, чи є там подія. Це допоможе зрозуміти, що пішло не так.\n\nВсе готово. Бережіть себе. 🛡</string>
 </resources>

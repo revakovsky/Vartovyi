@@ -1,5 +1,7 @@
 package com.revakovskyi.vartovyi.ui.components
 
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -14,6 +16,7 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.TopAppBarScrollBehavior
 import androidx.compose.material3.rememberTooltipState
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -34,6 +37,7 @@ fun VartovyiTopBar(
     hasMissingPermissions: Boolean,
     isEmergencyStopVisible: Boolean,
     scrollBehavior: TopAppBarScrollBehavior = TopAppBarDefaults.pinnedScrollBehavior(),
+    additionalActions: (@Composable () -> Unit)? = null,
     onPermissionsClick: () -> Unit,
     onEmergencyStopClick: () -> Unit,
 ) {
@@ -46,34 +50,45 @@ fun VartovyiTopBar(
             )
         },
         actions = {
-            if (isEmergencyStopVisible) {
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(VartovyiTheme.spacing.extraSmall),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                additionalActions?.invoke()
+
+                if (isEmergencyStopVisible) {
+                    TopBarTooltipIconButton(
+                        tooltipText = stringResource(R.string.emergency_stop_content_description),
+                        onClick = onEmergencyStopClick,
+                    ) {
+                        Icon(
+                            imageVector = ImageVector.vectorResource(R.drawable.close),
+                            contentDescription = stringResource(R.string.emergency_stop_content_description),
+                            tint = VartovyiTheme.colors.error,
+                            modifier = Modifier.size(TOP_BAR_PERMISSION_ICON_SIZE)
+                        )
+                    }
+                }
+
                 TopBarTooltipIconButton(
-                    tooltipText = stringResource(R.string.emergency_stop_content_description),
-                    onClick = onEmergencyStopClick,
+                    tooltipText = stringResource(R.string.permissions_icon_content_description),
+                    onClick = onPermissionsClick,
                 ) {
+                    val icon =
+                        if (hasMissingPermissions) ImageVector.vectorResource(R.drawable.security_red)
+                        else ImageVector.vectorResource(R.drawable.security_green)
+
+                    val iconColor =
+                        if (hasMissingPermissions) VartovyiTheme.colors.error
+                        else VartovyiTheme.colors.primary
+
                     Icon(
-                        imageVector = ImageVector.vectorResource(R.drawable.close),
-                        contentDescription = stringResource(R.string.emergency_stop_content_description),
-                        tint = VartovyiTheme.colors.error,
+                        imageVector = icon,
+                        contentDescription = stringResource(R.string.permissions_icon_content_description),
+                        tint = iconColor,
                         modifier = Modifier.size(TOP_BAR_PERMISSION_ICON_SIZE)
                     )
                 }
-            }
-
-            TopBarTooltipIconButton(
-                tooltipText = stringResource(R.string.permissions_icon_content_description),
-                onClick = onPermissionsClick,
-            ) {
-                val iconColor =
-                    if (hasMissingPermissions) VartovyiTheme.colors.error
-                    else VartovyiTheme.colors.primary
-
-                Icon(
-                    imageVector = ImageVector.vectorResource(R.drawable.checkbox),
-                    contentDescription = stringResource(R.string.permissions_icon_content_description),
-                    tint = iconColor,
-                    modifier = Modifier.size(TOP_BAR_PERMISSION_ICON_SIZE)
-                )
             }
         },
         colors = TopAppBarDefaults.topAppBarColors(

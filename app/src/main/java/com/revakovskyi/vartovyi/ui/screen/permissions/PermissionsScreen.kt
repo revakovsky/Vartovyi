@@ -6,9 +6,9 @@ import android.content.Intent
 import android.net.Uri
 import android.provider.Settings
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.runtime.Composable
@@ -37,6 +37,7 @@ private const val ACTION_MANAGE_SPECIAL_APP_ACCESSES =
 @Composable
 fun PermissionsScreen(
     viewModel: PermissionsViewModel = koinActivityViewModel(),
+    isFromOnboarding: Boolean = false,
     onNavigateBack: () -> Unit,
     onRefreshPermissions: () -> Unit,
 ) {
@@ -77,6 +78,7 @@ fun PermissionsScreen(
     } else {
         PermissionsContent(
             state = state,
+            isFromOnboarding = isFromOnboarding,
             onAction = viewModel::onAction,
         )
     }
@@ -86,40 +88,43 @@ fun PermissionsScreen(
 private fun PermissionsContent(
     modifier: Modifier = Modifier,
     state: PermissionsUiContract.State,
+    isFromOnboarding: Boolean = false,
     onAction: (action: PermissionsUiContract.Action) -> Unit,
 ) {
     val permissionItems = buildPermissionItems(state = state)
 
-    Column(
-        verticalArrangement = Arrangement.spacedBy(VartovyiTheme.spacing.standard),
-        modifier = modifier.fillMaxSize(),
+    LazyColumn(
+        verticalArrangement = Arrangement.spacedBy(VartovyiTheme.spacing.small),
+        modifier = modifier
+            .widthIn(max = VartovyiTheme.spacing.contentMaxWidth)
+            .fillMaxSize()
     ) {
-        PermissionsHeader(
-            onNavigateBack = { onAction(PermissionsUiContract.Action.NavigateBack) },
-        )
-
-        if (state.hasMissingPermissions) {
-            PermissionsWarningCard(
-                modifier = Modifier.padding(horizontal = VartovyiTheme.spacing.standard),
-            )
-        }
-
-        LazyColumn(
-            verticalArrangement = Arrangement.spacedBy(VartovyiTheme.spacing.small),
-            modifier = Modifier
-                .weight(1f)
-                .padding(horizontal = VartovyiTheme.spacing.standard),
-        ) {
-            items(permissionItems) { permissionItem ->
-                PermissionItemCard(
-                    title = permissionItem.title,
-                    description = permissionItem.description,
-                    isRequired = permissionItem.isRequired,
-                    isGranted = permissionItem.isGranted,
-                    onAction = onAction,
-                    onSwitchToggle = permissionItem.onSwitchToggle,
+        if (!isFromOnboarding) {
+            item(contentType = "header") {
+                PermissionsHeader(
+                    onNavigateBack = { onAction(PermissionsUiContract.Action.NavigateBack) },
                 )
             }
+        }
+
+        if (state.hasMissingPermissions) {
+            item(contentType = "warning") {
+                PermissionsWarningCard(
+                    modifier = Modifier.padding(horizontal = VartovyiTheme.spacing.standard)
+                )
+            }
+        }
+
+        items(permissionItems) { permissionItem ->
+            PermissionItemCard(
+                title = permissionItem.title,
+                description = permissionItem.description,
+                isRequired = permissionItem.isRequired,
+                isGranted = permissionItem.isGranted,
+                onAction = onAction,
+                onSwitchToggle = permissionItem.onSwitchToggle,
+                modifier = Modifier.padding(horizontal = VartovyiTheme.spacing.standard)
+            )
         }
     }
 }

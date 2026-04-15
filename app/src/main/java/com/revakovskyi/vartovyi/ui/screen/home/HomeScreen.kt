@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.material3.SnackbarDuration
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -119,7 +120,9 @@ private fun HomeContent(
 
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
-            modifier = Modifier.fillMaxSize(),
+            modifier = Modifier
+                .widthIn(max = VartovyiTheme.spacing.contentMaxWidth)
+                .fillMaxSize(),
         ) {
             StatusBlock(
                 monitoringState = state.monitoringState,

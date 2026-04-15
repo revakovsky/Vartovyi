@@ -12,7 +12,11 @@ import androidx.compose.foundation.layout.exclude
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.ime
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FilledTonalIconButton
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.ScaffoldDefaults
 import androidx.compose.material3.SnackbarHost
@@ -20,11 +24,15 @@ import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.SnackbarResult
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.res.vectorResource
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavDestination.Companion.hasRoute
 import androidx.navigation.compose.currentBackStackEntryAsState
@@ -35,9 +43,11 @@ import com.revakovskyi.vartovyi.navigation.NavGraph
 import com.revakovskyi.vartovyi.navigation.Routes
 import com.revakovskyi.vartovyi.ui.components.LoadingOverlay
 import com.revakovskyi.vartovyi.ui.components.VartovyiBottomBar
+import com.revakovskyi.vartovyi.ui.components.VartovyiDialog
 import com.revakovskyi.vartovyi.ui.components.VartovyiTopBar
 import com.revakovskyi.vartovyi.ui.screen.legal.LegalConsentScreen
 import com.revakovskyi.vartovyi.ui.screen.legal.LegalConsentViewModel
+import com.revakovskyi.vartovyi.ui.screen.onboarding.OnboardingViewModel
 import com.revakovskyi.vartovyi.ui.screen.permissions.PermissionsViewModel
 import com.revakovskyi.vartovyi.ui.theme.VartovyiTheme
 import com.revakovskyi.vartovyi.ui.theme.appRootBackground
@@ -52,6 +62,7 @@ class MainActivity : ComponentActivity() {
 
     private val mainViewModel: MainViewModel by viewModel()
     private val legalConsentViewModel: LegalConsentViewModel by viewModel()
+    private val onboardingViewModel: OnboardingViewModel by viewModel()
     private val permissionsViewModel: PermissionsViewModel by viewModel()
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -67,8 +78,9 @@ class MainActivity : ComponentActivity() {
                 val mainState by mainViewModel.state.collectAsStateWithLifecycle()
                 val permissionsState by permissionsViewModel.state.collectAsStateWithLifecycle()
                 val legalConsentState by legalConsentViewModel.state.collectAsStateWithLifecycle()
+                val onboardingState by onboardingViewModel.state.collectAsStateWithLifecycle()
 
-                if (legalConsentState.isLoading) {
+                if (legalConsentState.isLoading || onboardingState.isLoading) {
                     LoadingOverlay()
                 } else if (!legalConsentState.isAccepted) {
                     LegalConsentScreen(
@@ -76,11 +88,18 @@ class MainActivity : ComponentActivity() {
                         onRefuse = { this@MainActivity.finish() },
                     )
                 } else {
+                    val startDestination: Any =
+                        if (!onboardingState.isCompleted) Routes.Onboarding
+                        else Routes.Home
+
                     val navController = rememberNavController()
                     val currentBackStackEntry by navController.currentBackStackEntryAsState()
                     val currentDestination = currentBackStackEntry?.destination
+                    val previousDestination = navController.previousBackStackEntry?.destination
 
                     val snackbarHostState = remember { SnackbarHostState() }
+
+                    var showLogInfoDialog by remember { mutableStateOf(false) }
 
                     LaunchedEffect(Unit) {
                         SnackbarController.events.collectLatest { event ->
@@ -99,11 +118,15 @@ class MainActivity : ComponentActivity() {
                         }
                     }
 
+                    val isKeywordsFromOnboarding =
+                        currentDestination?.hasRoute(Routes.Keywords::class) == true &&
+                                previousDestination?.hasRoute(Routes.Onboarding::class) == true
+
                     val selectedNavItem: BottomNavItem? = when {
                         currentDestination?.hasRoute(Routes.Home::class) == true -> BottomNavItem.Home
                         currentDestination?.hasRoute(Routes.Log::class) == true -> BottomNavItem.Logs
                         currentDestination?.hasRoute(Routes.Settings::class) == true -> BottomNavItem.Settings
-                        currentDestination?.hasRoute(Routes.Keywords::class) == true -> BottomNavItem.Keywords
+                        currentDestination?.hasRoute(Routes.Keywords::class) == true && !isKeywordsFromOnboarding -> BottomNavItem.Keywords
                         else -> null
                     }
 
@@ -136,6 +159,25 @@ class MainActivity : ComponentActivity() {
                                         hasMissingPermissions = permissionsState.hasMissingPermissions,
                                         isEmergencyStopVisible = mainState.isAlarmRunning,
                                         scrollBehavior = topBarScrollBehavior,
+                                        additionalActions = if (selectedNavItem == BottomNavItem.Logs) {
+                                            {
+                                                FilledTonalIconButton(
+                                                    onClick = { showLogInfoDialog = true },
+                                                    colors = IconButtonDefaults.filledTonalIconButtonColors(
+                                                        containerColor = VartovyiTheme.colors.onSurfaceVariant.copy(
+                                                            alpha = 0.35f
+                                                        ),
+                                                    ),
+                                                    modifier = Modifier.size(VartovyiTheme.spacing.extraLarge),
+                                                ) {
+                                                    Icon(
+                                                        imageVector = ImageVector.vectorResource(R.drawable.info),
+                                                        contentDescription = null,
+                                                        modifier = Modifier.size(VartovyiTheme.spacing.standard),
+                                                    )
+                                                }
+                                            }
+                                        } else null,
                                         onPermissionsClick = { navController.navigate(Routes.Permissions) },
                                         onEmergencyStopClick = {
                                             mainViewModel.onAction(MainUiContract.Action.StopAlarm)
@@ -166,11 +208,21 @@ class MainActivity : ComponentActivity() {
                         ) { paddingValues ->
                             NavGraph(
                                 navController = navController,
+                                startDestination = startDestination,
                                 isRequiredPermissionsGranted = permissionsState.allGranted,
                                 onRefreshPermissions = ::updatePermissionsState,
                                 modifier = Modifier
                                     .padding(paddingValues)
                                     .consumeWindowInsets(paddingValues)
+                            )
+                        }
+
+                        if (showLogInfoDialog) {
+                            VartovyiDialog(
+                                title = stringResource(R.string.log_info_dialog_title),
+                                message = stringResource(R.string.log_info_dialog_body),
+                                confirmText = stringResource(R.string.ok),
+                                onDismiss = { showLogInfoDialog = false },
                             )
                         }
                     }

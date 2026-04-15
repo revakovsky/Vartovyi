@@ -30,9 +30,10 @@
     <string name="settings_alarm_duration_value_seconds">%1$d s</string>
     <string name="settings_alarm_volume_title">Alarm volume</string>
     <string name="settings_alarm_volume_value_percent">%1$d%%</string>
+    <string name="settings_alarm_volume_tooltip">A separate siren volume level, independent of the device\'s overall volume:\n\n• 0% is silent mode.\n• 100% is maximum volume.</string>
     <string name="settings_section_sound">Sound</string>
     <string name="settings_section_schedule">Work schedule</string>
-    <string name="settings_section_schedule_tooltip">When enabled, keyword checks and alarms apply only inside the selected time range (device local time). Outside that window, matching is skipped and no alarm is triggered; relevant events may still appear in the log as skipped. When disabled, monitoring behaves as active around the clock.</string>
+    <string name="settings_section_schedule_tooltip">When enabled, keyword checks and alarms apply only inside the selected time range (device local time). Outside that window, matching is skipped and no alarm is triggered; relevant events may still appear in the log as skipped.\n\nExample: set start to 22:00 and end to 07:00 — Vartovyi will be active only at night and will stop automatically during the day, without any action from you.\n\nWhen disabled, monitoring runs around the clock.</string>
     <string name="settings_section_data">Data</string>
     <string name="settings_section_info">Info</string>
     <string name="settings_version_number" translatable="false">version: %1$s</string>
@@ -47,7 +48,7 @@
     <string name="settings_data_log_size_value_items">%1$d</string>
     <string name="settings_data_alarm_cooldown_title">Alarm cooldown</string>
     <string name="settings_data_alarm_cooldown_value_minutes">%1$d min</string>
-    <string name="settings_data_alarm_cooldown_tooltip">After an alarm is triggered, repeated triggers are blocked for the selected time. This helps avoid nonstop alarm loops from duplicate notifications.</string>
+    <string name="settings_data_alarm_cooldown_tooltip">After an alarm fires, repeated alarms are blocked for the selected duration. Messages with trigger words during the cooldown are still recorded in the log — the siren just won\'t fire.\n\nThis prevents duplicate signals when a channel sends multiple messages about the same target in quick succession.</string>
     <string name="settings_data_export_log_title">Export log</string>
     <string name="settings_data_export_log_button">Export log</string>
     <string name="settings_data_export_log_pending_message">Export is not available yet. This action will be added in a future update.</string>
@@ -81,8 +82,7 @@
     <string name="emergency_stop">Stop everything</string>
     <string name="emergency_stop_completed">Monitoring and alarm are stopped</string>
     <string name="keywords_trigger_words">Trigger words</string>
-    <string name="keywords_trigger_tooltip">Add alert rules here.\n\nMode \"Word\":\n- matches a standalone word in the message;\n- example: \"nd\" should match \"alert in nd\", but should not match \"fundament\".\n\nMode \"All words\":\n- all entered words must be present in the message (order does not matter);\n- example: \"rocket + kharkiv\" matches \"rocket to kharkiv\" and \"a rocket is flying to kharkiv\", but does not match \"rocket to kyiv\".\n\nMode \"Phrase\":\n- matches a specific phrase;\n- example: \"rocket to kharkiv\" matches only when this exact phrase is present.\n\nTip:\n- use \"All words\" or \"Phrase\" for precise alerts;\n- use \"Word\" for broader alerts;\n- letter case is ignored (uppercase/lowercase does not affect matching).</string>
-    <string name="keywords_trigger_hint">e.g. Saltivka</string>
+    <string name="keywords_trigger_tooltip">Add alert rules here.\n\nMode \"Word\":\n- matches a standalone word in the message;\n- example: \"nd\" should match \"alert in nd\", but should not match \"fundament\".\n\nMode \"All words\":\n- all entered words must be present in the message (order does not matter);\n- you can separate words with a space, a comma, or the \"+\" sign;\n- example: \"rocket + kharkiv\" matches \"rocket to kharkiv\" and \"a rocket is flying to kharkiv\", but does not match \"rocket to kyiv\".\n\nMode \"Phrase\":\n- matches a specific phrase;\n- do not use quotation marks;\n- letter case is ignored (uppercase/lowercase does not affect matching);\n- example: \"rocket to kharkiv\" matches only when this exact phrase is present.\n\nTip:\n- use \"All words\" or \"Phrase\" for precise alerts;\n- use \"Word\" for broader alerts.</string>
     <string name="keywords_trigger_hint_word">e.g. rocket</string>
     <string name="keywords_trigger_hint_all_words">e.g. rocket + kharkiv</string>
     <string name="keywords_trigger_hint_phrase">e.g. rocket to kharkiv</string>
@@ -92,13 +92,14 @@
     <string name="keywords_input_clear">Clear</string>
     <string name="keywords_input_clear_tooltip">Clears the entered text in this field</string>
     <string name="keywords_stop_words">Stop words</string>
-    <string name="keywords_stop_tooltip">A message won\'t trigger an alarm if it contains any stop word</string>
+    <string name="keywords_stop_tooltip">A message won\'t trigger an alarm if it contains any stop word.\n\nLetter case is ignored (uppercase/lowercase does not affect matching).</string>
     <string name="keywords_stop_hint">e.g. all clear</string>
     <string name="keywords_telegram_channels">Telegram channels</string>
     <string name="keywords_optional">Optional</string>
     <string name="keywords_all_channels_monitored">All channels are being monitored</string>
     <string name="keywords_telegram_channel_hint">e.g. @air_alert_ua</string>
     <string name="keywords_telegram_channel_tip">Only messages from these channels will trigger the alarm</string>
+    <string name="keywords_telegram_channel_tooltip">Enter the channel name exactly as it appears in your Telegram chat list.\n\nEmoji are not required — the text part is enough. For example, for «🚨 Air Alert Kyiv» you can just type «Kyiv».\n\nMatching is case-insensitive.</string>
     <string name="keywords_duplicate_title">Already in the list</string>
     <string name="keywords_duplicate_message">"%s" is already in the list.</string>
     <string name="keywords_duplicate_confirm">OK</string>
@@ -137,6 +138,9 @@
     <string name="log_clear_dialog_message">This removes all saved log entries from this device. Use this when you want to reset history or remove sensitive notification data.</string>
     <string name="log_clear_dialog_confirm">Clear</string>
     <string name="log_clear_dialog_dismiss">Cancel</string>
+    <string name="log_info_tooltip">About the log</string>
+    <string name="log_info_dialog_title">How to read the log</string>
+    <string name="log_info_dialog_body">All Telegram notifications received while monitoring is active are shown here.\n\nEntry statuses:\n• Alarm — a trigger word matched and the siren fired.\n• Skipped (cooldown) — a trigger word matched, but the delay between alarms (configured in app settings) has not elapsed yet.\n• Skipped — no trigger match.\n\nTo copy a channel name or message text, tap the corresponding action buttons on the right.</string>
     <string name="keywords_clear">Clear all lists</string>
     <string name="keywords_clear_dialog_title">Clear all keyword data?</string>
     <string name="keywords_clear_dialog_message">All trigger keywords, stop words, and Telegram channel lists will be removed. Channel filtering will be turned off.\n\nIf an alarm is playing, it will stop. Monitoring will be turned off.\n\nThis cannot be undone.</string>
@@ -152,4 +156,27 @@
     <string name="keywords_import_unsupported_version">Import failed: backup version %1$d is not supported</string>
     <string name="keywords_import_write_error">Import failed: unable to save data</string>
     <string name="ok">OK</string>
+
+    <string name="onboarding_back">Back</string>
+    <string name="onboarding_next">Next</string>
+    <string name="onboarding_complete">Done</string>
+    <string name="onboarding_skip">Skip</string>
+    <string name="onboarding_open_permissions">Open permissions</string>
+
+    <string name="onboarding_welcome_title">Vartovyi — your digital sentinel</string>
+    <string name="onboarding_welcome_body">The app monitors Telegram in the background and immediately triggers a loud siren as soon as a message contains your keyword.\n\nSet up once — protected always.\n\nThe most important setting is keyword filters — they determine which messages Vartovyi will trigger the siren for. Without them, the app won\'t know what constitutes danger for you.</string>
+
+    <string name="onboarding_telegram_title">Set up Telegram</string>
+    <string name="onboarding_telegram_body_1">Install Telegram from Google Play. Official Telegram, Telegram X, and NekoX are all supported.\n\nFind and subscribe to an alert channel for your city or region.</string>
+    <string name="onboarding_telegram_body_2">⚠️ Enable notifications for the channel — without them Vartovyi won\'t receive any messages. We recommend silent mode: the siren will be triggered by the app itself.</string>
+
+    <string name="onboarding_permissions_title">Grant permissions</string>
+    <string name="onboarding_permissions_body">Required — the app won\'t work without these:\n• Notification listener access\n• Show own notifications\n• Unrestricted background work (battery)\n\nRecommended — for full protection:\n• Do Not Disturb access\n• Full-screen notifications\n\nA detailed description of each permission is available on the Permissions screen inside the app.</string>
+
+    <string name="onboarding_keywords_title">Set up keywords</string>
+    <string name="onboarding_keywords_body">Keywords are the core setting — they determine when the siren triggers.\n\nTrigger words — a message containing these words will trigger the alarm. Three modes: Word, All Words, Phrase.\n\nStop words — if found in a message, the alarm won\'t fire even if a trigger matches.\n\nChannel filter — optional. Restricts monitoring to selected Telegram channels only.\n\n💡 Tip: after the first message arrives, open the Log screen and copy words directly from there.</string>
+    <string name="onboarding_open_keywords">Open keywords</string>
+
+    <string name="onboarding_launch_title">Launch and test</string>
+    <string name="onboarding_launch_body">Tap the Activate button on the home screen — the shield will light up and monitoring will start.\n\nBefore relying on it for real, we recommend a quick test:\n• Ask someone to send a message with your trigger word to the monitored channel.\n• Or send a test message to yourself (if the channel allows it).\n\nIf the siren didn\'t fire — open the Log screen and check whether an event appeared. That will help you understand what went wrong.\n\nAll set. Stay safe. 🛡</string>
 </resources>
