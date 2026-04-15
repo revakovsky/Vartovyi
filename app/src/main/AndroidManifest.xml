@@ -58,9 +58,11 @@
         <activity
             android:name=".ui.alarm.AlarmActivity"
             android:exported="false"
+            android:screenOrientation="portrait"
             android:launchMode="singleTask"
             android:showOnLockScreen="true"
-            android:turnScreenOn="true" />
+            android:turnScreenOn="true"
+            tools:ignore="DiscouragedApi,LockedOrientationActivity" />
 
         <service
             android:name=".service.TelegramListenerService"

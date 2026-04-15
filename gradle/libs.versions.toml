@@ -15,7 +15,7 @@ agp = "9.0.1"
 kotlin = "2.3.10"
 jvmTargetVersion = "11"
 ksp = "2.3.6"
-androidTools = "32.1.0"
+androidTools = "32.1.1"
 
 # AndroidX
 coreKtx = "1.18.0"
@@ -34,19 +34,19 @@ room = "2.8.4"
 paging = "3.4.2"
 
 # DI
-koin = "4.2.0"
+koin = "4.2.1"
 
 # Kotlinx
-kotlinxSerializationJson = "1.10.0"
+kotlinxSerializationJson = "1.11.0"
 coroutinesAndroid = "1.10.2"
 
 # Detekt
 detekt = "1.23.8"
 
 # Firebase
-firebaseCrashlytics = "20.0.4"
+firebaseCrashlytics = "20.0.5"
 googleGmsGoogleServices = "4.4.4"
-googleFirebaseCrashlytics = "3.0.6"
+googleFirebaseCrashlytics = "3.0.7"
 
 #---------------------------------------------------------------------------------------------------
 

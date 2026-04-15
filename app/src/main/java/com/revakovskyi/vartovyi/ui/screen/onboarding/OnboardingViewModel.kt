@@ -2,6 +2,7 @@ package com.revakovskyi.vartovyi.ui.screen.onboarding
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.revakovskyi.vartovyi.usecase.onboarding.ObserveOnboardingCompletedUseCase
 import com.revakovskyi.vartovyi.usecase.onboarding.SetOnboardingCompletedUseCase
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.Flow
@@ -13,6 +14,7 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
 class OnboardingViewModel(
+    private val observeOnboardingCompletedUseCase: ObserveOnboardingCompletedUseCase,
     private val setOnboardingCompletedUseCase: SetOnboardingCompletedUseCase,
 ) : ViewModel() {
 
@@ -22,6 +24,10 @@ class OnboardingViewModel(
     private val _events = Channel<OnboardingUiContract.Event>(Channel.BUFFERED)
     val events: Flow<OnboardingUiContract.Event> = _events.receiveAsFlow()
 
+    init {
+        observeCompleted()
+    }
+
     fun onAction(action: OnboardingUiContract.Action) {
         when (action) {
             is OnboardingUiContract.Action.NextPage -> nextPage()
@@ -30,6 +36,16 @@ class OnboardingViewModel(
             is OnboardingUiContract.Action.Complete -> complete()
             is OnboardingUiContract.Action.Skip -> skip()
             is OnboardingUiContract.Action.ShowManually -> showManually()
+            is OnboardingUiContract.Action.OpenPermissions -> openPermissions()
+            is OnboardingUiContract.Action.OpenKeywords -> openKeywords()
+        }
+    }
+
+    private fun observeCompleted() {
+        viewModelScope.launch {
+            observeOnboardingCompletedUseCase().collect { isCompleted ->
+                _state.update { it.copy(isLoading = false, isCompleted = isCompleted) }
+            }
         }
     }
 
@@ -67,6 +83,18 @@ class OnboardingViewModel(
 
     private fun showManually() {
         _state.update { it.copy(currentPage = 0, canSkip = true) }
+    }
+
+    private fun openPermissions() {
+        viewModelScope.launch {
+            _events.send(OnboardingUiContract.Event.OpenPermissions)
+        }
+    }
+
+    private fun openKeywords() {
+        viewModelScope.launch {
+            _events.send(OnboardingUiContract.Event.OpenKeywords)
+        }
     }
 
 }

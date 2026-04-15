@@ -5,6 +5,7 @@ import androidx.compose.animation.Crossfade
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -155,7 +156,9 @@ private fun LogContent(
     Crossfade(
         label = "logContentCrossfade",
         targetState = state.contentViewState,
-        modifier = modifier.fillMaxSize()
+        modifier = modifier
+            .widthIn(max = VartovyiTheme.spacing.contentMaxWidth)
+            .fillMaxSize()
     ) { viewState ->
         when (viewState) {
             LogUiContract.LogContentViewState.Loading -> {

@@ -43,6 +43,7 @@ fun AlarmVolumeSection(
         valueRange = MIN_ALARM_VOLUME_PERCENT.toFloat()..MAX_ALARM_VOLUME_PERCENT.toFloat(),
         steps = ((MAX_ALARM_VOLUME_PERCENT - MIN_ALARM_VOLUME_PERCENT) / ALARM_VOLUME_STEP_PERCENT) - 1,
         sliderWidthFraction = ALARM_VOLUME_SLIDER_WIDTH_FRACTION,
+        tooltipText = stringResource(R.string.settings_alarm_volume_tooltip),
         discreteValueForHaptics = { rawValue ->
             snapToAlarmVolumeStep(rawValue).toFloat()
         },

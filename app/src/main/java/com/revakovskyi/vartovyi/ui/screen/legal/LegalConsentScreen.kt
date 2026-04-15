@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawingPadding
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -67,6 +68,7 @@ private fun LegalConsentContent(
     Column(
         verticalArrangement = Arrangement.spacedBy(VartovyiTheme.spacing.standard),
         modifier = modifier
+            .widthIn(max = VartovyiTheme.spacing.contentMaxWidth)
             .fillMaxSize()
             .background(VartovyiTheme.colors.background)
             .padding(

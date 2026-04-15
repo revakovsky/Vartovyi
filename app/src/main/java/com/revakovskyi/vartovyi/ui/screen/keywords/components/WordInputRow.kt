@@ -69,6 +69,7 @@ fun WordInputRow(
             value = value,
             onValueChange = onValueChange,
             singleLine = true,
+            maxLines = 1,
             keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
             keyboardActions = KeyboardActions(onDone = { onAdd() }),
             textStyle = VartovyiTheme.typography.bodyMedium.copy(

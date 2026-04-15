@@ -9,6 +9,7 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
@@ -22,9 +23,11 @@ private val TOP_BAR_BACK_ICON_SIZE = 24.dp
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun PermissionsHeader(
+    modifier: Modifier = Modifier,
     onNavigateBack: () -> Unit,
 ) {
     TopAppBar(
+        modifier = modifier,
         title = {
             Text(
                 text = stringResource(R.string.permissions_title),
@@ -42,9 +45,7 @@ fun PermissionsHeader(
                 )
             }
         },
-        colors = TopAppBarDefaults.topAppBarColors(
-            containerColor = VartovyiTheme.colors.background,
-        ),
+        colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.Transparent),
     )
 }
 

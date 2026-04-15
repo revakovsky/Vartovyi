@@ -2,6 +2,7 @@ package com.revakovskyi.vartovyi.navigation
 
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.navigation.NavDestination.Companion.hasRoute
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -10,6 +11,7 @@ import androidx.navigation.toRoute
 import com.revakovskyi.vartovyi.ui.screen.home.HomeScreen
 import com.revakovskyi.vartovyi.ui.screen.keywords.KeywordsScreen
 import com.revakovskyi.vartovyi.ui.screen.log.LogScreen
+import com.revakovskyi.vartovyi.ui.screen.onboarding.OnboardingScreen
 import com.revakovskyi.vartovyi.ui.screen.permissions.PermissionsScreen
 import com.revakovskyi.vartovyi.ui.screen.settings.SettingsScreen
 
@@ -28,14 +30,27 @@ private fun logHighlightNavOptions() = navOptions {
 fun NavGraph(
     modifier: Modifier = Modifier,
     navController: NavHostController,
+    startDestination: Any,
     isRequiredPermissionsGranted: Boolean,
     onRefreshPermissions: () -> Unit,
 ) {
     NavHost(
         modifier = modifier,
         navController = navController,
-        startDestination = Routes.Home,
+        startDestination = startDestination,
     ) {
+        composable<Routes.Onboarding> {
+            OnboardingScreen(
+                onClose = {
+                    navController.navigate(Routes.Home) {
+                        popUpTo<Routes.Onboarding> { inclusive = true }
+                    }
+                },
+                onOpenPermissions = { navController.navigate(Routes.Permissions) },
+                onOpenKeywords = { navController.navigate(Routes.Keywords) },
+            )
+        }
+
         composable<Routes.Home> {
             HomeScreen(
                 isRequiredPermissionsGranted = isRequiredPermissionsGranted,
@@ -78,7 +93,12 @@ fun NavGraph(
         }
 
         composable<Routes.Permissions> {
+            val isFromOnboarding = navController.previousBackStackEntry
+                ?.destination
+                ?.hasRoute(Routes.Onboarding::class) == true
+
             PermissionsScreen(
+                isFromOnboarding = isFromOnboarding,
                 onNavigateBack = { navController.navigateUp() },
                 onRefreshPermissions = onRefreshPermissions,
             )

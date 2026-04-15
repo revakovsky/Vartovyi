@@ -5,6 +5,8 @@ private const val TOTAL_PAGES = 5
 object OnboardingUiContract {
 
     data class State(
+        val isLoading: Boolean = true,
+        val isCompleted: Boolean = false,
         val currentPage: Int = 0,
         val totalPages: Int = TOTAL_PAGES,
         val canSkip: Boolean = false,
@@ -17,10 +19,14 @@ object OnboardingUiContract {
         data object Complete : Action
         data object Skip : Action
         data object ShowManually : Action
+        data object OpenPermissions : Action
+        data object OpenKeywords : Action
     }
 
     sealed interface Event {
         data object Close : Event
+        data object OpenPermissions : Event
+        data object OpenKeywords : Event
     }
 
 }

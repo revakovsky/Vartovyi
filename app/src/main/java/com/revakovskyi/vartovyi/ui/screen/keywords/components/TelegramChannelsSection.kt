@@ -6,17 +6,27 @@ import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.relocation.BringIntoViewRequester
 import androidx.compose.foundation.relocation.bringIntoViewRequester
+import androidx.compose.material3.FilledTonalIconButton
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.tooling.preview.Preview
 import com.revakovskyi.vartovyi.R
+import com.revakovskyi.vartovyi.ui.components.VartovyiDialog
 import com.revakovskyi.vartovyi.ui.components.VartovyiSwitch
 import com.revakovskyi.vartovyi.ui.theme.VartovyiTheme
 
@@ -34,6 +44,17 @@ fun TelegramChannelsSection(
     onRemove: (channel: String) -> Unit,
     onFocusChanged: (isFocused: Boolean) -> Unit,
 ) {
+    var showInfoDialog by remember { mutableStateOf(false) }
+
+    if (showInfoDialog) {
+        VartovyiDialog(
+            title = stringResource(R.string.keywords_telegram_channels),
+            message = stringResource(R.string.keywords_telegram_channel_tooltip),
+            confirmText = stringResource(R.string.ok),
+            onDismiss = { showInfoDialog = false },
+        )
+    }
+
     Surface(
         color = VartovyiTheme.colors.surface,
         shape = VartovyiTheme.shapes.large,
@@ -48,20 +69,38 @@ fun TelegramChannelsSection(
                 horizontalArrangement = Arrangement.SpaceBetween,
                 modifier = Modifier.fillMaxWidth(),
             ) {
-                Column(
-                    verticalArrangement = Arrangement.spacedBy(VartovyiTheme.spacing.small),
+                Row(
+                    horizontalArrangement = Arrangement.spacedBy(VartovyiTheme.spacing.small),
                 ) {
-                    Text(
-                        text = stringResource(R.string.keywords_telegram_channels),
-                        style = VartovyiTheme.typography.titleMedium,
-                        color = VartovyiTheme.colors.onSurface,
-                    )
+                    Column(
+                        verticalArrangement = Arrangement.spacedBy(VartovyiTheme.spacing.small),
+                    ) {
+                        Text(
+                            text = stringResource(R.string.keywords_telegram_channels),
+                            style = VartovyiTheme.typography.titleMedium,
+                            color = VartovyiTheme.colors.onSurface,
+                        )
 
-                    Text(
-                        text = stringResource(R.string.keywords_optional),
-                        style = VartovyiTheme.typography.bodySmall,
-                        color = VartovyiTheme.colors.onSurfaceVariant,
-                    )
+                        Text(
+                            text = stringResource(R.string.keywords_optional),
+                            style = VartovyiTheme.typography.bodySmall,
+                            color = VartovyiTheme.colors.onSurfaceVariant,
+                        )
+                    }
+
+                    FilledTonalIconButton(
+                        onClick = { showInfoDialog = true },
+                        colors = IconButtonDefaults.filledTonalIconButtonColors(
+                            containerColor = VartovyiTheme.colors.onSurfaceVariant.copy(alpha = 0.35f),
+                        ),
+                        modifier = Modifier.size(VartovyiTheme.spacing.extraLarge),
+                    ) {
+                        Icon(
+                            imageVector = ImageVector.vectorResource(R.drawable.info),
+                            contentDescription = null,
+                            modifier = Modifier.size(VartovyiTheme.spacing.standard),
+                        )
+                    }
                 }
 
                 VartovyiSwitch(

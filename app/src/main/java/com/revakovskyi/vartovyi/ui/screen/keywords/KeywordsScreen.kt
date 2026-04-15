@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.isImeVisible
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.relocation.BringIntoViewRequester
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
@@ -232,6 +233,7 @@ private fun KeywordsContent(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(VartovyiTheme.spacing.small),
         modifier = modifier
+            .widthIn(max = VartovyiTheme.spacing.contentMaxWidth)
             .fillMaxSize()
             .imePadding()
             .verticalScroll(rememberScrollState())
