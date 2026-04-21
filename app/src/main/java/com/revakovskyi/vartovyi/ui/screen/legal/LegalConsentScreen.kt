@@ -6,10 +6,12 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawingPadding
 import androidx.compose.foundation.layout.widthIn
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -58,13 +60,6 @@ private fun LegalConsentContent(
     state: LegalConsentUiContract.State,
     onAction: (action: LegalConsentUiContract.Action) -> Unit,
 ) {
-    val titleText = stringResource(R.string.legal_consent_title)
-    val descriptionText = stringResource(R.string.legal_consent_description)
-    val privacyButtonText = stringResource(R.string.legal_consent_open_privacy)
-    val termsButtonText = stringResource(R.string.legal_consent_open_terms)
-    val confirmButtonText = stringResource(R.string.legal_consent_confirm)
-    val refuseButtonText = stringResource(R.string.legal_consent_refuse)
-
     Column(
         verticalArrangement = Arrangement.spacedBy(VartovyiTheme.spacing.standard),
         modifier = modifier
@@ -77,7 +72,7 @@ private fun LegalConsentContent(
             ),
     ) {
         Text(
-            text = titleText,
+            text = stringResource(R.string.legal_consent_title),
             style = VartovyiTheme.typography.headlineSmall,
             color = VartovyiTheme.colors.onBackground,
             textAlign = TextAlign.Center,
@@ -87,49 +82,68 @@ private fun LegalConsentContent(
         )
 
         Text(
-            text = descriptionText,
+            text = stringResource(R.string.legal_consent_description),
             style = VartovyiTheme.typography.bodyLarge,
             color = VartovyiTheme.colors.onSurface,
             modifier = Modifier.fillMaxWidth()
         )
 
+        Surface(
+            color = VartovyiTheme.colors.errorContainer,
+            shape = VartovyiTheme.shapes.large,
+            modifier = Modifier.fillMaxWidth(),
+        ) {
+            Column(
+                modifier = Modifier.padding(VartovyiTheme.spacing.standard)
+            ) {
+                Text(
+                    text = stringResource(R.string.legal_consent_important_label),
+                    style = VartovyiTheme.typography.labelLarge,
+                    color = VartovyiTheme.colors.onErrorContainer,
+                )
+
+                Spacer(modifier = Modifier.height(VartovyiTheme.spacing.extraSmall))
+
+                Text(
+                    text = stringResource(R.string.legal_consent_disclaimer),
+                    style = VartovyiTheme.typography.bodyMedium,
+                    color = VartovyiTheme.colors.onErrorContainer,
+                )
+            }
+        }
+
         VartovyiActionButton(
-            text = privacyButtonText,
+            text = stringResource(R.string.legal_consent_open_privacy),
             onClick = { onAction(LegalConsentUiContract.Action.OpenPrivacyPolicy) },
             style = VartovyiActionButtonStyle.Outlined,
             enabled = !state.isLoading,
             borderColor = VartovyiTheme.colors.primary,
-            modifier = Modifier.fillMaxWidth()
         )
 
         VartovyiActionButton(
-            text = termsButtonText,
+            text = stringResource(R.string.legal_consent_open_terms),
             onClick = { onAction(LegalConsentUiContract.Action.OpenTermsOfUse) },
             style = VartovyiActionButtonStyle.Outlined,
             enabled = !state.isLoading,
             borderColor = VartovyiTheme.colors.primary,
-            modifier = Modifier.fillMaxWidth()
         )
 
         Spacer(modifier = Modifier.weight(1f))
 
         VartovyiActionButton(
-            text = confirmButtonText,
+            text = stringResource(R.string.legal_consent_confirm),
             onClick = { onAction(LegalConsentUiContract.Action.Confirm) },
             style = VartovyiActionButtonStyle.Filled,
             enabled = !state.isLoading,
-            modifier = Modifier.fillMaxWidth()
         )
 
         VartovyiActionButton(
-            text = refuseButtonText,
+            text = stringResource(R.string.legal_consent_refuse),
             onClick = { onAction(LegalConsentUiContract.Action.Refuse) },
             style = VartovyiActionButtonStyle.Outlined,
             enabled = !state.isLoading,
             borderColor = VartovyiTheme.colors.error,
-            modifier = Modifier
-                .fillMaxWidth()
-                .navigationBarsPadding()
+            modifier = Modifier.navigationBarsPadding()
         )
     }
 }

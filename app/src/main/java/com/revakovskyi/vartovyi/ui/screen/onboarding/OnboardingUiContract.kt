@@ -18,7 +18,6 @@ object OnboardingUiContract {
         data class PageChanged(val pageIndex: Int) : Action
         data object Complete : Action
         data object Skip : Action
-        data object ShowManually : Action
         data object OpenPermissions : Action
         data object OpenKeywords : Action
     }

@@ -82,22 +82,24 @@ class SettingsViewModel(
             is Action.SetAlarmSoundUri -> setAlarmSoundUri(action.uri)
             is Action.SetAlarmVolume -> setAlarmVolume(action.percent)
             is Action.SetLogSizeLimit -> setLogSizeLimit(action.limit)
-            is Action.SetAlarmRetriggerCooldownDurationMillis ->
-                setAlarmRetriggerCooldownDurationMillis(durationMillis = action.durationMillis)
-
-            is Action.ToggleTestAlarm -> toggleTestAlarm(
-                sourceChannelName = action.sourceChannelName,
-                sourceMessageText = action.sourceMessageText,
-            )
-
             is Action.StartExternalPickerNavigation -> startExternalPickerNavigation()
             is Action.ToggleSection -> toggleSection(section = action.section)
             is Action.CollapseSectionsOnScreenStop -> collapseSectionsOnScreenStop()
             is Action.OpenPrivacyPolicy -> openPrivacyPolicyUrl()
             is Action.OpenTermsOfUse -> openTermsOfUseUrl()
+            is Action.OpenOnboardingGuide -> openOnboardingGuide()
             is Action.ShowResetToFactoryDefaultsDialog -> showResetToFactoryDefaultsDialog()
             is Action.DismissResetToFactoryDefaultsDialog -> dismissResetToFactoryDefaultsDialog()
             is Action.ConfirmResetToFactoryDefaults -> confirmResetToFactoryDefaults()
+
+            is Action.SetAlarmRetriggerCooldownDurationMillis -> {
+                setAlarmRetriggerCooldownDurationMillis(durationMillis = action.durationMillis)
+            }
+
+            is Action.ToggleTestAlarm -> toggleTestAlarm(
+                sourceChannelName = action.sourceChannelName,
+                sourceMessageText = action.sourceMessageText,
+            )
         }
     }
 
@@ -249,6 +251,9 @@ class SettingsViewModel(
 
     private fun startExternalPickerNavigation() {
         skipCollapseOnNextScreenStop = true
+        viewModelScope.launch {
+            _events.send(Event.LaunchSoundPicker)
+        }
     }
 
     private fun collapseSectionsOnScreenStop() {
@@ -274,6 +279,13 @@ class SettingsViewModel(
         skipCollapseOnNextScreenStop = true
         viewModelScope.launch {
             _events.send(Event.OpenUrl(url = TERMS_OF_USE_URL))
+        }
+    }
+
+    private fun openOnboardingGuide() {
+        skipCollapseOnNextScreenStop = true
+        viewModelScope.launch {
+            _events.send(Event.OpenOnboardingGuide)
         }
     }
 

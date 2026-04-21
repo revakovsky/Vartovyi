@@ -198,6 +198,18 @@ fun KeywordsScreen(
             onConfirm = { viewModel.onAction(KeywordsUiContract.Action.ConfirmClearKeywords) },
         )
     }
+
+    if (state.isImportConfirmationDialogVisible) {
+        VartovyiDialog(
+            title = stringResource(R.string.keywords_import_confirm_dialog_title),
+            message = stringResource(R.string.keywords_import_confirm_dialog_message),
+            confirmText = stringResource(R.string.keywords_import_confirm_dialog_confirm),
+            dismissText = stringResource(R.string.keywords_import_confirm_dialog_dismiss),
+            confirmContentColor = VartovyiTheme.colors.error,
+            onDismiss = { viewModel.onAction(KeywordsUiContract.Action.DismissImportConfirmationDialog) },
+            onConfirm = { viewModel.onAction(KeywordsUiContract.Action.ConfirmImport) },
+        )
+    }
 }
 
 @OptIn(ExperimentalLayoutApi::class)

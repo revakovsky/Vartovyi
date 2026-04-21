@@ -231,6 +231,33 @@ canonical URL політики/умов), `utils/`, `di/UseCaseModule.kt`.
   (shell більше не тримає всю логіку inline).
 - [x] **Локалізація:** повний `values-ru/strings.xml` (паралельно до `values` та `values-uk`);
   рядки legal додано в усі три набори.
+- [x] **Legal consent — disclaimer:** на `LegalConsentScreen` додано картку-попередження
+  (`Surface(errorContainer)`) з підписом «⚠️ Important!» та текстом про те, що додаток не є
+  заміною офіційних систем тривоги; картка знаходиться між основним описом і кнопками документів.
+
+### Onboarding
+
+- [x] `OnboardingScreen` розбито на 5 сторінок: Welcome, Telegram, Permissions, Keywords, Launch.
+- [x] `OnboardingPageLayout` підтримує два типи візуального контенту через sealed interface
+  `OnboardingVisual`: `VectorIcon` (Icon composable з tint) та `RasterImage` (Image composable);
+  welcome-сторінка використовує `RasterImage(just_logo)`, решта — `VectorIcon`.
+- [x] На сторінці Permissions іконка змінюється з `security_red` (error tint) на `security_green`
+  (primary tint) коли всі критичні дозволи надані.
+- [x] На сторінці Keywords під кнопкою «Відкрити ключові слова» є хінт `bodySmall` про можливість
+  налаштувати ключові слова пізніше.
+- [x] На сторінці Welcome додано приватна нотатка (`bodySmall`, `onSurfaceVariant`) про те, що всі
+  дані зберігаються лише на пристрої та нікуди не надсилаються; нотатка підтягується через слот
+  `actionContent` без змін у `OnboardingPageLayout`.
+- [x] `OnboardingViewModel` використовує звичайний `koinViewModel()` (scope = NavBackStackEntry);
+  при навігації з Settings → Onboarding створюється свіжий ViewModel з `currentPage = 0` і
+  `canSkip` автоматично `true` якщо `isCompleted = true`.
+- [x] **Onboarding guide в Settings:** секція **Info** містить третє посилання «Відкрити онбординг»
+  (`settings_open_onboarding_guide`), що відкриває онбординг заново з першої сторінки;
+  `SettingsUiContract.Action/Event.OpenOnboardingGuide` → `SettingsViewModel` →
+  `onNavigateToOnboarding` → `navController.navigate(Routes.Onboarding)`.
+- [x] `onClose` в NavGraph — уніфікований патерн: `navigateUp()` → якщо повернувся `false`
+  (стартовий екран при першому запуску) → `navigate(Home)` з очищенням стека; `isFromSettings`
+  detection більше не потрібен.
 
 ### Alarm
 
@@ -311,9 +338,10 @@ canonical URL політики/умов), `utils/`, `di/UseCaseModule.kt`.
   записується у файл (`encodeDefaults = true`); поле `version` перевіряється при імпорті — файли
   майбутніх версій відхиляються з окремим повідомленням; кнопка Export заблокована (`enabled =
   false`) коли немає жодного ключового слова (`canExport` getter у `State`); уся логіка
-  SAF-взаємодії
-  інкапсульована у `KeywordsBackupHelper` (scoped до composition, без витоку пам'яті); результати
-  повертаються через `Action` → ViewModel → `Event` → snackbar на `KeywordsScreen`.
+  SAF-взаємодії інкапсульована у `KeywordsBackupHelper` (scoped до composition, без витоку пам'яті);
+  результати повертаються через `Action` → ViewModel → `Event` → snackbar на `KeywordsScreen`;
+  якщо при імпорті є наявні дані — показується `VartovyiDialog` із попередженням про перезапис
+  (confirm = error color).
 - [x] **`VartovyiActionButton` Outlined — автоматичний disabled стан:** кольори тексту, іконки та
   рамки при `enabled = false` обчислюються всередині компонента (`onSurfaceVariant`); колсайти
   передають тільки `enabled`, без `if (isEnabled)` умов зовні.
@@ -362,8 +390,9 @@ canonical URL політики/умов), `utils/`, `di/UseCaseModule.kt`.
   лише Crashlytics (автоматичний збір крашів); аналітика навмисно пропущена (privacy-чутливий
   застосунок, журнал подій вже є в Room).
 - [x] Додати **імпорт та експорт ключових слів** (файл, сценарій backup/restore).
-- [ ] Додати базову in-app інструкцію користування + окрему повну інструкцію (web/markdown), і
-  додати посилання на неї в `Settings`.
+- [x] Додати базову in-app інструкцію користування і посилання на неї в `Settings` — **зроблено:**
+  онбординг доступний повторно з секції **Info** → «Відкрити онбординг».
+- [ ] Додати окрему повну інструкцію (web/markdown) і посилання на неї в `Settings`.
 - [ ] Прогнати **ручне тестування**: різні **розміри екранів** і різні **вендори** (у тому числі
   реальні пристрої **Xiaomi / Samsung / Huawei**) — ключові сценарії, фоновий моніторинг, тривога;
   це **QA на девайсах**, не окремий матеріал-інструкція в застосунку чи в репозиторії.
@@ -401,6 +430,20 @@ canonical URL політики/умов), `utils/`, `di/UseCaseModule.kt`.
 
 ## 12) Change log (короткий)
 
+- `2026-04-21` — **Onboarding overhaul + Settings guide link:**
+  `OnboardingPageLayout` переведено на `OnboardingVisual` sealed interface (`VectorIcon` /
+  `RasterImage`); permissions-сторінка отримала swap іконки red↔green залежно від стану дозволів;
+  welcome-сторінка — privacy note у `actionContent`; keywords-сторінка — `bodySmall` хінт під
+  кнопкою; тексти всіх 5 сторінок переписані для точності (EN/UK/RU).
+  `OnboardingViewModel` переведено з `koinActivityViewModel()` на `koinViewModel()` (scope =
+  NavBackStackEntry); `ShowManually` action видалено — свіжий ViewModel дає `currentPage = 0`
+  автоматично; `canSkip` стає `true` з `observeCompleted` коли `isCompleted = true`.
+  `onClose` у NavGraph: уніфікований `navigateUp()` + fallback до `navigate(Home)` замість
+  `isFromSettings` branch.
+  `LegalConsentScreen`: додано `Surface(errorContainer)` картку з disclaimer «⚠️ Important!».
+  `SettingsUiContract` + `SettingsViewModel` + `LegalDocumentsSettingsSection` + `SettingsScreen`:
+  третє посилання «Відкрити онбординг» у секції Info.
+  Keywords import: `VartovyiDialog` з попередженням про перезапис якщо є наявні дані.
 - `2026-04-04` — **Debug app name:** у debug-збірці назва додатку змінюється на `Vartovyi Debug` /
   `Вартовий Debug` (uk) через debug source set (`src/debug/res/values*/strings.xml`); release і
   маніфест не змінювались.
@@ -593,8 +636,9 @@ canonical URL політики/умов), `utils/`, `di/UseCaseModule.kt`.
     - Секція **Звук**: мелодія (`RingtonePicker` + назва), тривалість і гучність через
       `VartovyiSettingSlider` (з тактильним кроком).
     - Секція **Розклад роботи**: toggle, час початку/кінця, підказка для секції в діалозі.
-  - Остання секція **Info** (accordion): текстові посилання (`bodyLink`, primary) на Privacy Policy
-    та Terms of Use (Custom Tabs; згортання секції не скидається при відкритті посилання).
+  - Остання секція **Info** (accordion): текстові посилання (`bodyLink`, primary) на Privacy Policy,
+    Terms of Use (Custom Tabs; згортання секції не скидається при відкритті посилання) та
+    «Відкрити онбординг» (повторний перегляд онбордингу з першої сторінки).
   - Під усім контентом: `versionName` і produced by (приглушений колір, по центру, окремо від
     секцій).
     - Збереження параметрів у `DataStore` (без окремого списку Telegram-пакетів і без окремого

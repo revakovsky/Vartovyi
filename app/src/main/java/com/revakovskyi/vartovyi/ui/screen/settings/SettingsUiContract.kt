@@ -34,25 +34,27 @@ interface SettingsUiContract {
         data class SetAlarmSoundUri(val uri: String) : Action
         data class SetLogSizeLimit(val limit: Int) : Action
         data class SetAlarmRetriggerCooldownDurationMillis(val durationMillis: Long) : Action
-        data class ToggleTestAlarm(
-            val sourceChannelName: String,
-            val sourceMessageText: String,
-        ) : Action
-
         data object StartExternalPickerNavigation : Action
         data class ToggleSection(val section: SettingsSection) : Action
         data object CollapseSectionsOnScreenStop : Action
         data object OpenPrivacyPolicy : Action
         data object OpenTermsOfUse : Action
+        data object OpenOnboardingGuide : Action
         data object ShowResetToFactoryDefaultsDialog : Action
         data object DismissResetToFactoryDefaultsDialog : Action
         data object ConfirmResetToFactoryDefaults : Action
+        data class ToggleTestAlarm(
+            val sourceChannelName: String,
+            val sourceMessageText: String,
+        ) : Action
     }
 
     sealed interface Event {
         data object ShowDisableMonitoringForTestAlarm : Event
         data class OpenUrl(val url: String) : Event
         data object ShowFactoryResetCompleted : Event
+        data object OpenOnboardingGuide : Event
+        data object LaunchSoundPicker : Event
     }
 
 }

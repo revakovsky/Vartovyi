@@ -58,6 +58,7 @@ private const val SETTINGS_LOADING_CROSSFADE_DURATION_MILLIS = 500
 fun SettingsScreen(
     viewModel: SettingsViewModel = koinViewModel(),
     onNavigateToHome: () -> Unit,
+    onNavigateToOnboarding: () -> Unit,
 ) {
     val context = LocalContext.current
     val lifecycleOwner = LocalLifecycleOwner.current
@@ -68,22 +69,8 @@ fun SettingsScreen(
 
     val disableMonitoringMessage = stringResource(R.string.settings_test_alarm_disable_monitoring)
     val homeActionLabel = stringResource(R.string.nav_home)
-    val defaultAlarmSoundTitle = stringResource(R.string.settings_alarm_sound_default)
     val alarmSoundPickerTitle = stringResource(R.string.settings_alarm_sound_picker_title)
-    val exportLogPendingMessage = stringResource(R.string.settings_data_export_log_pending_message)
     val factoryResetCompletedMessage = stringResource(R.string.settings_reset_factory_completed)
-
-    val selectedAlarmSoundTitle = remember(
-        context,
-        state.alarmSoundUri,
-        defaultAlarmSoundTitle,
-    ) {
-        AlarmSoundPickerHelper.resolveAlarmSoundTitle(
-            context = context,
-            alarmSoundUri = state.alarmSoundUri,
-            defaultAlarmSoundTitle = defaultAlarmSoundTitle,
-        )
-    }
 
     val alarmSoundPickerLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.StartActivityForResult(),
@@ -125,6 +112,17 @@ fun SettingsScreen(
                     )
                 }
             }
+
+            is SettingsUiContract.Event.OpenOnboardingGuide -> onNavigateToOnboarding()
+
+            SettingsUiContract.Event.LaunchSoundPicker -> {
+                alarmSoundPickerLauncher.launch(
+                    AlarmSoundPickerHelper.createAlarmSoundPickerIntent(
+                        existingAlarmSoundUri = state.alarmSoundUri,
+                        pickerTitle = alarmSoundPickerTitle,
+                    )
+                )
+            }
         }
     }
 
@@ -137,12 +135,12 @@ fun SettingsScreen(
 
         lifecycleOwner.lifecycle.addObserver(observer)
 
-        onDispose {
-            lifecycleOwner.lifecycle.removeObserver(observer)
-        }
+        onDispose { lifecycleOwner.lifecycle.removeObserver(observer) }
     }
 
-    Box(modifier = Modifier.fillMaxSize()) {
+    Box(
+        modifier = Modifier.fillMaxSize()
+    ) {
         Crossfade(
             targetState = state.isLoading,
             animationSpec = tween(durationMillis = SETTINGS_LOADING_CROSSFADE_DURATION_MILLIS),
@@ -154,23 +152,6 @@ fun SettingsScreen(
                 SettingsContent(
                     state = state,
                     onAction = viewModel::onAction,
-                    selectedAlarmSoundTitle = selectedAlarmSoundTitle,
-                    onChooseAlarmSound = {
-                        viewModel.onAction(SettingsUiContract.Action.StartExternalPickerNavigation)
-                        alarmSoundPickerLauncher.launch(
-                            AlarmSoundPickerHelper.createAlarmSoundPickerIntent(
-                                existingAlarmSoundUri = state.alarmSoundUri,
-                                pickerTitle = alarmSoundPickerTitle,
-                            )
-                        )
-                    },
-                    onExportLogClick = {
-                        coroutineScope.launch {
-                            SnackbarController.sendEvent(
-                                SnackbarEvent(message = exportLogPendingMessage),
-                            )
-                        }
-                    },
                 )
             }
         }
@@ -197,30 +178,39 @@ fun SettingsScreen(
 private fun SettingsContent(
     modifier: Modifier = Modifier,
     state: SettingsUiContract.State,
-    selectedAlarmSoundTitle: String,
     onAction: (action: SettingsUiContract.Action) -> Unit,
-    onChooseAlarmSound: () -> Unit,
-    onExportLogClick: () -> Unit,
 ) {
     val context = LocalContext.current
 
     val applicationVersionName = remember(context) {
         runCatching {
-            @Suppress("DEPRECATION")
             context.packageManager.getPackageInfo(context.packageName, 0).versionName
         }.getOrNull().orEmpty()
     }
 
     val testAlarmSourceChannelName = stringResource(R.string.settings_test_alarm_channel_name)
     val testAlarmSourceMessageText = stringResource(R.string.settings_test_alarm_message_text)
+    val defaultAlarmSoundTitle = stringResource(R.string.settings_alarm_sound_default)
+
+    val selectedAlarmSoundTitle = remember(
+        context,
+        state.alarmSoundUri,
+        defaultAlarmSoundTitle,
+    ) {
+        AlarmSoundPickerHelper.resolveAlarmSoundTitle(
+            context = context,
+            alarmSoundUri = state.alarmSoundUri,
+            defaultAlarmSoundTitle = defaultAlarmSoundTitle,
+        )
+    }
 
     Column(
         verticalArrangement = Arrangement.spacedBy(VartovyiTheme.spacing.small),
         modifier = modifier
             .widthIn(max = VartovyiTheme.spacing.contentMaxWidth)
             .fillMaxSize()
-            .padding(horizontal = VartovyiTheme.spacing.small)
             .verticalScroll(rememberScrollState())
+            .padding(horizontal = VartovyiTheme.spacing.small)
     ) {
         SettingsTestAlarmButton(
             isAlarmRunning = state.isAlarmRunning,
@@ -259,7 +249,6 @@ private fun SettingsContent(
                         )
                     )
                 },
-                onExportLogClick = onExportLogClick,
                 onResetToFactoryDefaultsClick = {
                     onAction(SettingsUiContract.Action.ShowResetToFactoryDefaultsDialog)
                 },
@@ -279,7 +268,9 @@ private fun SettingsContent(
         ) {
             AlarmSoundSection(
                 selectedSoundTitle = selectedAlarmSoundTitle,
-                onChooseSoundClick = onChooseAlarmSound,
+                onChooseSoundClick = {
+                    onAction(SettingsUiContract.Action.StartExternalPickerNavigation)
+                },
                 modifier = Modifier.fillMaxWidth()
             )
 
@@ -350,6 +341,9 @@ private fun SettingsContent(
                 onTermsOfUseClick = {
                     onAction(SettingsUiContract.Action.OpenTermsOfUse)
                 },
+                onOpenOnboardingGuideClick = {
+                    onAction(SettingsUiContract.Action.OpenOnboardingGuide)
+                },
             )
         }
 
@@ -365,29 +359,21 @@ private fun SettingsContent(
     }
 }
 
-@Preview(
-    name = "Settings — default",
-    heightDp = 1000,
-)
+@Preview(name = "Settings — default")
 @Composable
 private fun SettingsContentPreview() {
     VartovyiTheme {
         SettingsContent(
             state = SettingsUiContract.State(
                 isLoading = false,
+                expandedSection = SettingsUiContract.SettingsSection.DATA
             ),
-            selectedAlarmSoundTitle = "Default alarm sound",
             onAction = {},
-            onChooseAlarmSound = {},
-            onExportLogClick = {},
         )
     }
 }
 
-@Preview(
-    name = "Settings — schedule on, test alarm",
-    heightDp = 1050,
-)
+@Preview(name = "Settings — schedule on, test alarm")
 @Composable
 private fun SettingsContentPreviewScheduleAndAlarm() {
     VartovyiTheme {
@@ -403,10 +389,7 @@ private fun SettingsContentPreviewScheduleAndAlarm() {
                 alarmRetriggerCooldownDurationMillis = 10 * 60 * 1000L,
                 isAlarmRunning = true,
             ),
-            selectedAlarmSoundTitle = "Custom ringtone",
             onAction = {},
-            onChooseAlarmSound = {},
-            onExportLogClick = {},
         )
     }
 }
