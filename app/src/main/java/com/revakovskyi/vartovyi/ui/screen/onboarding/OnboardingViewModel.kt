@@ -35,7 +35,6 @@ class OnboardingViewModel(
             is OnboardingUiContract.Action.PageChanged -> onPageChanged(action.pageIndex)
             is OnboardingUiContract.Action.Complete -> complete()
             is OnboardingUiContract.Action.Skip -> skip()
-            is OnboardingUiContract.Action.ShowManually -> showManually()
             is OnboardingUiContract.Action.OpenPermissions -> openPermissions()
             is OnboardingUiContract.Action.OpenKeywords -> openKeywords()
         }
@@ -44,7 +43,13 @@ class OnboardingViewModel(
     private fun observeCompleted() {
         viewModelScope.launch {
             observeOnboardingCompletedUseCase().collect { isCompleted ->
-                _state.update { it.copy(isLoading = false, isCompleted = isCompleted) }
+                _state.update {
+                    it.copy(
+                        isLoading = false,
+                        isCompleted = isCompleted,
+                        canSkip = isCompleted,
+                    )
+                }
             }
         }
     }
@@ -79,10 +84,6 @@ class OnboardingViewModel(
         viewModelScope.launch {
             _events.send(OnboardingUiContract.Event.Close)
         }
-    }
-
-    private fun showManually() {
-        _state.update { it.copy(currentPage = 0, canSkip = true) }
     }
 
     private fun openPermissions() {

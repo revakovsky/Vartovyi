@@ -88,6 +88,8 @@ class KeywordsViewModel(
             is Action.NotifyExportSuccess -> notifyExportSuccess()
             is Action.NotifyExportError -> notifyExportError()
             is Action.RequestImport -> requestImport()
+            is Action.DismissImportConfirmationDialog -> dismissImportConfirmationDialog()
+            is Action.ConfirmImport -> confirmImport()
             is Action.ImportKeywords -> importKeywords(action.jsonContent)
             is Action.NotifyImportReadError -> notifyImportReadError()
         }
@@ -324,6 +326,19 @@ class KeywordsViewModel(
     }
 
     private fun requestImport() {
+        if (_state.value.hasKeywordDataToClear) {
+            _state.update { it.copy(isImportConfirmationDialogVisible = true) }
+        } else {
+            viewModelScope.launch { _events.send(Event.LaunchImportFilePicker) }
+        }
+    }
+
+    private fun dismissImportConfirmationDialog() {
+        _state.update { it.copy(isImportConfirmationDialogVisible = false) }
+    }
+
+    private fun confirmImport() {
+        _state.update { it.copy(isImportConfirmationDialogVisible = false) }
         viewModelScope.launch { _events.send(Event.LaunchImportFilePicker) }
     }
 

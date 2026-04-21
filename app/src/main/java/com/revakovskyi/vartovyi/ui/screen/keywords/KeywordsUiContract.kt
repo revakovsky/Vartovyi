@@ -26,6 +26,7 @@ interface KeywordsUiContract {
         val duplicateWord: String? = null,
         val pendingRemoval: PendingRemoval? = null,
         val isClearKeywordsDialogVisible: Boolean = false,
+        val isImportConfirmationDialogVisible: Boolean = false,
     ) {
         val hasKeywordDataToClear: Boolean
             get() = keywords.isNotEmpty() ||
@@ -60,6 +61,8 @@ interface KeywordsUiContract {
         data object NotifyExportSuccess : Action
         data object NotifyExportError : Action
         data object RequestImport : Action
+        data object DismissImportConfirmationDialog : Action
+        data object ConfirmImport : Action
         data class ImportKeywords(val jsonContent: String) : Action
         data object NotifyImportReadError : Action
     }

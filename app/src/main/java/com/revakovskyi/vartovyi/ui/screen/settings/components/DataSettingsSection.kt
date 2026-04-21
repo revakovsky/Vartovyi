@@ -30,7 +30,6 @@ fun DataSettingsSection(
     currentAlarmCooldownDurationMillis: Long,
     onLogSizeLimitChange: (limit: Int) -> Unit,
     onAlarmCooldownDurationChange: (durationMillis: Long) -> Unit,
-    onExportLogClick: () -> Unit,
     onResetToFactoryDefaultsClick: () -> Unit,
 ) {
     val sortedLogSizeOptions = remember { LOG_SIZE_OPTIONS.sorted() }
@@ -126,26 +125,6 @@ fun DataSettingsSection(
             onClick = onResetToFactoryDefaultsClick,
             modifier = Modifier.fillMaxWidth()
         )
-
-        // TODO: add in future when it will be ready to use!
-//        Spacer(modifier = Modifier.height(VartovyiTheme.spacing.standard))
-//
-//        Text(
-//            text = stringResource(R.string.settings_data_export_log_title),
-//            style = VartovyiTheme.typography.titleMedium,
-//            color = VartovyiTheme.colors.onSurface,
-//        )
-//
-//        Spacer(modifier = Modifier.height(VartovyiTheme.spacing.standard))
-//
-//        VartovyiActionButton(
-//            text = stringResource(R.string.settings_data_export_log_button),
-//            onClick = onExportLogClick,
-//            style = VartovyiActionButtonStyle.Outlined,
-//            modifier = Modifier
-//                .fillMaxWidth()
-//                .height(VartovyiTheme.spacing.massive)
-//        )
     }
 }
 
@@ -158,7 +137,6 @@ private fun DataSettingsSectionPreview() {
             currentAlarmCooldownDurationMillis = 5 * MILLIS_IN_MINUTE,
             onLogSizeLimitChange = {},
             onAlarmCooldownDurationChange = {},
-            onExportLogClick = {},
             onResetToFactoryDefaultsClick = {},
         )
     }

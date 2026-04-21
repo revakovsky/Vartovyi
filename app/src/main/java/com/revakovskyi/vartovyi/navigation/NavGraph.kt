@@ -41,9 +41,13 @@ fun NavGraph(
     ) {
         composable<Routes.Onboarding> {
             OnboardingScreen(
+                isRequiredPermissionsGranted = isRequiredPermissionsGranted,
                 onClose = {
-                    navController.navigate(Routes.Home) {
-                        popUpTo<Routes.Onboarding> { inclusive = true }
+                    val navigatedUp = navController.navigateUp()
+                    if (!navigatedUp) {
+                        navController.navigate(Routes.Home) {
+                            popUpTo<Routes.Onboarding> { inclusive = true }
+                        }
                     }
                 },
                 onOpenPermissions = { navController.navigate(Routes.Permissions) },
@@ -89,6 +93,7 @@ fun NavGraph(
                         navOptions = tabNavOptions()
                     )
                 },
+                onNavigateToOnboarding = { navController.navigate(Routes.Onboarding) },
             )
         }
 
