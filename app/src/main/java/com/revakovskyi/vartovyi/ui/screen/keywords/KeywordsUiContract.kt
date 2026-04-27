@@ -65,6 +65,7 @@ interface KeywordsUiContract {
         data object ConfirmImport : Action
         data class ImportKeywords(val jsonContent: String) : Action
         data object NotifyImportReadError : Action
+        data object NotifyImportFileTooLarge : Action
     }
 
     sealed interface Event {
@@ -84,6 +85,7 @@ interface KeywordsUiContract {
         data object KeywordsImportInvalidFormat : Event
         data class KeywordsImportUnsupportedVersion(val fileVersion: Int) : Event
         data object KeywordsImportWriteError : Event
+        data object KeywordsImportFileTooLarge : Event
     }
 
 }

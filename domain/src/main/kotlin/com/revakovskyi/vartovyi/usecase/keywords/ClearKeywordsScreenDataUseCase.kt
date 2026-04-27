@@ -20,7 +20,7 @@ class ClearKeywordsScreenDataUseCaseImpl(
     override suspend fun invoke() {
         alarmController.stopAlarm()
         settingsRepository.setMonitoringActive(false)
-        settingsRepository.setAlarmRetriggerCooldownUntilEpochMillis(0L)
+        settingsRepository.setAlarmRetriggerCooldownUntilElapsedRealtimeMillis(0L)
         keywordsRepository.clearAllKeywordsPreferences()
         syncMonitoringRuntimeWithSettings(
             settingsRepository = settingsRepository,

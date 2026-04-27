@@ -1,10 +1,15 @@
 package com.revakovskyi.vartovyi.ui.screen.permissions
 
+import android.Manifest
 import android.annotation.SuppressLint
+import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
+import android.os.Build
 import android.provider.Settings
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -13,14 +18,15 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.core.app.ActivityCompat
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.revakovskyi.vartovyi.ui.components.LoadingOverlay
 import com.revakovskyi.vartovyi.ui.screen.permissions.components.PermissionItemCard
 import com.revakovskyi.vartovyi.ui.screen.permissions.components.PermissionsHeader
@@ -44,7 +50,28 @@ fun PermissionsScreen(
     val context = LocalContext.current
     val lifecycleOwner = LocalLifecycleOwner.current
 
-    val state by viewModel.state.collectAsState()
+    val state by viewModel.state.collectAsStateWithLifecycle()
+
+    val postNotificationsLauncher = rememberLauncherForActivityResult(
+        ActivityResultContracts.RequestPermission()
+    ) { isGranted ->
+        if (!isGranted && Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            val activity = context as? Activity
+            val isPermanentlyDenied = activity != null &&
+                    !ActivityCompat.shouldShowRequestPermissionRationale(
+                        activity,
+                        Manifest.permission.POST_NOTIFICATIONS,
+                    )
+
+            if (isPermanentlyDenied) {
+                openSystemSettings(
+                    context = context,
+                    action = Settings.ACTION_APP_NOTIFICATION_SETTINGS,
+                )
+            }
+        }
+        onRefreshPermissions()
+    }
 
     DisposableEffect(lifecycleOwner) {
         val observer = LifecycleEventObserver { _, event ->
@@ -64,6 +91,16 @@ fun PermissionsScreen(
     ObserveSingleEvents(flow = viewModel.events) { event ->
         when (event) {
             is PermissionsUiContract.Event.NavigateBack -> onNavigateBack()
+            is PermissionsUiContract.Event.LaunchPostNotificationsPermissionRequest -> {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                    postNotificationsLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
+                } else {
+                    openSystemSettings(
+                        context = context,
+                        action = Settings.ACTION_APP_NOTIFICATION_SETTINGS,
+                    )
+                }
+            }
             is PermissionsUiContract.Event.NavigateToSystemSettings -> {
                 openSystemSettings(
                     context = context,

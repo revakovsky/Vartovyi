@@ -38,7 +38,6 @@
     <string name="settings_section_info">Info</string>
     <string name="settings_open_onboarding_guide">Open onboarding guide</string>
     <string name="settings_version_number" translatable="false">version: %1$s</string>
-    <string name="settings_produced_by" translatable="false">produced by Revakovskyi</string>
     <string name="settings_schedule_enabled_title">Work by schedule</string>
     <string name="settings_schedule_start_title">Start</string>
     <string name="settings_schedule_end_title">End</string>
@@ -74,6 +73,7 @@
     <string name="monitoring_channel_description">Vartovyi monitoring status</string>
     <string name="monitoring_notification_title">Vartovyi is active</string>
     <string name="monitoring_notification_text">Monitoring Telegram notifications</string>
+    <string name="monitoring_disabled_listener_revoked">Notification access was revoked — monitoring disabled</string>
     <string name="alarm_channel_name">Alarm</string>
     <string name="alarm_channel_description">Vartovyi threat alerts</string>
     <string name="alarm_notification_title">Threat alert!</string>
@@ -101,7 +101,7 @@
     <string name="keywords_all_channels_monitored">All channels are being monitored</string>
     <string name="keywords_telegram_channel_hint">e.g. @air_alert_ua</string>
     <string name="keywords_telegram_channel_tip">Only messages from these channels will trigger the alarm</string>
-    <string name="keywords_telegram_channel_tooltip">Enter the channel name exactly as it appears in your Telegram chat list.\n\nEmoji are not required — the text part is enough. For example, for «🚨 Air Alert Kyiv» you can just type «Kyiv».\n\nMatching is case-insensitive.</string>
+    <string name="keywords_telegram_channel_tooltip">Enter the channel name exactly as it appears in your Telegram chat list.\n\nEmoji at the beginning or end of the name are not required — you can omit them and type only the text. For example, for «🚨 Air Alert Kyiv» type «Air Alert Kyiv».\n\nMatching is case-insensitive.</string>
     <string name="keywords_duplicate_title">Already in the list</string>
     <string name="keywords_duplicate_message">"%s" is already in the list.</string>
     <string name="keywords_duplicate_confirm">OK</string>
@@ -161,6 +161,7 @@
     <string name="keywords_import_invalid_format">Import failed: the file is corrupted or has wrong format</string>
     <string name="keywords_import_unsupported_version">Import failed: backup version %1$d is not supported</string>
     <string name="keywords_import_write_error">Import failed: unable to save data</string>
+    <string name="keywords_import_file_too_large">Import failed: file is too large (max 2 MB)</string>
     <string name="ok">OK</string>
 
     <string name="onboarding_back">Back</string>
@@ -184,6 +185,9 @@
     <string name="onboarding_keywords_body">Keywords are the core setting — they determine when the siren triggers.\n\nTrigger words — a message containing these words will trigger the alarm. Three modes: Word, All Words, Phrase.\n\nStop words — if found in a message, the alarm won\'t fire even if a trigger matches.\n\nChannel filter — optional. Restricts monitoring to selected Telegram channels only.\n\n💡 Tip: after the first message arrives, open the Logs screen and copy words directly from there.</string>
     <string name="onboarding_open_keywords">Open keywords</string>
     <string name="onboarding_keywords_later_hint">You can set it up now or do it later in the app.</string>
+
+    <string name="onboarding_device_tips_title">Device Tips</string>
+    <string name="onboarding_device_tips_body">ℹ️ You don\'t have to do this step right now. It\'s reference information in case Vartovyi starts behaving unreliably — for example, doesn\'t respond after a phone reboot, the alarm screen doesn\'t appear, or notifications arrive with a delay. If everything works as expected — feel free to skip this step and come back to it later via the «Info» section on the Settings screen.\n\nSome manufacturers add extra background restrictions on top of standard Android permissions. In that case, check the settings below for your device.\n\nXiaomi · POCO · Redmi (MIUI)\n• Autostart — Settings → Apps → Manage apps → Vartovyi → Permissions → Autostart → enable\n• Pop-up windows — Settings → Apps → Vartovyi → Other permissions → Display pop-up windows while running in background → enable\n\nXiaomi · POCO · Redmi (HyperOS)\n• Autostart — Settings → Apps → Manage apps → Vartovyi → Background autostart → enable\n• Pop-up windows — Settings → Apps → Vartovyi → Other permissions → Display pop-up windows while running in background → enable\n\nSamsung (One UI)\n• Settings → Battery and device care → Battery → Background usage limits → Never sleeping apps → add Vartovyi\n• If Vartovyi is not in the list — that\'s fine. It means Samsung hasn\'t flagged it for sleeping yet. The app is already protected if Battery optimization is disabled.\n\nOPPO · OnePlus · Realme (ColorOS / OxygenOS / Realme UI)\n• Startup Manager — Phone Manager → Startup Manager → enable Vartovyi\n• Battery — Settings → Battery → App Battery Saver → Vartovyi → don\'t restrict\n\nHuawei · Honor (EMUI / HarmonyOS)\n• App launch — Settings → Battery → App launch → Vartovyi → manage manually → enable Auto-launch, Secondary launch, Run in background\n\nVivo (FuntouchOS / OriginOS)\n• Settings → Battery → High background power consumption → enable Vartovyi\n\nOther brands\nIf the app still doesn\'t work reliably in the background — search for \"autostart\" or \"background activity\" in your device Settings and allow Vartovyi.\n\n💡 These lists only show apps that the system considers at risk. If your app isn\'t listed — it\'s working fine and no action is needed.</string>
 
     <string name="onboarding_launch_title">Launch and test</string>
     <string name="onboarding_launch_body">Tap the Activate button on the home screen — the shield will light up and Vartovyi will start monitoring incoming Telegram notifications in the background.\n\nTo make sure everything is set up correctly, we recommend running a quick test right away:\n• Ask someone to send a message containing your keyword in Telegram.\n• If you have a channel with notifications enabled — send it there. If not — any Telegram chat with active notifications will work.\n\nIf the siren didn\'t fire — open the Logs screen and check whether an event appeared. That will help you understand what went wrong.\n\nAll set. Stay safe. 🛡\n\nYou can always revisit this guide later in the Info section of the Settings screen.</string>

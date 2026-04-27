@@ -49,15 +49,18 @@ fun OnboardingPageLayout(
     modifier: Modifier = Modifier,
     visual: OnboardingVisual,
     title: String,
-    body: String,
+    body: String = "",
+    bodyContent: (@Composable () -> Unit)? = null,
     actionContent: (@Composable () -> Unit)? = null,
 ) {
+    val scrollState = rememberScrollState()
+
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = modifier
             .widthIn(max = VartovyiTheme.spacing.contentMaxWidth)
             .fillMaxSize()
-            .verticalScroll(rememberScrollState())
+            .verticalScroll(scrollState)
             .padding(horizontal = VartovyiTheme.spacing.medium)
     ) {
         Spacer(modifier = Modifier.height(VartovyiTheme.spacing.massive))
@@ -96,13 +99,17 @@ fun OnboardingPageLayout(
 
         Spacer(modifier = Modifier.height(VartovyiTheme.spacing.standard))
 
-        Text(
-            text = body,
-            style = VartovyiTheme.typography.bodyLarge,
-            color = VartovyiTheme.colors.onSurface,
-            textAlign = TextAlign.Center,
-            modifier = Modifier.fillMaxWidth()
-        )
+        if (bodyContent != null) {
+            bodyContent()
+        } else {
+            Text(
+                text = body,
+                style = VartovyiTheme.typography.bodyLarge,
+                color = VartovyiTheme.colors.onSurface,
+                textAlign = TextAlign.Center,
+                modifier = Modifier.fillMaxWidth()
+            )
+        }
 
         if (actionContent != null) {
             Spacer(modifier = Modifier.height(VartovyiTheme.spacing.extraLarge))

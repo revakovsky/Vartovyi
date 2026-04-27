@@ -17,7 +17,7 @@ class ToggleMonitoringUseCaseImpl(
         settingsRepository.setMonitoringActive(shouldActivate)
 
         if (!shouldActivate) {
-            settingsRepository.setAlarmRetriggerCooldownUntilEpochMillis(0L)
+            settingsRepository.setAlarmRetriggerCooldownUntilElapsedRealtimeMillis(0L)
         }
 
         if (shouldActivate) monitoringController.startMonitoring()

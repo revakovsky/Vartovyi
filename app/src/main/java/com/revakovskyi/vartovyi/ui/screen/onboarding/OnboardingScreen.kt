@@ -29,6 +29,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.revakovskyi.vartovyi.R
 import com.revakovskyi.vartovyi.ui.components.VartovyiActionButton
 import com.revakovskyi.vartovyi.ui.components.VartovyiActionButtonStyle
+import com.revakovskyi.vartovyi.ui.screen.onboarding.components.OnboardingPageDeviceTips
 import com.revakovskyi.vartovyi.ui.screen.onboarding.components.OnboardingPageKeywords
 import com.revakovskyi.vartovyi.ui.screen.onboarding.components.OnboardingPageLaunch
 import com.revakovskyi.vartovyi.ui.screen.onboarding.components.OnboardingPagePermissions
@@ -103,11 +104,13 @@ private fun OnboardingContent(
                     onOpenPermissions = { onAction(OnboardingUiContract.Action.OpenPermissions) },
                 )
 
-                3 -> OnboardingPageKeywords(
+                3 -> OnboardingPageDeviceTips()
+
+                4 -> OnboardingPageKeywords(
                     onOpenKeywords = { onAction(OnboardingUiContract.Action.OpenKeywords) }
                 )
 
-                4 -> OnboardingPageLaunch()
+                5 -> OnboardingPageLaunch()
                 else -> OnboardingPageWelcome()
             }
         }
@@ -218,10 +221,22 @@ private fun OnboardingContentPermissionsGrantedPreview() {
 
 @Preview(showBackground = true)
 @Composable
+private fun OnboardingContentDeviceTipsPreview() {
+    VartovyiTheme {
+        OnboardingContent(
+            state = OnboardingUiContract.State(currentPage = 3),
+            isRequiredPermissionsGranted = true,
+            onAction = {},
+        )
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
 private fun OnboardingContentLastPagePreview() {
     VartovyiTheme {
         OnboardingContent(
-            state = OnboardingUiContract.State(currentPage = 4),
+            state = OnboardingUiContract.State(currentPage = 5),
             isRequiredPermissionsGranted = true,
             onAction = {},
         )

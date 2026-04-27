@@ -57,17 +57,63 @@ internal class KeywordsDataStore(private val context: Context) {
         .safeCatch()
         .map { prefs -> prefs[Keys.TELEGRAM_CHANNEL_FILTER_ENABLED] ?: false }
 
-    suspend fun setKeywords(keywords: List<String>) {
-        context.keywordsDataStore.edit { it[Keys.KEYWORDS] = Json.encodeToString(keywords) }
+    suspend fun addKeywordIfMissing(keyword: String) {
+        context.keywordsDataStore.edit { preferences ->
+            val currentKeywords = preferences[Keys.KEYWORDS]
+                ?.let { storedKeywords -> Json.decodeFromString<List<String>>(storedKeywords) }
+                ?: emptyList()
+            if (keyword in currentKeywords) return@edit
+
+            preferences[Keys.KEYWORDS] = Json.encodeToString(currentKeywords + keyword)
+        }
     }
 
-    suspend fun setStopWords(stopWords: List<String>) {
-        context.keywordsDataStore.edit { it[Keys.STOP_WORDS] = Json.encodeToString(stopWords) }
+    suspend fun removeKeyword(keyword: String) {
+        context.keywordsDataStore.edit { preferences ->
+            val currentKeywords = preferences[Keys.KEYWORDS]
+                ?.let { storedKeywords -> Json.decodeFromString<List<String>>(storedKeywords) }
+                ?: emptyList()
+            preferences[Keys.KEYWORDS] = Json.encodeToString(currentKeywords - keyword)
+        }
     }
 
-    suspend fun setTelegramChannels(channels: List<String>) {
-        context.keywordsDataStore.edit {
-            it[Keys.TELEGRAM_CHANNELS] = Json.encodeToString(channels)
+    suspend fun addStopWordIfMissing(stopWord: String) {
+        context.keywordsDataStore.edit { preferences ->
+            val currentStopWords = preferences[Keys.STOP_WORDS]
+                ?.let { storedStopWords -> Json.decodeFromString<List<String>>(storedStopWords) }
+                ?: emptyList()
+            if (stopWord in currentStopWords) return@edit
+
+            preferences[Keys.STOP_WORDS] = Json.encodeToString(currentStopWords + stopWord)
+        }
+    }
+
+    suspend fun removeStopWord(stopWord: String) {
+        context.keywordsDataStore.edit { preferences ->
+            val currentStopWords = preferences[Keys.STOP_WORDS]
+                ?.let { storedStopWords -> Json.decodeFromString<List<String>>(storedStopWords) }
+                ?: emptyList()
+            preferences[Keys.STOP_WORDS] = Json.encodeToString(currentStopWords - stopWord)
+        }
+    }
+
+    suspend fun addTelegramChannelIfMissing(channel: String) {
+        context.keywordsDataStore.edit { preferences ->
+            val currentChannels = preferences[Keys.TELEGRAM_CHANNELS]
+                ?.let { storedChannels -> Json.decodeFromString<List<String>>(storedChannels) }
+                ?: emptyList()
+            if (channel in currentChannels) return@edit
+
+            preferences[Keys.TELEGRAM_CHANNELS] = Json.encodeToString(currentChannels + channel)
+        }
+    }
+
+    suspend fun removeTelegramChannel(channel: String) {
+        context.keywordsDataStore.edit { preferences ->
+            val currentChannels = preferences[Keys.TELEGRAM_CHANNELS]
+                ?.let { storedChannels -> Json.decodeFromString<List<String>>(storedChannels) }
+                ?: emptyList()
+            preferences[Keys.TELEGRAM_CHANNELS] = Json.encodeToString(currentChannels - channel)
         }
     }
 

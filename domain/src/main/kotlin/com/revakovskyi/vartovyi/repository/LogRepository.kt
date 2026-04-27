@@ -10,8 +10,7 @@ interface LogRepository {
     val lastAlarmTriggeredEvent: Flow<AlertEvent?>
 
     suspend fun getEntryIndexById(eventId: String): Int
-    suspend fun addEntry(event: AlertEvent): Boolean
-    suspend fun trimToLimit(limit: Int)
+    suspend fun addEntryAndTrimToLimit(event: AlertEvent, limit: Int): Boolean
     suspend fun clearLog()
 
 }

@@ -29,7 +29,6 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -51,8 +50,10 @@ import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
 import com.revakovskyi.vartovyi.R
 import com.revakovskyi.vartovyi.constants.AlarmContract
+import com.revakovskyi.vartovyi.controllers.alarm.AlarmStateHolder
 import com.revakovskyi.vartovyi.service.alarm.AlarmService
 import com.revakovskyi.vartovyi.ui.theme.VartovyiTheme
+import org.koin.android.ext.android.inject
 
 private const val ALARM_ICON_SIZE_DP = 128
 private const val ALARM_SCREEN_PULSE_SCALE_MIN = 0.93f
@@ -63,6 +64,8 @@ private const val DISMISS_BUTTON_WIDTH_FRACTION = 0.7f
 private const val EMPTY_VALUE = ""
 
 class AlarmActivity : ComponentActivity() {
+
+    private val alarmStateHolder: AlarmStateHolder by inject()
 
     private var sourceChannelName by mutableStateOf(EMPTY_VALUE)
     private var sourceMessageText by mutableStateOf(EMPTY_VALUE)
@@ -101,13 +104,13 @@ class AlarmActivity : ComponentActivity() {
     override fun onStart() {
         super.onStart()
         registerAlarmStopReceiver()
-        isVisible.value = true
+        alarmStateHolder.setVisible(true)
     }
 
     override fun onStop() {
         super.onStop()
         unregisterAlarmStopReceiver()
-        isVisible.value = false
+        alarmStateHolder.setVisible(false)
     }
 
     override fun onKeyDown(keyCode: Int, event: KeyEvent?): Boolean {
@@ -164,10 +167,6 @@ class AlarmActivity : ComponentActivity() {
 
         unregisterReceiver(alarmStopReceiver)
         isAlarmStopReceiverRegistered = false
-    }
-
-    companion object {
-        val isVisible: MutableState<Boolean> = mutableStateOf(false)
     }
 
 }

@@ -49,14 +49,13 @@ internal class LogRepositoryImpl(
         return alertEventDao.getIndexById(eventId)
     }
 
-    override suspend fun addEntry(event: AlertEvent): Boolean {
+    override suspend fun addEntryAndTrimToLimit(event: AlertEvent, limit: Int): Boolean {
         val signature = buildSignature(event)
-        val insertResult = alertEventDao.insert(event.toEntity(signature = signature))
+        val insertResult = alertEventDao.insertAndTrimToLimit(
+            entity = event.toEntity(signature = signature),
+            limit = limit,
+        )
         return insertResult != INSERT_CONFLICT_RESULT
-    }
-
-    override suspend fun trimToLimit(limit: Int) {
-        alertEventDao.trimToLimit(limit)
     }
 
     override suspend fun clearLog() {

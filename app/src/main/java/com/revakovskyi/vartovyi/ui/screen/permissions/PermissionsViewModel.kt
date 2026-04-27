@@ -30,7 +30,7 @@ class PermissionsViewModel : ViewModel() {
             is Action.RequestNotificationListenerAccess -> requestListenerAccess()
             is Action.RequestDoNotDisturbAccess -> requestDoNotDisturbAccess()
             is Action.RequestPostNotificationsPermission -> requestPostNotifications()
-            is Action.ToggleFullScreenIntentPermission -> toggleFullScreenIntentPermission(action.shouldEnable)
+            is Action.ToggleFullScreenIntentPermission -> requestFullScreenIntent()
             is Action.NavigateBack -> navigateBack()
             is Action.ToggleBatteryOptimizationPermission -> {
                 toggleBatteryOptimizationPermission(action.shouldEnable)
@@ -70,7 +70,17 @@ class PermissionsViewModel : ViewModel() {
     }
 
     private fun requestPostNotifications() {
-        openAppNotificationSettings()
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            launchPostNotificationsPermissionRequest()
+        } else {
+            openAppNotificationSettings()
+        }
+    }
+
+    private fun launchPostNotificationsPermissionRequest() {
+        viewModelScope.launch {
+            _events.send(Event.LaunchPostNotificationsPermissionRequest)
+        }
     }
 
     @SuppressLint("BatteryLife")
@@ -126,20 +136,6 @@ class PermissionsViewModel : ViewModel() {
         }
 
         openAppNotificationSettings()
-    }
-
-    private fun toggleFullScreenIntentPermission(shouldEnable: Boolean) {
-        requestFullScreenIntent()
-    }
-
-    private fun openAppDetailsSettings() {
-        viewModelScope.launch {
-            _events.send(
-                Event.NavigateToSystemSettings(
-                    Settings.ACTION_APPLICATION_DETAILS_SETTINGS
-                )
-            )
-        }
     }
 
     private fun openAppNotificationSettings() {

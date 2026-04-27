@@ -15,11 +15,11 @@ class AddLogEntryUseCaseImpl(
 ) : AddLogEntryUseCase {
 
     override suspend operator fun invoke(event: AlertEvent) {
-        val isInserted = logRepository.addEntry(event)
-        if (!isInserted) return
-
         val sizeLimit = settingsRepository.logSizeLimit.first()
-        logRepository.trimToLimit(sizeLimit)
+        logRepository.addEntryAndTrimToLimit(
+            event = event,
+            limit = sizeLimit,
+        )
     }
 
 }

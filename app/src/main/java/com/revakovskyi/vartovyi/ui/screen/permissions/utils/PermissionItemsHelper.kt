@@ -52,8 +52,6 @@ internal fun buildPermissionItems(
         description = stringResource(R.string.permissions_full_screen_description),
         isRequired = false,
         isGranted = state.isFullScreenIntentGranted,
-        onSwitchToggle = { shouldEnable ->
-            PermissionsUiContract.Action.ToggleFullScreenIntentPermission(shouldEnable)
-        },
+        onSwitchToggle = { PermissionsUiContract.Action.ToggleFullScreenIntentPermission },
     ),
 )

@@ -9,4 +9,3 @@ interface LegalConsentRepository {
     suspend fun setAcceptedLegalDocumentsVersion(version: Int)
 
 }
-

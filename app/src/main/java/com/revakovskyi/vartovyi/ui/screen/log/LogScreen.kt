@@ -6,13 +6,13 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.widthIn
-import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
@@ -21,6 +21,7 @@ import androidx.compose.ui.platform.ClipEntry
 import androidx.compose.ui.platform.LocalClipboard
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.paging.LoadState
 import androidx.paging.PagingData
 import androidx.paging.compose.LazyPagingItems
@@ -44,6 +45,7 @@ import org.koin.androidx.compose.koinViewModel
 
 private const val CHANNEL_NAME_CLIP_LABEL = "channel_name"
 private const val MESSAGE_TEXT_CLIP_LABEL = "message_text"
+private const val LOG_LIST_STATE_KEY = "log_list_state"
 
 @Composable
 fun LogScreen(
@@ -52,7 +54,7 @@ fun LogScreen(
 ) {
     val clipboardManager = LocalClipboard.current
 
-    val state by viewModel.state.collectAsState()
+    val state by viewModel.state.collectAsStateWithLifecycle()
     val logEntries = viewModel.pagedLogEntries.collectAsLazyPagingItems()
 
     val channelCopiedMessage = stringResource(R.string.log_channel_copied)
@@ -131,7 +133,9 @@ private fun LogContent(
     logEntries: LazyPagingItems<AlertEvent>,
     onAction: (action: LogUiContract.Action) -> Unit,
 ) {
-    val listState = rememberLazyListState()
+    val listState = rememberSaveable(saver = LazyListState.Saver, key = LOG_LIST_STATE_KEY) {
+        LazyListState()
+    }
 
     var isInitialScrollCompleted by remember(state.highlightLogEntryId) { mutableStateOf(false) }
 

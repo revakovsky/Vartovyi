@@ -4,6 +4,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavDestination.Companion.hasRoute
 import androidx.navigation.NavHostController
+import androidx.navigation.NavOptions
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navOptions
@@ -15,13 +16,13 @@ import com.revakovskyi.vartovyi.ui.screen.onboarding.OnboardingScreen
 import com.revakovskyi.vartovyi.ui.screen.permissions.PermissionsScreen
 import com.revakovskyi.vartovyi.ui.screen.settings.SettingsScreen
 
-private fun tabNavOptions() = navOptions {
+private fun tabNavOptions(): NavOptions = navOptions {
     popUpTo<Routes.Home> { saveState = true }
     launchSingleTop = true
     restoreState = true
 }
 
-private fun logHighlightNavOptions() = navOptions {
+private fun logHighlightNavOptions(): NavOptions = navOptions {
     popUpTo<Routes.Home> { saveState = true }
     restoreState = false
 }

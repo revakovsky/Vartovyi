@@ -17,7 +17,8 @@ internal class SettingsRepositoryImpl(
     override val alarmSoundUri: Flow<String> = monitoringDataStore.alarmSoundUri
     override val logSizeLimit: Flow<Int> = monitoringDataStore.logSizeLimit
     override val alarmRetriggerCooldownDurationMillis: Flow<Long> = monitoringDataStore.alarmRetriggerCooldownDurationMillis
-    override val alarmRetriggerCooldownUntilEpochMillis: Flow<Long> = monitoringDataStore.alarmRetriggerCooldownUntilEpochMillis
+    override val alarmRetriggerCooldownUntilElapsedRealtimeMillis: Flow<Long> =
+        monitoringDataStore.alarmRetriggerCooldownUntilElapsedRealtimeMillis
 
     override suspend fun setMonitoringActive(active: Boolean) {
         monitoringDataStore.setMonitoringActive(active)
@@ -55,8 +56,12 @@ internal class SettingsRepositoryImpl(
         monitoringDataStore.setAlarmRetriggerCooldownDurationMillis(durationMillis)
     }
 
-    override suspend fun setAlarmRetriggerCooldownUntilEpochMillis(untilEpochMillis: Long) {
-        monitoringDataStore.setAlarmRetriggerCooldownUntilEpochMillis(untilEpochMillis)
+    override suspend fun setAlarmRetriggerCooldownUntilElapsedRealtimeMillis(
+        untilElapsedRealtimeMillis: Long,
+    ) {
+        monitoringDataStore.setAlarmRetriggerCooldownUntilElapsedRealtimeMillis(
+            untilElapsedRealtimeMillis
+        )
     }
 
     override suspend fun clearAllMonitoringPreferences() {

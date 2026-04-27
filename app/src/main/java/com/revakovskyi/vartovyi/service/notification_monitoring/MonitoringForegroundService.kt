@@ -8,34 +8,44 @@ import android.app.Service
 import android.content.Context
 import android.content.Intent
 import android.os.IBinder
+import android.util.Log
 import androidx.core.app.NotificationCompat
 import androidx.core.content.ContextCompat
 import com.revakovskyi.vartovyi.MainActivity
 import com.revakovskyi.vartovyi.R
 import com.revakovskyi.vartovyi.controllers.alarm.AlarmRetriggerCooldownStateHolder
 import com.revakovskyi.vartovyi.repository.SettingsRepository
+import com.revakovskyi.vartovyi.usecase.monitoring.SyncMonitoringRuntimeUseCase
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import kotlinx.coroutines.withTimeoutOrNull
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
+import java.util.concurrent.atomic.AtomicBoolean
 
 private const val MONITORING_NOTIFICATION_ID = 2001
 private const val MONITORING_CHANNEL_ID = "vartovyi_monitoring"
 private const val GREEN_ACCENT_COLOR_RES_ID = android.R.color.holo_green_dark
 private const val ACTION_STOP = "com.revakovskyi.vartovyi.ACTION_STOP_MONITORING"
+private const val MONITORING_SERVICE_TAG = "MonitoringService"
+private const val STOP_DATASTORE_WRITE_TIMEOUT_MILLIS = 2_000L
 
 class MonitoringForegroundService : Service(), KoinComponent {
 
     private val settingsRepository: SettingsRepository by inject()
     private val alarmRetriggerCooldownStateHolder: AlarmRetriggerCooldownStateHolder by inject()
+    private val syncMonitoringRuntimeUseCase: SyncMonitoringRuntimeUseCase by inject()
     private val serviceScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
+    private val isStopRequested = AtomicBoolean(false)
 
     override fun onCreate() {
         super.onCreate()
@@ -43,34 +53,56 @@ class MonitoringForegroundService : Service(), KoinComponent {
         alarmRetriggerCooldownStateHolder.bindMonitoringScope(serviceScope)
 
         serviceScope.launch {
-            settingsRepository.alarmRetriggerCooldownUntilEpochMillis.collectLatest { untilEpochMillis ->
-                alarmRetriggerCooldownStateHolder.setCooldownUntilEpochMillis(untilEpochMillis)
+            runCatching {
+                syncMonitoringRuntimeUseCase()
+            }.onFailure { throwable ->
+                Log.e(
+                    MONITORING_SERVICE_TAG,
+                    "Failed to sync monitoring runtime on service start",
+                    throwable,
+                )
+            }
+        }
+
+        serviceScope.launch {
+            settingsRepository.alarmRetriggerCooldownUntilElapsedRealtimeMillis.collect { untilElapsedRealtimeMillis ->
+                alarmRetriggerCooldownStateHolder.setCooldownUntilElapsedRealtimeMillis(
+                    untilElapsedRealtimeMillis
+                )
             }
         }
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         if (intent?.action == ACTION_STOP) {
-            serviceScope.launch {
-                settingsRepository.setMonitoringActive(false)
-                settingsRepository.setAlarmRetriggerCooldownUntilEpochMillis(0L)
+            if (!isStopRequested.compareAndSet(false, true)) {
+                return START_NOT_STICKY
             }
 
             MonitoringWatchdogWorker.cancel(this)
-            _isRunning.value = false
+            _isRunning.update { false }
 
-            stopForeground(STOP_FOREGROUND_REMOVE)
-            stopSelf()
+            serviceScope.launch {
+                withContext(NonCancellable) {
+                    withTimeoutOrNull(STOP_DATASTORE_WRITE_TIMEOUT_MILLIS) {
+                        settingsRepository.setMonitoringActive(false)
+                        settingsRepository.setAlarmRetriggerCooldownUntilElapsedRealtimeMillis(0L)
+                    }
+                }
+
+                stopForeground(STOP_FOREGROUND_REMOVE)
+                stopSelf()
+            }
             return START_NOT_STICKY
         }
 
-        _isRunning.value = true
+        _isRunning.update { true }
         startForeground(MONITORING_NOTIFICATION_ID, buildNotification())
         return START_STICKY
     }
 
     override fun onDestroy() {
-        _isRunning.value = false
+        _isRunning.update { false }
         alarmRetriggerCooldownStateHolder.clearAndUnbind()
         serviceScope.cancel()
         super.onDestroy()

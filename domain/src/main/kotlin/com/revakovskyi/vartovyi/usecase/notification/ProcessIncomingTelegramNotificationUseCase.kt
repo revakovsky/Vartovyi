@@ -7,6 +7,7 @@ import com.revakovskyi.vartovyi.model.TriggerKeywordRule
 import com.revakovskyi.vartovyi.repository.KeywordsRepository
 import com.revakovskyi.vartovyi.repository.LogRepository
 import com.revakovskyi.vartovyi.repository.SettingsRepository
+import com.revakovskyi.vartovyi.utils.ElapsedRealtimeProvider
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
@@ -14,8 +15,16 @@ import java.time.LocalTime
 import java.time.format.DateTimeFormatter
 import java.util.UUID
 
+private const val EMPTY_STRING = ""
 private const val EMPTY_MATCHED_KEYWORD = ""
 private const val TIME_PATTERN = "HH:mm"
+private const val UNICODE_VARIATION_SELECTOR_15 = '\uFE0E'
+private const val UNICODE_VARIATION_SELECTOR_16 = '\uFE0F'
+private const val ZERO_WIDTH_JOINER = '\u200D'
+private const val ZERO_WIDTH_NON_JOINER = '\u200C'
+private const val WORD_OR_DIGIT_REGEX = "[\\p{L}\\p{N}]"
+private const val NON_WORD_OR_DIGIT_PREFIX_REGEX = "^[^\\p{L}\\p{N}]+"
+private const val NON_WORD_OR_DIGIT_SUFFIX_REGEX = "[^\\p{L}\\p{N}]+$"
 
 private const val TELEGRAM_PACKAGE_OFFICIAL = "org.telegram.messenger"
 private const val TELEGRAM_PACKAGE_OFFICIAL_WEB = "org.telegram.messenger.web"
@@ -28,6 +37,9 @@ private val TELEGRAM_PACKAGES = setOf(
     TELEGRAM_PACKAGE_X,
     TELEGRAM_PACKAGE_NEKO_X,
 )
+private val nonWordOrDigitPrefixRegex = Regex(NON_WORD_OR_DIGIT_PREFIX_REGEX)
+private val nonWordOrDigitSuffixRegex = Regex(NON_WORD_OR_DIGIT_SUFFIX_REGEX)
+private val wordOrDigitRegex = Regex(WORD_OR_DIGIT_REGEX)
 
 interface ProcessIncomingTelegramNotificationUseCase {
     suspend operator fun invoke(payload: NotificationPayload): Boolean
@@ -45,6 +57,7 @@ class ProcessIncomingTelegramNotificationUseCaseImpl(
     private val keywordsRepository: KeywordsRepository,
     private val logRepository: LogRepository,
     private val alarmController: AlarmController,
+    private val elapsedRealtimeProvider: ElapsedRealtimeProvider,
 ) : ProcessIncomingTelegramNotificationUseCase {
 
     private val triggerDecisionMutex = Mutex()
@@ -102,10 +115,11 @@ class ProcessIncomingTelegramNotificationUseCaseImpl(
 
         return triggerDecisionMutex.withLock {
             val isAlarmRunning = alarmController.isAlarmRunning.first()
-            val cooldownUntilEpochMillis =
-                settingsRepository.alarmRetriggerCooldownUntilEpochMillis.first()
-            val currentEpochMillis = System.currentTimeMillis()
-            val isCooldownActive = cooldownUntilEpochMillis > currentEpochMillis
+            val cooldownUntilElapsedRealtimeMillis =
+                settingsRepository.alarmRetriggerCooldownUntilElapsedRealtimeMillis.first()
+            val currentElapsedRealtimeMillis = elapsedRealtimeProvider.now()
+            val isCooldownActive =
+                cooldownUntilElapsedRealtimeMillis > currentElapsedRealtimeMillis
 
             if (isAlarmRunning || isCooldownActive) {
                 addLogEntry(
@@ -129,8 +143,8 @@ class ProcessIncomingTelegramNotificationUseCaseImpl(
 
             val cooldownDurationMillis =
                 settingsRepository.alarmRetriggerCooldownDurationMillis.first()
-            settingsRepository.setAlarmRetriggerCooldownUntilEpochMillis(
-                untilEpochMillis = currentEpochMillis + cooldownDurationMillis,
+            settingsRepository.setAlarmRetriggerCooldownUntilElapsedRealtimeMillis(
+                untilElapsedRealtimeMillis = currentElapsedRealtimeMillis + cooldownDurationMillis,
             )
 
             alarmController.triggerAlarm(
@@ -148,7 +162,8 @@ class ProcessIncomingTelegramNotificationUseCaseImpl(
         matchedKeyword: String,
         status: AlertEventStatus,
     ): Boolean {
-        val isInserted = logRepository.addEntry(
+        val logSizeLimit = settingsRepository.logSizeLimit.first()
+        return logRepository.addEntryAndTrimToLimit(
             event = AlertEvent(
                 id = UUID.randomUUID().toString(),
                 timestamp = effectiveTimestamp,
@@ -157,13 +172,9 @@ class ProcessIncomingTelegramNotificationUseCaseImpl(
                 messageText = payload.text,
                 matchedKeyword = matchedKeyword,
                 status = status,
-            )
+            ),
+            limit = logSizeLimit,
         )
-        if (!isInserted) return false
-
-        val logSizeLimit = settingsRepository.logSizeLimit.first()
-        logRepository.trimToLimit(logSizeLimit)
-        return true
     }
 
     private fun findMatchedKeyword(
@@ -192,8 +203,37 @@ class ProcessIncomingTelegramNotificationUseCaseImpl(
         if (title.isBlank()) return false
         if (allowedChannels.isEmpty()) return false
 
+        val normalizedTitle = normalizeChannelNameForComparison(title)
+        if (normalizedTitle.isBlank()) return false
+
         return allowedChannels.any { channel ->
-            channel.equals(title, ignoreCase = true)
+            val normalizedChannel = normalizeChannelNameForComparison(channel)
+            normalizedChannel.isNotBlank() &&
+                    normalizedChannel.equals(normalizedTitle, ignoreCase = true)
+        }
+    }
+
+    private fun normalizeChannelNameForComparison(rawChannelName: String): String {
+        val cleanedChannelName = rawChannelName
+            .trim()
+            .replace(UNICODE_VARIATION_SELECTOR_15.toString(), EMPTY_STRING)
+            .replace(UNICODE_VARIATION_SELECTOR_16.toString(), EMPTY_STRING)
+            .replace(ZERO_WIDTH_JOINER.toString(), EMPTY_STRING)
+            .replace(ZERO_WIDTH_NON_JOINER.toString(), EMPTY_STRING)
+
+        val withoutDecorativePrefix = cleanedChannelName.replace(
+            nonWordOrDigitPrefixRegex,
+            EMPTY_STRING,
+        )
+        val withoutDecorativeEdges = withoutDecorativePrefix.replace(
+            nonWordOrDigitSuffixRegex,
+            EMPTY_STRING,
+        )
+
+        return if (wordOrDigitRegex.containsMatchIn(withoutDecorativeEdges)) {
+            withoutDecorativeEdges.trim()
+        } else {
+            cleanedChannelName
         }
     }
 

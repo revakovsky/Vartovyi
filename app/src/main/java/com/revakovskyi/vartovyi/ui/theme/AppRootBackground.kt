@@ -1,12 +1,13 @@
 package com.revakovskyi.vartovyi.ui.theme
 
-import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.LinearEasing
+import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.core.updateTransition
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
@@ -16,16 +17,24 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.lerp
 import com.revakovskyi.vartovyi.model.MonitoringState
-import kotlinx.coroutines.coroutineScope
-import kotlinx.coroutines.launch
 import kotlin.math.hypot
 import kotlin.math.min
+import kotlin.math.sin
 import kotlin.random.Random
 import androidx.compose.ui.util.lerp as lerpFloat
 
-private const val INITIAL_WANDER_PROGRESS = 0.5f
-private const val WANDER_MIN_DURATION_MILLIS = 7000
-private const val WANDER_MAX_DURATION_MILLIS = 12000
+private const val WANDER_PROGRESS_MIN = 0f
+private const val WANDER_PROGRESS_MAX = 1f
+private const val WANDER_X_DURATION_MILLIS = 9000
+private const val WANDER_Y_DURATION_MILLIS = 11000
+private const val DRIFT_PROGRESS_MIN = 0f
+private const val DRIFT_PROGRESS_MAX = 1f
+private const val DRIFT_AMPLITUDE_MIN = 0.08f
+private const val DRIFT_AMPLITUDE_MAX = 0.2f
+private const val DRIFT_DURATION_MIN_MILLIS = 5000
+private const val DRIFT_DURATION_MAX_MILLIS = 13000
+private const val HALF_CYCLE_RADIANS = Math.PI.toFloat()
+private const val FULL_CYCLE_RADIANS = (Math.PI * 2).toFloat()
 private const val GRADIENT_BLEND_DURATION_MILLIS = 750
 private const val MONITORING_ACTIVE_BLEND = 1f
 private const val MONITORING_INACTIVE_BLEND = 0f
@@ -43,42 +52,99 @@ private const val ACTIVE_OUTER_FRACTION = 0.11f
 fun Modifier.appRootBackground(monitoringState: MonitoringState): Modifier =
     composed {
         val colorScheme = VartovyiTheme.colors
-        val random = remember { Random(System.currentTimeMillis()) }
-        val wanderXProgress = remember { Animatable(initialValue = INITIAL_WANDER_PROGRESS) }
-        val wanderYProgress = remember { Animatable(initialValue = INITIAL_WANDER_PROGRESS) }
-
-        LaunchedEffect(Unit) {
-            while (true) {
-                val targetXProgress = random.nextFloat()
-                val targetYProgress = random.nextFloat()
-                val durationMillis = random.nextInt(
-                    from = WANDER_MIN_DURATION_MILLIS,
-                    until = WANDER_MAX_DURATION_MILLIS,
-                )
-
-                coroutineScope {
-                    launch {
-                        wanderXProgress.animateTo(
-                            targetValue = targetXProgress,
-                            animationSpec = tween(
-                                durationMillis = durationMillis,
-                                easing = LinearEasing,
-                            ),
-                        )
-                    }
-
-                    launch {
-                        wanderYProgress.animateTo(
-                            targetValue = targetYProgress,
-                            animationSpec = tween(
-                                durationMillis = durationMillis,
-                                easing = LinearEasing,
-                            ),
-                        )
-                    }
-                }
-            }
+        val random = remember { Random.Default }
+        val driftAmplitudeX = remember {
+            random.nextFloat() * (DRIFT_AMPLITUDE_MAX - DRIFT_AMPLITUDE_MIN) + DRIFT_AMPLITUDE_MIN
         }
+        val driftAmplitudeY = remember {
+            random.nextFloat() * (DRIFT_AMPLITUDE_MAX - DRIFT_AMPLITUDE_MIN) + DRIFT_AMPLITUDE_MIN
+        }
+        val driftPhaseX = remember { random.nextFloat() * FULL_CYCLE_RADIANS }
+        val driftPhaseY = remember { random.nextFloat() * FULL_CYCLE_RADIANS }
+
+        val driftDurationXMillis = remember {
+            random.nextInt(
+                from = DRIFT_DURATION_MIN_MILLIS,
+                until = DRIFT_DURATION_MAX_MILLIS,
+            )
+        }
+
+        val driftDurationYMillis = remember {
+            random.nextInt(
+                from = DRIFT_DURATION_MIN_MILLIS,
+                until = DRIFT_DURATION_MAX_MILLIS,
+            )
+        }
+
+        val wanderTransition = rememberInfiniteTransition(label = "appRootWanderTransition")
+
+        val baseWanderXProgress by wanderTransition.animateFloat(
+            initialValue = WANDER_PROGRESS_MIN,
+            targetValue = WANDER_PROGRESS_MAX,
+            animationSpec = infiniteRepeatable(
+                animation = tween(
+                    durationMillis = WANDER_X_DURATION_MILLIS,
+                    easing = LinearEasing,
+                ),
+                repeatMode = RepeatMode.Reverse,
+            ),
+            label = "appRootBaseWanderXProgress",
+        )
+
+        val baseWanderYProgress by wanderTransition.animateFloat(
+            initialValue = WANDER_PROGRESS_MAX,
+            targetValue = WANDER_PROGRESS_MIN,
+            animationSpec = infiniteRepeatable(
+                animation = tween(
+                    durationMillis = WANDER_Y_DURATION_MILLIS,
+                    easing = LinearEasing,
+                ),
+                repeatMode = RepeatMode.Reverse,
+            ),
+            label = "appRootBaseWanderYProgress",
+        )
+
+        val driftCycleXProgress by wanderTransition.animateFloat(
+            initialValue = DRIFT_PROGRESS_MIN,
+            targetValue = DRIFT_PROGRESS_MAX,
+            animationSpec = infiniteRepeatable(
+                animation = tween(
+                    durationMillis = driftDurationXMillis,
+                    easing = LinearEasing,
+                )
+            ),
+            label = "appRootDriftCycleXProgress",
+        )
+
+        val driftCycleYProgress by wanderTransition.animateFloat(
+            initialValue = DRIFT_PROGRESS_MIN,
+            targetValue = DRIFT_PROGRESS_MAX,
+            animationSpec = infiniteRepeatable(
+                animation = tween(
+                    durationMillis = driftDurationYMillis,
+                    easing = LinearEasing,
+                )
+            ),
+            label = "appRootDriftCycleYProgress",
+        )
+
+        val driftOffsetX = sin(
+            x = driftCycleXProgress * FULL_CYCLE_RADIANS + driftPhaseX
+        ) * driftAmplitudeX
+
+        val driftOffsetY = sin(
+            x = driftCycleYProgress * FULL_CYCLE_RADIANS + driftPhaseY + HALF_CYCLE_RADIANS
+        ) * driftAmplitudeY
+
+        val wanderXProgress = (baseWanderXProgress + driftOffsetX).coerceIn(
+            minimumValue = WANDER_PROGRESS_MIN,
+            maximumValue = WANDER_PROGRESS_MAX,
+        )
+
+        val wanderYProgress = (baseWanderYProgress + driftOffsetY).coerceIn(
+            minimumValue = WANDER_PROGRESS_MIN,
+            maximumValue = WANDER_PROGRESS_MAX,
+        )
 
         val transition = updateTransition(
             targetState = monitoringState,
@@ -109,12 +175,12 @@ fun Modifier.appRootBackground(monitoringState: MonitoringState): Modifier =
                 x = size.width * lerpFloat(
                     start = GRADIENT_CENTER_START,
                     stop = GRADIENT_CENTER_END,
-                    fraction = wanderXProgress.value,
+                    fraction = wanderXProgress,
                 ),
                 y = size.height * lerpFloat(
                     start = GRADIENT_CENTER_START,
                     stop = GRADIENT_CENTER_END,
-                    fraction = wanderYProgress.value,
+                    fraction = wanderYProgress,
                 ),
             )
             val inactiveRadius = hypot(
@@ -138,12 +204,12 @@ fun Modifier.appRootBackground(monitoringState: MonitoringState): Modifier =
                 x = size.width * lerpFloat(
                     start = GRADIENT_CENTER_START,
                     stop = GRADIENT_CENTER_END,
-                    fraction = wanderXProgress.value,
+                    fraction = wanderXProgress,
                 ),
                 y = size.height * lerpFloat(
                     start = GRADIENT_CENTER_START,
                     stop = GRADIENT_CENTER_END,
-                    fraction = wanderYProgress.value,
+                    fraction = wanderYProgress,
                 ),
             )
             val activeRadius = min(

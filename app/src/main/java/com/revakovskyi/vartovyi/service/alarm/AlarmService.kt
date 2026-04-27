@@ -159,7 +159,6 @@ class AlarmService : Service() {
         if (!isAlarmActive.compareAndSet(true, false)) {
             alarmStateHolder.setRunning(false)
             alarmAutoStopJob?.cancel()
-            notifyAlarmStopped()
             releaseScreenWakeLock()
             releaseWakeLock()
             stopForeground(STOP_FOREGROUND_REMOVE)
@@ -277,7 +276,7 @@ class AlarmService : Service() {
         openAlarmActivityJob?.cancel()
         openAlarmActivityJob = serviceScope.launch {
             for (retryCount in 0..ALARM_ACTIVITY_OPEN_MAX_RETRIES) {
-                if (AlarmActivity.isVisible.value) return@launch
+                if (alarmStateHolder.isVisible.value) return@launch
 
                 runCatching {
                     startActivity(createAlarmActivityIntent())
@@ -360,7 +359,11 @@ class AlarmService : Service() {
             .build()
 
         audioFocusRequest = focusRequest
-        getSystemService(AudioManager::class.java).requestAudioFocus(focusRequest)
+
+        val focusResult = getSystemService(AudioManager::class.java).requestAudioFocus(focusRequest)
+        if (focusResult != AudioManager.AUDIOFOCUS_REQUEST_GRANTED) {
+            Log.w(ALARM_TAG, "Audio focus not granted: $focusResult")
+        }
     }
 
     private fun acquireWakeLock(timeoutMillis: Long) {
@@ -481,19 +484,18 @@ class AlarmService : Service() {
     }
 
     private fun startVibration() {
-        if (vibrator?.hasVibrator() == true) {
-            return
+        if (vibrator == null) {
+            vibrator = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                (getSystemService(VIBRATOR_MANAGER_SERVICE) as VibratorManager).defaultVibrator
+            } else {
+                @Suppress("DEPRECATION")
+                getSystemService(VIBRATOR_SERVICE) as Vibrator
+            }
         }
+
+        if (vibrator?.hasVibrator() != true) return
 
         val vibrationEffect = VibrationEffect.createWaveform(VIBRATION_PATTERN, 0)
-
-        vibrator = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-            (getSystemService(VIBRATOR_MANAGER_SERVICE) as VibratorManager).defaultVibrator
-        } else {
-            @Suppress("DEPRECATION")
-            getSystemService(VIBRATOR_SERVICE) as Vibrator
-        }
-
         vibrator?.vibrate(vibrationEffect)
     }
 

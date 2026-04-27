@@ -3,6 +3,7 @@ package com.revakovskyi.vartovyi.ui.screen.keywords
 import android.content.ClipData
 import androidx.compose.animation.Crossfade
 import androidx.compose.animation.core.tween
+import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
@@ -15,14 +16,13 @@ import androidx.compose.foundation.layout.isImeVisible
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.relocation.BringIntoViewRequester
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -33,6 +33,7 @@ import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.revakovskyi.vartovyi.R
 import com.revakovskyi.vartovyi.model.TriggerKeywordRule
 import com.revakovskyi.vartovyi.model.TriggerKeywordRuleType
@@ -54,6 +55,7 @@ import org.koin.androidx.compose.koinViewModel
 /** Delay to let the keyboard fully animate open before scrolling the active field into view. */
 private const val BRING_INTO_VIEW_DELAY_MS = 400L
 private const val KEYWORDS_CHIP_CLIP_LABEL = "keywords_chip"
+private const val KEYWORDS_SCROLL_STATE_KEY = "keywords_scroll_state"
 
 @Composable
 fun KeywordsScreen(
@@ -62,7 +64,7 @@ fun KeywordsScreen(
     val clipboardManager = LocalClipboard.current
     val hapticFeedback = LocalHapticFeedback.current
 
-    val state by viewModel.state.collectAsState()
+    val state by viewModel.state.collectAsStateWithLifecycle()
 
     val chipCopiedMessage = stringResource(R.string.keywords_chip_copied)
     val keywordsClearedMessage = stringResource(R.string.keywords_clear_completed)
@@ -72,6 +74,7 @@ fun KeywordsScreen(
     val importInvalidFormatMessage = stringResource(R.string.keywords_import_invalid_format)
     val importUnsupportedVersion = stringResource(R.string.keywords_import_unsupported_version)
     val importWriteErrorMessage = stringResource(R.string.keywords_import_write_error)
+    val importFileTooLargeMessage = stringResource(R.string.keywords_import_file_too_large)
 
     val backupHelper = rememberKeywordsBackupHelper(onAction = viewModel::onAction)
 
@@ -141,6 +144,12 @@ fun KeywordsScreen(
                 )
             }
 
+            is KeywordsUiContract.Event.KeywordsImportFileTooLarge -> {
+                SnackbarController.sendEvent(
+                    SnackbarEvent(message = importFileTooLargeMessage),
+                )
+            }
+
             is KeywordsUiContract.Event.LaunchExportFilePicker,
             is KeywordsUiContract.Event.LaunchImportFilePicker,
                 -> backupHelper.handleEvent(event)
@@ -162,10 +171,10 @@ fun KeywordsScreen(
         }
     }
 
-    if (state.duplicateWord != null) {
+    state.duplicateWord?.let { duplicateWord ->
         VartovyiDialog(
             title = stringResource(R.string.keywords_duplicate_title),
-            message = stringResource(R.string.keywords_duplicate_message, state.duplicateWord!!),
+            message = stringResource(R.string.keywords_duplicate_message, duplicateWord),
             confirmText = stringResource(R.string.keywords_duplicate_confirm),
             onDismiss = { viewModel.onAction(KeywordsUiContract.Action.DismissDuplicateWordDialog) },
         )
@@ -222,6 +231,10 @@ private fun KeywordsContent(
     val focusManager = LocalFocusManager.current
     val isImeVisible = WindowInsets.isImeVisible
 
+    val scrollState = rememberSaveable(saver = ScrollState.Saver, key = KEYWORDS_SCROLL_STATE_KEY) {
+        ScrollState(0)
+    }
+
     val keywordsBivr = remember { BringIntoViewRequester() }
     val stopWordsBivr = remember { BringIntoViewRequester() }
     val telegramBivr = remember { BringIntoViewRequester() }
@@ -248,7 +261,7 @@ private fun KeywordsContent(
             .widthIn(max = VartovyiTheme.spacing.contentMaxWidth)
             .fillMaxSize()
             .imePadding()
-            .verticalScroll(rememberScrollState())
+            .verticalScroll(scrollState)
             .padding(
                 start = VartovyiTheme.spacing.small,
                 end = VartovyiTheme.spacing.small,
