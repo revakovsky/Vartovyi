@@ -1,5 +1,6 @@
 package com.revakovskyi.vartovyi
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.revakovskyi.vartovyi.usecase.alarm.ObserveAlarmRunningUseCase
@@ -13,6 +14,8 @@ import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+
+private const val MAIN_VIEW_MODEL_TAG = "MainViewModel"
 
 class MainViewModel(
     private val observeAlarmRunningUseCase: ObserveAlarmRunningUseCase,
@@ -53,11 +56,23 @@ class MainViewModel(
     }
 
     private fun stopAlarm() {
-        viewModelScope.launch { stopAlarmUseCase() }
+        viewModelScope.launch {
+            runCatching {
+                stopAlarmUseCase()
+            }.onFailure { throwable ->
+                Log.e(MAIN_VIEW_MODEL_TAG, "Failed to stop alarm", throwable)
+            }
+        }
     }
 
     private fun syncMonitoringRuntime() {
-        viewModelScope.launch { syncMonitoringRuntimeUseCase() }
+        viewModelScope.launch {
+            runCatching {
+                syncMonitoringRuntimeUseCase()
+            }.onFailure { throwable ->
+                Log.e(MAIN_VIEW_MODEL_TAG, "Failed to sync monitoring runtime", throwable)
+            }
+        }
     }
 
 }

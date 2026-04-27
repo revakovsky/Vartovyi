@@ -1,7 +1,9 @@
 package com.revakovskyi.vartovyi.ui.screen.home
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.revakovskyi.vartovyi.model.AlertEvent
 import com.revakovskyi.vartovyi.model.MonitoringState
 import com.revakovskyi.vartovyi.ui.screen.home.HomeUiContract.Action
 import com.revakovskyi.vartovyi.ui.screen.home.HomeUiContract.Event
@@ -17,11 +19,15 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+
+private const val HOME_VIEW_MODEL_TAG = "HomeViewModel"
 
 class HomeViewModel(
     private val observeMonitoringStateUseCase: ObserveMonitoringStateUseCase,
@@ -38,14 +44,8 @@ class HomeViewModel(
     private val _events = Channel<Event>(Channel.BUFFERED)
     val events: Flow<Event> = _events.receiveAsFlow()
 
-    private var loadedSourcesCount = 0
-
     init {
-        observeMonitoringState()
-        observeScheduleSettings()
-        observeKeywords()
-        observeLastAlertEvent()
-        observeAlarmRetriggerCooldown()
+        observeHomeState()
     }
 
     fun onAction(action: Action) {
@@ -56,73 +56,46 @@ class HomeViewModel(
         }
     }
 
-    private fun observeMonitoringState() {
-        var isFirstEmission = true
-        observeMonitoringStateUseCase().onEach { monitoringState ->
-            _state.update { it.copy(monitoringState = monitoringState) }
-            if (isFirstEmission) {
-                isFirstEmission = false
-                markSourceLoaded()
-            }
-        }.launchIn(viewModelScope)
-    }
-
-    private fun observeScheduleSettings() {
-        var isFirstEmission = true
-        observeScheduleSettingsUseCase().onEach { scheduleSettings ->
+    private fun observeHomeState() {
+        combine(
+            observeMonitoringStateUseCase(),
+            observeScheduleSettingsUseCase(),
+            observeKeywordsUseCase(),
+            observeLastAlarmTriggeredEventUseCase(),
+            observeAlarmRetriggerCooldownUseCase(),
+        ) {
+                monitoringState,
+                scheduleSettings,
+                keywords,
+                lastAlarmTriggeredEvent,
+                remainingCooldownMillis,
+            ->
+            HomeCombinedState(
+                monitoringState = monitoringState,
+                isScheduleEnabled = scheduleSettings.isScheduleEnabled,
+                startTime = scheduleSettings.startTime,
+                endTime = scheduleSettings.endTime,
+                keywords = keywords,
+                lastAlertEvent = lastAlarmTriggeredEvent,
+                alarmRetriggerCooldownMillis = remainingCooldownMillis,
+            )
+        }.onEach { combinedState ->
             _state.update {
                 it.copy(
-                    isScheduleEnabled = scheduleSettings.isScheduleEnabled,
-                    startTime = scheduleSettings.startTime,
-                    endTime = scheduleSettings.endTime,
+                    monitoringState = combinedState.monitoringState,
+                    isScheduleEnabled = combinedState.isScheduleEnabled,
+                    startTime = combinedState.startTime,
+                    endTime = combinedState.endTime,
+                    keywords = combinedState.keywords,
+                    lastAlertEvent = combinedState.lastAlertEvent,
+                    alarmRetriggerCooldownMillis = combinedState.alarmRetriggerCooldownMillis,
+                    isLoading = false,
                 )
             }
-            if (isFirstEmission) {
-                isFirstEmission = false
-                markSourceLoaded()
-            }
-        }.launchIn(viewModelScope)
-    }
-
-    private fun observeKeywords() {
-        var isFirstEmission = true
-        observeKeywordsUseCase().onEach { keywords ->
-            _state.update { it.copy(keywords = keywords) }
-            if (isFirstEmission) {
-                isFirstEmission = false
-                markSourceLoaded()
-            }
-        }.launchIn(viewModelScope)
-    }
-
-    private fun observeLastAlertEvent() {
-        var isFirstEmission = true
-        observeLastAlarmTriggeredEventUseCase().onEach { lastAlarmTriggeredEvent ->
-            _state.update {
-                it.copy(
-                    lastAlertEvent = lastAlarmTriggeredEvent
-                )
-            }
-            if (isFirstEmission) {
-                isFirstEmission = false
-                markSourceLoaded()
-            }
-        }.launchIn(viewModelScope)
-    }
-
-    private fun observeAlarmRetriggerCooldown() {
-        observeAlarmRetriggerCooldownUseCase().onEach { remainingCooldownMillis ->
-            _state.update {
-                it.copy(alarmRetriggerCooldownMillis = remainingCooldownMillis)
-            }
-        }.launchIn(viewModelScope)
-    }
-
-    private fun markSourceLoaded() {
-        loadedSourcesCount++
-        if (loadedSourcesCount >= 4) {
+        }.catch { throwable ->
+            Log.e(HOME_VIEW_MODEL_TAG, "Failed to combine home state", throwable)
             _state.update { it.copy(isLoading = false) }
-        }
+        }.launchIn(viewModelScope)
     }
 
     private fun toggleMonitoring() {
@@ -145,5 +118,15 @@ class HomeViewModel(
             )
         }
     }
+
+    private data class HomeCombinedState(
+        val monitoringState: MonitoringState,
+        val isScheduleEnabled: Boolean,
+        val startTime: String,
+        val endTime: String,
+        val keywords: List<String>,
+        val lastAlertEvent: AlertEvent?,
+        val alarmRetriggerCooldownMillis: Long,
+    )
 
 }

@@ -43,9 +43,9 @@ internal fun Context.checkPermissions(): PermissionsCheckResult {
 
     val fullScreenIntentGranted =
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
-            postNotificationsGranted && notificationManager.canUseFullScreenIntent()
+            notificationManager.canUseFullScreenIntent()
         } else {
-            postNotificationsGranted
+            true
         }
 
     return PermissionsCheckResult(

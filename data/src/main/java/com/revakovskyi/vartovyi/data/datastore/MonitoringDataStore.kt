@@ -41,8 +41,8 @@ internal class MonitoringDataStore(private val context: Context) {
         val ALARM_SOUND_URI = stringPreferencesKey("alarm_sound_uri")
         val ALARM_RETRIGGER_COOLDOWN_DURATION_MILLIS =
             longPreferencesKey("alarm_retrigger_cooldown_duration_millis")
-        val ALARM_RETRIGGER_COOLDOWN_UNTIL_EPOCH_MILLIS =
-            longPreferencesKey("alarm_retrigger_cooldown_until_epoch_millis")
+        val ALARM_RETRIGGER_COOLDOWN_UNTIL_ELAPSED_REALTIME_MILLIS =
+            longPreferencesKey("alarm_retrigger_cooldown_until_elapsed_realtime_millis")
     }
 
     val isMonitoringActive: Flow<Boolean> = context.monitoringDataStore.data
@@ -84,9 +84,12 @@ internal class MonitoringDataStore(private val context: Context) {
                 ?: DEFAULT_ALARM_RETRIGGER_COOLDOWN_MILLIS
         }
 
-    val alarmRetriggerCooldownUntilEpochMillis: Flow<Long> = context.monitoringDataStore.data
+    val alarmRetriggerCooldownUntilElapsedRealtimeMillis: Flow<Long> =
+        context.monitoringDataStore.data
         .safeCatch()
-        .map { preferences -> preferences[Keys.ALARM_RETRIGGER_COOLDOWN_UNTIL_EPOCH_MILLIS] ?: 0L }
+            .map { preferences ->
+                preferences[Keys.ALARM_RETRIGGER_COOLDOWN_UNTIL_ELAPSED_REALTIME_MILLIS] ?: 0L
+            }
 
     suspend fun setMonitoringActive(active: Boolean) {
         context.monitoringDataStore.edit { it[Keys.MONITORING_ACTIVE] = active }
@@ -126,9 +129,10 @@ internal class MonitoringDataStore(private val context: Context) {
         }
     }
 
-    suspend fun setAlarmRetriggerCooldownUntilEpochMillis(untilEpochMillis: Long) {
+    suspend fun setAlarmRetriggerCooldownUntilElapsedRealtimeMillis(untilElapsedRealtimeMillis: Long) {
         context.monitoringDataStore.edit { preferences ->
-            preferences[Keys.ALARM_RETRIGGER_COOLDOWN_UNTIL_EPOCH_MILLIS] = untilEpochMillis
+            preferences[Keys.ALARM_RETRIGGER_COOLDOWN_UNTIL_ELAPSED_REALTIME_MILLIS] =
+                untilElapsedRealtimeMillis
         }
     }
 

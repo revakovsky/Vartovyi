@@ -9,7 +9,6 @@ import androidx.work.WorkerParameters
 import com.revakovskyi.vartovyi.controllers.notification_monitoring.MonitoringController
 import com.revakovskyi.vartovyi.repository.SettingsRepository
 import kotlinx.coroutines.flow.first
-import org.koin.core.context.GlobalContext
 import java.util.concurrent.TimeUnit
 
 private const val MONITORING_WATCHDOG_WORK_NAME = "monitoring_watchdog_work"
@@ -17,13 +16,11 @@ private const val MONITORING_WATCHDOG_WORK_NAME = "monitoring_watchdog_work"
 class MonitoringWatchdogWorker(
     appContext: Context,
     params: WorkerParameters,
+    private val settingsRepository: SettingsRepository,
+    private val monitoringController: MonitoringController,
 ) : CoroutineWorker(appContext, params) {
 
     override suspend fun doWork(): Result {
-        val koin = GlobalContext.get()
-        val settingsRepository = koin.get<SettingsRepository>()
-        val monitoringController = koin.get<MonitoringController>()
-
         if (settingsRepository.isMonitoringActive.first()) {
             monitoringController.startMonitoring()
         }

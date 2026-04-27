@@ -5,8 +5,11 @@ import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
+import androidx.room.Transaction
 import com.revakovskyi.vartovyi.data.db.entity.AlertEventEntity
 import kotlinx.coroutines.flow.Flow
+
+private const val INSERT_CONFLICT_RESULT = -1L
 
 @Dao
 internal interface AlertEventDao {
@@ -38,6 +41,17 @@ internal interface AlertEventDao {
 
     @Insert(onConflict = OnConflictStrategy.IGNORE)
     suspend fun insert(entity: AlertEventEntity): Long
+
+    @Transaction
+    suspend fun insertAndTrimToLimit(entity: AlertEventEntity, limit: Int): Long {
+        val insertResult = insert(entity)
+        if (insertResult == INSERT_CONFLICT_RESULT) {
+            return insertResult
+        }
+
+        trimToLimit(limit)
+        return insertResult
+    }
 
     @Query("DELETE FROM alert_events WHERE id NOT IN (SELECT id FROM alert_events ORDER BY timestamp DESC, id DESC LIMIT :limit)")
     suspend fun trimToLimit(limit: Int)

@@ -92,6 +92,7 @@ class KeywordsViewModel(
             is Action.ConfirmImport -> confirmImport()
             is Action.ImportKeywords -> importKeywords(action.jsonContent)
             is Action.NotifyImportReadError -> notifyImportReadError()
+            is Action.NotifyImportFileTooLarge -> notifyImportFileTooLarge()
         }
     }
 
@@ -323,6 +324,10 @@ class KeywordsViewModel(
 
     private fun notifyImportReadError() {
         viewModelScope.launch { _events.send(Event.KeywordsImportInvalidFormat) }
+    }
+
+    private fun notifyImportFileTooLarge() {
+        viewModelScope.launch { _events.send(Event.KeywordsImportFileTooLarge) }
     }
 
     private fun requestImport() {

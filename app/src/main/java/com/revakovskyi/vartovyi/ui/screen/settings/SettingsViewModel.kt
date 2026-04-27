@@ -1,5 +1,6 @@
 package com.revakovskyi.vartovyi.ui.screen.settings
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.revakovskyi.vartovyi.constants.PRIVACY_POLICY_URL
@@ -36,6 +37,7 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
 private const val SETTINGS_INITIAL_LOADING_SOURCES_TOTAL = 5
+private const val SETTINGS_VIEW_MODEL_TAG = "SettingsViewModel"
 
 class SettingsViewModel(
     private val observeScheduleSettingsUseCase: ObserveScheduleSettingsUseCase,
@@ -201,7 +203,13 @@ class SettingsViewModel(
     }
 
     private fun setAlarmSoundUri(uri: String) {
-        viewModelScope.launch { setAlarmSoundUriUseCase(uri) }
+        viewModelScope.launch {
+            runCatching {
+                setAlarmSoundUriUseCase(uri)
+            }.onFailure { throwable ->
+                Log.e(SETTINGS_VIEW_MODEL_TAG, "Failed to set alarm sound uri", throwable)
+            }
+        }
     }
 
     private fun setAlarmVolume(percent: Int) {

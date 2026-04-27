@@ -21,12 +21,13 @@ interface PermissionsUiContract {
         data class ToggleBatteryOptimizationPermission(val shouldEnable: Boolean) : Action
         data object RequestDoNotDisturbAccess : Action
         data object RequestPostNotificationsPermission : Action
-        data class ToggleFullScreenIntentPermission(val shouldEnable: Boolean) : Action
+        data object ToggleFullScreenIntentPermission : Action
         data object NavigateBack : Action
     }
 
     sealed interface Event {
         data object NavigateBack : Event
+        data object LaunchPostNotificationsPermissionRequest : Event
         data class NavigateToSystemSettings(val action: String) : Event
     }
 

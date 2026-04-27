@@ -13,7 +13,7 @@ interface SettingsRepository {
     val alarmSoundUri: Flow<String>
     val logSizeLimit: Flow<Int>
     val alarmRetriggerCooldownDurationMillis: Flow<Long>
-    val alarmRetriggerCooldownUntilEpochMillis: Flow<Long>
+    val alarmRetriggerCooldownUntilElapsedRealtimeMillis: Flow<Long>
 
     suspend fun setMonitoringActive(active: Boolean)
     suspend fun setScheduleEnabled(enabled: Boolean)
@@ -24,7 +24,7 @@ interface SettingsRepository {
     suspend fun setAlarmSoundUri(uri: String)
     suspend fun setLogSizeLimit(limit: Int)
     suspend fun setAlarmRetriggerCooldownDurationMillis(durationMillis: Long)
-    suspend fun setAlarmRetriggerCooldownUntilEpochMillis(untilEpochMillis: Long)
+    suspend fun setAlarmRetriggerCooldownUntilElapsedRealtimeMillis(untilElapsedRealtimeMillis: Long)
     suspend fun clearAllMonitoringPreferences()
 
 }

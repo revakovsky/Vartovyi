@@ -1,6 +1,6 @@
 package com.revakovskyi.vartovyi.ui.screen.onboarding
 
-private const val TOTAL_PAGES = 5
+private const val TOTAL_PAGES = 6
 
 object OnboardingUiContract {
 

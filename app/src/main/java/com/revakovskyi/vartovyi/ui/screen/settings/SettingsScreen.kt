@@ -17,6 +17,7 @@ import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.SnackbarDuration
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
@@ -25,6 +26,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
@@ -41,7 +43,6 @@ import com.revakovskyi.vartovyi.ui.screen.settings.components.LegalDocumentsSett
 import com.revakovskyi.vartovyi.ui.screen.settings.components.ScheduleSettingsSection
 import com.revakovskyi.vartovyi.ui.screen.settings.components.SettingsSectionContainer
 import com.revakovskyi.vartovyi.ui.screen.settings.components.SettingsTestAlarmButton
-import com.revakovskyi.vartovyi.ui.screen.settings.components.SettingsVersionFooter
 import com.revakovskyi.vartovyi.ui.theme.VartovyiTheme
 import com.revakovskyi.vartovyi.ui.util.AlarmSoundPickerHelper
 import com.revakovskyi.vartovyi.ui.util.openCustomChromeTab
@@ -349,12 +350,17 @@ private fun SettingsContent(
 
         Spacer(modifier = Modifier.weight(1f))
 
-        SettingsVersionFooter(
-            versionName = applicationVersionName,
-            modifier = Modifier.padding(
-                top = VartovyiTheme.spacing.medium,
-                bottom = VartovyiTheme.spacing.large,
-            )
+        Text(
+            text = stringResource(R.string.settings_version_number, applicationVersionName),
+            style = VartovyiTheme.typography.bodySmall,
+            color = VartovyiTheme.colors.onSurfaceVariant,
+            textAlign = TextAlign.Center,
+            modifier = modifier
+                .fillMaxWidth()
+                .padding(
+                    top = VartovyiTheme.spacing.medium,
+                    bottom = VartovyiTheme.spacing.large,
+                )
         )
     }
 }
