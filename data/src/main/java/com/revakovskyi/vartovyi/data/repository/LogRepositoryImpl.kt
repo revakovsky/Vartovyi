@@ -74,6 +74,8 @@ internal class LogRepositoryImpl(
             append(normalizedSenderName)
             append(SIGNATURE_SEPARATOR)
             append(normalizedMessageText)
+            append(SIGNATURE_SEPARATOR)
+            append(event.timestamp)
         }
         val digestBytes = MessageDigest.getInstance(SIGNATURE_HASH_ALGORITHM)
             .digest(signaturePayload.toByteArray())
