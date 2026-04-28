@@ -11,10 +11,10 @@ import android.os.IBinder
 import android.util.Log
 import androidx.core.app.NotificationCompat
 import androidx.core.content.ContextCompat
-import com.revakovskyi.vartovyi.MainActivity
 import com.revakovskyi.vartovyi.R
 import com.revakovskyi.vartovyi.controllers.alarm.AlarmRetriggerCooldownStateHolder
 import com.revakovskyi.vartovyi.repository.SettingsRepository
+import com.revakovskyi.vartovyi.ui.MainActivity
 import com.revakovskyi.vartovyi.usecase.monitoring.SyncMonitoringRuntimeUseCase
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers

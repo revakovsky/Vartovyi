@@ -27,7 +27,9 @@ import androidx.compose.material3.TooltipDefaults
 import androidx.compose.material3.rememberTooltipState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.onFocusChanged
@@ -37,7 +39,9 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.VisualTransformation
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import com.revakovskyi.vartovyi.R
 import com.revakovskyi.vartovyi.ui.theme.VartovyiTheme
@@ -59,6 +63,10 @@ fun WordInputRow(
     val interactionSource = remember { MutableInteractionSource() }
 
     val clearButtonTooltipText = stringResource(R.string.keywords_input_clear_tooltip)
+
+    val defaultHintFontSize: TextUnit = VartovyiTheme.typography.bodyMedium.fontSize
+
+    var hintFontSize by remember(hint) { mutableStateOf(defaultHintFontSize) }
 
     Row(
         verticalAlignment = Alignment.CenterVertically,
@@ -91,7 +99,13 @@ fun WordInputRow(
                 placeholder = {
                     Text(
                         text = hint,
-                        style = VartovyiTheme.typography.bodyMedium,
+                        style = VartovyiTheme.typography.bodyMedium.copy(fontSize = hintFontSize),
+                        maxLines = 1,
+                        softWrap = false,
+                        overflow = TextOverflow.Ellipsis,
+                        onTextLayout = { result ->
+                            if (result.hasVisualOverflow) hintFontSize *= 0.9f
+                        },
                     )
                 },
                 trailingIcon = {

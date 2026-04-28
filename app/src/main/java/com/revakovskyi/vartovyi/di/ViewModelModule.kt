@@ -1,6 +1,6 @@
 package com.revakovskyi.vartovyi.di
 
-import com.revakovskyi.vartovyi.MainViewModel
+import com.revakovskyi.vartovyi.ui.MainViewModel
 import com.revakovskyi.vartovyi.ui.screen.home.HomeViewModel
 import com.revakovskyi.vartovyi.ui.screen.keywords.KeywordsViewModel
 import com.revakovskyi.vartovyi.ui.screen.legal.LegalConsentViewModel

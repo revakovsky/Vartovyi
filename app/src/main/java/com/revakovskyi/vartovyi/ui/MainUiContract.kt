@@ -1,4 +1,4 @@
-package com.revakovskyi.vartovyi
+package com.revakovskyi.vartovyi.ui
 
 import com.revakovskyi.vartovyi.model.MonitoringState
 

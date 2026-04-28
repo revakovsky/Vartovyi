@@ -2,6 +2,7 @@ package com.revakovskyi.vartovyi.ui.screen.log
 
 import android.content.ClipData
 import androidx.compose.animation.Crossfade
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -51,6 +52,8 @@ private const val LOG_LIST_STATE_KEY = "log_list_state"
 fun LogScreen(
     viewModel: LogViewModel = koinViewModel(),
     highlightedLogEntryId: String? = null,
+    isInfoDialogVisible: Boolean = false,
+    onDismissInfoDialog: () -> Unit = {},
 ) {
     val clipboardManager = LocalClipboard.current
 
@@ -124,6 +127,15 @@ fun LogScreen(
         )
     }
 
+    if (isInfoDialogVisible) {
+        VartovyiDialog(
+            title = stringResource(R.string.log_info_dialog_title),
+            message = stringResource(R.string.log_info_dialog_body),
+            confirmText = stringResource(R.string.ok),
+            onDismiss = onDismissInfoDialog,
+        )
+    }
+
 }
 
 @Composable
@@ -157,50 +169,55 @@ private fun LogContent(
         isInitialScrollCompleted = true
     }
 
-    Crossfade(
-        label = "logContentCrossfade",
-        targetState = state.contentViewState,
-        modifier = modifier
-            .widthIn(max = VartovyiTheme.spacing.contentMaxWidth)
-            .fillMaxSize()
-    ) { viewState ->
-        when (viewState) {
-            LogUiContract.LogContentViewState.Loading -> {
-                LoadingOverlay()
-            }
+    Box(
+        contentAlignment = Alignment.TopCenter,
+        modifier = modifier.fillMaxSize(),
+    ) {
+        Crossfade(
+            label = "logContentCrossfade",
+            targetState = state.contentViewState,
+            modifier = Modifier
+                .widthIn(max = VartovyiTheme.spacing.contentMaxWidth)
+                .fillMaxSize()
+        ) { viewState ->
+            when (viewState) {
+                LogUiContract.LogContentViewState.Loading -> {
+                    LoadingOverlay()
+                }
 
-            LogUiContract.LogContentViewState.Error -> {
-                LogErrorState(
-                    onRetry = { logEntries.retry() },
-                )
-            }
-
-            LogUiContract.LogContentViewState.Empty -> {
-                LogEmptyState(modifier = Modifier.fillMaxSize())
-            }
-
-            LogUiContract.LogContentViewState.Content -> {
-                Column(
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(horizontal = VartovyiTheme.spacing.small)
-                ) {
-                    LogEventsList(
-                        listState = listState,
-                        logEntries = logEntries,
-                        onCopyChannelClick = { channelName ->
-                            onAction(LogUiContract.Action.CopyChannelName(channelName))
-                        },
-                        onCopyMessageClick = { messageText ->
-                            onAction(LogUiContract.Action.CopyMessageText(messageText))
-                        },
-                        modifier = Modifier.weight(1f)
+                LogUiContract.LogContentViewState.Error -> {
+                    LogErrorState(
+                        onRetry = { logEntries.retry() },
                     )
+                }
 
-                    LogClearButton(
-                        onClick = { onAction(LogUiContract.Action.OpenClearLogDialog) },
-                    )
+                LogUiContract.LogContentViewState.Empty -> {
+                    LogEmptyState(modifier = Modifier.fillMaxSize())
+                }
+
+                LogUiContract.LogContentViewState.Content -> {
+                    Column(
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(horizontal = VartovyiTheme.spacing.small)
+                    ) {
+                        LogEventsList(
+                            listState = listState,
+                            logEntries = logEntries,
+                            onCopyChannelClick = { channelName ->
+                                onAction(LogUiContract.Action.CopyChannelName(channelName))
+                            },
+                            onCopyMessageClick = { messageText ->
+                                onAction(LogUiContract.Action.CopyMessageText(messageText))
+                            },
+                            modifier = Modifier.weight(1f)
+                        )
+
+                        LogClearButton(
+                            onClick = { onAction(LogUiContract.Action.OpenClearLogDialog) },
+                        )
+                    }
                 }
             }
         }

@@ -1,4 +1,4 @@
-package com.revakovskyi.vartovyi
+package com.revakovskyi.vartovyi.ui
 
 import android.util.Log
 import androidx.lifecycle.ViewModel

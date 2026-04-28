@@ -14,12 +14,17 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.TextUnit
 import com.revakovskyi.vartovyi.navigation.BottomNavItem
 import com.revakovskyi.vartovyi.navigation.Routes
 import com.revakovskyi.vartovyi.ui.theme.VartovyiTheme
@@ -70,6 +75,10 @@ private fun BottomBarItem(
 
     val interactionSource = remember { MutableInteractionSource() }
 
+    val defaultFontSize: TextUnit = VartovyiTheme.typography.bodySmall.fontSize
+
+    var labelFontSize by remember(item.labelResId) { mutableStateOf(defaultFontSize) }
+
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center,
@@ -89,8 +98,14 @@ private fun BottomBarItem(
 
         Text(
             text = stringResource(item.labelResId),
-            style = VartovyiTheme.typography.bodySmall,
+            style = VartovyiTheme.typography.bodySmall.copy(fontSize = labelFontSize),
             color = contentColor,
+            maxLines = 1,
+            softWrap = false,
+            overflow = TextOverflow.Clip,
+            onTextLayout = { result ->
+                if (result.hasVisualOverflow) labelFontSize *= 0.9f
+            },
         )
     }
 }

@@ -105,6 +105,7 @@ private fun HomeContent(
     var securityIconCenterInHomeContent by remember { mutableStateOf<Offset?>(null) }
 
     Box(
+        contentAlignment = Alignment.TopCenter,
         modifier = modifier
             .fillMaxSize()
             .onGloballyPositioned { coordinates ->

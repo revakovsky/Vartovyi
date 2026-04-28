@@ -3,6 +3,7 @@ package com.revakovskyi.vartovyi.ui.screen.onboarding.components
 import androidx.annotation.DrawableRes
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -27,6 +28,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.revakovskyi.vartovyi.R
+import com.revakovskyi.vartovyi.ui.components.ScrollProgressBar
 import com.revakovskyi.vartovyi.ui.theme.VartovyiTheme
 
 private const val ONBOARDING_ICON_SIZE = 100
@@ -55,69 +57,79 @@ fun OnboardingPageLayout(
 ) {
     val scrollState = rememberScrollState()
 
-    Column(
-        horizontalAlignment = Alignment.CenterHorizontally,
+    Box(
         modifier = modifier
             .widthIn(max = VartovyiTheme.spacing.contentMaxWidth)
             .fillMaxSize()
-            .verticalScroll(scrollState)
-            .padding(horizontal = VartovyiTheme.spacing.medium)
     ) {
-        Spacer(modifier = Modifier.height(VartovyiTheme.spacing.massive))
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
+            modifier = Modifier
+                .fillMaxSize()
+                .verticalScroll(scrollState)
+                .padding(horizontal = VartovyiTheme.spacing.medium)
+        ) {
+            Spacer(modifier = Modifier.height(VartovyiTheme.spacing.massive))
 
-        when (visual) {
-            is OnboardingVisual.VectorIcon -> {
-                Icon(
-                    imageVector = visual.imageVector,
-                    contentDescription = null,
-                    tint = visual.tint,
-                    modifier = Modifier.size(ONBOARDING_ICON_SIZE.dp)
-                )
+            when (visual) {
+                is OnboardingVisual.VectorIcon -> {
+                    Icon(
+                        imageVector = visual.imageVector,
+                        contentDescription = null,
+                        tint = visual.tint,
+                        modifier = Modifier.size(ONBOARDING_ICON_SIZE.dp)
+                    )
+                }
+
+                is OnboardingVisual.RasterImage -> {
+                    Image(
+                        painter = painterResource(visual.resId),
+                        contentDescription = null,
+                        contentScale = ContentScale.Fit,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(ONBOARDING_ICON_SIZE.dp)
+                    )
+                }
             }
 
-            is OnboardingVisual.RasterImage -> {
-                Image(
-                    painter = painterResource(visual.resId),
-                    contentDescription = null,
-                    contentScale = ContentScale.Fit,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(ONBOARDING_ICON_SIZE.dp)
-                )
-            }
-        }
+            Spacer(modifier = Modifier.height(VartovyiTheme.spacing.extraLarge))
 
-        Spacer(modifier = Modifier.height(VartovyiTheme.spacing.extraLarge))
-
-        Text(
-            text = title,
-            style = VartovyiTheme.typography.headlineSmall,
-            color = VartovyiTheme.colors.onBackground,
-            textAlign = TextAlign.Center,
-            modifier = Modifier.fillMaxWidth()
-        )
-
-        Spacer(modifier = Modifier.height(VartovyiTheme.spacing.standard))
-
-        if (bodyContent != null) {
-            bodyContent()
-        } else {
             Text(
-                text = body,
-                style = VartovyiTheme.typography.bodyLarge,
-                color = VartovyiTheme.colors.onSurface,
+                text = title,
+                style = VartovyiTheme.typography.headlineSmall,
+                color = VartovyiTheme.colors.onBackground,
                 textAlign = TextAlign.Center,
                 modifier = Modifier.fillMaxWidth()
             )
+
+            Spacer(modifier = Modifier.height(VartovyiTheme.spacing.standard))
+
+            if (bodyContent != null) {
+                bodyContent()
+            } else {
+                Text(
+                    text = body,
+                    style = VartovyiTheme.typography.bodyLarge,
+                    color = VartovyiTheme.colors.onSurface,
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier.fillMaxWidth()
+                )
+            }
+
+            if (actionContent != null) {
+                Spacer(modifier = Modifier.height(VartovyiTheme.spacing.extraLarge))
+
+                actionContent()
+            }
+
+            Spacer(modifier = Modifier.height(VartovyiTheme.spacing.large))
         }
 
-        if (actionContent != null) {
-            Spacer(modifier = Modifier.height(VartovyiTheme.spacing.extraLarge))
-
-            actionContent()
-        }
-
-        Spacer(modifier = Modifier.height(VartovyiTheme.spacing.large))
+        ScrollProgressBar(
+            scrollState = scrollState,
+            modifier = Modifier.align(Alignment.TopCenter)
+        )
     }
 }
 

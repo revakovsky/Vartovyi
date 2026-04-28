@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material3.Text
@@ -86,100 +87,107 @@ private fun OnboardingContent(
         onAction(OnboardingUiContract.Action.PageChanged(pagerState.currentPage))
     }
 
-    Column(
+    Box(
+        contentAlignment = Alignment.TopCenter,
         modifier = modifier
             .fillMaxSize()
             .background(VartovyiTheme.colors.background)
-            .statusBarsPadding(),
+            .statusBarsPadding()
     ) {
-        HorizontalPager(
-            state = pagerState,
-            modifier = Modifier.weight(1f),
-        ) { page ->
-            when (page) {
-                0 -> OnboardingPageWelcome()
-                1 -> OnboardingPageTelegram()
-                2 -> OnboardingPagePermissions(
-                    arePermissionsGranted = isRequiredPermissionsGranted,
-                    onOpenPermissions = { onAction(OnboardingUiContract.Action.OpenPermissions) },
-                )
-
-                3 -> OnboardingPageDeviceTips()
-
-                4 -> OnboardingPageKeywords(
-                    onOpenKeywords = { onAction(OnboardingUiContract.Action.OpenKeywords) }
-                )
-
-                5 -> OnboardingPageLaunch()
-                else -> OnboardingPageWelcome()
-            }
-        }
-
-        OnboardingProgressDots(
-            currentPage = state.currentPage,
-            totalPages = state.totalPages,
-            modifier = Modifier
-                .align(Alignment.CenterHorizontally)
-                .padding(
-                    top = VartovyiTheme.spacing.large,
-                    bottom = VartovyiTheme.spacing.huge,
-                ),
-        )
-
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = VartovyiTheme.spacing.medium),
+        Column(
+            modifier = modifier
+                .widthIn(max = VartovyiTheme.spacing.contentMaxWidth)
+                .fillMaxSize()
         ) {
-            Box(modifier = Modifier.weight(1f)) {
-                if (state.currentPage > 0) {
+            HorizontalPager(
+                state = pagerState,
+                modifier = Modifier.weight(1f),
+            ) { page ->
+                when (page) {
+                    0 -> OnboardingPageWelcome()
+                    1 -> OnboardingPageTelegram()
+                    2 -> OnboardingPagePermissions(
+                        arePermissionsGranted = isRequiredPermissionsGranted,
+                        onOpenPermissions = { onAction(OnboardingUiContract.Action.OpenPermissions) },
+                    )
+
+                    3 -> OnboardingPageDeviceTips()
+
+                    4 -> OnboardingPageKeywords(
+                        onOpenKeywords = { onAction(OnboardingUiContract.Action.OpenKeywords) }
+                    )
+
+                    5 -> OnboardingPageLaunch()
+                    else -> OnboardingPageWelcome()
+                }
+            }
+
+            OnboardingProgressDots(
+                currentPage = state.currentPage,
+                totalPages = state.totalPages,
+                modifier = Modifier
+                    .align(Alignment.CenterHorizontally)
+                    .padding(
+                        top = VartovyiTheme.spacing.large,
+                        bottom = VartovyiTheme.spacing.huge,
+                    ),
+            )
+
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = VartovyiTheme.spacing.medium),
+            ) {
+                Box(modifier = Modifier.weight(1f)) {
+                    if (state.currentPage > 0) {
+                        VartovyiActionButton(
+                            text = stringResource(R.string.onboarding_back),
+                            onClick = { onAction(OnboardingUiContract.Action.PreviousPage) },
+                            style = VartovyiActionButtonStyle.Outlined,
+                        )
+                    }
+                }
+
+                Spacer(modifier = Modifier.width(VartovyiTheme.spacing.medium))
+
+                Box(modifier = Modifier.weight(1f)) {
                     VartovyiActionButton(
-                        text = stringResource(R.string.onboarding_back),
-                        onClick = { onAction(OnboardingUiContract.Action.PreviousPage) },
-                        style = VartovyiActionButtonStyle.Outlined,
+                        text = stringResource(
+                            if (isLastPage) R.string.onboarding_complete
+                            else R.string.onboarding_next
+                        ),
+                        onClick = {
+                            if (isLastPage) onAction(OnboardingUiContract.Action.Complete)
+                            else onAction(OnboardingUiContract.Action.NextPage)
+                        },
+                        style = VartovyiActionButtonStyle.Filled,
                     )
                 }
             }
 
-            Spacer(modifier = Modifier.width(VartovyiTheme.spacing.medium))
-
-            Box(modifier = Modifier.weight(1f)) {
-                VartovyiActionButton(
-                    text = stringResource(
-                        if (isLastPage) R.string.onboarding_complete
-                        else R.string.onboarding_next
-                    ),
-                    onClick = {
-                        if (isLastPage) onAction(OnboardingUiContract.Action.Complete)
-                        else onAction(OnboardingUiContract.Action.NextPage)
-                    },
-                    style = VartovyiActionButtonStyle.Filled,
+            if (state.canSkip) {
+                Text(
+                    text = stringResource(R.string.onboarding_skip),
+                    style = VartovyiTheme.typography.bodyMedium,
+                    color = VartovyiTheme.colors.onSurfaceVariant,
+                    modifier = Modifier
+                        .align(Alignment.CenterHorizontally)
+                        .padding(top = VartovyiTheme.spacing.standard)
+                        .clickable(
+                            indication = null,
+                            interactionSource = remember { MutableInteractionSource() },
+                            onClick = { onAction(OnboardingUiContract.Action.Skip) }
+                        ),
                 )
             }
-        }
 
-        if (state.canSkip) {
-            Text(
-                text = stringResource(R.string.onboarding_skip),
-                style = VartovyiTheme.typography.bodyMedium,
-                color = VartovyiTheme.colors.onSurfaceVariant,
+            Spacer(
                 modifier = Modifier
-                    .align(Alignment.CenterHorizontally)
-                    .padding(top = VartovyiTheme.spacing.standard)
-                    .clickable(
-                        indication = null,
-                        interactionSource = remember { MutableInteractionSource() },
-                        onClick = { onAction(OnboardingUiContract.Action.Skip) }
-                    ),
+                    .navigationBarsPadding()
+                    .height(VartovyiTheme.spacing.extraLarge),
             )
         }
-
-        Spacer(
-            modifier = Modifier
-                .navigationBarsPadding()
-                .height(VartovyiTheme.spacing.extraLarge),
-        )
     }
 }
 
