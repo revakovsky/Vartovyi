@@ -39,10 +39,10 @@ import com.revakovskyi.vartovyi.ui.components.VartovyiActionButton
 import com.revakovskyi.vartovyi.ui.components.VartovyiActionButtonStyle
 import com.revakovskyi.vartovyi.ui.theme.VartovyiTheme
 
-private const val ICON_SIZE_FRACTION = 0.5f
+private const val ICON_SIZE_FRACTION = 0.42f
 private const val ICON_MIN_SIZE_DP = 32
 private const val ICON_MAX_SIZE_DP = 200
-private const val SPACER_BOTTOM_WEIGHT = 0.5f
+private const val SPACER_BOTTOM_WEIGHT = 1f
 private const val TOGGLE_BUTTON_MIN_WIDTH_DP = 160
 private const val TOGGLE_BUTTON_WIDTH_FRACTION = 0.7f
 private const val MILLIS_IN_SECOND = 1000L

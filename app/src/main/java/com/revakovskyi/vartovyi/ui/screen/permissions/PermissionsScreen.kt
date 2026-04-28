@@ -11,6 +11,8 @@ import android.provider.Settings
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.widthIn
@@ -19,6 +21,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
@@ -130,38 +133,47 @@ private fun PermissionsContent(
 ) {
     val permissionItems = buildPermissionItems(state = state)
 
-    LazyColumn(
-        verticalArrangement = Arrangement.spacedBy(VartovyiTheme.spacing.small),
-        modifier = modifier
-            .widthIn(max = VartovyiTheme.spacing.contentMaxWidth)
-            .fillMaxSize()
+    Box(
+        contentAlignment = Alignment.TopCenter,
+        modifier = modifier.fillMaxSize(),
     ) {
-        if (!isFromOnboarding) {
-            item(contentType = "header") {
-                PermissionsHeader(
-                    onNavigateBack = { onAction(PermissionsUiContract.Action.NavigateBack) },
-                )
+        LazyColumn(
+            verticalArrangement = Arrangement.spacedBy(VartovyiTheme.spacing.small),
+            contentPadding = PaddingValues(
+                top = VartovyiTheme.spacing.medium,
+                bottom = VartovyiTheme.spacing.medium,
+            ),
+            modifier = Modifier
+                .widthIn(max = VartovyiTheme.spacing.contentMaxWidth)
+                .fillMaxSize()
+        ) {
+            if (!isFromOnboarding) {
+                item(contentType = "header") {
+                    PermissionsHeader(
+                        onNavigateBack = { onAction(PermissionsUiContract.Action.NavigateBack) },
+                    )
+                }
             }
-        }
 
-        if (state.hasMissingPermissions) {
-            item(contentType = "warning") {
-                PermissionsWarningCard(
+            if (state.hasMissingPermissions) {
+                item(contentType = "warning") {
+                    PermissionsWarningCard(
+                        modifier = Modifier.padding(horizontal = VartovyiTheme.spacing.standard)
+                    )
+                }
+            }
+
+            items(permissionItems) { permissionItem ->
+                PermissionItemCard(
+                    title = permissionItem.title,
+                    description = permissionItem.description,
+                    isRequired = permissionItem.isRequired,
+                    isGranted = permissionItem.isGranted,
+                    onAction = onAction,
+                    onSwitchToggle = permissionItem.onSwitchToggle,
                     modifier = Modifier.padding(horizontal = VartovyiTheme.spacing.standard)
                 )
             }
-        }
-
-        items(permissionItems) { permissionItem ->
-            PermissionItemCard(
-                title = permissionItem.title,
-                description = permissionItem.description,
-                isRequired = permissionItem.isRequired,
-                isGranted = permissionItem.isGranted,
-                onAction = onAction,
-                onSwitchToggle = permissionItem.onSwitchToggle,
-                modifier = Modifier.padding(horizontal = VartovyiTheme.spacing.standard)
-            )
         }
     }
 }

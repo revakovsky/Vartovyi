@@ -5,6 +5,7 @@ import androidx.compose.animation.Crossfade
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.Spacer
@@ -254,20 +255,25 @@ private fun KeywordsContent(
         bivr.bringIntoView()
     }
 
-    Column(
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.spacedBy(VartovyiTheme.spacing.small),
-        modifier = modifier
-            .widthIn(max = VartovyiTheme.spacing.contentMaxWidth)
-            .fillMaxSize()
-            .imePadding()
-            .verticalScroll(scrollState)
-            .padding(
-                start = VartovyiTheme.spacing.small,
-                end = VartovyiTheme.spacing.small,
-                bottom = VartovyiTheme.spacing.small,
-            )
+    Box(
+        contentAlignment = Alignment.TopCenter,
+        modifier = modifier.fillMaxSize(),
     ) {
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.spacedBy(VartovyiTheme.spacing.small),
+            modifier = Modifier
+                .widthIn(max = VartovyiTheme.spacing.contentMaxWidth)
+                .fillMaxSize()
+                .imePadding()
+                .verticalScroll(scrollState)
+                .padding(
+                    start = VartovyiTheme.spacing.small,
+                    end = VartovyiTheme.spacing.small,
+                    top = VartovyiTheme.spacing.medium,
+                    bottom = VartovyiTheme.spacing.small,
+                )
+        ) {
         KeywordsSection(
             bringIntoViewRequester = keywordsBivr,
             keywords = state.keywords,
@@ -348,6 +354,7 @@ private fun KeywordsContent(
             onClick = { onAction(KeywordsUiContract.Action.OpenClearKeywordsDialog) },
             modifier = Modifier.padding(bottom = VartovyiTheme.spacing.small)
         )
+        }
     }
 }
 

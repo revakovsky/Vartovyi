@@ -1,4 +1,4 @@
-package com.revakovskyi.vartovyi
+package com.revakovskyi.vartovyi.ui
 
 import android.os.Bundle
 import androidx.activity.ComponentActivity
@@ -38,12 +38,12 @@ import androidx.navigation.NavDestination.Companion.hasRoute
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navOptions
+import com.revakovskyi.vartovyi.R
 import com.revakovskyi.vartovyi.navigation.BottomNavItem
 import com.revakovskyi.vartovyi.navigation.NavGraph
 import com.revakovskyi.vartovyi.navigation.Routes
 import com.revakovskyi.vartovyi.ui.components.LoadingOverlay
 import com.revakovskyi.vartovyi.ui.components.VartovyiBottomBar
-import com.revakovskyi.vartovyi.ui.components.VartovyiDialog
 import com.revakovskyi.vartovyi.ui.components.VartovyiTopBar
 import com.revakovskyi.vartovyi.ui.screen.legal.LegalConsentScreen
 import com.revakovskyi.vartovyi.ui.screen.legal.LegalConsentViewModel
@@ -211,18 +211,11 @@ class MainActivity : ComponentActivity() {
                                 startDestination = startDestination,
                                 isRequiredPermissionsGranted = permissionsState.allGranted,
                                 onRefreshPermissions = ::updatePermissionsState,
+                                isLogInfoDialogVisible = showLogInfoDialog,
+                                onDismissLogInfoDialog = { showLogInfoDialog = false },
                                 modifier = Modifier
                                     .padding(paddingValues)
                                     .consumeWindowInsets(paddingValues)
-                            )
-                        }
-
-                        if (showLogInfoDialog) {
-                            VartovyiDialog(
-                                title = stringResource(R.string.log_info_dialog_title),
-                                message = stringResource(R.string.log_info_dialog_body),
-                                confirmText = stringResource(R.string.ok),
-                                onDismiss = { showLogInfoDialog = false },
                             )
                         }
                     }

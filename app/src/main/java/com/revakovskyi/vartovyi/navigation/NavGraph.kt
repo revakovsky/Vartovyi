@@ -33,7 +33,9 @@ fun NavGraph(
     navController: NavHostController,
     startDestination: Any,
     isRequiredPermissionsGranted: Boolean,
+    isLogInfoDialogVisible: Boolean,
     onRefreshPermissions: () -> Unit,
+    onDismissLogInfoDialog: () -> Unit,
 ) {
     NavHost(
         modifier = modifier,
@@ -83,6 +85,8 @@ fun NavGraph(
             val route: Routes.Log = backStackEntry.toRoute()
             LogScreen(
                 highlightedLogEntryId = route.highlightedLogEntryId,
+                isInfoDialogVisible = isLogInfoDialogVisible,
+                onDismissInfoDialog = onDismissLogInfoDialog,
             )
         }
 

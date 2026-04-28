@@ -18,12 +18,12 @@ private const val ICON_SCALE_MIN = 0.92f
 private const val ICON_SCALE_MAX = 1.08f
 private const val ICON_PULSE_DURATION_MS = 1200
 
-private const val RING_CYCLE_DURATION_MS = 2400
-private const val RING_2_OFFSET_MS = 800
-private const val RING_3_OFFSET_MS = 1600
-private const val RING_BASE_FRACTION = 0.12f
-private const val RING_EXPAND_FRACTION = 0.35f
-private const val RING_MAX_ALPHA = 0.5f
+private const val RING_CYCLE_DURATION_MS = 3000
+private const val RING_2_OFFSET_MS = 1000
+private const val RING_3_OFFSET_MS = 2000
+private const val RING_BASE_FRACTION = 0.04f
+private const val RING_EXPAND_FRACTION = 0.42f
+private const val RING_MAX_ALPHA = 0.8f
 internal const val MONITORING_ACTIVE_SIGNAL_RING_STROKE_WIDTH_DP = 1.5f
 
 internal data class MonitoringActiveIconSignalsFrame(
@@ -100,6 +100,7 @@ internal fun DrawScope.drawMonitoringActiveIconSignalRings(
     frame: MonitoringActiveIconSignalsFrame,
     ringColor: Color,
     strokeWidthPx: Float,
+    center: androidx.compose.ui.geometry.Offset = this.center,
 ) {
     val canvasCenter = center
     val baseRadius = size.minDimension * RING_BASE_FRACTION

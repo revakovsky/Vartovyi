@@ -88,7 +88,7 @@ fun SettingsSectionContainer(
                     animationSpec = tween(durationMillis = SECTION_EXIT_SHRINK_DURATION_MILLIS),
                 ),
             ) {
-                Column {
+                Column(horizontalAlignment = Alignment.CenterHorizontally) {
                     Spacer(modifier = Modifier.height(VartovyiTheme.spacing.small))
 
                     HorizontalDivider(color = VartovyiTheme.colors.outline)
