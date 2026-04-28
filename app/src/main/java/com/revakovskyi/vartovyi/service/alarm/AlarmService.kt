@@ -42,6 +42,7 @@ import java.util.concurrent.atomic.AtomicBoolean
 private const val NOTIFICATION_ID = 1001
 private const val CHANNEL_ID = "vartovyi_alarm"
 private val VIBRATION_PATTERN = longArrayOf(0, 700, 300)
+private val HEADS_UP_TRIGGER_VIBRATION = longArrayOf(0, 1)
 private const val ALARM_TAG = "AlarmService"
 private const val RED_ACCENT_COLOR_RES_ID = android.R.color.holo_red_dark
 private const val EMPTY_VALUE = ""
@@ -138,7 +139,10 @@ class AlarmService : Service() {
     private fun createNotificationChannel() {
         val notificationManager = getSystemService(NotificationManager::class.java)
         val existingChannel = notificationManager.getNotificationChannel(CHANNEL_ID)
-        if (existingChannel != null && (existingChannel.sound != null || existingChannel.shouldVibrate())) {
+        if (
+            existingChannel != null &&
+            (existingChannel.sound != null || !existingChannel.shouldVibrate())
+        ) {
             notificationManager.deleteNotificationChannel(CHANNEL_ID)
         }
 
@@ -148,7 +152,8 @@ class AlarmService : Service() {
             NotificationManager.IMPORTANCE_HIGH,
         ).apply {
             description = getString(R.string.alarm_channel_description)
-            enableVibration(false)
+            enableVibration(true)
+            vibrationPattern = HEADS_UP_TRIGGER_VIBRATION
             setSound(null, null)
         }
 
