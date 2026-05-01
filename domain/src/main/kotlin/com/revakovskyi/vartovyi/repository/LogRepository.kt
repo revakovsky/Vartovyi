@@ -14,6 +14,7 @@ interface LogRepository {
         event: AlertEvent,
         notificationKey: String,
         postTime: Long,
+        conversationMessagesCount: Int?,
         limit: Int,
     ): Boolean
     suspend fun clearLog()
