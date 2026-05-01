@@ -42,8 +42,32 @@ internal interface AlertEventDao {
     @Insert(onConflict = OnConflictStrategy.IGNORE)
     suspend fun insert(entity: AlertEventEntity): Long
 
+    @Query("SELECT id FROM alert_events WHERE signature = :signature LIMIT 1")
+    suspend fun findIdBySignature(signature: String): String?
+
+    @Query(
+        """
+        UPDATE alert_events
+        SET messageText = :messageText
+        WHERE id = :id
+        """
+    )
+    suspend fun updateExistingMessageText(
+        id: String,
+        messageText: String,
+    )
+
     @Transaction
-    suspend fun insertAndTrimToLimit(entity: AlertEventEntity, limit: Int): Long {
+    suspend fun insertOrUpdateAndTrimToLimit(entity: AlertEventEntity, limit: Int): Long {
+        val existingId = findIdBySignature(entity.signature)
+        if (existingId != null) {
+            updateExistingMessageText(
+                id = existingId,
+                messageText = entity.messageText,
+            )
+            return INSERT_CONFLICT_RESULT
+        }
+
         val insertResult = insert(entity)
         if (insertResult == INSERT_CONFLICT_RESULT) {
             return insertResult

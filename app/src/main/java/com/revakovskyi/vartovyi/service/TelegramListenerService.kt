@@ -40,23 +40,39 @@ class TelegramListenerService : NotificationListenerService(), KoinComponent {
         val notification = statusBarNotification.notification ?: return
         val extras = notification.extras ?: return
 
+        if (notification.flags and Notification.FLAG_GROUP_SUMMARY != 0) return
+
+        val messagingStyle = extractMessagingStyle(notification)
         val messageText = extractMessageText(
-            notification = notification,
             extras = extras,
+            messagingStyle = messagingStyle,
         )
         if (messageText.isBlank()) return
 
         val title = extractNotificationTitle(extras)
+        val messageTimestamp = notification.`when`
+            .takeIf { it > 0 }
+            ?: statusBarNotification.postTime
+
         val payload = NotificationPayload(
             packageName = statusBarNotification.packageName,
             notificationKey = statusBarNotification.key.orEmpty(),
             title = title,
             text = messageText,
-            timestamp = statusBarNotification.postTime,
+            timestamp = messageTimestamp,
+            conversationMessagesCount = messagingStyle?.messages?.size,
         )
 
         serviceScope.launch {
-            processIncomingTelegramNotificationUseCase(payload)
+            runCatching {
+                processIncomingTelegramNotificationUseCase(payload)
+            }.onFailure { throwable ->
+                Log.e(
+                    TELEGRAM_LISTENER_TAG,
+                    "Failed to process incoming Telegram notification",
+                    throwable,
+                )
+            }
         }
     }
 
@@ -98,16 +114,25 @@ class TelegramListenerService : NotificationListenerService(), KoinComponent {
             ?: extras.getCharSequence(Notification.EXTRA_SUB_TEXT)?.toString()
             ?: EMPTY_VALUE
 
-    private fun extractMessageText(notification: Notification, extras: Bundle): String =
+    private fun extractMessageText(
+        extras: Bundle,
+        messagingStyle: NotificationCompat.MessagingStyle?,
+    ): String =
         extras.getCharSequence(Notification.EXTRA_TEXT)?.toString()
             ?: extras.getCharSequence(Notification.EXTRA_BIG_TEXT)?.toString()
-            ?: extractMessageFromMessagingStyle(notification)
+            ?: extractLatestMessageFromMessagingStyle(messagingStyle)
             ?: EMPTY_VALUE
 
-    private fun extractMessageFromMessagingStyle(notification: Notification): String? {
-        val messagingStyle = runCatching {
+    private fun extractMessagingStyle(notification: Notification): NotificationCompat.MessagingStyle? {
+        return runCatching {
             NotificationCompat.MessagingStyle.extractMessagingStyleFromNotification(notification)
-        }.getOrNull() ?: return null
+        }.getOrNull()
+    }
+
+    private fun extractLatestMessageFromMessagingStyle(
+        messagingStyle: NotificationCompat.MessagingStyle?,
+    ): String? {
+        if (messagingStyle == null) return null
 
         return messagingStyle.messages
             .asReversed()

@@ -13,6 +13,7 @@ import com.revakovskyi.vartovyi.repository.LogRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import java.security.MessageDigest
+import java.text.Normalizer
 
 private const val INSERT_CONFLICT_RESULT = -1L
 private const val SIGNATURE_HASH_ALGORITHM = "SHA-256"
@@ -20,6 +21,9 @@ private const val SIGNATURE_SEPARATOR = "|"
 private const val WHITESPACE_REGEX = "\\s+"
 private const val SINGLE_SPACE = " "
 private const val HEX_BYTE_FORMAT = "%02x"
+private const val NON_BREAKING_SPACE = ' '
+private const val INVISIBLE_UNICODE_CHARS_REGEX = "[\\u200B-\\u200D\\uFEFF\\uFE00-\\uFE0F]"
+private const val DEDUP_TIME_WINDOW_MILLIS = 60_000L
 private val ALARM_TRIGGERED_STATUS_VALUE = AlertEventStatus.ALARM_TRIGGERED.name
 private const val PAGE_SIZE = 50
 private const val PREFETCH_DISTANCE = 20
@@ -53,14 +57,16 @@ internal class LogRepositoryImpl(
         event: AlertEvent,
         notificationKey: String,
         postTime: Long,
+        conversationMessagesCount: Int?,
         limit: Int,
     ): Boolean {
         val signature = buildSignature(
             event = event,
             notificationKey = notificationKey,
             postTime = postTime,
+            conversationMessagesCount = conversationMessagesCount,
         )
-        val insertResult = alertEventDao.insertAndTrimToLimit(
+        val insertResult = alertEventDao.insertOrUpdateAndTrimToLimit(
             entity = event.toEntity(signature = signature),
             limit = limit,
         )
@@ -75,13 +81,52 @@ internal class LogRepositoryImpl(
         event: AlertEvent,
         notificationKey: String,
         postTime: Long,
+        conversationMessagesCount: Int?,
     ): String {
-        val normalizedMessageText = event.messageText
-            .trim()
-            .lowercase()
-            .replace(WHITESPACE_REGEX.toRegex(), SINGLE_SPACE)
-        val normalizedSenderName = event.senderName.trim().lowercase()
-        val signaturePayload = buildString {
+        val signaturePayload = if (conversationMessagesCount != null) {
+            buildConversationSignature(
+                senderPackage = event.senderPackage,
+                notificationKey = notificationKey,
+                conversationMessagesCount = conversationMessagesCount,
+            )
+        } else {
+            buildLegacyTextSignature(
+                event = event,
+                notificationKey = notificationKey,
+                postTime = postTime,
+            )
+        }
+
+        val digestBytes = MessageDigest
+            .getInstance(SIGNATURE_HASH_ALGORITHM)
+            .digest(signaturePayload.toByteArray())
+        return digestBytes.joinToString(separator = "") { byte -> HEX_BYTE_FORMAT.format(byte) }
+    }
+
+    private fun buildConversationSignature(
+        senderPackage: String,
+        notificationKey: String,
+        conversationMessagesCount: Int,
+    ): String {
+        return buildString {
+            append(senderPackage)
+            append(SIGNATURE_SEPARATOR)
+            append(notificationKey)
+            append(SIGNATURE_SEPARATOR)
+            append(conversationMessagesCount)
+        }
+    }
+
+    private fun buildLegacyTextSignature(
+        event: AlertEvent,
+        notificationKey: String,
+        postTime: Long,
+    ): String {
+        val normalizedMessageText = normalizeForSignature(event.messageText)
+        val normalizedSenderName = normalizeForSignature(event.senderName)
+        val timeBucket = postTime / DEDUP_TIME_WINDOW_MILLIS
+
+        return buildString {
             append(event.senderPackage)
             append(SIGNATURE_SEPARATOR)
             append(notificationKey)
@@ -90,11 +135,17 @@ internal class LogRepositoryImpl(
             append(SIGNATURE_SEPARATOR)
             append(normalizedMessageText)
             append(SIGNATURE_SEPARATOR)
-            append(postTime)
+            append(timeBucket)
         }
-        val digestBytes = MessageDigest.getInstance(SIGNATURE_HASH_ALGORITHM)
-            .digest(signaturePayload.toByteArray())
-        return digestBytes.joinToString(separator = "") { byte -> HEX_BYTE_FORMAT.format(byte) }
+    }
+
+    private fun normalizeForSignature(rawText: String): String {
+        return Normalizer.normalize(rawText, Normalizer.Form.NFC)
+            .replace(NON_BREAKING_SPACE, ' ')
+            .replace(INVISIBLE_UNICODE_CHARS_REGEX.toRegex(), "")
+            .trim()
+            .lowercase()
+            .replace(WHITESPACE_REGEX.toRegex(), SINGLE_SPACE)
     }
 
 }

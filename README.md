@@ -15,7 +15,7 @@ Android-додаток для моніторингу Telegram-сповіщень
 
 ## 2) Що робить
 
-- Моніторить сповіщення **тільки** з офіційного клієнта Telegram (`org.telegram.messenger`).
+- Моніторить сповіщення **тільки** з Telegram-клієнтів (офіційний, web, Telegram X, Neko X).
 - Підтримує trigger-слова, stop-слова, опційний фільтр за каналами.
 - Запускає тривогу через `AlarmService` + `AlarmActivity` поверх lock screen.
 - Показує persistent foreground-сповіщення коли моніторинг активний.
@@ -79,7 +79,7 @@ ViewModel → UseCase → Repository (interface) → RepositoryImpl (data) → D
 2. Користувач вмикає моніторинг на `Home`.
 3. Стартує `MonitoringForegroundService` (persistent notification).
 4. `TelegramListenerService` отримує Telegram-сповіщення.
-5. Фільтри: моніторинг активний → пакет `org.telegram.messenger` → (опц.) дозволений канал →
+5. Фільтри: моніторинг активний → Telegram-пакет → (опц.) дозволений канал →
    (опц.) вікно розкладу.
 6. `ProcessIncomingTelegramNotificationUseCase` перевіряє trigger/stop-слова.
 7. Якщо match: запис у лог + `AlarmService` + full-screen `AlarmActivity`.
@@ -103,25 +103,24 @@ ViewModel → UseCase → Repository (interface) → RepositoryImpl (data) → D
   mechanism.
 - **Поки лишаємо** для локального dev/тестування.
 
-### Manual QA на малих екранах
+## 9) Дедуплікація Telegram-сповіщень
 
-Протестувати UI на пристрої / емуляторі з невеликим екраном (наприклад 4.5"–5.0", низька щільність):
-чи коректно відображається контент на всіх екранах (`Home`, `Keywords`, `Logs`, `Settings`,
-`Permissions`, `AlarmActivity`, `OnboardingScreen`, `LegalConsentScreen`), без обрізань тексту,
-overflow або зламаних layout-ів.
+Telegram викликає `onNotificationPosted` багаторазово для того самого повідомлення:
+GROUP_SUMMARY-копія, refresh при змінах у чаті, ретроактивне редагування `when` і
+тексту (виправлення опечаток). Сигнатура для дедупу в `LogRepositoryImpl` —
+`pkg + sbn.key + messagingStyle.messages.size`: `messages.size` зростає лише на
+**справді нове** повідомлення в чаті. На колізію сигнатури DAO робить
+`UPDATE messageText` — `status` / `matchedKeyword` / `timestamp` зберігаються,
+щоб не корумпувати оригінальне рішення про тригер тривоги.
+`FLAG_GROUP_SUMMARY` відсікається одразу в `TelegramListenerService`.
 
-### Прогін Android Studio inspect / lint
+Не спрацювало раніше:
 
-Запустити вбудовані інструменти:
+- in-memory буфер сигнатур (5 слотів, гинув з сервісом і переповнювався);
+- бакет `postTime / 60_000` (refresh легко стрибав у наступний бакет → дубль);
+- сигнатура з `notification.when` (Telegram зсуває `when` на 25–30с при правках).
 
-- **Code → Inspect Code…** на весь проєкт
-- **Analyze → Run Inspection by Name…** → Unused resources / Unused declarations
-- **Build → Analyze APK** на release-збірку — перевірити розмір і знайти зайве
-
-Подивитися чи можна видалити невикористані ресурси (drawables, strings, layouts), unused imports,
-deprecated API, проблеми продуктивності або якості коду.
-
-## 9) Канонічні URL юридичних документів
+## 10) Канонічні URL юридичних документів
 
 Дублюються у коді як `PRIVACY_POLICY_URL` / `TERMS_OF_USE_URL` у
 [
