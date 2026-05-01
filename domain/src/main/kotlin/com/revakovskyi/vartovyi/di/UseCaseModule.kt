@@ -1,7 +1,5 @@
 package com.revakovskyi.vartovyi.di
 
-import com.revakovskyi.vartovyi.usecase.AnalyzeMessageUseCase
-import com.revakovskyi.vartovyi.usecase.AnalyzeMessageUseCaseImpl
 import com.revakovskyi.vartovyi.usecase.alarm.ObserveAlarmRetriggerCooldownUseCase
 import com.revakovskyi.vartovyi.usecase.alarm.ObserveAlarmRetriggerCooldownUseCaseImpl
 import com.revakovskyi.vartovyi.usecase.alarm.ObserveAlarmRunningUseCase
@@ -10,8 +8,6 @@ import com.revakovskyi.vartovyi.usecase.alarm.StopAlarmUseCase
 import com.revakovskyi.vartovyi.usecase.alarm.StopAlarmUseCaseImpl
 import com.revakovskyi.vartovyi.usecase.alarm.TriggerAlarmUseCase
 import com.revakovskyi.vartovyi.usecase.alarm.TriggerAlarmUseCaseImpl
-import com.revakovskyi.vartovyi.usecase.emergency.StopEverythingUseCase
-import com.revakovskyi.vartovyi.usecase.emergency.StopEverythingUseCaseImpl
 import com.revakovskyi.vartovyi.usecase.keywords.AddKeywordUseCase
 import com.revakovskyi.vartovyi.usecase.keywords.AddKeywordUseCaseImpl
 import com.revakovskyi.vartovyi.usecase.keywords.AddStopWordUseCase
@@ -44,8 +40,6 @@ import com.revakovskyi.vartovyi.usecase.legal.AcceptCurrentLegalDocumentsUseCase
 import com.revakovskyi.vartovyi.usecase.legal.AcceptCurrentLegalDocumentsUseCaseImpl
 import com.revakovskyi.vartovyi.usecase.legal.ObserveLegalConsentStateUseCase
 import com.revakovskyi.vartovyi.usecase.legal.ObserveLegalConsentStateUseCaseImpl
-import com.revakovskyi.vartovyi.usecase.log.AddLogEntryUseCase
-import com.revakovskyi.vartovyi.usecase.log.AddLogEntryUseCaseImpl
 import com.revakovskyi.vartovyi.usecase.log.ClearLogUseCase
 import com.revakovskyi.vartovyi.usecase.log.ClearLogUseCaseImpl
 import com.revakovskyi.vartovyi.usecase.log.GetLogEntryIndexUseCase
@@ -96,12 +90,10 @@ import org.koin.dsl.module
 
 val useCaseModule = module {
 
-    singleOf(::AnalyzeMessageUseCaseImpl) { bind<AnalyzeMessageUseCase>() }
     singleOf(::TriggerAlarmUseCaseImpl) { bind<TriggerAlarmUseCase>() }
     singleOf(::StopAlarmUseCaseImpl) { bind<StopAlarmUseCase>() }
     singleOf(::ObserveAlarmRunningUseCaseImpl) { bind<ObserveAlarmRunningUseCase>() }
     singleOf(::ObserveAlarmRetriggerCooldownUseCaseImpl) { bind<ObserveAlarmRetriggerCooldownUseCase>() }
-    singleOf(::StopEverythingUseCaseImpl) { bind<StopEverythingUseCase>() }
 
     singleOf(::ObserveMonitoringStateUseCaseImpl) { bind<ObserveMonitoringStateUseCase>() }
     singleOf(::SyncMonitoringRuntimeUseCaseImpl) { bind<SyncMonitoringRuntimeUseCase>() }
@@ -124,7 +116,6 @@ val useCaseModule = module {
     singleOf(::ExportKeywordsUseCaseImpl) { bind<ExportKeywordsUseCase>() }
     singleOf(::ImportKeywordsUseCaseImpl) { bind<ImportKeywordsUseCase>() }
 
-    singleOf(::AddLogEntryUseCaseImpl) { bind<AddLogEntryUseCase>() }
     singleOf(::ObserveLogEntriesUseCaseImpl) { bind<ObserveLogEntriesUseCase>() }
     singleOf(::ObserveLastAlarmTriggeredEventUseCaseImpl) { bind<ObserveLastAlarmTriggeredEventUseCase>() }
     singleOf(::GetLogEntryIndexUseCaseImpl) { bind<GetLogEntryIndexUseCase>() }

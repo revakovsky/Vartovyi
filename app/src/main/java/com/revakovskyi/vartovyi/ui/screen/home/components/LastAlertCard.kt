@@ -13,6 +13,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalLocale
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
@@ -23,7 +24,6 @@ import com.revakovskyi.vartovyi.model.AlertEventStatus
 import com.revakovskyi.vartovyi.ui.theme.VartovyiTheme
 import java.text.SimpleDateFormat
 import java.util.Date
-import java.util.Locale
 
 private const val TIME_FORMAT_PATTERN = "HH:mm"
 private const val MAX_MESSAGE_LINES = 2
@@ -62,8 +62,10 @@ fun LastAlertCard(
                     color = VartovyiTheme.colors.onSurfaceVariant,
                 )
             } else {
-                val timeString = SimpleDateFormat(TIME_FORMAT_PATTERN, Locale.getDefault())
-                    .format(Date(lastAlertEvent.timestamp))
+                val timeString = SimpleDateFormat(
+                    /* pattern = */ TIME_FORMAT_PATTERN,
+                    /* locale = */ LocalLocale.current.platformLocale
+                ).format(Date(lastAlertEvent.timestamp))
 
                 Row(
                     horizontalArrangement = Arrangement.spacedBy(VartovyiTheme.spacing.extraSmall),

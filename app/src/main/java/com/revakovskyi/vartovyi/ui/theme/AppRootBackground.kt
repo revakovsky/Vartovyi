@@ -198,7 +198,6 @@ fun Modifier.appRootBackground(monitoringState: MonitoringState): Modifier =
                 stop = colorScheme.surfaceVariant,
                 fraction = INACTIVE_MID_FRACTION,
             )
-            val inactiveOuter = background
 
             val activeCenter = Offset(
                 x = size.width * lerpFloat(
@@ -262,7 +261,7 @@ fun Modifier.appRootBackground(monitoringState: MonitoringState): Modifier =
                 fraction = blend,
             )
             val outer = lerp(
-                start = inactiveOuter,
+                start = background,
                 stop = activeOuter,
                 fraction = blend,
             )

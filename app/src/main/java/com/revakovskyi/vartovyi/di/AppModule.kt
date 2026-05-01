@@ -8,14 +8,12 @@ import com.revakovskyi.vartovyi.service.alarm.AlarmControllerImpl
 import com.revakovskyi.vartovyi.service.notification_monitoring.MonitoringControllerImpl
 import com.revakovskyi.vartovyi.utils.ElapsedRealtimeProvider
 import com.revakovskyi.vartovyi.utils.ElapsedRealtimeProviderImpl
-import com.revakovskyi.vartovyi.utils.KeywordMatcher
 import org.koin.core.module.dsl.bind
 import org.koin.core.module.dsl.singleOf
 import org.koin.dsl.module
 
 val appModule = module {
 
-    singleOf(::KeywordMatcher)
     singleOf(::ElapsedRealtimeProviderImpl) { bind<ElapsedRealtimeProvider>() }
     singleOf(::AlarmStateHolder)
     singleOf(::AlarmRetriggerCooldownStateHolder)

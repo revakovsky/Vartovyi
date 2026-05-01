@@ -108,7 +108,7 @@ class KeywordsViewModel(
                 TriggerKeywordRule.fromStorageValue(keyword)
             }
             val sortedKeywords = parsedKeywords.sortedWith(
-                compareBy<TriggerKeywordRule>(
+                compareBy(
                     { keywordRule -> triggerRuleTypeOrder(keywordRule.type) },
                     { keywordRule -> keywordRule.displayValue.lowercase() },
                 )

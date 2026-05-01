@@ -2,12 +2,11 @@ package com.revakovskyi.vartovyi.service
 
 import android.app.Notification
 import android.os.Bundle
-import android.os.Parcelable
 import android.service.notification.NotificationListenerService
 import android.service.notification.StatusBarNotification
 import android.util.Log
 import androidx.compose.material3.SnackbarDuration
-import androidx.core.os.BundleCompat
+import androidx.core.app.NotificationCompat
 import com.revakovskyi.vartovyi.R
 import com.revakovskyi.vartovyi.model.NotificationPayload
 import com.revakovskyi.vartovyi.repository.SettingsRepository
@@ -38,9 +37,13 @@ class TelegramListenerService : NotificationListenerService(), KoinComponent {
         super.onNotificationPosted(sbn)
 
         val statusBarNotification = sbn ?: return
-        val extras = statusBarNotification.notification.extras ?: return
+        val notification = statusBarNotification.notification ?: return
+        val extras = notification.extras ?: return
 
-        val messageText = extractMessageText(extras)
+        val messageText = extractMessageText(
+            notification = notification,
+            extras = extras,
+        )
         if (messageText.isBlank()) return
 
         val title = extractNotificationTitle(extras)
@@ -55,10 +58,6 @@ class TelegramListenerService : NotificationListenerService(), KoinComponent {
         serviceScope.launch {
             processIncomingTelegramNotificationUseCase(payload)
         }
-    }
-
-    override fun onNotificationRemoved(sbn: StatusBarNotification?) {
-        super.onNotificationRemoved(sbn)
     }
 
     override fun onListenerDisconnected() {
@@ -99,24 +98,18 @@ class TelegramListenerService : NotificationListenerService(), KoinComponent {
             ?: extras.getCharSequence(Notification.EXTRA_SUB_TEXT)?.toString()
             ?: EMPTY_VALUE
 
-    private fun extractMessageText(extras: Bundle): String =
+    private fun extractMessageText(notification: Notification, extras: Bundle): String =
         extras.getCharSequence(Notification.EXTRA_TEXT)?.toString()
             ?: extras.getCharSequence(Notification.EXTRA_BIG_TEXT)?.toString()
-            ?: extractMessageFromMessagingStyle(extras)
+            ?: extractMessageFromMessagingStyle(notification)
             ?: EMPTY_VALUE
 
-    private fun extractMessageFromMessagingStyle(extras: Bundle): String? {
-        val messages = runCatching {
-            Notification.MessagingStyle.Message.getMessagesFromBundleArray(
-                BundleCompat.getParcelableArray(
-                    extras,
-                    Notification.EXTRA_MESSAGES,
-                    Parcelable::class.java,
-                )
-            )
+    private fun extractMessageFromMessagingStyle(notification: Notification): String? {
+        val messagingStyle = runCatching {
+            NotificationCompat.MessagingStyle.extractMessagingStyleFromNotification(notification)
         }.getOrNull() ?: return null
 
-        return messages
+        return messagingStyle.messages
             .asReversed()
             .firstNotNullOfOrNull { message ->
                 message.text
