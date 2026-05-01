@@ -2,16 +2,18 @@ package com.revakovskyi.vartovyi.service
 
 import android.app.Notification
 import android.os.Bundle
+import android.os.Parcelable
 import android.service.notification.NotificationListenerService
 import android.service.notification.StatusBarNotification
 import android.util.Log
 import androidx.compose.material3.SnackbarDuration
+import androidx.core.os.BundleCompat
 import com.revakovskyi.vartovyi.R
+import com.revakovskyi.vartovyi.model.NotificationPayload
 import com.revakovskyi.vartovyi.repository.SettingsRepository
 import com.revakovskyi.vartovyi.ui.util.snackbar.SnackbarController
 import com.revakovskyi.vartovyi.ui.util.snackbar.SnackbarEvent
 import com.revakovskyi.vartovyi.usecase.monitoring.ToggleMonitoringUseCase
-import com.revakovskyi.vartovyi.usecase.notification.NotificationPayload
 import com.revakovskyi.vartovyi.usecase.notification.ProcessIncomingTelegramNotificationUseCase
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -24,7 +26,6 @@ import org.koin.core.component.inject
 
 private const val EMPTY_VALUE = ""
 private const val TELEGRAM_LISTENER_TAG = "TelegramListenerService"
-private const val RECENT_NOTIFICATION_SIGNATURES_LIMIT = 5
 
 class TelegramListenerService : NotificationListenerService(), KoinComponent {
 
@@ -32,9 +33,6 @@ class TelegramListenerService : NotificationListenerService(), KoinComponent {
     private val toggleMonitoringUseCase: ToggleMonitoringUseCase by inject()
     private val settingsRepository: SettingsRepository by inject()
     private val serviceScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
-    private val deduplicationLock = Any()
-    private val recentNotificationSignatures =
-        ArrayDeque<String>(RECENT_NOTIFICATION_SIGNATURES_LIMIT)
 
     override fun onNotificationPosted(sbn: StatusBarNotification?) {
         super.onNotificationPosted(sbn)
@@ -48,12 +46,11 @@ class TelegramListenerService : NotificationListenerService(), KoinComponent {
         val title = extractNotificationTitle(extras)
         val payload = NotificationPayload(
             packageName = statusBarNotification.packageName,
+            notificationKey = statusBarNotification.key.orEmpty(),
             title = title,
             text = messageText,
             timestamp = statusBarNotification.postTime,
         )
-
-        if (isDuplicateNotification(statusBarNotification, payload)) return
 
         serviceScope.launch {
             processIncomingTelegramNotificationUseCase(payload)
@@ -92,9 +89,6 @@ class TelegramListenerService : NotificationListenerService(), KoinComponent {
 
     override fun onDestroy() {
         serviceScope.cancel()
-        synchronized(deduplicationLock) {
-            recentNotificationSignatures.clear()
-        }
         super.onDestroy()
     }
 
@@ -114,7 +108,11 @@ class TelegramListenerService : NotificationListenerService(), KoinComponent {
     private fun extractMessageFromMessagingStyle(extras: Bundle): String? {
         val messages = runCatching {
             Notification.MessagingStyle.Message.getMessagesFromBundleArray(
-                extras.getParcelableArray(Notification.EXTRA_MESSAGES)
+                BundleCompat.getParcelableArray(
+                    extras,
+                    Notification.EXTRA_MESSAGES,
+                    Parcelable::class.java,
+                )
             )
         }.getOrNull() ?: return null
 
@@ -125,43 +123,6 @@ class TelegramListenerService : NotificationListenerService(), KoinComponent {
                     ?.toString()
                     ?.takeIf { text -> text.isNotBlank() }
             }
-    }
-
-    private fun isDuplicateNotification(
-        statusBarNotification: StatusBarNotification,
-        payload: NotificationPayload,
-    ): Boolean {
-        val signature = buildNotificationSignature(statusBarNotification, payload)
-
-        synchronized(deduplicationLock) {
-            if (signature in recentNotificationSignatures) {
-                return true
-            }
-
-            if (recentNotificationSignatures.size >= RECENT_NOTIFICATION_SIGNATURES_LIMIT) {
-                recentNotificationSignatures.removeFirst()
-            }
-
-            recentNotificationSignatures.addLast(signature)
-            return false
-        }
-    }
-
-    private fun buildNotificationSignature(
-        statusBarNotification: StatusBarNotification,
-        payload: NotificationPayload,
-    ): String {
-        return buildString {
-            append(statusBarNotification.packageName)
-            append('|')
-            append(statusBarNotification.key)
-            append('|')
-            append(payload.timestamp)
-            append('|')
-            append(payload.title)
-            append('|')
-            append(payload.text)
-        }
     }
 
 }

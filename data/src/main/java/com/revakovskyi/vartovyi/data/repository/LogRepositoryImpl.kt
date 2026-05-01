@@ -49,8 +49,17 @@ internal class LogRepositoryImpl(
         return alertEventDao.getIndexById(eventId)
     }
 
-    override suspend fun addEntryAndTrimToLimit(event: AlertEvent, limit: Int): Boolean {
-        val signature = buildSignature(event)
+    override suspend fun addEntryAndTrimToLimit(
+        event: AlertEvent,
+        notificationKey: String,
+        postTime: Long,
+        limit: Int,
+    ): Boolean {
+        val signature = buildSignature(
+            event = event,
+            notificationKey = notificationKey,
+            postTime = postTime,
+        )
         val insertResult = alertEventDao.insertAndTrimToLimit(
             entity = event.toEntity(signature = signature),
             limit = limit,
@@ -62,7 +71,11 @@ internal class LogRepositoryImpl(
         alertEventDao.deleteAll()
     }
 
-    private fun buildSignature(event: AlertEvent): String {
+    private fun buildSignature(
+        event: AlertEvent,
+        notificationKey: String,
+        postTime: Long,
+    ): String {
         val normalizedMessageText = event.messageText
             .trim()
             .lowercase()
@@ -71,11 +84,13 @@ internal class LogRepositoryImpl(
         val signaturePayload = buildString {
             append(event.senderPackage)
             append(SIGNATURE_SEPARATOR)
+            append(notificationKey)
+            append(SIGNATURE_SEPARATOR)
             append(normalizedSenderName)
             append(SIGNATURE_SEPARATOR)
             append(normalizedMessageText)
             append(SIGNATURE_SEPARATOR)
-            append(event.timestamp)
+            append(postTime)
         }
         val digestBytes = MessageDigest.getInstance(SIGNATURE_HASH_ALGORITHM)
             .digest(signaturePayload.toByteArray())
