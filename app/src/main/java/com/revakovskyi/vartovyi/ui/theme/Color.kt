@@ -273,7 +273,7 @@ fun ColorSwatch(
                 .height(VartovyiTheme.spacing.massive)
         ) {}
 
-        Spacer(modifier = Modifier.Companion.height(VartovyiTheme.spacing.extraSmall))
+        Spacer(modifier = Modifier.height(VartovyiTheme.spacing.extraSmall))
 
         Text(
             text = name,

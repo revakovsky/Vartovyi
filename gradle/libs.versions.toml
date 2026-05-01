@@ -15,13 +15,13 @@ agp = "9.0.1"
 kotlin = "2.3.10"
 jvmTargetVersion = "11"
 ksp = "2.3.6"
-androidTools = "32.1.1"
+androidTools = "32.2.0"
 
 # AndroidX
 coreKtx = "1.18.0"
 activityCompose = "1.13.0"
-composeBom = "2026.03.01"
-navigationCompose = "2.9.7"
+composeBom = "2026.04.01"
+navigationCompose = "2.9.8"
 workManager = "2.11.2"
 browser = "1.10.0"
 

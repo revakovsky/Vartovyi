@@ -1,4 +1,4 @@
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
     <string name="app_name">Vartovyi</string>
     <string name="nav_home">Home</string>
     <string name="nav_keywords">Keywords</string>
@@ -16,7 +16,7 @@
     <string name="home_keywords_title">Keywords</string>
     <string name="home_add_keywords_hint">No keywords added yet</string>
     <string name="home_add">Add</string>
-    <string name="home_and_more">+%d more…</string>
+    <string name="home_and_more" tools:ignore="PluralsCandidate">+%d more…</string>
     <string name="home_last_trigger">Last trigger</string>
     <string name="home_no_triggers">No triggers yet</string>
     <string name="settings_test_alarm">Test alarm</string>
@@ -49,8 +49,6 @@
     <string name="settings_data_alarm_cooldown_title">Alarm cooldown</string>
     <string name="settings_data_alarm_cooldown_value_minutes">%1$d min</string>
     <string name="settings_data_alarm_cooldown_tooltip">After an alarm fires, repeated alarms are blocked for the selected duration. Messages with trigger words during the cooldown are still recorded in the log — the siren just won\'t fire.\n\nThis prevents duplicate signals when a channel sends multiple messages about the same target in quick succession.</string>
-    <string name="settings_data_export_log_title">Export log</string>
-    <string name="settings_data_export_log_button">Export log</string>
     <string name="settings_reset_factory_button">Reset settings</string>
     <string name="settings_reset_factory_dialog_title">Reset all settings?</string>
     <string name="settings_reset_factory_dialog_message">All app settings will return to factory defaults (sound, schedule, log limits, cooldowns). Monitoring will be turned off.\n\nKeywords, stop words, Telegram channels, and channel filters will be cleared.\n\nThe event log will be erased.\n\nYour acceptance of Privacy Policy and Terms of Use stays saved — you will not be asked to consent again.\n\nThis cannot be undone.</string>
@@ -81,8 +79,6 @@
     <string name="alarm_stop">Stop alarm</string>
     <string name="alarm_dismiss">Dismiss</string>
     <string name="alarm_title">Alarm</string>
-    <string name="emergency_stop">Stop everything</string>
-    <string name="emergency_stop_completed">Monitoring and alarm are stopped</string>
     <string name="keywords_trigger_words">Trigger words</string>
     <string name="keywords_trigger_tooltip">Add alert rules here.\n\nMode \"Word\":\n- matches a standalone word in the message;\n- example: \"nd\" should match \"alert in nd\", but should not match \"fundament\".\n\nMode \"All words\":\n- all entered words must be present in the message (order does not matter);\n- you can separate words with a space, a comma, or the \"+\" sign;\n- example: \"rocket + kharkiv\" matches \"rocket to kharkiv\" and \"a rocket is flying to kharkiv\", but does not match \"rocket to kyiv\".\n\nMode \"Phrase\":\n- matches a specific phrase;\n- do not use quotation marks;\n- letter case is ignored (uppercase/lowercase does not affect matching);\n- example: \"rocket to kharkiv\" matches only when this exact phrase is present.\n\nTip:\n- use \"All words\" or \"Phrase\" for precise alerts;\n- use \"Word\" for broader alerts.</string>
     <string name="keywords_trigger_hint_word">e.g. rocket</string>
@@ -91,7 +87,6 @@
     <string name="keywords_rule_type_word">Word</string>
     <string name="keywords_rule_type_all_words">All words</string>
     <string name="keywords_rule_type_phrase">Phrase</string>
-    <string name="keywords_input_clear">Clear</string>
     <string name="keywords_input_clear_tooltip">Clears the entered text in this field</string>
     <string name="keywords_stop_words">Stop words</string>
     <string name="keywords_stop_tooltip">A message won\'t trigger an alarm if it contains any stop word.\n\nLetter case is ignored (uppercase/lowercase does not affect matching).</string>
@@ -140,7 +135,6 @@
     <string name="log_clear_dialog_message">This removes all saved log entries from this device. Use this when you want to reset history or remove sensitive notification data.</string>
     <string name="log_clear_dialog_confirm">Clear</string>
     <string name="log_clear_dialog_dismiss">Cancel</string>
-    <string name="log_info_tooltip">About the log</string>
     <string name="log_info_dialog_title">How to read the log</string>
     <string name="log_info_dialog_body">All Telegram notifications received while monitoring is active are shown here.\n\nEntry statuses:\n• Alarm — a trigger word matched and the siren fired.\n• Skipped (cooldown) — a trigger word matched, but the delay between alarms (configured in app settings) has not elapsed yet.\n• Skipped — no trigger match.\n\nTo copy a channel name or message text, tap the corresponding action buttons on the right.</string>
     <string name="keywords_clear">Clear all lists</string>

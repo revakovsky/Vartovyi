@@ -48,8 +48,6 @@
     <string name="settings_data_alarm_cooldown_title">Пауза между тревогами</string>
     <string name="settings_data_alarm_cooldown_value_minutes">%1$d мин</string>
     <string name="settings_data_alarm_cooldown_tooltip">После срабатывания тревоги повторные срабатывания блокируются на выбранное время. Сообщения с ключевыми словами во время паузы продолжают попадать в журнал — сирена просто не включается.\n\nЭто помогает избежать дублирования сигнала, если канал отправляет несколько сообщений подряд об одной и той же угрозе.</string>
-    <string name="settings_data_export_log_title">Экспорт журнала</string>
-    <string name="settings_data_export_log_button">Экспортировать журнал</string>
     <string name="settings_reset_factory_button">Сбросить настройки</string>
     <string name="settings_reset_factory_dialog_title">Сбросить все настройки?</string>
     <string name="settings_reset_factory_dialog_message">Все настройки приложения вернутся к заводским (звук, расписание, лимит журнала, пауза между тревогами). Мониторинг будет выключен.\n\nКлючевые слова, стоп-слова, каналы Telegram и фильтры каналов будут очищены.\n\nЖурнал событий будет удалён.\n\nПодтверждение Privacy Policy и Terms of Use сохранится — повторно соглашаться не придётся.\n\nЭто действие нельзя отменить.</string>
@@ -80,8 +78,6 @@
     <string name="alarm_stop">Остановить тревогу</string>
     <string name="alarm_dismiss">Закрыть</string>
     <string name="alarm_title">Тревога</string>
-    <string name="emergency_stop">Остановить всё</string>
-    <string name="emergency_stop_completed">Мониторинг и тревога остановлены</string>
     <string name="keywords_trigger_words">Ключевые слова для срабатывания</string>
     <string name="keywords_trigger_tooltip">Добавьте здесь правила оповещений.\n\nРежим «Слово»:\n- совпадает с отдельным словом в сообщении;\n- пример: «nd» должно совпасть с «alert in nd», но не с «fundament».\n\nРежим «Все слова»:\n- все введённые слова должны присутствовать в сообщении (порядок не важен);\n- слова можно вводить через пробел, запятую или знак «+»;\n- пример: «rocket + kharkiv» совпадает с «rocket to kharkiv» и «a rocket is flying to kharkiv», но не с «rocket to kyiv».\n\nРежим «Фраза»:\n- совпадает с конкретной фразой;\n- кавычки добавлять не нужно;\n- регистр букв не учитывается (верхний/нижний не влияет на совпадение);\n- пример: «rocket to kharkiv» совпадает только при наличии именно этой фразы.\n\nСовет:\n- используйте «Все слова» или «Фраза» для точных оповещений;\n- используйте «Слово» для более широкого охвата.</string>
     <string name="keywords_trigger_hint_word">напр. rocket</string>
@@ -90,7 +86,6 @@
     <string name="keywords_rule_type_word">Слово</string>
     <string name="keywords_rule_type_all_words">Все слова</string>
     <string name="keywords_rule_type_phrase">Фраза</string>
-    <string name="keywords_input_clear">Очистить</string>
     <string name="keywords_input_clear_tooltip">Очищает введённый текст в этом поле</string>
     <string name="keywords_stop_words">Стоп-слова</string>
     <string name="keywords_stop_tooltip">Сообщение не вызовет тревогу, если в нём есть любое стоп-слово.\n\nРегистр не учитывается (верхний/нижний не влияет на совпадение).</string>
@@ -139,7 +134,6 @@
     <string name="log_clear_dialog_message">Будут удалены все сохранённые записи журнала на этом устройстве. Используйте, если нужно сбросить историю или убрать чувствительные данные уведомлений.</string>
     <string name="log_clear_dialog_confirm">Очистить</string>
     <string name="log_clear_dialog_dismiss">Отмена</string>
-    <string name="log_info_tooltip">О журнале</string>
     <string name="log_info_dialog_title">Как читать журнал</string>
     <string name="log_info_dialog_body">Здесь отображаются все уведомления Telegram, полученные во время активного мониторинга.\n\nСтатусы записей:\n• Тревога — ключевое слово найдено, сирена сработала.\n• Пропущено (пауза) — ключевое слово найдено, но ещё не прошло время задержки между тревогами, которое задаётся в настройках приложения.\n• Пропущено — совпадений нет.\n\nЧтобы скопировать название канала или текст сообщения, нажимайте соответствующие кнопки справа.</string>
     <string name="keywords_clear">Очистить все списки</string>
@@ -160,6 +154,7 @@
     <string name="keywords_import_invalid_format">Ошибка импорта: файл повреждён или имеет неверный формат</string>
     <string name="keywords_import_unsupported_version">Ошибка импорта: версия резервной копии %1$d не поддерживается</string>
     <string name="keywords_import_write_error">Ошибка импорта: не удалось сохранить данные</string>
+    <string name="keywords_import_file_too_large">Ошибка импорта: файл слишком большой (макс. 2 МБ)</string>
     <string name="ok">ОК</string>
 
     <string name="onboarding_back">Назад</string>

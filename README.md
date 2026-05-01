@@ -74,15 +74,15 @@ ViewModel → UseCase → Repository (interface) → RepositoryImpl (data) → D
 
 ## 6) Runtime-процес
 
-0. Cold start → якщо збережена версія legal-документів ≠ актуальній → `LegalConsentScreen` →
+1. Cold start → якщо збережена версія legal-документів ≠ актуальній → `LegalConsentScreen` →
    після підтвердження зберігається версія, відкривається UI. Відмова → `finish()`.
-1. Користувач вмикає моніторинг на `Home`.
-2. Стартує `MonitoringForegroundService` (persistent notification).
-3. `TelegramListenerService` отримує Telegram-сповіщення.
-4. Фільтри: моніторинг активний → пакет `org.telegram.messenger` → (опц.) дозволений канал →
+2. Користувач вмикає моніторинг на `Home`.
+3. Стартує `MonitoringForegroundService` (persistent notification).
+4. `TelegramListenerService` отримує Telegram-сповіщення.
+5. Фільтри: моніторинг активний → пакет `org.telegram.messenger` → (опц.) дозволений канал →
    (опц.) вікно розкладу.
-5. `ProcessIncomingTelegramNotificationUseCase` перевіряє trigger/stop-слова.
-6. Якщо match: запис у лог + `AlarmService` + full-screen `AlarmActivity`.
+6. `ProcessIncomingTelegramNotificationUseCase` перевіряє trigger/stop-слова.
+7. Якщо match: запис у лог + `AlarmService` + full-screen `AlarmActivity`.
    Якщо no match / stop-word: запис у лог як SKIPPED, без тривоги.
 
 ## 7) Особливості та ризики
