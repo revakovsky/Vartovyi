@@ -3,6 +3,7 @@ package com.revakovskyi.vartovyi.usecase.notification
 import com.revakovskyi.vartovyi.controllers.alarm.AlarmController
 import com.revakovskyi.vartovyi.model.AlertEvent
 import com.revakovskyi.vartovyi.model.AlertEventStatus
+import com.revakovskyi.vartovyi.model.NotificationPayload
 import com.revakovskyi.vartovyi.model.TriggerKeywordRule
 import com.revakovskyi.vartovyi.repository.KeywordsRepository
 import com.revakovskyi.vartovyi.repository.LogRepository
@@ -44,13 +45,6 @@ private val wordOrDigitRegex = Regex(WORD_OR_DIGIT_REGEX)
 interface ProcessIncomingTelegramNotificationUseCase {
     suspend operator fun invoke(payload: NotificationPayload): Boolean
 }
-
-data class NotificationPayload(
-    val packageName: String,
-    val title: String,
-    val text: String,
-    val timestamp: Long,
-)
 
 class ProcessIncomingTelegramNotificationUseCaseImpl(
     private val settingsRepository: SettingsRepository,
@@ -173,6 +167,8 @@ class ProcessIncomingTelegramNotificationUseCaseImpl(
                 matchedKeyword = matchedKeyword,
                 status = status,
             ),
+            notificationKey = payload.notificationKey,
+            postTime = payload.timestamp,
             limit = logSizeLimit,
         )
     }
