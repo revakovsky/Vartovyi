@@ -1,14 +1,119 @@
-# Vartovyi
+# Vartovyi (Вартовий)
 
-Vartovyi (Вартовий) — Android app designed for Ukrainians living under constant drone (Shahed) threat. It monitors incoming Telegram notifications in real-time, analyzes message text against user-defined keywords (district, street, city), and triggers a loud full-screen alarm only when the threat is relevant to your specific area. All other messages are silently ignored, allowing you to sleep undisturbed until there is real danger nearby.
-Key features:
+Android-додаток для моніторингу Telegram-сповіщень у фоні та запуску тривоги тільки при релевантних
+повідомленнях (за trigger-словами користувача).
 
-- Intercepts Telegram notifications via NotificationListenerService
-- Regex-based keyword matching with stop-word filtering
-- Full-volume alarm that bypasses Do Not Disturb mode
-- Lock-screen alert activity (like an incoming call)
-- Foreground service with watchdog for reliable background operation
-- Schedule support (e.g. active only 22:00–07:00)
-- Optional channel name filtering
+## 1) Призначення
 
-Tech stack: Kotlin, Jetpack Compose, Material 3, MVI, Koin, DataStore, Navigation Compose (type-safe routes), WorkManager.
+`Vartovyi` — утилітарний інструмент нічного/фонового чергування:
+
+- читає вхідні Telegram-сповіщення через `NotificationListenerService`;
+- аналізує текст за списками `trigger words` та `stop words`;
+- запускає гучну тривогу (full-screen) тільки при релевантному збігу;
+- веде журнал подій;
+- працює стабільно у фоні після перезапуску пристрою.
+
+## 2) Що робить
+
+- Моніторить сповіщення **тільки** з Telegram-клієнтів (офіційний, web, Telegram X, Neko X).
+- Підтримує trigger-слова, stop-слова, опційний фільтр за каналами.
+- Запускає тривогу через `AlarmService` + `AlarmActivity` поверх lock screen.
+- Показує persistent foreground-сповіщення коли моніторинг активний.
+- Відновлює роботу після reboot (`BOOT_COMPLETED`) + WorkManager watchdog.
+- Керування через екрани: `Home`, `Keywords`, `Logs`, `Settings`, `Permissions`.
+- Перед першим використанням — екран згоди з юридичними документами.
+
+## 3) Що НЕ робить
+
+- Не обробляє особисті дані за межами локального пристрою.
+- Не відправляє повідомлення/логи на сервери.
+- Не запускає тривогу для нерелевантних повідомлень.
+- Не ігнорує stop-слова при їх присутності.
+- Не залежить від ручного відкриття UI для фонового моніторингу.
+
+## 4) Технічний стек
+
+- **Platform:** Android, `minSdk = 28`, `targetSdk = 36`
+- **Language:** Kotlin
+- **UI:** Jetpack Compose + Material 3
+- **Architecture:** Single Activity, MVI (`State + Action + Event`), Clean Architecture
+- **DI:** Koin
+- **Navigation:** Navigation Compose (type-safe routes, `@Serializable`)
+- **Storage:** DataStore Preferences + Room (журнал)
+- **Build:** Gradle Kotlin DSL + Version Catalog + composite `build-logic` з convention-плагінами
+
+## 4.1) Модулі
+
+| Модуль                   | Роль                                                                                                    |
+|--------------------------|---------------------------------------------------------------------------------------------------------|
+| `:app`                   | Compose UI, сервіси, receivers, `AppModule`/`ViewModelModule`, `startKoin` у `VartovyiApp`              |
+| `:domain`                | JVM library: моделі, інтерфейси репозиторіїв, use cases, доменні контролери, `useCaseModule`            |
+| `:data`                  | Android library: DataStore, Room, mappers, реалізації репозиторіїв, `databaseModule`/`repositoryModule` |
+| `build-logic/convention` | `vartovyi.android.*`/`vartovyi.jvm.library`/`vartovyi.android.room` плагіни                             |
+
+Залежності між модулями через type-safe accessors (`projects.domain`, `projects.data`).
+Плагіни підключаються через `alias(libs.plugins.…)`. Детально — у [CLAUDE.md](CLAUDE.md), розділ
+**Gradle, Version Catalog, and build-logic**.
+
+## 5) Архітектура
+
+Напрямок залежностей:
+
+```
+ViewModel → UseCase → Repository (interface) → RepositoryImpl (data) → DataStore/Room
+```
+
+Ключові правила:
+
+- ViewModel інжектить тільки UseCase
+- Use case **не** викликає інший use case; для shared логіки — internal helper у `:domain`
+  (наприклад `syncMonitoringRuntimeWithSettings` у `MonitoringRuntimeSync.kt`)
+- Domain — без Android framework API (виняток: `androidx.paging.PagingData` для журналу)
+- Навігація — у `NavGraph`, екрани не мають `NavController`
+- Усі правила — у [CLAUDE.md](CLAUDE.md)
+
+## 6) Runtime-процес
+
+1. Cold start → якщо збережена версія legal-документів ≠ актуальній → `LegalConsentScreen` →
+   після підтвердження зберігається версія, відкривається UI. Відмова → `finish()`.
+2. Користувач вмикає моніторинг на `Home`.
+3. Стартує `MonitoringForegroundService` (persistent notification).
+4. `TelegramListenerService` отримує Telegram-сповіщення.
+5. Фільтри: моніторинг активний → Telegram-пакет → (опц.) дозволений канал →
+   (опц.) вікно розкладу.
+6. `ProcessIncomingTelegramNotificationUseCase` перевіряє trigger/stop-слова.
+7. Якщо match: запис у лог + `AlarmService` + full-screen `AlarmActivity`.
+   Якщо no match / stop-word: запис у лог як SKIPPED, без тривоги.
+
+## 7) Особливості та ризики
+
+- Якість роботи залежить від дозволів (Notification Access, battery optimizations,
+  full-screen intent, POST_NOTIFICATIONS).
+- OEM-прошивки (Xiaomi/Samsung/Huawei) можуть агресивно вбивати фон.
+- Неправильно підібрані trigger/stop-слова → false positive/negative.
+
+## 8) Дедуплікація Telegram-сповіщень
+
+Telegram викликає `onNotificationPosted` багаторазово для того самого повідомлення:
+GROUP_SUMMARY-копія, refresh при змінах у чаті, ретроактивне редагування `when` і
+тексту (виправлення опечаток). Сигнатура для дедупу в `LogRepositoryImpl` —
+`pkg + sbn.key + messagingStyle.messages.size`: `messages.size` зростає лише на
+**справді нове** повідомлення в чаті. На колізію сигнатури DAO робить
+`UPDATE messageText` — `status` / `matchedKeyword` / `timestamp` зберігаються,
+щоб не корумпувати оригінальне рішення про тригер тривоги.
+`FLAG_GROUP_SUMMARY` відсікається одразу в `TelegramListenerService`.
+
+Не спрацювало раніше:
+
+- in-memory буфер сигнатур (5 слотів, гинув з сервісом і переповнювався);
+- бакет `postTime / 60_000` (refresh легко стрибав у наступний бакет → дубль);
+- сигнатура з `notification.when` (Telegram зсуває `when` на 25–30с при правках).
+
+## 9) Канонічні URL юридичних документів
+
+Дублюються у коді як `PRIVACY_POLICY_URL` / `TERMS_OF_USE_URL` у
+[
+`LegalDocumentsContract`](domain/src/main/kotlin/com/revakovskyi/vartovyi/constants/LegalDocumentsContract.kt):
+
+- Privacy Policy: <https://sites.google.com/view/vartovyi-privacy-policy>
+- Terms of Use: <https://sites.google.com/view/vartovyi-terms-of-use>

@@ -1,0 +1,16 @@
+{
+  "denyTools": [
+    {
+      "tool": "Read",
+      "pathPattern": "local.properties"
+    },
+    {
+      "tool": "Edit",
+      "pathPattern": "local.properties"
+    },
+    {
+      "tool": "Write",
+      "pathPattern": "local.properties"
+    }
+  ]
+}
