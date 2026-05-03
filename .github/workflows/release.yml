@@ -29,8 +29,8 @@ jobs:
 
       - name: Decode keystore
         run: |
-          mkdir -p keystore
-          echo "${{ secrets.KEYSTORE_BASE64 }}" | base64 -d > keystore/vartovyi-release.jks
+          mkdir -p app/keystore
+          echo "${{ secrets.KEYSTORE_BASE64 }}" | base64 -d > app/keystore/vartovyi-release.jks
 
       - name: Build release AAB
         env:
