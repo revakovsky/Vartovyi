@@ -1,0 +1,70 @@
+name: Release Build
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  build:
+    name: Build Release AAB
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@v4
+
+      - name: Grant execute permission for gradlew
+        run: chmod +x gradlew
+
+      - name: Decode keystore
+        run: |
+          mkdir -p keystore
+          echo "${{ secrets.KEYSTORE_BASE64 }}" | base64 -d > keystore/vartovyi-release.jks
+
+      - name: Build release AAB
+        env:
+          KEYSTORE_FILE: keystore/vartovyi-release.jks
+          KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
+          KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
+        run: ./gradlew bundleRelease
+
+      - name: Delete previous release artifacts
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const releases = await github.rest.repos.listReleases({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+            });
+            for (const release of releases.data) {
+              for (const asset of release.assets) {
+                if (asset.name.endsWith('.aab')) {
+                  await github.rest.repos.deleteReleaseAsset({
+                    owner: context.repo.owner,
+                    repo: context.repo.repo,
+                    asset_id: asset.id,
+                  });
+                  console.log(`Deleted old artifact: ${asset.name}`);
+                }
+              }
+            }
+
+      - name: Upload AAB artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: vartovyi-release
+          path: app/build/outputs/bundle/release/app-release.aab
+          retention-days: 30
+          overwrite: true

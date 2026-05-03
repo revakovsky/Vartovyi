@@ -1,0 +1,48 @@
+detekt {
+    config.setFrom("${rootDir}/config/detekt/detekt.yml")
+    buildUponDefaultConfig = true
+    autoCorrect = false
+    source.setFrom(
+            "app/src/main/java",
+            "data/src/main/java",
+            "domain/src/main/kotlin"
+    )
+}
+
+dependencies {
+    detektPlugins(libs.detekt.formatting)
+}
+
+tasks.register("installGitHooks") {
+    description = "Installs the pre-commit git hook"
+    group = "git hooks"
+
+    doLast {
+        def hooksDir = file("${rootDir}/.git/hooks")
+        def preCommitHook = file("${hooksDir}/pre-commit")
+
+        preCommitHook.text = """#!/bin/sh
+
+echo "Running detekt..."
+
+./gradlew detekt --daemon -q
+
+EXIT_CODE=\$?
+
+if [ \$EXIT_CODE -ne 0 ]; then
+  echo ""
+  echo "❌ Detekt found issues. Fix them before committing."
+  exit 1
+fi
+
+echo "✅ Detekt passed."
+exit 0
+"""
+        preCommitHook.setExecutable(true)
+        println("✅ Pre-commit hook installed.")
+    }
+}
+
+tasks.named("detekt") {
+    dependsOn("installGitHooks")
+}

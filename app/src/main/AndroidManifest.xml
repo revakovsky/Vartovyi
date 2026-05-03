@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <!-- BootReceiver: restore monitoring after device reboot -->
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+
+    <!-- PermissionsScreen: request battery optimization exemption flow -->
+    <uses-permission android:name="android.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS" />
+
+    <!-- Notifications: runtime permission for app/alarm notifications -->
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+    <uses-permission android:name="android.permission.ACCESS_NOTIFICATION_POLICY" />
+
+    <!-- AlarmService: vibration and wake-up reliability for alert signaling -->
+    <uses-permission android:name="android.permission.VIBRATE" />
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
+
+    <!-- Foreground services: required base + specific service types -->
+    <uses-permission
+        android:name="android.permission.FOREGROUND_SERVICE"
+        tools:ignore="ForegroundServicesPolicy" />
+    <!-- AlarmService -->
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_MEDIA_PLAYBACK" />
+    <!-- MonitoringForegroundService -->
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_DATA_SYNC" />
+
+    <!-- AlarmActivity via AlarmService full-screen notification -->
+    <uses-permission
+        android:name="android.permission.USE_FULL_SCREEN_INTENT"
+        tools:ignore="FullScreenIntentPolicy" />
+
+    <application
+        android:name=".VartovyiApp"
+        android:allowBackup="true"
+        android:fullBackupContent="@xml/backup_rules"
+        android:dataExtractionRules="@xml/data_extraction_rules"
+        android:icon="@mipmap/ic_launcher"
+        android:label="@string/app_name"
+        android:roundIcon="@mipmap/ic_launcher_round"
+        android:supportsRtl="true"
+        android:theme="@style/Theme.Vartovyi"
+        tools:ignore="RemoveWorkManagerInitializer">
+
+        <activity
+            android:name=".ui.MainActivity"
+            android:exported="true"
+            android:screenOrientation="portrait"
+            android:theme="@style/Theme.Vartovyi"
+            android:windowSoftInputMode="adjustResize"
+            tools:ignore="DiscouragedApi,LockedOrientationActivity">
+
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+
+        </activity>
+
+        <activity
+            android:name=".ui.alarm.AlarmActivity"
+            android:exported="false"
+            android:screenOrientation="portrait"
+            android:launchMode="singleTask"
+            android:showOnLockScreen="true"
+            android:turnScreenOn="true"
+            tools:ignore="DiscouragedApi,LockedOrientationActivity" />
+
+        <service
+            android:name=".service.TelegramListenerService"
+            android:exported="true"
+            android:permission="android.permission.BIND_NOTIFICATION_LISTENER_SERVICE">
+
+            <intent-filter>
+                <action android:name="android.service.notification.NotificationListenerService" />
+            </intent-filter>
+
+        </service>
+
+        <service
+            android:name=".service.alarm.AlarmService"
+            android:exported="false"
+            android:foregroundServiceType="mediaPlayback" />
+
+        <service
+            android:name=".service.notification_monitoring.MonitoringForegroundService"
+            android:exported="false"
+            android:foregroundServiceType="dataSync" />
+
+        <receiver
+            android:name=".receiver.BootReceiver"
+            android:exported="false">
+
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+            </intent-filter>
+
+        </receiver>
+
+        <provider
+            android:name="androidx.startup.InitializationProvider"
+            android:authorities="${applicationId}.androidx-startup"
+            android:exported="false"
+            tools:node="merge">
+
+            <meta-data
+                android:name="androidx.work.WorkManagerInitializer"
+                android:value="androidx.startup"
+                tools:node="remove" />
+
+        </provider>
+
+    </application>
+
+</manifest>

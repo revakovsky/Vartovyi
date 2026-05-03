@@ -1,0 +1,325 @@
+package com.revakovskyi.vartovyi.ui.screen.settings
+
+import android.util.Log
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import com.revakovskyi.vartovyi.constants.PRIVACY_POLICY_URL
+import com.revakovskyi.vartovyi.constants.TERMS_OF_USE_URL
+import com.revakovskyi.vartovyi.model.MonitoringState
+import com.revakovskyi.vartovyi.ui.screen.settings.SettingsUiContract.Action
+import com.revakovskyi.vartovyi.ui.screen.settings.SettingsUiContract.Event
+import com.revakovskyi.vartovyi.ui.screen.settings.SettingsUiContract.State
+import com.revakovskyi.vartovyi.usecase.alarm.ObserveAlarmRunningUseCase
+import com.revakovskyi.vartovyi.usecase.alarm.StopAlarmUseCase
+import com.revakovskyi.vartovyi.usecase.alarm.TriggerAlarmUseCase
+import com.revakovskyi.vartovyi.usecase.monitoring.ObserveMonitoringStateUseCase
+import com.revakovskyi.vartovyi.usecase.settings.ObserveAlarmRetriggerCooldownDurationUseCase
+import com.revakovskyi.vartovyi.usecase.settings.ObserveLogSizeLimitUseCase
+import com.revakovskyi.vartovyi.usecase.settings.ObserveScheduleSettingsUseCase
+import com.revakovskyi.vartovyi.usecase.settings.ResetAppToFactoryDefaultsUseCase
+import com.revakovskyi.vartovyi.usecase.settings.SetAlarmDurationUseCase
+import com.revakovskyi.vartovyi.usecase.settings.SetAlarmRetriggerCooldownDurationUseCase
+import com.revakovskyi.vartovyi.usecase.settings.SetAlarmSoundUriUseCase
+import com.revakovskyi.vartovyi.usecase.settings.SetAlarmVolumeUseCase
+import com.revakovskyi.vartovyi.usecase.settings.SetEndTimeUseCase
+import com.revakovskyi.vartovyi.usecase.settings.SetLogSizeLimitUseCase
+import com.revakovskyi.vartovyi.usecase.settings.SetScheduleEnabledUseCase
+import com.revakovskyi.vartovyi.usecase.settings.SetStartTimeUseCase
+import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.flow.receiveAsFlow
+import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.launch
+
+private const val SETTINGS_INITIAL_LOADING_SOURCES_TOTAL = 5
+private const val SETTINGS_VIEW_MODEL_TAG = "SettingsViewModel"
+
+class SettingsViewModel(
+    private val observeScheduleSettingsUseCase: ObserveScheduleSettingsUseCase,
+    private val observeLogSizeLimitUseCase: ObserveLogSizeLimitUseCase,
+    private val observeAlarmRetriggerCooldownDurationUseCase: ObserveAlarmRetriggerCooldownDurationUseCase,
+    private val setScheduleEnabledUseCase: SetScheduleEnabledUseCase,
+    private val setStartTimeUseCase: SetStartTimeUseCase,
+    private val setEndTimeUseCase: SetEndTimeUseCase,
+    private val setAlarmDurationUseCase: SetAlarmDurationUseCase,
+    private val setAlarmSoundUriUseCase: SetAlarmSoundUriUseCase,
+    private val setAlarmVolumeUseCase: SetAlarmVolumeUseCase,
+    private val setLogSizeLimitUseCase: SetLogSizeLimitUseCase,
+    private val setAlarmRetriggerCooldownDurationUseCase: SetAlarmRetriggerCooldownDurationUseCase,
+    private val triggerAlarmUseCase: TriggerAlarmUseCase,
+    private val stopAlarmUseCase: StopAlarmUseCase,
+    private val observeAlarmRunningUseCase: ObserveAlarmRunningUseCase,
+    private val observeMonitoringStateUseCase: ObserveMonitoringStateUseCase,
+    private val resetAppToFactoryDefaultsUseCase: ResetAppToFactoryDefaultsUseCase,
+) : ViewModel() {
+
+    private val _state = MutableStateFlow(State())
+    val state: StateFlow<State> = _state.asStateFlow()
+
+    private val _events = Channel<Event>(Channel.BUFFERED)
+    val events: Flow<Event> = _events.receiveAsFlow()
+
+    private var loadedSourcesCount = 0
+    private var skipCollapseOnNextScreenStop = false
+
+    init {
+        observeScheduleSettings()
+        observeLogSizeLimit()
+        observeAlarmRetriggerCooldownDuration()
+        observeAlarmRunning()
+        observeMonitoringState()
+    }
+
+    fun onAction(action: Action) {
+        when (action) {
+            is Action.SetScheduleEnabled -> setScheduleEnabled(action.enabled)
+            is Action.SetStartTime -> setStartTime(action.time)
+            is Action.SetEndTime -> setEndTime(action.time)
+            is Action.SetAlarmDuration -> setAlarmDuration(action.seconds)
+            is Action.SetAlarmSoundUri -> setAlarmSoundUri(action.uri)
+            is Action.SetAlarmVolume -> setAlarmVolume(action.percent)
+            is Action.SetLogSizeLimit -> setLogSizeLimit(action.limit)
+            is Action.StartExternalPickerNavigation -> startExternalPickerNavigation()
+            is Action.ToggleSection -> toggleSection(section = action.section)
+            is Action.CollapseSectionsOnScreenStop -> collapseSectionsOnScreenStop()
+            is Action.OpenPrivacyPolicy -> openPrivacyPolicyUrl()
+            is Action.OpenTermsOfUse -> openTermsOfUseUrl()
+            is Action.OpenOnboardingGuide -> openOnboardingGuide()
+            is Action.ShowResetToFactoryDefaultsDialog -> showResetToFactoryDefaultsDialog()
+            is Action.DismissResetToFactoryDefaultsDialog -> dismissResetToFactoryDefaultsDialog()
+            is Action.ConfirmResetToFactoryDefaults -> confirmResetToFactoryDefaults()
+
+            is Action.SetAlarmRetriggerCooldownDurationMillis -> {
+                setAlarmRetriggerCooldownDurationMillis(durationMillis = action.durationMillis)
+            }
+
+            is Action.ToggleTestAlarm -> toggleTestAlarm(
+                sourceChannelName = action.sourceChannelName,
+                sourceMessageText = action.sourceMessageText,
+            )
+        }
+    }
+
+    private fun observeScheduleSettings() {
+        var isFirstEmission = true
+        observeScheduleSettingsUseCase().onEach { scheduleSettings ->
+            _state.update {
+                it.copy(
+                    isScheduleEnabled = scheduleSettings.isScheduleEnabled,
+                    startTime = scheduleSettings.startTime,
+                    endTime = scheduleSettings.endTime,
+                    alarmDurationSeconds = scheduleSettings.alarmDurationSeconds,
+                    alarmVolumePercent = scheduleSettings.alarmVolumePercent,
+                    alarmSoundUri = scheduleSettings.alarmSoundUri,
+                )
+            }
+
+            if (isFirstEmission) {
+                isFirstEmission = false
+                markSourceLoaded()
+            }
+        }.launchIn(viewModelScope)
+    }
+
+    private fun observeLogSizeLimit() {
+        var isFirstEmission = true
+        observeLogSizeLimitUseCase().onEach { limit ->
+            _state.update { it.copy(logSizeLimit = limit) }
+
+            if (isFirstEmission) {
+                isFirstEmission = false
+                markSourceLoaded()
+            }
+        }.launchIn(viewModelScope)
+    }
+
+    private fun observeAlarmRetriggerCooldownDuration() {
+        var isFirstEmission = true
+        observeAlarmRetriggerCooldownDurationUseCase().onEach { durationMillis ->
+            _state.update {
+                it.copy(alarmRetriggerCooldownDurationMillis = durationMillis)
+            }
+
+            if (isFirstEmission) {
+                isFirstEmission = false
+                markSourceLoaded()
+            }
+        }.launchIn(viewModelScope)
+    }
+
+    private fun observeAlarmRunning() {
+        var isFirstEmission = true
+        observeAlarmRunningUseCase().onEach { isRunning ->
+            _state.update { it.copy(isAlarmRunning = isRunning) }
+
+            if (isFirstEmission) {
+                isFirstEmission = false
+                markSourceLoaded()
+            }
+        }.launchIn(viewModelScope)
+    }
+
+    private fun observeMonitoringState() {
+        var isFirstEmission = true
+        observeMonitoringStateUseCase().onEach { monitoringState ->
+            _state.update {
+                it.copy(isMonitoringActive = monitoringState == MonitoringState.ACTIVE)
+            }
+
+            if (isFirstEmission) {
+                isFirstEmission = false
+                markSourceLoaded()
+            }
+        }.launchIn(viewModelScope)
+    }
+
+    private fun markSourceLoaded() {
+        loadedSourcesCount++
+
+        if (loadedSourcesCount >= SETTINGS_INITIAL_LOADING_SOURCES_TOTAL) {
+            _state.update { it.copy(isLoading = false) }
+        }
+    }
+
+    private fun setScheduleEnabled(enabled: Boolean) {
+        viewModelScope.launch { setScheduleEnabledUseCase(enabled) }
+    }
+
+    private fun setStartTime(time: String) {
+        viewModelScope.launch { setStartTimeUseCase(time) }
+    }
+
+    private fun setEndTime(time: String) {
+        viewModelScope.launch { setEndTimeUseCase(time) }
+    }
+
+    private fun setAlarmDuration(seconds: Int) {
+        viewModelScope.launch { setAlarmDurationUseCase(seconds) }
+    }
+
+    private fun setAlarmSoundUri(uri: String) {
+        viewModelScope.launch {
+            runCatching {
+                setAlarmSoundUriUseCase(uri)
+            }.onFailure { throwable ->
+                Log.e(SETTINGS_VIEW_MODEL_TAG, "Failed to set alarm sound uri", throwable)
+            }
+        }
+    }
+
+    private fun setAlarmVolume(percent: Int) {
+        viewModelScope.launch { setAlarmVolumeUseCase(percent) }
+    }
+
+    private fun setLogSizeLimit(limit: Int) {
+        viewModelScope.launch { setLogSizeLimitUseCase(limit) }
+    }
+
+    private fun setAlarmRetriggerCooldownDurationMillis(durationMillis: Long) {
+        viewModelScope.launch {
+            setAlarmRetriggerCooldownDurationUseCase(durationMillis)
+        }
+    }
+
+    private fun toggleTestAlarm(
+        sourceChannelName: String,
+        sourceMessageText: String,
+    ) {
+        if (state.value.isMonitoringActive) {
+            viewModelScope.launch {
+                _events.send(Event.ShowDisableMonitoringForTestAlarm)
+            }
+            return
+        }
+
+        if (state.value.isAlarmRunning) {
+            stopAlarmUseCase()
+        } else {
+            skipCollapseOnNextScreenStop = true
+            triggerAlarmUseCase(
+                sourceChannelName = sourceChannelName,
+                sourceMessageText = sourceMessageText,
+            )
+        }
+    }
+
+    private fun toggleSection(section: SettingsUiContract.SettingsSection) {
+        _state.update { currentState ->
+            val nextExpandedSection =
+                if (currentState.expandedSection == section) null
+                else section
+            currentState.copy(expandedSection = nextExpandedSection)
+        }
+    }
+
+    private fun startExternalPickerNavigation() {
+        skipCollapseOnNextScreenStop = true
+        viewModelScope.launch {
+            _events.send(Event.LaunchSoundPicker)
+        }
+    }
+
+    private fun collapseSectionsOnScreenStop() {
+        if (skipCollapseOnNextScreenStop) {
+            skipCollapseOnNextScreenStop = false
+            return
+        }
+
+        _state.update { currentState ->
+            if (currentState.expandedSection == null) currentState
+            else currentState.copy(expandedSection = null)
+        }
+    }
+
+    private fun openPrivacyPolicyUrl() {
+        skipCollapseOnNextScreenStop = true
+        viewModelScope.launch {
+            _events.send(Event.OpenUrl(url = PRIVACY_POLICY_URL))
+        }
+    }
+
+    private fun openTermsOfUseUrl() {
+        skipCollapseOnNextScreenStop = true
+        viewModelScope.launch {
+            _events.send(Event.OpenUrl(url = TERMS_OF_USE_URL))
+        }
+    }
+
+    private fun openOnboardingGuide() {
+        skipCollapseOnNextScreenStop = true
+        viewModelScope.launch {
+            _events.send(Event.OpenOnboardingGuide)
+        }
+    }
+
+    private fun showResetToFactoryDefaultsDialog() {
+        _state.update { currentState ->
+            currentState.copy(isResetToFactoryDefaultsDialogVisible = true)
+        }
+    }
+
+    private fun dismissResetToFactoryDefaultsDialog() {
+        _state.update { currentState ->
+            currentState.copy(isResetToFactoryDefaultsDialogVisible = false)
+        }
+    }
+
+    private fun confirmResetToFactoryDefaults() {
+        viewModelScope.launch {
+            resetAppToFactoryDefaultsUseCase()
+            _state.update { currentState ->
+                currentState.copy(
+                    isResetToFactoryDefaultsDialogVisible = false,
+                    expandedSection = null,
+                )
+            }
+            _events.send(Event.ShowFactoryResetCompleted)
+        }
+    }
+
+}
