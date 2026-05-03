@@ -22,6 +22,7 @@ import androidx.compose.material3.ScaffoldDefaults
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.SnackbarResult
+import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -75,151 +76,10 @@ class MainActivity : ComponentActivity() {
 
         setContent {
             VartovyiTheme {
-                val mainState by mainViewModel.state.collectAsStateWithLifecycle()
-                val permissionsState by permissionsViewModel.state.collectAsStateWithLifecycle()
-                val legalConsentState by legalConsentViewModel.state.collectAsStateWithLifecycle()
-                val onboardingState by onboardingViewModel.state.collectAsStateWithLifecycle()
-
-                if (legalConsentState.isLoading || onboardingState.isLoading) {
-                    LoadingOverlay()
-                } else if (!legalConsentState.isAccepted) {
-                    LegalConsentScreen(
-                        viewModel = legalConsentViewModel,
-                        onRefuse = { this@MainActivity.finish() },
-                    )
-                } else {
-                    val startDestination: Any =
-                        if (!onboardingState.isCompleted) Routes.Onboarding
-                        else Routes.Home
-
-                    val navController = rememberNavController()
-                    val currentBackStackEntry by navController.currentBackStackEntryAsState()
-                    val currentDestination = currentBackStackEntry?.destination
-                    val previousDestination = navController.previousBackStackEntry?.destination
-
-                    val snackbarHostState = remember { SnackbarHostState() }
-
-                    var showLogInfoDialog by remember { mutableStateOf(false) }
-
-                    LaunchedEffect(Unit) {
-                        SnackbarController.events.collectLatest { event ->
-                            snackbarHostState.currentSnackbarData?.dismiss()
-
-                            val result = snackbarHostState.showSnackbar(
-                                message = event.message,
-                                actionLabel = event.action?.name,
-                                withDismissAction = event.action != null,
-                                duration = event.duration,
-                            )
-
-                            if (result == SnackbarResult.ActionPerformed) {
-                                event.action?.action?.invoke()
-                            }
-                        }
-                    }
-
-                    val isKeywordsFromOnboarding =
-                        currentDestination?.hasRoute(Routes.Keywords::class) == true &&
-                                previousDestination?.hasRoute(Routes.Onboarding::class) == true
-
-                    val selectedNavItem: BottomNavItem? = when {
-                        currentDestination?.hasRoute(Routes.Home::class) == true -> BottomNavItem.Home
-                        currentDestination?.hasRoute(Routes.Log::class) == true -> BottomNavItem.Logs
-                        currentDestination?.hasRoute(Routes.Settings::class) == true -> BottomNavItem.Settings
-                        currentDestination?.hasRoute(Routes.Keywords::class) == true && !isKeywordsFromOnboarding -> BottomNavItem.Keywords
-                        else -> null
-                    }
-
-                    val topBarScrollBehavior = topBarScrollBehavior(selectedNavItem)
-
-                    val topBarTitle = when (selectedNavItem) {
-                        BottomNavItem.Home -> stringResource(R.string.app_name)
-                        BottomNavItem.Logs -> stringResource(R.string.nav_log)
-                        BottomNavItem.Settings -> stringResource(R.string.nav_settings)
-                        BottomNavItem.Keywords -> stringResource(R.string.nav_keywords)
-                        null -> ""
-                    }
-
-                    Box(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .appRootBackground(monitoringState = mainState.monitoringState)
-                    ) {
-                        Scaffold(
-                            contentWindowInsets = ScaffoldDefaults.contentWindowInsets
-                                .exclude(WindowInsets.ime),
-                            containerColor = Color.Transparent,
-                            modifier = Modifier
-                                .fillMaxSize()
-                                .nestedScroll(topBarScrollBehavior.nestedScrollConnection),
-                            topBar = {
-                                if (selectedNavItem != null) {
-                                    VartovyiTopBar(
-                                        title = topBarTitle,
-                                        hasMissingPermissions = permissionsState.hasMissingPermissions,
-                                        isEmergencyStopVisible = mainState.isAlarmRunning,
-                                        scrollBehavior = topBarScrollBehavior,
-                                        additionalActions = if (selectedNavItem == BottomNavItem.Logs) {
-                                            {
-                                                FilledTonalIconButton(
-                                                    onClick = { showLogInfoDialog = true },
-                                                    colors = IconButtonDefaults.filledTonalIconButtonColors(
-                                                        containerColor = VartovyiTheme.colors.onSurfaceVariant.copy(
-                                                            alpha = 0.35f
-                                                        ),
-                                                    ),
-                                                    modifier = Modifier.size(VartovyiTheme.spacing.extraLarge),
-                                                ) {
-                                                    Icon(
-                                                        imageVector = ImageVector.vectorResource(R.drawable.info),
-                                                        contentDescription = null,
-                                                        modifier = Modifier.size(VartovyiTheme.spacing.standard),
-                                                    )
-                                                }
-                                            }
-                                        } else null,
-                                        onPermissionsClick = { navController.navigate(Routes.Permissions) },
-                                        onEmergencyStopClick = {
-                                            mainViewModel.onAction(MainUiContract.Action.StopAlarm)
-                                        },
-                                    )
-                                }
-                            },
-                            bottomBar = {
-                                if (selectedNavItem != null) {
-                                    VartovyiBottomBar(
-                                        selectedRoute = selectedNavItem.route,
-                                        onNavigate = { route ->
-                                            navController.navigate(
-                                                route = route,
-                                                navOptions = navOptions {
-                                                    popUpTo<Routes.Home> { saveState = true }
-                                                    launchSingleTop = true
-                                                    restoreState = true
-                                                },
-                                            )
-                                        },
-                                    )
-                                }
-                            },
-                            snackbarHost = {
-                                SnackbarHost(hostState = snackbarHostState)
-                            },
-                        ) { paddingValues ->
-                            NavGraph(
-                                navController = navController,
-                                startDestination = startDestination,
-                                isRequiredPermissionsGranted = permissionsState.allGranted,
-                                onRefreshPermissions = ::updatePermissionsState,
-                                isLogInfoDialogVisible = showLogInfoDialog,
-                                onDismissLogInfoDialog = { showLogInfoDialog = false },
-                                modifier = Modifier
-                                    .padding(paddingValues)
-                                    .consumeWindowInsets(paddingValues)
-                            )
-                        }
-                    }
-                }
+                MainActivityContent(
+                    onFinish = { this@MainActivity.finish() },
+                    onRefreshPermissions = ::updatePermissionsState,
+                )
             }
         }
     }
@@ -239,6 +99,179 @@ class MainActivity : ComponentActivity() {
             postNotificationsGranted = result.postNotificationsGranted,
             fullScreenIntentGranted = result.fullScreenIntentGranted,
         )
+    }
+
+    @Composable
+    private fun MainActivityContent(
+        onFinish: () -> Unit,
+        onRefreshPermissions: () -> Unit,
+    ) {
+        val mainState by mainViewModel.state.collectAsStateWithLifecycle()
+        val permissionsState by permissionsViewModel.state.collectAsStateWithLifecycle()
+        val legalConsentState by legalConsentViewModel.state.collectAsStateWithLifecycle()
+        val onboardingState by onboardingViewModel.state.collectAsStateWithLifecycle()
+
+        if (legalConsentState.isLoading || onboardingState.isLoading) {
+            LoadingOverlay()
+        } else if (!legalConsentState.isAccepted) {
+            LegalConsentScreen(
+                viewModel = legalConsentViewModel,
+                onRefuse = onFinish,
+            )
+        } else {
+            val startDestination: Any =
+                if (!onboardingState.isCompleted) Routes.Onboarding
+                else Routes.Home
+
+            MainAppScaffold(
+                startDestination = startDestination,
+                isAlarmRunning = mainState.isAlarmRunning,
+                monitoringState = mainState.monitoringState,
+                hasMissingPermissions = permissionsState.hasMissingPermissions,
+                allPermissionsGranted = permissionsState.allGranted,
+                onRefreshPermissions = onRefreshPermissions,
+                onStopAlarm = { mainViewModel.onAction(MainUiContract.Action.StopAlarm) },
+            )
+        }
+    }
+
+    @Composable
+    private fun MainAppScaffold(
+        startDestination: Any,
+        isAlarmRunning: Boolean,
+        monitoringState: com.revakovskyi.vartovyi.model.MonitoringState,
+        hasMissingPermissions: Boolean,
+        allPermissionsGranted: Boolean,
+        onRefreshPermissions: () -> Unit,
+        onStopAlarm: () -> Unit,
+    ) {
+        val navController = rememberNavController()
+        val currentBackStackEntry by navController.currentBackStackEntryAsState()
+        val currentDestination = currentBackStackEntry?.destination
+        val previousDestination = navController.previousBackStackEntry?.destination
+
+        val snackbarHostState = remember { SnackbarHostState() }
+
+        var showLogInfoDialog by remember { mutableStateOf(false) }
+
+        LaunchedEffect(Unit) {
+            SnackbarController.events.collectLatest { event ->
+                snackbarHostState.currentSnackbarData?.dismiss()
+
+                val result = snackbarHostState.showSnackbar(
+                    message = event.message,
+                    actionLabel = event.action?.name,
+                    withDismissAction = event.action != null,
+                    duration = event.duration,
+                )
+
+                if (result == SnackbarResult.ActionPerformed) {
+                    event.action?.action?.invoke()
+                }
+            }
+        }
+
+        val isKeywordsFromOnboarding =
+            currentDestination?.hasRoute(Routes.Keywords::class) == true &&
+                    previousDestination?.hasRoute(Routes.Onboarding::class) == true
+
+        val selectedNavItem: BottomNavItem? = when {
+            currentDestination?.hasRoute(Routes.Home::class) == true -> BottomNavItem.Home
+            currentDestination?.hasRoute(Routes.Log::class) == true -> BottomNavItem.Logs
+            currentDestination?.hasRoute(Routes.Settings::class) == true -> BottomNavItem.Settings
+            currentDestination?.hasRoute(Routes.Keywords::class) == true &&
+                    !isKeywordsFromOnboarding -> BottomNavItem.Keywords
+
+            else -> null
+        }
+
+        val topBarScrollBehavior = topBarScrollBehavior(selectedNavItem)
+
+        val topBarTitle = when (selectedNavItem) {
+            BottomNavItem.Home -> stringResource(R.string.app_name)
+            BottomNavItem.Logs -> stringResource(R.string.nav_log)
+            BottomNavItem.Settings -> stringResource(R.string.nav_settings)
+            BottomNavItem.Keywords -> stringResource(R.string.nav_keywords)
+            null -> ""
+        }
+
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .appRootBackground(monitoringState = monitoringState)
+        ) {
+            Scaffold(
+                contentWindowInsets = ScaffoldDefaults.contentWindowInsets
+                    .exclude(WindowInsets.ime),
+                containerColor = Color.Transparent,
+                modifier = Modifier
+                    .fillMaxSize()
+                    .nestedScroll(topBarScrollBehavior.nestedScrollConnection),
+                topBar = {
+                    if (selectedNavItem != null) {
+                        VartovyiTopBar(
+                            title = topBarTitle,
+                            hasMissingPermissions = hasMissingPermissions,
+                            isEmergencyStopVisible = isAlarmRunning,
+                            scrollBehavior = topBarScrollBehavior,
+                            additionalActions = if (selectedNavItem == BottomNavItem.Logs) {
+                                {
+                                    FilledTonalIconButton(
+                                        onClick = { showLogInfoDialog = true },
+                                        colors = IconButtonDefaults.filledTonalIconButtonColors(
+                                            containerColor = VartovyiTheme.colors.onSurfaceVariant.copy(
+                                                alpha = 0.35f
+                                            ),
+                                        ),
+                                        modifier = Modifier.size(VartovyiTheme.spacing.extraLarge),
+                                    ) {
+                                        Icon(
+                                            imageVector = ImageVector.vectorResource(R.drawable.info),
+                                            contentDescription = null,
+                                            modifier = Modifier.size(VartovyiTheme.spacing.standard),
+                                        )
+                                    }
+                                }
+                            } else null,
+                            onPermissionsClick = { navController.navigate(Routes.Permissions) },
+                            onEmergencyStopClick = onStopAlarm,
+                        )
+                    }
+                },
+                bottomBar = {
+                    if (selectedNavItem != null) {
+                        VartovyiBottomBar(
+                            selectedRoute = selectedNavItem.route,
+                            onNavigate = { route ->
+                                navController.navigate(
+                                    route = route,
+                                    navOptions = navOptions {
+                                        popUpTo<Routes.Home> { saveState = true }
+                                        launchSingleTop = true
+                                        restoreState = true
+                                    },
+                                )
+                            },
+                        )
+                    }
+                },
+                snackbarHost = {
+                    SnackbarHost(hostState = snackbarHostState)
+                },
+            ) { paddingValues ->
+                NavGraph(
+                    navController = navController,
+                    startDestination = startDestination,
+                    isRequiredPermissionsGranted = allPermissionsGranted,
+                    onRefreshPermissions = onRefreshPermissions,
+                    isLogInfoDialogVisible = showLogInfoDialog,
+                    onDismissLogInfoDialog = { showLogInfoDialog = false },
+                    modifier = Modifier
+                        .padding(paddingValues)
+                        .consumeWindowInsets(paddingValues)
+                )
+            }
+        }
     }
 
 }

@@ -213,7 +213,8 @@ private fun HomeContentActiveWithAlertPreview() {
                     timestamp = 1_700_000_000_000L,
                     senderPackage = "org.telegram.messenger",
                     senderName = "Повітряна тривога",
-                    messageText = "Повітряна тривога в Київській та Харківській областях. Просимо негайно зайти у найближче укриття.",
+                    messageText = "Повітряна тривога в Київській та Харківській областях. " +
+                            "Просимо негайно зайти у найближче укриття.",
                     matchedKeyword = "тривога",
                     status = AlertEventStatus.ALARM_TRIGGERED,
                 ),

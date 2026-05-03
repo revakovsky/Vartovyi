@@ -37,6 +37,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import org.koin.android.ext.android.inject
+import java.io.IOException
 import java.util.concurrent.atomic.AtomicBoolean
 
 private const val NOTIFICATION_ID = 1001
@@ -58,6 +59,7 @@ private const val INITIAL_WAKE_LOCK_TIMEOUT_MILLIS = 30_000L
 private const val SCREEN_WAKE_LOCK_TAG = "Vartovyi:ScreenWake"
 private const val SCREEN_WAKE_LOCK_TIMEOUT_MILLIS = 10_000L
 
+@Suppress("TooGenericExceptionCaught")
 class AlarmService : Service() {
 
     private var mediaPlayer: MediaPlayer? = null
@@ -378,7 +380,8 @@ class AlarmService : Service() {
 
         val powerManager = getSystemService(PowerManager::class.java)
         val newWakeLock = powerManager.newWakeLock(
-            PowerManager.PARTIAL_WAKE_LOCK, WAKE_LOCK_TAG
+            PowerManager.PARTIAL_WAKE_LOCK,
+            WAKE_LOCK_TAG,
         ).apply { setReferenceCounted(false) }
 
         try {
@@ -475,7 +478,7 @@ class AlarmService : Service() {
                 }
                 prepareAsync()
             }
-        } catch (e: Exception) {
+        } catch (e: IOException) {
             Log.e(ALARM_TAG, "startAlarmSound error", e)
             mediaPlayer = null
         }

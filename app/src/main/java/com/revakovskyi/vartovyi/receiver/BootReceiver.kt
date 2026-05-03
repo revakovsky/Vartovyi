@@ -18,6 +18,7 @@ import org.koin.core.component.inject
 private const val BOOT_RECEIVER_TAG = "BootReceiver"
 private const val BOOT_INIT_TIMEOUT_MILLIS = 9_000L
 
+@Suppress("TooGenericExceptionCaught")
 class BootReceiver : BroadcastReceiver(), KoinComponent {
 
     private val settingsRepository: SettingsRepository by inject()

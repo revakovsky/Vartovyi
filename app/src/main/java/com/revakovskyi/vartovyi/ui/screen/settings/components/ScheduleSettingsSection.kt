@@ -28,6 +28,8 @@ private const val DEFAULT_END_HOUR = 7
 private const val DEFAULT_END_MINUTE = 0
 private const val TIME_SEPARATOR = ":"
 private const val TIME_PARTS_SIZE = 2
+private const val MAX_HOUR = 23
+private const val MAX_MINUTE = 59
 
 @Composable
 fun ScheduleSettingsSection(
@@ -168,8 +170,7 @@ private fun showTimePickerDialog(
     )
 
     TimePickerDialog(
-        /* context = */ context,
-        /* listener = */
+        context,
         { _, selectedHour, selectedMinute ->
             onTimeSelected(
                 String.format(
@@ -180,9 +181,9 @@ private fun showTimePickerDialog(
                 ),
             )
         },
-        /* hourOfDay = */ initialHour,
-        /* minute = */ initialMinute,
-        /* is24HourView = */ true,
+        initialHour,
+        initialMinute,
+        true,
     ).show()
 }
 
@@ -197,8 +198,8 @@ private fun parseTimeOrDefault(
     val parsedHour = parts.first().toIntOrNull()
     val parsedMinute = parts.last().toIntOrNull()
 
-    val hour = parsedHour?.takeIf { it in 0..23 } ?: defaultHour
-    val minute = parsedMinute?.takeIf { it in 0..59 } ?: defaultMinute
+    val hour = parsedHour?.takeIf { it in 0..MAX_HOUR } ?: defaultHour
+    val minute = parsedMinute?.takeIf { it in 0..MAX_MINUTE } ?: defaultMinute
 
     return hour to minute
 }

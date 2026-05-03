@@ -58,9 +58,7 @@ class ProcessIncomingTelegramNotificationUseCaseImpl(
 
     override suspend operator fun invoke(payload: NotificationPayload): Boolean {
         if (payload.text.isBlank()) return false
-
         if (payload.packageName !in TELEGRAM_PACKAGES) return false
-
         if (!settingsRepository.isMonitoringActive.first()) return false
 
         val senderName = payload.title.ifBlank { payload.packageName }
@@ -68,22 +66,16 @@ class ProcessIncomingTelegramNotificationUseCaseImpl(
             if (payload.timestamp > 0) payload.timestamp
             else System.currentTimeMillis()
 
-        val isScheduleEnabled = settingsRepository.isScheduleEnabled.first()
-        val isInScheduleWindow =
-            isWithinScheduleWindow(
-                isScheduleEnabled = isScheduleEnabled,
-                startTime = settingsRepository.startTime.first(),
-                endTime = settingsRepository.endTime.first(),
-            )
-
-        val isTelegramChannelFilterEnabled =
-            keywordsRepository.isTelegramChannelFilterEnabled.first()
-        val isChannelAllowed =
-            isChannelAllowed(
-                isFilterEnabled = isTelegramChannelFilterEnabled,
-                title = payload.title,
-                allowedChannels = keywordsRepository.telegramChannels.first(),
-            )
+        val isInScheduleWindow = isWithinScheduleWindow(
+            isScheduleEnabled = settingsRepository.isScheduleEnabled.first(),
+            startTime = settingsRepository.startTime.first(),
+            endTime = settingsRepository.endTime.first(),
+        )
+        val isChannelAllowed = isChannelAllowed(
+            isFilterEnabled = keywordsRepository.isTelegramChannelFilterEnabled.first(),
+            title = payload.title,
+            allowedChannels = keywordsRepository.telegramChannels.first(),
+        )
 
         val matchedKeyword =
             if (isInScheduleWindow && isChannelAllowed) {
@@ -92,9 +84,7 @@ class ProcessIncomingTelegramNotificationUseCaseImpl(
                     keywords = keywordsRepository.keywords.first(),
                     stopWords = keywordsRepository.stopWords.first(),
                 )
-            } else {
-                null
-            }
+            } else null
 
         if (matchedKeyword == null) {
             addLogEntry(
@@ -107,6 +97,20 @@ class ProcessIncomingTelegramNotificationUseCaseImpl(
             return false
         }
 
+        return handleAlarmTrigger(
+            payload = payload,
+            senderName = senderName,
+            effectiveTimestamp = effectiveTimestamp,
+            matchedKeyword = matchedKeyword,
+        )
+    }
+
+    private suspend fun handleAlarmTrigger(
+        payload: NotificationPayload,
+        senderName: String,
+        effectiveTimestamp: Long,
+        matchedKeyword: String,
+    ): Boolean {
         return triggerDecisionMutex.withLock {
             val isAlarmRunning = alarmController.isAlarmRunning.first()
             val cooldownUntilElapsedRealtimeMillis =

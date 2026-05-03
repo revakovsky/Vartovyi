@@ -18,6 +18,8 @@ import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
+private const val LEGAL_CONSENT_LOADING_DELAY_MILLIS = 1000L
+
 class LegalConsentViewModel(
     observeLegalConsentStateUseCase: ObserveLegalConsentStateUseCase,
     private val acceptCurrentLegalDocumentsUseCase: AcceptCurrentLegalDocumentsUseCase,
@@ -32,7 +34,7 @@ class LegalConsentViewModel(
     init {
         observeLegalConsentStateUseCase()
             .onEach { isAccepted ->
-                if (!isAccepted) delay(1000)
+                if (!isAccepted) delay(LEGAL_CONSENT_LOADING_DELAY_MILLIS)
 
                 _state.update {
                     it.copy(

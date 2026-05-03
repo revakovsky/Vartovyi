@@ -131,7 +131,9 @@ private fun PreviewPermissionGrantedItemCardWithLongText() {
     VartovyiTheme {
         PermissionItemCard(
             title = "Test permisiion very very very very very very very very very very very very very long",
-            description = "Test description for test permission description for test permission description for test permission description for test permission description for test permission",
+            description = "Test description for test permission description for test permission " +
+                    "description for test permission description for test permission description " +
+                    "for test permission",
             isGranted = true,
             isRequired = false,
             onAction = {},

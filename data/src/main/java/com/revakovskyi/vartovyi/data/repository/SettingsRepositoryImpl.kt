@@ -16,7 +16,8 @@ internal class SettingsRepositoryImpl(
     override val alarmVolumePercent: Flow<Int> = monitoringDataStore.alarmVolumePercent
     override val alarmSoundUri: Flow<String> = monitoringDataStore.alarmSoundUri
     override val logSizeLimit: Flow<Int> = monitoringDataStore.logSizeLimit
-    override val alarmRetriggerCooldownDurationMillis: Flow<Long> = monitoringDataStore.alarmRetriggerCooldownDurationMillis
+    override val alarmRetriggerCooldownDurationMillis: Flow<Long> =
+        monitoringDataStore.alarmRetriggerCooldownDurationMillis
     override val alarmRetriggerCooldownUntilElapsedRealtimeMillis: Flow<Long> =
         monitoringDataStore.alarmRetriggerCooldownUntilElapsedRealtimeMillis
 

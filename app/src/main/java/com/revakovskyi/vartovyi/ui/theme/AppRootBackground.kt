@@ -49,6 +49,7 @@ private const val ACTIVE_INNER_FRACTION = 0.2f
 private const val ACTIVE_MID_FRACTION = 0.52f
 private const val ACTIVE_OUTER_FRACTION = 0.11f
 
+@Suppress("LongMethod")
 fun Modifier.appRootBackground(monitoringState: MonitoringState): Modifier =
     composed {
         val colorScheme = VartovyiTheme.colors

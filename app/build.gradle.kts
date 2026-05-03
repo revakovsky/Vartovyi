@@ -1,19 +1,12 @@
 plugins {
     alias(libs.plugins.vartovyi.android.application.compose)
     alias(libs.plugins.kotlin.serialization)
-    alias(libs.plugins.detekt)
     alias(libs.plugins.google.gms.google.services)
     alias(libs.plugins.google.firebase.crashlytics)
 }
 
 android {
     namespace = libs.versions.appId.get()
-}
-
-detekt {
-    config.setFrom("$rootDir/config/detekt/detekt.yml")
-    buildUponDefaultConfig = true
-    autoCorrect = false
 }
 
 dependencies {
@@ -30,6 +23,4 @@ dependencies {
     androidTestImplementation(libs.androidx.compose.ui.test.junit4)
     debugImplementation(libs.androidx.compose.ui.tooling)
     debugImplementation(libs.androidx.compose.ui.test.manifest)
-
-    detektPlugins(libs.detekt.formatting)
 }

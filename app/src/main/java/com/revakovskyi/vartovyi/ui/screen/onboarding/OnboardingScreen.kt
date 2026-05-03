@@ -41,6 +41,10 @@ import com.revakovskyi.vartovyi.ui.theme.VartovyiTheme
 import com.revakovskyi.vartovyi.utils.ObserveSingleEvents
 import org.koin.compose.viewmodel.koinViewModel
 
+private enum class OnboardingPage {
+    WELCOME, TELEGRAM, PERMISSIONS, DEVICE_TIPS, KEYWORDS, LAUNCH,
+}
+
 @Composable
 fun OnboardingScreen(
     isRequiredPermissionsGranted: Boolean,
@@ -103,22 +107,27 @@ private fun OnboardingContent(
                 state = pagerState,
                 modifier = Modifier.weight(1f),
             ) { page ->
-                when (page) {
-                    0 -> OnboardingPageWelcome()
-                    1 -> OnboardingPageTelegram()
-                    2 -> OnboardingPagePermissions(
-                        arePermissionsGranted = isRequiredPermissionsGranted,
-                        onOpenPermissions = { onAction(OnboardingUiContract.Action.OpenPermissions) },
-                    )
+                when (OnboardingPage.entries.getOrNull(page)) {
+                    OnboardingPage.WELCOME -> OnboardingPageWelcome()
+                    OnboardingPage.TELEGRAM -> OnboardingPageTelegram()
 
-                    3 -> OnboardingPageDeviceTips()
+                    OnboardingPage.PERMISSIONS -> {
+                        OnboardingPagePermissions(
+                            arePermissionsGranted = isRequiredPermissionsGranted,
+                            onOpenPermissions = { onAction(OnboardingUiContract.Action.OpenPermissions) },
+                        )
+                    }
 
-                    4 -> OnboardingPageKeywords(
-                        onOpenKeywords = { onAction(OnboardingUiContract.Action.OpenKeywords) }
-                    )
+                    OnboardingPage.DEVICE_TIPS -> OnboardingPageDeviceTips()
 
-                    5 -> OnboardingPageLaunch()
-                    else -> OnboardingPageWelcome()
+                    OnboardingPage.KEYWORDS -> {
+                        OnboardingPageKeywords(
+                            onOpenKeywords = { onAction(OnboardingUiContract.Action.OpenKeywords) }
+                        )
+                    }
+
+                    OnboardingPage.LAUNCH -> OnboardingPageLaunch()
+                    null -> OnboardingPageWelcome()
                 }
             }
 

@@ -14,6 +14,7 @@ private const val SERVICE_START_WAKE_LOCK_TIMEOUT_MILLIS = 10_000L
 private const val SERVICE_START_WAKE_LOCK_TAG = "Vartovyi:ServiceStartWakeLock"
 private const val ALARM_CONTROLLER_TAG = "AlarmController"
 
+@Suppress("TooGenericExceptionCaught")
 class AlarmControllerImpl(
     private val context: Context,
     private val alarmStateHolder: AlarmStateHolder,
