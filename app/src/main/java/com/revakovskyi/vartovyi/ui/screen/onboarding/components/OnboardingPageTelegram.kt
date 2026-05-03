@@ -32,7 +32,7 @@ import com.revakovskyi.vartovyi.ui.components.ScrollProgressBar
 import com.revakovskyi.vartovyi.ui.theme.VartovyiTheme
 
 private const val ONBOARDING_TELEGRAM_ICON_SIZE = 100
-private const val SCREENSHOT_WIDTH_FRACTION = 0.7f
+private const val SCREENSHOT_WIDTH_FRACTION = 0.85f
 
 @Composable
 fun OnboardingPageTelegram(
