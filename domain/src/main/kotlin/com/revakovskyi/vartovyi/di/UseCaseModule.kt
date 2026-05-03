@@ -128,7 +128,9 @@ val useCaseModule = module {
 
     singleOf(::ObserveScheduleSettingsUseCaseImpl) { bind<ObserveScheduleSettingsUseCase>() }
     singleOf(::ObserveLogSizeLimitUseCaseImpl) { bind<ObserveLogSizeLimitUseCase>() }
-    singleOf(::ObserveAlarmRetriggerCooldownDurationUseCaseImpl) { bind<ObserveAlarmRetriggerCooldownDurationUseCase>() }
+    singleOf(::ObserveAlarmRetriggerCooldownDurationUseCaseImpl) {
+        bind<ObserveAlarmRetriggerCooldownDurationUseCase>()
+    }
     singleOf(::SetScheduleEnabledUseCaseImpl) { bind<SetScheduleEnabledUseCase>() }
     singleOf(::SetStartTimeUseCaseImpl) { bind<SetStartTimeUseCase>() }
     singleOf(::SetEndTimeUseCaseImpl) { bind<SetEndTimeUseCase>() }

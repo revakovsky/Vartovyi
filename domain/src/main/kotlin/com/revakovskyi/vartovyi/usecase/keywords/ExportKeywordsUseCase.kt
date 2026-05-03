@@ -3,6 +3,7 @@ package com.revakovskyi.vartovyi.usecase.keywords
 import com.revakovskyi.vartovyi.model.KeywordsBackup
 import com.revakovskyi.vartovyi.repository.KeywordsRepository
 import kotlinx.coroutines.flow.first
+import kotlinx.serialization.SerializationException
 import kotlinx.serialization.json.Json
 
 sealed interface ExportResult {
@@ -33,7 +34,7 @@ class ExportKeywordsUseCaseImpl(
             )
 
             ExportResult.Success(JSON.encodeToString(KeywordsBackup.serializer(), backup))
-        } catch (e: Exception) {
+        } catch (e: SerializationException) {
             ExportResult.Error(e)
         }
     }

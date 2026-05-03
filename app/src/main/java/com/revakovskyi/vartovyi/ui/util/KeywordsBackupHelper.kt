@@ -17,6 +17,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import java.io.IOException
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 
@@ -60,7 +61,7 @@ class KeywordsBackupHelper(
                 }
                 pendingExportContent = null
                 onAction(KeywordsUiContract.Action.NotifyExportSuccess)
-            } catch (e: Exception) {
+            } catch (e: IOException) {
                 Log.e(TAG, "handleExportResult: exception", e)
                 pendingExportContent = null
                 onAction(KeywordsUiContract.Action.NotifyExportError)
@@ -73,7 +74,7 @@ class KeywordsBackupHelper(
         scope.launch {
             val importReadResult = try {
                 withContext(Dispatchers.IO) { readImportContent(uri) }
-            } catch (e: Exception) {
+            } catch (e: IOException) {
                 Log.e(TAG, "handleImportResult: exception", e)
                 onAction(KeywordsUiContract.Action.NotifyImportReadError)
                 return@launch
@@ -112,13 +113,9 @@ class KeywordsBackupHelper(
     private fun resolveFileSizeBytes(uri: Uri): Long {
         val projection = arrayOf(OpenableColumns.SIZE)
 
-        return context.contentResolver.query(
-            /* uri = */ uri,
-            /* projection = */ projection,
-            /* selection = */ null,
-            /* selectionArgs = */ null,
-            /* sortOrder = */ null,
-        )?.use { cursor ->
+        return context.contentResolver
+            .query(uri, projection, null, null, null)
+            ?.use { cursor ->
             val sizeColumnIndex = cursor.getColumnIndex(OpenableColumns.SIZE)
             if (sizeColumnIndex < 0 || !cursor.moveToFirst()) {
                 return@use FILE_SIZE_UNKNOWN

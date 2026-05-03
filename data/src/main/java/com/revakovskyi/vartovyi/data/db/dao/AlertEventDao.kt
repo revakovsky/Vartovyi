@@ -77,7 +77,10 @@ internal interface AlertEventDao {
         return insertResult
     }
 
-    @Query("DELETE FROM alert_events WHERE id NOT IN (SELECT id FROM alert_events ORDER BY timestamp DESC, id DESC LIMIT :limit)")
+    @Query(
+        "DELETE FROM alert_events " +
+                "WHERE id NOT IN (SELECT id FROM alert_events ORDER BY timestamp DESC, id DESC LIMIT :limit)"
+    )
     suspend fun trimToLimit(limit: Int)
 
     @Query("DELETE FROM alert_events")

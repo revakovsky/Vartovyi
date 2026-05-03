@@ -99,7 +99,8 @@ fun StatusBlock(
     }
 
     val cooldownText = stringResource(
-        id = R.string.home_alarm_retrigger_cooldown, formattedCooldownTime,
+        id = R.string.home_alarm_retrigger_cooldown,
+        formattedCooldownTime,
     )
 
     val activateButtonPulseScale = remember { Animatable(1f) }

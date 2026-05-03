@@ -2,6 +2,9 @@ package com.revakovskyi.vartovyi.ui.screen.settings
 
 import androidx.compose.runtime.Immutable
 
+private const val DEFAULT_LOG_SIZE_LIMIT = 500
+private const val DEFAULT_ALARM_COOLDOWN_MILLIS = 5 * 60 * 1000L
+
 interface SettingsUiContract {
 
     enum class SettingsSection {
@@ -17,8 +20,8 @@ interface SettingsUiContract {
         val alarmDurationSeconds: Int = 60,
         val alarmVolumePercent: Int = 100,
         val alarmSoundUri: String = "",
-        val logSizeLimit: Int = 500,
-        val alarmRetriggerCooldownDurationMillis: Long = 5 * 60 * 1000L,
+        val logSizeLimit: Int = DEFAULT_LOG_SIZE_LIMIT,
+        val alarmRetriggerCooldownDurationMillis: Long = DEFAULT_ALARM_COOLDOWN_MILLIS,
         val isMonitoringActive: Boolean = false,
         val isAlarmRunning: Boolean = false,
         val expandedSection: SettingsSection? = null,

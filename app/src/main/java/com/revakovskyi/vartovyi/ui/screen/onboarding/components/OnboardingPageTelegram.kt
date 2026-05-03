@@ -32,6 +32,7 @@ import com.revakovskyi.vartovyi.ui.components.ScrollProgressBar
 import com.revakovskyi.vartovyi.ui.theme.VartovyiTheme
 
 private const val ONBOARDING_TELEGRAM_ICON_SIZE = 100
+private const val SCREENSHOT_WIDTH_FRACTION = 0.7f
 
 @Composable
 fun OnboardingPageTelegram(
@@ -86,7 +87,7 @@ fun OnboardingPageTelegram(
                 painter = painterResource(R.drawable.tg_1),
                 contentDescription = null,
                 contentScale = ContentScale.FillWidth,
-                modifier = Modifier.fillMaxWidth(0.7f)
+                modifier = Modifier.fillMaxWidth(SCREENSHOT_WIDTH_FRACTION)
             )
 
             Spacer(modifier = Modifier.height(VartovyiTheme.spacing.medium))
@@ -105,7 +106,7 @@ fun OnboardingPageTelegram(
                 painter = painterResource(R.drawable.tg_2),
                 contentDescription = null,
                 contentScale = ContentScale.FillWidth,
-                modifier = Modifier.fillMaxWidth(0.7f)
+                modifier = Modifier.fillMaxWidth(SCREENSHOT_WIDTH_FRACTION)
             )
 
             Spacer(modifier = Modifier.height(VartovyiTheme.spacing.extraLarge))
@@ -114,7 +115,7 @@ fun OnboardingPageTelegram(
                 painter = painterResource(R.drawable.tg_4),
                 contentDescription = null,
                 contentScale = ContentScale.FillWidth,
-                modifier = Modifier.fillMaxWidth(0.7f)
+                modifier = Modifier.fillMaxWidth(SCREENSHOT_WIDTH_FRACTION)
             )
 
             Spacer(modifier = Modifier.height(VartovyiTheme.spacing.extraLarge))
@@ -123,7 +124,7 @@ fun OnboardingPageTelegram(
                 painter = painterResource(R.drawable.tg_3),
                 contentDescription = null,
                 contentScale = ContentScale.FillWidth,
-                modifier = Modifier.fillMaxWidth(0.7f)
+                modifier = Modifier.fillMaxWidth(SCREENSHOT_WIDTH_FRACTION)
             )
 
             Spacer(modifier = Modifier.height(VartovyiTheme.spacing.large))

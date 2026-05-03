@@ -20,6 +20,8 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 
+private const val HEX_COLOR_MASK = 0xFFFFFF
+
 val BackgroundDark = Color(0xFF0D1117)
 val SurfaceDark = Color(0xFF161B22)
 val SurfaceVariantDark = Color(0xFF21262D)
@@ -255,7 +257,7 @@ fun ColorSwatch(
     name: String,
     color: Color,
 ) {
-    val hex = "#%06X".format(color.toArgb() and 0xFFFFFF)
+    val hex = "#%06X".format(color.toArgb() and HEX_COLOR_MASK)
 
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,

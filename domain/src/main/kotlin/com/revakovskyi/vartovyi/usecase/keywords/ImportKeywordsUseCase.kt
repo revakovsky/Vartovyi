@@ -4,6 +4,7 @@ import com.revakovskyi.vartovyi.model.KeywordsBackup
 import com.revakovskyi.vartovyi.repository.KeywordsRepository
 import kotlinx.serialization.SerializationException
 import kotlinx.serialization.json.Json
+import java.io.IOException
 
 sealed interface ImportResult {
     data object Success : ImportResult
@@ -42,7 +43,7 @@ class ImportKeywordsUseCaseImpl(
             keywordsRepository.setTelegramChannelFilterEnabled(backup.isTelegramChannelFilterEnabled)
 
             ImportResult.Success
-        } catch (e: Exception) {
+        } catch (e: IOException) {
             ImportResult.WriteError(e)
         }
     }

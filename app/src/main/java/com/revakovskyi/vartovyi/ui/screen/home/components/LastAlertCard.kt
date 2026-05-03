@@ -63,8 +63,8 @@ fun LastAlertCard(
                 )
             } else {
                 val timeString = SimpleDateFormat(
-                    /* pattern = */ TIME_FORMAT_PATTERN,
-                    /* locale = */ LocalLocale.current.platformLocale
+                    TIME_FORMAT_PATTERN,
+                    LocalLocale.current.platformLocale
                 ).format(Date(lastAlertEvent.timestamp))
 
                 Row(
@@ -125,7 +125,8 @@ private fun PreviewLastAlertCard() {
                 timestamp = 1_700_000_000_000L,
                 senderPackage = "org.telegram.messenger",
                 senderName = "Повітряна тривога",
-                messageText = "Повітряна тривога в Київській та Харківській областях. Просимо негайно зайти у найближче укриття.",
+                messageText = "Повітряна тривога в Київській та Харківській областях. " +
+                        "Просимо негайно зайти у найближче укриття.",
                 matchedKeyword = "тривога",
                 status = AlertEventStatus.ALARM_TRIGGERED,
             ),
