@@ -7,10 +7,8 @@ import androidx.room.PrimaryKey
 @Entity(
     tableName = "alert_events",
     indices = [
-        Index(
-            value = ["signature"],
-            unique = true,
-        ),
+        Index(value = ["signature"]),
+        Index(value = ["timestamp"]),
     ],
 )
 internal data class AlertEventEntity(

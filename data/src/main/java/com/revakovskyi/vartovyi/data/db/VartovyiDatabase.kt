@@ -7,7 +7,7 @@ import com.revakovskyi.vartovyi.data.db.entity.AlertEventEntity
 
 @Database(
     entities = [AlertEventEntity::class],
-    version = 2,
+    version = 1,
     exportSchema = false,
 )
 internal abstract class VartovyiDatabase : RoomDatabase() {
