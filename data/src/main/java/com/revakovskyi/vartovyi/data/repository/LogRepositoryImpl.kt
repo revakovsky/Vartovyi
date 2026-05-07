@@ -56,18 +56,16 @@ internal class LogRepositoryImpl(
     override suspend fun addEntryAndTrimToLimit(
         event: AlertEvent,
         notificationKey: String,
-        postTime: Long,
-        conversationMessagesCount: Int?,
         limit: Int,
     ): Boolean {
         val signature = buildSignature(
             event = event,
             notificationKey = notificationKey,
-            postTime = postTime,
-            conversationMessagesCount = conversationMessagesCount,
         )
+        val deduplicationWindowStartTime = event.timestamp - DEDUP_TIME_WINDOW_MILLIS
         val insertResult = alertEventDao.insertOrUpdateAndTrimToLimit(
             entity = event.toEntity(signature = signature),
+            deduplicationWindowStartTime = deduplicationWindowStartTime,
             limit = limit,
         )
         return insertResult != INSERT_CONFLICT_RESULT
@@ -80,53 +78,11 @@ internal class LogRepositoryImpl(
     private fun buildSignature(
         event: AlertEvent,
         notificationKey: String,
-        postTime: Long,
-        conversationMessagesCount: Int?,
-    ): String {
-        val signaturePayload = if (conversationMessagesCount != null) {
-            buildConversationSignature(
-                senderPackage = event.senderPackage,
-                notificationKey = notificationKey,
-                conversationMessagesCount = conversationMessagesCount,
-            )
-        } else {
-            buildLegacyTextSignature(
-                event = event,
-                notificationKey = notificationKey,
-                postTime = postTime,
-            )
-        }
-
-        val digestBytes = MessageDigest
-            .getInstance(SIGNATURE_HASH_ALGORITHM)
-            .digest(signaturePayload.toByteArray())
-        return digestBytes.joinToString(separator = "") { byte -> HEX_BYTE_FORMAT.format(byte) }
-    }
-
-    private fun buildConversationSignature(
-        senderPackage: String,
-        notificationKey: String,
-        conversationMessagesCount: Int,
-    ): String {
-        return buildString {
-            append(senderPackage)
-            append(SIGNATURE_SEPARATOR)
-            append(notificationKey)
-            append(SIGNATURE_SEPARATOR)
-            append(conversationMessagesCount)
-        }
-    }
-
-    private fun buildLegacyTextSignature(
-        event: AlertEvent,
-        notificationKey: String,
-        postTime: Long,
     ): String {
         val normalizedMessageText = normalizeForSignature(event.messageText)
         val normalizedSenderName = normalizeForSignature(event.senderName)
-        val timeBucket = postTime / DEDUP_TIME_WINDOW_MILLIS
 
-        return buildString {
+        val signaturePayload = buildString {
             append(event.senderPackage)
             append(SIGNATURE_SEPARATOR)
             append(notificationKey)
@@ -134,9 +90,12 @@ internal class LogRepositoryImpl(
             append(normalizedSenderName)
             append(SIGNATURE_SEPARATOR)
             append(normalizedMessageText)
-            append(SIGNATURE_SEPARATOR)
-            append(timeBucket)
         }
+
+        val digestBytes = MessageDigest
+            .getInstance(SIGNATURE_HASH_ALGORITHM)
+            .digest(signaturePayload.toByteArray())
+        return digestBytes.joinToString(separator = "") { byte -> HEX_BYTE_FORMAT.format(byte) }
     }
 
     private fun normalizeForSignature(rawText: String): String {

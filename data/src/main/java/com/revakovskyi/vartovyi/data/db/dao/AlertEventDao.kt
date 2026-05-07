@@ -42,8 +42,16 @@ internal interface AlertEventDao {
     @Insert(onConflict = OnConflictStrategy.IGNORE)
     suspend fun insert(entity: AlertEventEntity): Long
 
-    @Query("SELECT id FROM alert_events WHERE signature = :signature LIMIT 1")
-    suspend fun findIdBySignature(signature: String): String?
+    @Query(
+        """
+        SELECT id FROM alert_events
+        WHERE signature = :signature
+          AND timestamp >= :sinceTimestamp
+        ORDER BY timestamp DESC
+        LIMIT 1
+        """
+    )
+    suspend fun findRecentIdBySignature(signature: String, sinceTimestamp: Long): String?
 
     @Query(
         """
@@ -58,8 +66,15 @@ internal interface AlertEventDao {
     )
 
     @Transaction
-    suspend fun insertOrUpdateAndTrimToLimit(entity: AlertEventEntity, limit: Int): Long {
-        val existingId = findIdBySignature(entity.signature)
+    suspend fun insertOrUpdateAndTrimToLimit(
+        entity: AlertEventEntity,
+        deduplicationWindowStartTime: Long,
+        limit: Int,
+    ): Long {
+        val existingId = findRecentIdBySignature(
+            signature = entity.signature,
+            sinceTimestamp = deduplicationWindowStartTime,
+        )
         if (existingId != null) {
             updateExistingMessageText(
                 id = existingId,
@@ -78,8 +93,14 @@ internal interface AlertEventDao {
     }
 
     @Query(
-        "DELETE FROM alert_events " +
-                "WHERE id NOT IN (SELECT id FROM alert_events ORDER BY timestamp DESC, id DESC LIMIT :limit)"
+        """
+        DELETE FROM alert_events
+        WHERE id NOT IN (
+            SELECT id FROM alert_events
+            ORDER BY timestamp DESC, id DESC
+            LIMIT :limit
+        )
+        """
     )
     suspend fun trimToLimit(limit: Int)
 

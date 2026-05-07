@@ -172,8 +172,6 @@ class ProcessIncomingTelegramNotificationUseCaseImpl(
                 status = status,
             ),
             notificationKey = payload.notificationKey,
-            postTime = payload.timestamp,
-            conversationMessagesCount = payload.conversationMessagesCount,
             limit = logSizeLimit,
         )
     }

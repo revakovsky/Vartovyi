@@ -13,8 +13,6 @@ interface LogRepository {
     suspend fun addEntryAndTrimToLimit(
         event: AlertEvent,
         notificationKey: String,
-        postTime: Long,
-        conversationMessagesCount: Int?,
         limit: Int,
     ): Boolean
     suspend fun clearLog()
