@@ -54,6 +54,7 @@ import com.revakovskyi.vartovyi.controllers.alarm.AlarmStateHolder
 import com.revakovskyi.vartovyi.service.alarm.AlarmService
 import com.revakovskyi.vartovyi.ui.theme.VartovyiTheme
 import org.koin.android.ext.android.inject
+import java.util.concurrent.atomic.AtomicBoolean
 
 private const val ALARM_ICON_SIZE_DP = 128
 private const val ALARM_SCREEN_PULSE_SCALE_MIN = 0.93f
@@ -71,6 +72,7 @@ class AlarmActivity : ComponentActivity() {
     private var sourceMessageText by mutableStateOf(EMPTY_VALUE)
 
     private var isAlarmStopReceiverRegistered = false
+    private val isDismissing = AtomicBoolean(false)
 
     private val alarmStopReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent?) {
@@ -83,6 +85,7 @@ class AlarmActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         configureAlarmWindow()
+        registerAlarmStopReceiver()
         updateAlarmContentFromIntent(intent)
 
         setContent {
@@ -98,19 +101,23 @@ class AlarmActivity : ComponentActivity() {
 
     override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
+        isDismissing.set(false)
         updateAlarmContentFromIntent(intent)
     }
 
     override fun onStart() {
         super.onStart()
-        registerAlarmStopReceiver()
         alarmStateHolder.setVisible(true)
     }
 
     override fun onStop() {
         super.onStop()
-        unregisterAlarmStopReceiver()
         alarmStateHolder.setVisible(false)
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        unregisterAlarmStopReceiver()
     }
 
     override fun onKeyDown(keyCode: Int, event: KeyEvent?): Boolean {
@@ -133,11 +140,12 @@ class AlarmActivity : ComponentActivity() {
     }
 
     private fun dismissAlarm() {
-        startService(
-            Intent(this, AlarmService::class.java).apply {
-                action = AlarmContract.ACTION_STOP
-            }
-        )
+        if (!isDismissing.compareAndSet(false, true)) return
+
+        val stopIntent = Intent(this, AlarmService::class.java).apply {
+            action = AlarmContract.ACTION_STOP
+        }
+        ContextCompat.startForegroundService(this, stopIntent)
         finish()
     }
 
