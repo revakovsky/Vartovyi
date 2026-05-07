@@ -330,7 +330,7 @@ class AlarmService : Service() {
             .setPriority(NotificationCompat.PRIORITY_MAX)
             .setColor(ContextCompat.getColor(this, RED_ACCENT_COLOR_RES_ID))
             .setColorized(true)
-            .setOnlyAlertOnce(true)
+            .setOnlyAlertOnce(false)
             .setCategory(NotificationCompat.CATEGORY_ALARM)
             .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
             .setContentIntent(fullScreenPendingIntent)

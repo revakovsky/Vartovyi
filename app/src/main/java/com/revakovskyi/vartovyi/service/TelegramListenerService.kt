@@ -33,47 +33,11 @@ class TelegramListenerService : NotificationListenerService(), KoinComponent {
     private val settingsRepository: SettingsRepository by inject()
     private val serviceScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
 
-    override fun onNotificationPosted(sbn: StatusBarNotification?) {
-        super.onNotificationPosted(sbn)
+    override fun onListenerConnected() {
+        super.onListenerConnected()
 
-        val statusBarNotification = sbn ?: return
-        val notification = statusBarNotification.notification ?: return
-        val extras = notification.extras ?: return
-
-        if (notification.flags and Notification.FLAG_GROUP_SUMMARY != 0) return
-
-        val messagingStyle = extractMessagingStyle(notification)
-        val messageText = extractMessageText(
-            extras = extras,
-            messagingStyle = messagingStyle,
-        )
-        if (messageText.isBlank()) return
-
-        val title = extractNotificationTitle(extras)
-        val messageTimestamp = notification.`when`
-            .takeIf { it > 0 }
-            ?: statusBarNotification.postTime
-
-        val payload = NotificationPayload(
-            packageName = statusBarNotification.packageName,
-            notificationKey = statusBarNotification.key.orEmpty(),
-            title = title,
-            text = messageText,
-            timestamp = messageTimestamp,
-            conversationMessagesCount = messagingStyle?.messages?.size,
-        )
-
-        serviceScope.launch {
-            runCatching {
-                processIncomingTelegramNotificationUseCase(payload)
-            }.onFailure { throwable ->
-                Log.e(
-                    TELEGRAM_LISTENER_TAG,
-                    "Failed to process incoming Telegram notification",
-                    throwable,
-                )
-            }
-        }
+        val active = runCatching { activeNotifications }.getOrNull() ?: return
+        active.forEach { sbn -> handleIncomingNotification(sbn) }
     }
 
     override fun onListenerDisconnected() {
@@ -102,9 +66,54 @@ class TelegramListenerService : NotificationListenerService(), KoinComponent {
         }
     }
 
+    override fun onNotificationPosted(sbn: StatusBarNotification?) {
+        super.onNotificationPosted(sbn)
+        handleIncomingNotification(sbn)
+    }
+
     override fun onDestroy() {
         serviceScope.cancel()
         super.onDestroy()
+    }
+
+    private fun handleIncomingNotification(sbn: StatusBarNotification?) {
+        val statusBarNotification = sbn ?: return
+        val notification = statusBarNotification.notification ?: return
+        val extras = notification.extras ?: return
+
+        if (notification.flags and Notification.FLAG_GROUP_SUMMARY != 0) return
+
+        val messagingStyle = extractMessagingStyle(notification)
+        val messageText = extractMessageText(
+            extras = extras,
+            messagingStyle = messagingStyle,
+        )
+        if (messageText.isBlank()) return
+
+        val title = extractNotificationTitle(extras)
+        val messageTimestamp = notification.`when`
+            .takeIf { it > 0 }
+            ?: statusBarNotification.postTime
+
+        val payload = NotificationPayload(
+            packageName = statusBarNotification.packageName,
+            notificationKey = statusBarNotification.key.orEmpty(),
+            title = title,
+            text = messageText,
+            timestamp = messageTimestamp,
+        )
+
+        serviceScope.launch {
+            runCatching {
+                processIncomingTelegramNotificationUseCase(payload)
+            }.onFailure { throwable ->
+                Log.e(
+                    TELEGRAM_LISTENER_TAG,
+                    "Failed to process incoming Telegram notification",
+                    throwable,
+                )
+            }
+        }
     }
 
     private fun extractNotificationTitle(extras: Bundle): String =
