@@ -36,6 +36,7 @@ import kotlinx.coroutines.cancel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withTimeoutOrNull
 import org.koin.android.ext.android.inject
 import java.io.IOException
 import java.util.concurrent.atomic.AtomicBoolean
@@ -53,6 +54,7 @@ private const val DEFAULT_ALARM_DURATION_SECONDS = 60
 private const val DEFAULT_ALARM_VOLUME_PERCENT = 100
 private const val PERCENT_DIVISOR = 100f
 private const val MILLIS_IN_SECOND = 1000L
+private const val SETTINGS_READ_TIMEOUT_MILLIS = 2_000L
 private const val WAKE_LOCK_TAG = "Vartovyi:AlarmWakeLock"
 private const val WAKE_LOCK_BUFFER_MILLIS = 15_000L
 private const val INITIAL_WAKE_LOCK_TIMEOUT_MILLIS = 30_000L
@@ -76,7 +78,7 @@ class AlarmService : Service() {
     private val alarmStateHolder: AlarmStateHolder by inject()
     private val observeScheduleSettingsUseCase: ObserveScheduleSettingsUseCase by inject()
 
-    private val serviceScope = CoroutineScope(SupervisorJob() + Dispatchers.Main.immediate)
+    private val serviceScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
     private var openAlarmActivityJob: Job? = null
     private var alarmAutoStopJob: Job? = null
 
@@ -210,7 +212,9 @@ class AlarmService : Service() {
 
     private suspend fun resolveAlarmDurationMillis(): Long {
         val alarmDurationSeconds = runCatching {
-            observeScheduleSettingsUseCase().first().alarmDurationSeconds
+            withTimeoutOrNull(SETTINGS_READ_TIMEOUT_MILLIS) {
+                observeScheduleSettingsUseCase().first().alarmDurationSeconds
+            } ?: DEFAULT_ALARM_DURATION_SECONDS
         }.onFailure { throwable ->
             Log.e(ALARM_TAG, "Failed to read alarm duration, fallback to default", throwable)
         }.getOrDefault(DEFAULT_ALARM_DURATION_SECONDS)
@@ -231,7 +235,9 @@ class AlarmService : Service() {
 
     private suspend fun resolveAlarmVolume(): Float {
         val alarmVolumePercent = runCatching {
-            observeScheduleSettingsUseCase().first().alarmVolumePercent
+            withTimeoutOrNull(SETTINGS_READ_TIMEOUT_MILLIS) {
+                observeScheduleSettingsUseCase().first().alarmVolumePercent
+            } ?: DEFAULT_ALARM_VOLUME_PERCENT
         }.onFailure { throwable ->
             Log.e(ALARM_TAG, "Failed to read alarm volume, fallback to default", throwable)
         }.getOrDefault(DEFAULT_ALARM_VOLUME_PERCENT)
@@ -243,7 +249,9 @@ class AlarmService : Service() {
 
     private suspend fun resolveAlarmSoundUri(): Uri? {
         val alarmSoundUri = runCatching {
-            observeScheduleSettingsUseCase().first().alarmSoundUri
+            withTimeoutOrNull(SETTINGS_READ_TIMEOUT_MILLIS) {
+                observeScheduleSettingsUseCase().first().alarmSoundUri
+            } ?: EMPTY_VALUE
         }.onFailure { throwable ->
             Log.e(ALARM_TAG, "Failed to read alarm sound uri, fallback to default", throwable)
         }.getOrDefault(EMPTY_VALUE)
