@@ -23,7 +23,7 @@
     <!-- AlarmService -->
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_MEDIA_PLAYBACK" />
     <!-- MonitoringForegroundService -->
-    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_DATA_SYNC" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_SPECIAL_USE" />
 
     <!-- AlarmActivity via AlarmService full-screen notification -->
     <uses-permission
@@ -85,7 +85,11 @@
         <service
             android:name=".service.notification_monitoring.MonitoringForegroundService"
             android:exported="false"
-            android:foregroundServiceType="dataSync" />
+            android:foregroundServiceType="specialUse">
+            <property
+                android:name="android.app.PROPERTY_SPECIAL_USE_FGS_SUBTYPE"
+                android:value="Monitors incoming notifications to detect keywords for security alerts" />
+        </service>
 
         <receiver
             android:name=".receiver.BootReceiver"
