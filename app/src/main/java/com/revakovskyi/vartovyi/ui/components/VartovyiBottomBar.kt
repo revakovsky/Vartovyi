@@ -37,15 +37,14 @@ fun VartovyiBottomBar(
 ) {
     Surface(
         color = VartovyiTheme.colors.surface,
-        modifier = modifier
-            .fillMaxWidth()
-            .navigationBarsPadding()
+        modifier = modifier.fillMaxWidth()
     ) {
         Row(
             horizontalArrangement = Arrangement.SpaceEvenly,
             verticalAlignment = Alignment.CenterVertically,
             modifier = Modifier
                 .fillMaxWidth()
+                .navigationBarsPadding()
                 .padding(VartovyiTheme.spacing.small)
         ) {
             BottomNavItem.all.forEach { item ->
