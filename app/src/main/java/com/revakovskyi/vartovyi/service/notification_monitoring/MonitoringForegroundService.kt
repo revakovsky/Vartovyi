@@ -97,7 +97,21 @@ class MonitoringForegroundService : Service(), KoinComponent {
         }
 
         _isRunning.update { true }
-        startForeground(MONITORING_NOTIFICATION_ID, buildNotification())
+
+        try {
+            startForeground(MONITORING_NOTIFICATION_ID, buildNotification())
+        } catch (exception: IllegalStateException) {
+            Log.e(MONITORING_SERVICE_TAG, "startForeground failed", exception)
+            _isRunning.update { false }
+            stopSelf()
+            return START_NOT_STICKY
+        } catch (exception: SecurityException) {
+            Log.e(MONITORING_SERVICE_TAG, "startForeground failed", exception)
+            _isRunning.update { false }
+            stopSelf()
+            return START_NOT_STICKY
+        }
+
         return START_STICKY
     }
 
