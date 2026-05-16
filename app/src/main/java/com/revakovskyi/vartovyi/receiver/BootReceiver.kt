@@ -37,8 +37,8 @@ class BootReceiver : BroadcastReceiver(), KoinComponent {
                         monitoringController.startMonitoring()
                     }
                 } ?: Log.w(BOOT_RECEIVER_TAG, "Boot init timed out, watchdog will recover")
-            } catch (throwable: Throwable) {
-                Log.e(BOOT_RECEIVER_TAG, "Boot init failed", throwable)
+            } catch (exception: Exception) {
+                Log.e(BOOT_RECEIVER_TAG, "Boot init failed", exception)
             } finally {
                 pendingResult.finish()
             }
