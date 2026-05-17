@@ -7,20 +7,20 @@ compileSdk = "36"
 compileSdkMinorApi = "1"
 minSdk = "28"
 targetSdk = "36"
-versionCode = "1"
-versionName = "1.0"
+versionCode = "2"
+versionName = "1.1"
 
 # Build
 agp = "9.0.1"
 kotlin = "2.3.10"
 jvmTargetVersion = "11"
 ksp = "2.3.6"
-androidTools = "32.2.0"
+androidTools = "32.2.1"
 
 # AndroidX
 coreKtx = "1.18.0"
 activityCompose = "1.13.0"
-composeBom = "2026.04.01"
+composeBom = "2026.05.00"
 navigationCompose = "2.9.8"
 workManager = "2.11.2"
 browser = "1.10.0"
@@ -31,20 +31,20 @@ lifecycleRuntimeKtx = "2.10.0"
 # DB
 dataStore = "1.2.1"
 room = "2.8.4"
-paging = "3.4.2"
+paging = "3.5.0"
 
 # DI
 koin = "4.2.1"
 
 # Kotlinx
 kotlinxSerializationJson = "1.11.0"
-coroutinesAndroid = "1.10.2"
+coroutinesAndroid = "1.11.0"
 
 # Detekt
 detekt = "1.23.8"
 
 # Firebase
-firebaseCrashlytics = "20.0.5"
+firebaseCrashlytics = "20.0.6"
 googleGmsGoogleServices = "4.4.4"
 googleFirebaseCrashlytics = "3.0.7"
 

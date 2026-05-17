@@ -175,6 +175,8 @@ class MainActivity : ComponentActivity() {
             currentDestination?.hasRoute(Routes.Keywords::class) == true &&
                     previousDestination?.hasRoute(Routes.Onboarding::class) == true
 
+        val isOnboarding = currentDestination?.hasRoute(Routes.Onboarding::class) == true
+
         val selectedNavItem: BottomNavItem? = when {
             currentDestination?.hasRoute(Routes.Home::class) == true -> BottomNavItem.Home
             currentDestination?.hasRoute(Routes.Log::class) == true -> BottomNavItem.Logs
@@ -267,8 +269,13 @@ class MainActivity : ComponentActivity() {
                     isLogInfoDialogVisible = showLogInfoDialog,
                     onDismissLogInfoDialog = { showLogInfoDialog = false },
                     modifier = Modifier
-                        .padding(paddingValues)
-                        .consumeWindowInsets(paddingValues)
+                        .fillMaxSize()
+                        .then(
+                            if (isOnboarding) Modifier
+                            else Modifier
+                                .padding(paddingValues)
+                                .consumeWindowInsets(paddingValues)
+                        )
                 )
             }
         }
