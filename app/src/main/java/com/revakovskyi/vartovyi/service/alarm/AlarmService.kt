@@ -90,6 +90,8 @@ class AlarmService : Service() {
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
+        ensureForegroundNotification()
+
         if (intent?.action == AlarmContract.ACTION_STOP) {
             stopAlarmSafely()
             return START_NOT_STICKY
