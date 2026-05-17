@@ -24,6 +24,7 @@ import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -65,11 +66,19 @@ class MonitoringForegroundService : Service(), KoinComponent {
         }
 
         serviceScope.launch {
-            settingsRepository.alarmRetriggerCooldownUntilElapsedRealtimeMillis.collect { untilElapsedRealtimeMillis ->
-                alarmRetriggerCooldownStateHolder.setCooldownUntilElapsedRealtimeMillis(
-                    untilElapsedRealtimeMillis
-                )
-            }
+            settingsRepository.alarmRetriggerCooldownUntilElapsedRealtimeMillis
+                .catch { throwable ->
+                    Log.e(
+                        MONITORING_SERVICE_TAG,
+                        "Failed to collect alarm retrigger cooldown updates",
+                        throwable,
+                    )
+                }
+                .collect { untilElapsedRealtimeMillis ->
+                    alarmRetriggerCooldownStateHolder.setCooldownUntilElapsedRealtimeMillis(
+                        untilElapsedRealtimeMillis
+                    )
+                }
         }
     }
 
@@ -96,8 +105,19 @@ class MonitoringForegroundService : Service(), KoinComponent {
             return START_NOT_STICKY
         }
 
+        try {
+            startForeground(MONITORING_NOTIFICATION_ID, buildNotification())
+        } catch (exception: IllegalStateException) {
+            Log.e(MONITORING_SERVICE_TAG, "startForeground failed", exception)
+            stopSelf()
+            return START_NOT_STICKY
+        } catch (exception: SecurityException) {
+            Log.e(MONITORING_SERVICE_TAG, "startForeground failed", exception)
+            stopSelf()
+            return START_NOT_STICKY
+        }
+
         _isRunning.update { true }
-        startForeground(MONITORING_NOTIFICATION_ID, buildNotification())
         return START_STICKY
     }
 

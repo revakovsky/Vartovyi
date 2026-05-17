@@ -10,6 +10,7 @@ import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.datastore.preferences.core.longPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
+import com.revakovskyi.vartovyi.constants.SettingsDefaults
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.map
@@ -21,7 +22,6 @@ private const val DEFAULT_END_TIME = "07:00"
 private const val DEFAULT_ALARM_DURATION_SECONDS = 60
 private const val DEFAULT_ALARM_VOLUME_PERCENT = 100
 private const val DEFAULT_ALARM_SOUND_URI = ""
-private const val DEFAULT_LOG_SIZE_LIMIT = 500
 private const val DEFAULT_ALARM_RETRIGGER_COOLDOWN_MILLIS = 5 * 60 * 1000L
 
 private val Context.monitoringDataStore: DataStore<Preferences> by preferencesDataStore(
@@ -75,7 +75,7 @@ internal class MonitoringDataStore(private val context: Context) {
 
     val logSizeLimit: Flow<Int> = context.monitoringDataStore.data
         .safeCatch()
-        .map { it[Keys.LOG_SIZE_LIMIT] ?: DEFAULT_LOG_SIZE_LIMIT }
+        .map { it[Keys.LOG_SIZE_LIMIT] ?: SettingsDefaults.LOG_SIZE_LIMIT }
 
     val alarmRetriggerCooldownDurationMillis: Flow<Long> = context.monitoringDataStore.data
         .safeCatch()
