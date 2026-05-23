@@ -1,14 +1,14 @@
 package com.revakovskyi.vartovyi.usecase.notification
 
+import com.revakovskyi.vartovyi.contract.ElapsedRealtimeProvider
 import com.revakovskyi.vartovyi.controllers.alarm.AlarmController
 import com.revakovskyi.vartovyi.model.AlertEvent
 import com.revakovskyi.vartovyi.model.AlertEventStatus
 import com.revakovskyi.vartovyi.model.NotificationPayload
-import com.revakovskyi.vartovyi.model.TriggerKeywordRule
 import com.revakovskyi.vartovyi.repository.KeywordsRepository
 import com.revakovskyi.vartovyi.repository.LogRepository
 import com.revakovskyi.vartovyi.repository.SettingsRepository
-import com.revakovskyi.vartovyi.utils.ElapsedRealtimeProvider
+import com.revakovskyi.vartovyi.utils.parseTriggerKeywordRuleFromStorage
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
@@ -188,7 +188,7 @@ class ProcessIncomingTelegramNotificationUseCaseImpl(
         if (hasStopWord) return null
 
         return keywords.asSequence()
-            .map { keyword -> TriggerKeywordRule.fromStorageValue(keyword) }
+            .map { keyword -> parseTriggerKeywordRuleFromStorage(keyword) }
             .firstOrNull { keywordRule -> keywordRule.matches(text) }
             ?.displayValue
     }

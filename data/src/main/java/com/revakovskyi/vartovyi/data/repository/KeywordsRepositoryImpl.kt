@@ -1,10 +1,10 @@
 package com.revakovskyi.vartovyi.data.repository
 
+import com.revakovskyi.vartovyi.constants.DEFAULT_KEYWORDS_SEED
 import com.revakovskyi.vartovyi.data.datastore.KeywordsDataStore
 import com.revakovskyi.vartovyi.repository.KeywordsRepository
+import com.revakovskyi.vartovyi.result.RestoreDefaultKeywordsResult
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.sync.Mutex
-import kotlinx.coroutines.sync.withLock
 
 internal class KeywordsRepositoryImpl(
     private val keywordsDataStore: KeywordsDataStore,
@@ -13,56 +13,48 @@ internal class KeywordsRepositoryImpl(
     override val keywords: Flow<List<String>> = keywordsDataStore.keywords
     override val stopWords: Flow<List<String>> = keywordsDataStore.stopWords
     override val telegramChannels: Flow<List<String>> = keywordsDataStore.telegramChannels
-    override val isTelegramChannelFilterEnabled: Flow<Boolean> = keywordsDataStore.isTelegramChannelFilterEnabled
-    private val keywordsMutationMutex = Mutex()
+    override val isTelegramChannelFilterEnabled: Flow<Boolean> =
+        keywordsDataStore.isTelegramChannelFilterEnabled
 
     override suspend fun addKeyword(keyword: String) {
         if (keyword.isBlank()) return
-
-        val normalizedKeyword = keyword.trim()
-        keywordsMutationMutex.withLock {
-            keywordsDataStore.addKeywordIfMissing(normalizedKeyword)
-        }
+        keywordsDataStore.addKeywordIfMissing(keyword.trim())
     }
 
     override suspend fun removeKeyword(keyword: String) {
-        keywordsMutationMutex.withLock {
-            keywordsDataStore.removeKeyword(keyword)
-        }
+        keywordsDataStore.removeKeyword(keyword)
     }
 
     override suspend fun addStopWord(stopWord: String) {
         if (stopWord.isBlank()) return
-
-        val normalizedStopWord = stopWord.trim()
-        keywordsMutationMutex.withLock {
-            keywordsDataStore.addStopWordIfMissing(normalizedStopWord)
-        }
+        keywordsDataStore.addStopWordIfMissing(stopWord.trim())
     }
 
     override suspend fun removeStopWord(stopWord: String) {
-        keywordsMutationMutex.withLock {
-            keywordsDataStore.removeStopWord(stopWord)
-        }
+        keywordsDataStore.removeStopWord(stopWord)
     }
 
     override suspend fun addTelegramChannel(channel: String) {
         if (channel.isBlank()) return
-
-        val normalizedChannel = channel.trim()
-        keywordsMutationMutex.withLock {
-            keywordsDataStore.addTelegramChannelIfMissing(normalizedChannel)
-        }
+        keywordsDataStore.addTelegramChannelIfMissing(channel.trim())
     }
 
     override suspend fun removeTelegramChannel(channel: String) {
-        keywordsMutationMutex.withLock {
-            keywordsDataStore.removeTelegramChannel(channel)
-        }
+        keywordsDataStore.removeTelegramChannel(channel)
     }
 
     override suspend fun setTelegramChannelFilterEnabled(enabled: Boolean) {
         keywordsDataStore.setTelegramChannelFilterEnabled(enabled)
+    }
+
+    override suspend fun seedDefaultKeywordsIfNeeded() {
+        keywordsDataStore.seedDefaultKeywordsIfNeeded(DEFAULT_KEYWORDS_SEED)
+    }
+
+    override suspend fun restoreDefaultKeywords(): RestoreDefaultKeywordsResult {
+        val addedCount = keywordsDataStore.mergeKeywords(DEFAULT_KEYWORDS_SEED)
+        return if (addedCount == 0) RestoreDefaultKeywordsResult.NothingAdded
+        else RestoreDefaultKeywordsResult.Added(count = addedCount)
     }
 
     override suspend fun clearAllKeywordsPreferences() {

@@ -105,6 +105,26 @@
     <string name="keywords_remove_dialog_confirm">Delete</string>
     <string name="keywords_remove_dialog_dismiss">Cancel</string>
     <string name="keywords_chip_copied">Chip text copied</string>
+    <string name="keywords_normalized">Saved as "%s"</string>
+    <string name="keywords_multiline_not_allowed">Only one line per keyword</string>
+    <plurals name="keywords_term_too_short">
+        <item quantity="one">Each word must be at least %d character</item>
+        <item quantity="other">Each word must be at least %d characters</item>
+    </plurals>
+    <plurals name="keywords_max_reached">
+        <item quantity="one">Up to %d keyword allowed</item>
+        <item quantity="other">Up to %d keywords allowed</item>
+    </plurals>
+    <string name="keywords_restore_defaults">Restore defaults</string>
+    <string name="keywords_restore_defaults_dialog_title">Restore default keywords?</string>
+    <string name="keywords_restore_defaults_dialog_message">Default keywords will be added to your list without removing existing entries. Duplicates will be skipped.</string>
+    <string name="keywords_restore_defaults_dialog_confirm">Restore</string>
+    <string name="keywords_restore_defaults_dialog_dismiss">Cancel</string>
+    <plurals name="keywords_restore_defaults_added">
+        <item quantity="one">Restored %d default keyword</item>
+        <item quantity="other">Restored %d default keywords</item>
+    </plurals>
+    <string name="keywords_restore_nothing_added">All default keywords are already in the list</string>
     <string name="permissions_warning">Grant all required permissions for stable background monitoring</string>
     <string name="permissions_listener_title">Notification access</string>
     <string name="permissions_listener_description">Allows reading incoming Telegram notifications</string>
@@ -176,7 +196,7 @@
     <string name="onboarding_permissions_body">Required — the app won\'t work without these:\n• Notification listener access\n• Show own notifications\n• Unrestricted background work (battery)\n\nRecommended — for full protection:\n• Do Not Disturb access\n• Full-screen notifications\n\nA detailed description of each permission is available on the Permissions screen inside the app.</string>
 
     <string name="onboarding_keywords_title">Set up keywords</string>
-    <string name="onboarding_keywords_body">Keywords are the core setting — they determine when the siren triggers.\n\nTrigger words — a message containing these words will trigger the alarm. Three modes: Word, All Words, Phrase.\n\nStop words — if found in a message, the alarm won\'t fire even if a trigger matches.\n\nChannel filter — optional. Restricts monitoring to selected Telegram channels only.\n\n💡 Tip: after the first message arrives, open the Logs screen and copy words directly from there.</string>
+    <string name="onboarding_keywords_body">Keywords are the core setting — they determine when the siren triggers.\n\nTrigger words — a message containing these words will trigger the alarm. Three modes: Word, All Words, Phrase.\n\nStop words — if found in a message, the alarm won\'t fire even if a trigger matches.\n\nChannel filter — optional. Restricts monitoring to selected Telegram channels only.\n\n💬 Channels may post in Ukrainian or Russian. If you follow Russian-language ones, add Russian variants of your trigger words separately (e.g. «Київ» and «Киев»).\n\n💡 Tip: after the first message arrives, open the Logs screen and copy words directly from there.</string>
     <string name="onboarding_open_keywords">Open keywords</string>
     <string name="onboarding_keywords_later_hint">You can set it up now or do it later in the app.</string>
 
