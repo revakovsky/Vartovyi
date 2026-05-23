@@ -9,6 +9,7 @@ plugins {
     alias(libs.plugins.room) apply false
     alias(libs.plugins.google.gms.google.services) apply false
     alias(libs.plugins.google.firebase.crashlytics) apply false
+    alias(libs.plugins.junit5) apply false
 }
 
 apply(from = "gradle/detekt.gradle")
