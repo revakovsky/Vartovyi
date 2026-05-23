@@ -1,5 +1,6 @@
 package com.revakovskyi.vartovyi.repository
 
+import com.revakovskyi.vartovyi.result.RestoreDefaultKeywordsResult
 import kotlinx.coroutines.flow.Flow
 
 interface KeywordsRepository {
@@ -16,6 +17,8 @@ interface KeywordsRepository {
     suspend fun addTelegramChannel(channel: String)
     suspend fun removeTelegramChannel(channel: String)
     suspend fun setTelegramChannelFilterEnabled(enabled: Boolean)
+    suspend fun seedDefaultKeywordsIfNeeded()
+    suspend fun restoreDefaultKeywords(): RestoreDefaultKeywordsResult
     suspend fun clearAllKeywordsPreferences()
 
 }

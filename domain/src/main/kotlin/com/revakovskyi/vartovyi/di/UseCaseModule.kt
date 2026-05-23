@@ -34,6 +34,12 @@ import com.revakovskyi.vartovyi.usecase.keywords.RemoveStopWordUseCase
 import com.revakovskyi.vartovyi.usecase.keywords.RemoveStopWordUseCaseImpl
 import com.revakovskyi.vartovyi.usecase.keywords.RemoveTelegramChannelUseCase
 import com.revakovskyi.vartovyi.usecase.keywords.RemoveTelegramChannelUseCaseImpl
+import com.revakovskyi.vartovyi.usecase.keywords.RestoreDefaultKeywordsUseCase
+import com.revakovskyi.vartovyi.usecase.keywords.RestoreDefaultKeywordsUseCaseImpl
+import com.revakovskyi.vartovyi.usecase.keywords.SanitizeKeywordInputUseCase
+import com.revakovskyi.vartovyi.usecase.keywords.SanitizeKeywordInputUseCaseImpl
+import com.revakovskyi.vartovyi.usecase.keywords.SeedDefaultKeywordsUseCase
+import com.revakovskyi.vartovyi.usecase.keywords.SeedDefaultKeywordsUseCaseImpl
 import com.revakovskyi.vartovyi.usecase.keywords.ToggleTelegramChannelFilterUseCase
 import com.revakovskyi.vartovyi.usecase.keywords.ToggleTelegramChannelFilterUseCaseImpl
 import com.revakovskyi.vartovyi.usecase.legal.AcceptCurrentLegalDocumentsUseCase
@@ -115,6 +121,9 @@ val useCaseModule = module {
     singleOf(::ToggleTelegramChannelFilterUseCaseImpl) { bind<ToggleTelegramChannelFilterUseCase>() }
     singleOf(::ExportKeywordsUseCaseImpl) { bind<ExportKeywordsUseCase>() }
     singleOf(::ImportKeywordsUseCaseImpl) { bind<ImportKeywordsUseCase>() }
+    singleOf(::SeedDefaultKeywordsUseCaseImpl) { bind<SeedDefaultKeywordsUseCase>() }
+    singleOf(::RestoreDefaultKeywordsUseCaseImpl) { bind<RestoreDefaultKeywordsUseCase>() }
+    singleOf(::SanitizeKeywordInputUseCaseImpl) { bind<SanitizeKeywordInputUseCase>() }
 
     singleOf(::ObserveLogEntriesUseCaseImpl) { bind<ObserveLogEntriesUseCase>() }
     singleOf(::ObserveLastAlarmTriggeredEventUseCaseImpl) { bind<ObserveLastAlarmTriggeredEventUseCase>() }

@@ -104,6 +104,32 @@
     <string name="keywords_remove_dialog_confirm">Видалити</string>
     <string name="keywords_remove_dialog_dismiss">Скасувати</string>
     <string name="keywords_chip_copied">Текст чіпса скопійовано</string>
+    <string name="keywords_normalized">Збережено як «%s»</string>
+    <string name="keywords_multiline_not_allowed">Лише один рядок на ключове слово</string>
+    <plurals name="keywords_term_too_short">
+        <item quantity="one">Кожне слово — щонайменше %d символ</item>
+        <item quantity="few">Кожне слово — щонайменше %d символи</item>
+        <item quantity="many">Кожне слово — щонайменше %d символів</item>
+        <item quantity="other">Кожне слово — щонайменше %d символів</item>
+    </plurals>
+    <plurals name="keywords_max_reached">
+        <item quantity="one">Не більше %d ключового слова</item>
+        <item quantity="few">Не більше %d ключових слів</item>
+        <item quantity="many">Не більше %d ключових слів</item>
+        <item quantity="other">Не більше %d ключових слів</item>
+    </plurals>
+    <string name="keywords_restore_defaults">Відновити дефолтні</string>
+    <string name="keywords_restore_defaults_dialog_title">Відновити дефолтні слова?</string>
+    <string name="keywords_restore_defaults_dialog_message">Дефолтні ключові слова буде додано до списку без видалення існуючих. Дублікати буде пропущено.</string>
+    <string name="keywords_restore_defaults_dialog_confirm">Відновити</string>
+    <string name="keywords_restore_defaults_dialog_dismiss">Скасувати</string>
+    <plurals name="keywords_restore_defaults_added">
+        <item quantity="one">Додано %d дефолтне слово</item>
+        <item quantity="few">Додано %d дефолтні слова</item>
+        <item quantity="many">Додано %d дефолтних слів</item>
+        <item quantity="other">Додано %d дефолтних слів</item>
+    </plurals>
+    <string name="keywords_restore_nothing_added">Усі дефолтні слова вже у списку</string>
     <string name="permissions_warning">Для стабільного фонового моніторингу надайте всі обов’язкові дозволи</string>
     <string name="permissions_listener_title">Доступ до сповіщень</string>
     <string name="permissions_listener_description">Дозволяє читати вхідні сповіщення з Telegram</string>
@@ -175,7 +201,7 @@
     <string name="onboarding_permissions_body">Обов\'язкові — без них додаток не працює:\n• Доступ до сповіщень\n• Показ власних сповіщень\n• Необмежена робота у фоні (батарея)\n\nРекомендовані — для повного захисту:\n• Режим «Не турбувати»\n• Повноекранні сповіщення\n\nДетальний опис кожного дозволу є на екрані Дозволи в додатку.</string>
 
     <string name="onboarding_keywords_title">Налаштуйте ключові слова</string>
-    <string name="onboarding_keywords_body">Ключові слова — головне налаштування. Саме вони визначають, коли спрацює сирена.\n\nТригер-слова — повідомлення з цими словами запустить тривогу. Доступно три режими: Слово, Всі слова, Фраза.\n\nСтоп-слова — якщо слово знайдено у повідомленні, тривога не спрацює.\n\nФільтр каналів — необов\'язково. Обмежує моніторинг лише обраними Telegram-каналами.\n\n💡 Найзручніший спосіб: після першого спрацювання відкрийте екран Логи і скопіюйте слова прямо звідти.</string>
+    <string name="onboarding_keywords_body">Ключові слова — головне налаштування. Саме вони визначають, коли спрацює сирена.\n\nТригер-слова — повідомлення з цими словами запустить тривогу. Доступно три режими: Слово, Всі слова, Фраза.\n\nСтоп-слова — якщо слово знайдено у повідомленні, тривога не спрацює.\n\nФільтр каналів — необов\'язково. Обмежує моніторинг лише обраними Telegram-каналами.\n\n💬 Канали можуть писати українською або російською. Якщо стежите за російськомовними — додайте російські відповідники тригер-слів окремо (наприклад «Київ» і «Киев»).\n\n💡 Найзручніший спосіб: після першого спрацювання відкрийте екран Логи і скопіюйте слова прямо звідти.</string>
     <string name="onboarding_open_keywords">Відкрити ключові слова</string>
     <string name="onboarding_keywords_later_hint">Ви можете налаштувати зараз або повернутися до цього пізніше в додатку.</string>
 

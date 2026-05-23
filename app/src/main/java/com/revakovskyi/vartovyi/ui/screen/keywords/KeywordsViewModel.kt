@@ -3,8 +3,11 @@ package com.revakovskyi.vartovyi.ui.screen.keywords
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.revakovskyi.vartovyi.constants.KeywordsLimits
 import com.revakovskyi.vartovyi.model.TriggerKeywordRule
 import com.revakovskyi.vartovyi.model.TriggerKeywordRuleType
+import com.revakovskyi.vartovyi.result.KeywordSanitizationResult
+import com.revakovskyi.vartovyi.result.RestoreDefaultKeywordsResult
 import com.revakovskyi.vartovyi.ui.screen.keywords.KeywordsUiContract.Action
 import com.revakovskyi.vartovyi.ui.screen.keywords.KeywordsUiContract.Event
 import com.revakovskyi.vartovyi.ui.screen.keywords.KeywordsUiContract.State
@@ -23,7 +26,10 @@ import com.revakovskyi.vartovyi.usecase.keywords.ObserveTelegramChannelsUseCase
 import com.revakovskyi.vartovyi.usecase.keywords.RemoveKeywordUseCase
 import com.revakovskyi.vartovyi.usecase.keywords.RemoveStopWordUseCase
 import com.revakovskyi.vartovyi.usecase.keywords.RemoveTelegramChannelUseCase
+import com.revakovskyi.vartovyi.usecase.keywords.RestoreDefaultKeywordsUseCase
+import com.revakovskyi.vartovyi.usecase.keywords.SanitizeKeywordInputUseCase
 import com.revakovskyi.vartovyi.usecase.keywords.ToggleTelegramChannelFilterUseCase
+import com.revakovskyi.vartovyi.utils.parseTriggerKeywordRuleFromStorage
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -50,6 +56,8 @@ class KeywordsViewModel(
     private val removeTelegramChannelUseCase: RemoveTelegramChannelUseCase,
     private val toggleTelegramChannelFilterUseCase: ToggleTelegramChannelFilterUseCase,
     private val clearKeywordsScreenDataUseCase: ClearKeywordsScreenDataUseCase,
+    private val restoreDefaultKeywordsUseCase: RestoreDefaultKeywordsUseCase,
+    private val sanitizeKeywordInputUseCase: SanitizeKeywordInputUseCase,
     private val exportKeywordsUseCase: ExportKeywordsUseCase,
     private val importKeywordsUseCase: ImportKeywordsUseCase,
 ) : ViewModel() {
@@ -83,6 +91,9 @@ class KeywordsViewModel(
             is Action.OpenClearKeywordsDialog -> openClearKeywordsDialog()
             is Action.DismissClearKeywordsDialog -> dismissClearKeywordsDialog()
             is Action.ConfirmClearKeywords -> confirmClearKeywords()
+            is Action.OpenRestoreDefaultsDialog -> openRestoreDefaultsDialog()
+            is Action.DismissRestoreDefaultsDialog -> dismissRestoreDefaultsDialog()
+            is Action.ConfirmRestoreDefaults -> confirmRestoreDefaults()
             is Action.CopyChip -> copyChip(action.text)
             is Action.ExportKeywords -> exportKeywords()
             is Action.NotifyExportSuccess -> notifyExportSuccess()
@@ -105,7 +116,7 @@ class KeywordsViewModel(
             observeTelegramChannelFilterEnabledUseCase(),
         ) { keywords, stopWords, telegramChannels, isTelegramChannelFilterEnabled ->
             val parsedKeywords = keywords.map { keyword ->
-                TriggerKeywordRule.fromStorageValue(keyword)
+                parseTriggerKeywordRuleFromStorage(keyword)
             }
             val sortedKeywords = parsedKeywords.sortedWith(
                 compareBy(
@@ -143,20 +154,55 @@ class KeywordsViewModel(
     }
 
     private fun addKeyword() {
-        val newKeywordRule = TriggerKeywordRule.create(
-            type = _state.value.selectedTriggerKeywordRuleType,
-            input = _state.value.inputKeyword,
-        ) ?: return
+        val selectedType = _state.value.selectedTriggerKeywordRuleType
+        val rawInput = _state.value.inputKeyword
 
-        if (
-            _state.value.keywords.any { keywordRule ->
-                keywordRule.normalizedSignature() == newKeywordRule.normalizedSignature()
+        when (val outcome = sanitizeKeywordInputUseCase(rawInput, selectedType)) {
+            is KeywordSanitizationResult.Empty -> return
+
+            is KeywordSanitizationResult.MultiLineDetected -> {
+                viewModelScope.launch { _events.send(Event.KeywordMultiLineNotAllowed) }
+                return
             }
-        ) {
+
+            is KeywordSanitizationResult.TermTooShort -> {
+                viewModelScope.launch {
+                    _events.send(
+                        Event.KeywordTermTooShort(minLength = KeywordsLimits.MIN_TERM_LENGTH)
+                    )
+                }
+                return
+            }
+
+            is KeywordSanitizationResult.Sanitized -> {
+                addSanitizedKeyword(sanitized = outcome, selectedType = selectedType)
+            }
+        }
+    }
+
+    private fun addSanitizedKeyword(
+        sanitized: KeywordSanitizationResult.Sanitized,
+        selectedType: TriggerKeywordRuleType,
+    ) {
+        val newKeywordRule = parseTriggerKeywordRuleFromStorage(sanitized.storageValue)
+
+        val isDuplicate = _state.value.keywords.any { keywordRule ->
+            keywordRule.normalizedSignature() == newKeywordRule.normalizedSignature()
+        }
+        if (isDuplicate) {
             _state.update {
                 it.copy(
                     inputKeyword = "",
-                    duplicateWord = newKeywordRule.displayValue
+                    duplicateWord = newKeywordRule.displayValue,
+                )
+            }
+            return
+        }
+
+        if (_state.value.keywords.size >= KeywordsLimits.MAX_TOTAL_KEYWORDS) {
+            viewModelScope.launch {
+                _events.send(
+                    Event.KeywordsMaxReached(max = KeywordsLimits.MAX_TOTAL_KEYWORDS)
                 )
             }
             return
@@ -166,6 +212,12 @@ class KeywordsViewModel(
             addKeywordUseCase(newKeywordRule.storageValue)
             _state.update { it.copy(inputKeyword = "") }
             _events.send(Event.KeywordAdded)
+
+            val wasModified = newKeywordRule.displayValue != sanitized.normalizedRawInput ||
+                    sanitized.effectiveType != selectedType
+            if (wasModified) {
+                _events.send(Event.KeywordNormalized(displayValue = newKeywordRule.displayValue))
+            }
         }
     }
 
@@ -295,6 +347,32 @@ class KeywordsViewModel(
                 )
             }
             _events.send(Event.KeywordsScreenDataCleared)
+        }
+    }
+
+    private fun openRestoreDefaultsDialog() {
+        _state.update { currentState ->
+            currentState.copy(isRestoreDefaultsDialogVisible = true)
+        }
+    }
+
+    private fun dismissRestoreDefaultsDialog() {
+        _state.update { currentState ->
+            currentState.copy(isRestoreDefaultsDialogVisible = false)
+        }
+    }
+
+    private fun confirmRestoreDefaults() {
+        viewModelScope.launch {
+            val result = restoreDefaultKeywordsUseCase()
+            _state.update { currentState ->
+                currentState.copy(isRestoreDefaultsDialogVisible = false)
+            }
+            val addedCount = when (result) {
+                is RestoreDefaultKeywordsResult.Added -> result.count
+                is RestoreDefaultKeywordsResult.NothingAdded -> 0
+            }
+            _events.send(Event.DefaultKeywordsRestored(addedCount = addedCount))
         }
     }
 

@@ -23,6 +23,7 @@ class ResetAppToFactoryDefaultsUseCaseImpl(
         alarmController.stopAlarm()
         settingsRepository.clearAllMonitoringPreferences()
         keywordsRepository.clearAllKeywordsPreferences()
+        keywordsRepository.seedDefaultKeywordsIfNeeded()
         logRepository.clearLog()
         syncMonitoringRuntimeWithSettings(
             settingsRepository = settingsRepository,
