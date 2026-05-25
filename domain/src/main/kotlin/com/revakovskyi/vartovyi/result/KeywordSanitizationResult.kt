@@ -7,6 +7,7 @@ sealed interface KeywordSanitizationResult {
     data object Empty : KeywordSanitizationResult
     data object MultiLineDetected : KeywordSanitizationResult
     data object TermTooShort : KeywordSanitizationResult
+    data object StartsWithNonAlphanumeric : KeywordSanitizationResult
 
     data class Sanitized(
         val effectiveType: TriggerKeywordRuleType,

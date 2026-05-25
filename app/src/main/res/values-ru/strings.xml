@@ -106,6 +106,7 @@
     <string name="keywords_chip_copied">Текст метки скопирован</string>
     <string name="keywords_normalized">Сохранено как «%s»</string>
     <string name="keywords_multiline_not_allowed">Только одна строка на ключевое слово</string>
+    <string name="keywords_starts_with_non_alphanumeric">Ключевое слово должно начинаться с буквы или цифры</string>
     <plurals name="keywords_term_too_short">
         <item quantity="one">Каждое слово — минимум %d символ</item>
         <item quantity="few">Каждое слово — минимум %d символа</item>

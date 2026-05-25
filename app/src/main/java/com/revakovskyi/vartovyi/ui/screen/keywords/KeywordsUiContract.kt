@@ -77,6 +77,7 @@ interface KeywordsUiContract {
         data class KeywordNormalized(val displayValue: String) : Event
         data object KeywordMultiLineNotAllowed : Event
         data class KeywordTermTooShort(val minLength: Int) : Event
+        data object KeywordStartsWithNonAlphanumeric : Event
         data class KeywordsMaxReached(val max: Int) : Event
         data object KeywordRemoved : Event
         data object StopWordAdded : Event
