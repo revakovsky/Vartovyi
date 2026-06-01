@@ -21,6 +21,7 @@ class SanitizeKeywordInputUseCaseImpl : SanitizeKeywordInputUseCase {
         selectedType: TriggerKeywordRuleType,
     ): KeywordSanitizationResult {
         val preprocessed = rawInput.normalizeUnicode()
+            .replace(KeywordRuleFormat.PLACEHOLDER_BRACKETS_REGEX, "")
             .replace(KeywordRuleFormat.INVISIBLE_CHARS_REGEX, "")
             .normalizeApostrophes()
 

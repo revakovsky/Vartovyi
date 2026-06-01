@@ -142,6 +142,7 @@ class SanitizeKeywordInputUseCaseTest {
             "123, WORD, WORD, 123, 123",
             "!!!ракета, WORD, WORD, ракета, !!!ракета",
             "123ракета, WORD, WORD, 123ракета, 123ракета",
+            "<ракета>, WORD, WORD, ракета, ракета",
         )
         fun `word input is stored as a single token`(
             rawInput: String,
@@ -176,6 +177,7 @@ class SanitizeKeywordInputUseCaseTest {
             "ракета+місто, WORD, ALL_WORDS, ракета+місто, ракета+місто",
             "'ракета,  місто', WORD, ALL_WORDS, ракета+місто, 'ракета,  місто'",
             "один два + три/чотири-пять — шість, ALL_WORDS, ALL_WORDS, один+два+три+чотири+пять+шість, один два + три/чотири-пять — шість",
+            "ракета+<місто>, ALL_WORDS, ALL_WORDS, ракета+місто, ракета+місто",
         )
         fun `all-words input is stored as plus-joined tokens`(
             rawInput: String,
@@ -246,6 +248,7 @@ class SanitizeKeywordInputUseCaseTest {
             "---ракета над містом, PHRASE, PHRASE, '\"---ракета над містом\"', ---ракета над містом",
             "ракета над містом!!!, PHRASE, PHRASE, '\"ракета над містом!!!\"', ракета над містом!!!",
             "'  ракета над містом  ', PHRASE, PHRASE, '\"ракета над містом\"', ракета над містом",
+            "<ракета над містом>, PHRASE, PHRASE, '\"ракета над містом\"', ракета над містом",
         )
         fun `phrase input is stored quoted with cleaned content`(
             rawInput: String,
