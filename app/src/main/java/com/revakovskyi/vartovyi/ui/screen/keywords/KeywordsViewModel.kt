@@ -7,7 +7,6 @@ import com.revakovskyi.vartovyi.constants.KeywordsLimits
 import com.revakovskyi.vartovyi.model.TriggerKeywordRule
 import com.revakovskyi.vartovyi.model.TriggerKeywordRuleType
 import com.revakovskyi.vartovyi.result.KeywordSanitizationResult
-import com.revakovskyi.vartovyi.result.RestoreDefaultKeywordsResult
 import com.revakovskyi.vartovyi.ui.screen.keywords.KeywordsUiContract.Action
 import com.revakovskyi.vartovyi.ui.screen.keywords.KeywordsUiContract.Event
 import com.revakovskyi.vartovyi.ui.screen.keywords.KeywordsUiContract.State
@@ -27,6 +26,7 @@ import com.revakovskyi.vartovyi.usecase.keywords.RemoveKeywordUseCase
 import com.revakovskyi.vartovyi.usecase.keywords.RemoveStopWordUseCase
 import com.revakovskyi.vartovyi.usecase.keywords.RemoveTelegramChannelUseCase
 import com.revakovskyi.vartovyi.usecase.keywords.RestoreDefaultKeywordsUseCase
+import com.revakovskyi.vartovyi.usecase.keywords.RestoreDefaultStopWordsUseCase
 import com.revakovskyi.vartovyi.usecase.keywords.SanitizeKeywordInputUseCase
 import com.revakovskyi.vartovyi.usecase.keywords.ToggleTelegramChannelFilterUseCase
 import com.revakovskyi.vartovyi.utils.parseTriggerKeywordRuleFromStorage
@@ -57,6 +57,7 @@ class KeywordsViewModel(
     private val toggleTelegramChannelFilterUseCase: ToggleTelegramChannelFilterUseCase,
     private val clearKeywordsScreenDataUseCase: ClearKeywordsScreenDataUseCase,
     private val restoreDefaultKeywordsUseCase: RestoreDefaultKeywordsUseCase,
+    private val restoreDefaultStopWordsUseCase: RestoreDefaultStopWordsUseCase,
     private val sanitizeKeywordInputUseCase: SanitizeKeywordInputUseCase,
     private val exportKeywordsUseCase: ExportKeywordsUseCase,
     private val importKeywordsUseCase: ImportKeywordsUseCase,
@@ -364,15 +365,17 @@ class KeywordsViewModel(
 
     private fun confirmRestoreDefaults() {
         viewModelScope.launch {
-            val result = restoreDefaultKeywordsUseCase()
+            val addedKeywordsCount = restoreDefaultKeywordsUseCase()
+            val addedStopWordsCount = restoreDefaultStopWordsUseCase()
+
             _state.update { currentState ->
                 currentState.copy(isRestoreDefaultsDialogVisible = false)
             }
-            val addedCount = when (result) {
-                is RestoreDefaultKeywordsResult.Added -> result.count
-                is RestoreDefaultKeywordsResult.NothingAdded -> 0
-            }
-            _events.send(Event.DefaultKeywordsRestored(addedCount = addedCount))
+            _events.send(
+                Event.DefaultKeywordsRestored(
+                    addedCount = addedKeywordsCount + addedStopWordsCount
+                )
+            )
         }
     }
 

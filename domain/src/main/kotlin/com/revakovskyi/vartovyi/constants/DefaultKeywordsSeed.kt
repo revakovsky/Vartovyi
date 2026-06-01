@@ -6,3 +6,10 @@ val DEFAULT_KEYWORDS_SEED: List<String> = listOf(
     "ракета+<НАЗВА_МІСТА>",
     "\"ціль на <НАЗВА_МІСТА>\"",
 )
+
+/** Common false-positive terms, seeded on first launch so the user starts with sane defaults. */
+val DEFAULT_STOP_WORDS_SEED: List<String> = listOf(
+    "Пригород",
+    "розвід",
+    "ППО",
+)

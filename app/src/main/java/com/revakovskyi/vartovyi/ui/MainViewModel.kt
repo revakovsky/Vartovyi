@@ -6,6 +6,7 @@ import androidx.lifecycle.viewModelScope
 import com.revakovskyi.vartovyi.usecase.alarm.ObserveAlarmRunningUseCase
 import com.revakovskyi.vartovyi.usecase.alarm.StopAlarmUseCase
 import com.revakovskyi.vartovyi.usecase.keywords.SeedDefaultKeywordsUseCase
+import com.revakovskyi.vartovyi.usecase.keywords.SeedDefaultStopWordsUseCase
 import com.revakovskyi.vartovyi.usecase.monitoring.ObserveMonitoringStateUseCase
 import com.revakovskyi.vartovyi.usecase.monitoring.SyncMonitoringRuntimeUseCase
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -24,6 +25,7 @@ class MainViewModel(
     private val syncMonitoringRuntimeUseCase: SyncMonitoringRuntimeUseCase,
     private val stopAlarmUseCase: StopAlarmUseCase,
     private val seedDefaultKeywordsUseCase: SeedDefaultKeywordsUseCase,
+    private val seedDefaultStopWordsUseCase: SeedDefaultStopWordsUseCase,
 ) : ViewModel() {
 
     private val _state = MutableStateFlow(MainUiContract.State())
@@ -31,6 +33,7 @@ class MainViewModel(
 
     init {
         seedDefaultKeywords()
+        seedDefaultStopWords()
         observeAlarmRunning()
         observeMonitoringState()
     }
@@ -48,6 +51,16 @@ class MainViewModel(
                 seedDefaultKeywordsUseCase()
             }.onFailure { throwable ->
                 Log.e(MAIN_VIEW_MODEL_TAG, "Failed to seed default keywords", throwable)
+            }
+        }
+    }
+
+    private fun seedDefaultStopWords() {
+        viewModelScope.launch {
+            runCatching {
+                seedDefaultStopWordsUseCase()
+            }.onFailure { throwable ->
+                Log.e(MAIN_VIEW_MODEL_TAG, "Failed to seed default stop words", throwable)
             }
         }
     }

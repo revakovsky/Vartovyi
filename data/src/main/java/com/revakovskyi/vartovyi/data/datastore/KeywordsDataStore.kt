@@ -32,6 +32,7 @@ internal class KeywordsDataStore(
         val TELEGRAM_CHANNELS = stringPreferencesKey("telegram_channels")
         val TELEGRAM_CHANNEL_FILTER_ENABLED = booleanPreferencesKey("telegram_channel_filter_enabled")
         val KEYWORDS_SEEDED = booleanPreferencesKey("keywords_seeded")
+        val STOP_WORDS_SEEDED = booleanPreferencesKey("stop_words_seeded")
     }
 
     val keywords: Flow<List<String>> = context.keywordsDataStore.data
@@ -109,6 +110,20 @@ internal class KeywordsDataStore(
         }
     }
 
+    suspend fun seedDefaultStopWordsIfNeeded(defaults: List<String>) {
+        context.keywordsDataStore.edit { preferences ->
+            val alreadySeeded = preferences[Keys.STOP_WORDS_SEEDED] == true
+            if (alreadySeeded) return@edit
+
+            val currentStopWords = preferences.decodeStringList(Keys.STOP_WORDS)
+            if (currentStopWords.isEmpty()) {
+                preferences[Keys.STOP_WORDS] = Json.encodeToString(defaults)
+            }
+
+            preferences[Keys.STOP_WORDS_SEEDED] = true
+        }
+    }
+
     suspend fun mergeKeywords(defaults: List<String>): Int {
         var addedCount = 0
         context.keywordsDataStore.edit { preferences ->
@@ -122,9 +137,29 @@ internal class KeywordsDataStore(
         return addedCount
     }
 
+    suspend fun mergeStopWords(defaults: List<String>): Int {
+        var addedCount = 0
+        context.keywordsDataStore.edit { preferences ->
+            val currentStopWords = preferences.decodeStringList(Keys.STOP_WORDS)
+            val missingStopWords = defaults.filter { stopWord -> stopWord !in currentStopWords }
+            if (missingStopWords.isEmpty()) return@edit
+
+            preferences[Keys.STOP_WORDS] = Json.encodeToString(currentStopWords + missingStopWords)
+            addedCount = missingStopWords.size
+        }
+        return addedCount
+    }
+
+    /**
+     * Removes only the user data keys. The `*_SEEDED` flags are intentionally kept so cleared
+     * defaults are not re-seeded on the next launch (they seed only once, on first install).
+     */
     suspend fun clearAllPreferences() {
         context.keywordsDataStore.edit { preferences ->
-            preferences.clear()
+            preferences.remove(Keys.KEYWORDS)
+            preferences.remove(Keys.STOP_WORDS)
+            preferences.remove(Keys.TELEGRAM_CHANNELS)
+            preferences.remove(Keys.TELEGRAM_CHANNEL_FILTER_ENABLED)
         }
     }
 
