@@ -1,9 +1,9 @@
 package com.revakovskyi.vartovyi.data.repository
 
 import com.revakovskyi.vartovyi.constants.DEFAULT_KEYWORDS_SEED
+import com.revakovskyi.vartovyi.constants.DEFAULT_STOP_WORDS_SEED
 import com.revakovskyi.vartovyi.data.datastore.KeywordsDataStore
 import com.revakovskyi.vartovyi.repository.KeywordsRepository
-import com.revakovskyi.vartovyi.result.RestoreDefaultKeywordsResult
 import kotlinx.coroutines.flow.Flow
 
 internal class KeywordsRepositoryImpl(
@@ -51,10 +51,16 @@ internal class KeywordsRepositoryImpl(
         keywordsDataStore.seedDefaultKeywordsIfNeeded(DEFAULT_KEYWORDS_SEED)
     }
 
-    override suspend fun restoreDefaultKeywords(): RestoreDefaultKeywordsResult {
-        val addedCount = keywordsDataStore.mergeKeywords(DEFAULT_KEYWORDS_SEED)
-        return if (addedCount == 0) RestoreDefaultKeywordsResult.NothingAdded
-        else RestoreDefaultKeywordsResult.Added(count = addedCount)
+    override suspend fun seedDefaultStopWordsIfNeeded() {
+        keywordsDataStore.seedDefaultStopWordsIfNeeded(DEFAULT_STOP_WORDS_SEED)
+    }
+
+    override suspend fun restoreDefaultKeywords(): Int {
+        return keywordsDataStore.mergeKeywords(DEFAULT_KEYWORDS_SEED)
+    }
+
+    override suspend fun restoreDefaultStopWords(): Int {
+        return keywordsDataStore.mergeStopWords(DEFAULT_STOP_WORDS_SEED)
     }
 
     override suspend fun clearAllKeywordsPreferences() {

@@ -193,14 +193,15 @@ class ProcessIncomingTelegramNotificationUseCaseImpl(
             ?.displayValue
     }
 
+    /** Fail-open: a disabled filter, or an enabled one with no channels, allows every notification. */
     private fun isChannelAllowed(
         isFilterEnabled: Boolean,
         title: String,
         allowedChannels: List<String>,
     ): Boolean {
-        if (!isFilterEnabled) return true
+        if (!isFilterEnabled || allowedChannels.isEmpty()) return true
+
         if (title.isBlank()) return false
-        if (allowedChannels.isEmpty()) return false
 
         val normalizedTitle = normalizeChannelNameForComparison(title)
         if (normalizedTitle.isBlank()) return false
