@@ -107,6 +107,7 @@
     <string name="keywords_chip_copied">Chip text copied</string>
     <string name="keywords_normalized">Saved as "%s"</string>
     <string name="keywords_multiline_not_allowed">Only one line per keyword</string>
+    <string name="keywords_starts_with_non_alphanumeric">Keyword must start with a letter or digit</string>
     <plurals name="keywords_term_too_short">
         <item quantity="one">Each word must be at least %d character</item>
         <item quantity="other">Each word must be at least %d characters</item>

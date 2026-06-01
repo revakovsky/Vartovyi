@@ -13,3 +13,20 @@ plugins {
 }
 
 apply(from = "gradle/detekt.gradle")
+
+gradle.projectsEvaluated {
+    val unitTestTasks = subprojects.flatMap { subProject ->
+        subProject.tasks.withType(Test::class.java)
+    }.filter { testTask ->
+        testTask.name == "test" || testTask.name.endsWith("DebugUnitTest")
+    }
+
+    tasks.register("testAllUnitTests") {
+        group = "verification"
+        description = "Runs every unit test in every module from scratch, without caching"
+        dependsOn(unitTestTasks)
+        unitTestTasks.forEach { testTask ->
+            testTask.doNotTrackState("Forced re-run: testAllUnitTests always runs from scratch")
+        }
+    }
+}

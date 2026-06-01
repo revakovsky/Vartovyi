@@ -21,6 +21,7 @@ class SanitizeKeywordInputUseCaseImpl : SanitizeKeywordInputUseCase {
         selectedType: TriggerKeywordRuleType,
     ): KeywordSanitizationResult {
         val preprocessed = rawInput.normalizeUnicode()
+            .replace(KeywordRuleFormat.PLACEHOLDER_BRACKETS_REGEX, "")
             .replace(KeywordRuleFormat.INVISIBLE_CHARS_REGEX, "")
             .normalizeApostrophes()
 
@@ -47,7 +48,6 @@ class SanitizeKeywordInputUseCaseImpl : SanitizeKeywordInputUseCase {
             character == KeywordRuleFormat.QUOTE.first()
         }
         return totalQuotes == 2 &&
-                trimmed.length >= 2 &&
                 trimmed.startsWith(KeywordRuleFormat.QUOTE) &&
                 trimmed.endsWith(KeywordRuleFormat.QUOTE)
     }
@@ -62,10 +62,15 @@ class SanitizeKeywordInputUseCaseImpl : SanitizeKeywordInputUseCase {
             trimmed
         }
         val cleanedPhrase = unquoted
-            .replace(KeywordRuleFormat.LEADING_NON_ALPHANUMERIC_REGEX, "")
-            .replace(KeywordRuleFormat.TRAILING_NON_ALPHANUMERIC_REGEX, "")
             .replace(KeywordRuleFormat.INTERNAL_WHITESPACE_REGEX, KeywordRuleFormat.SINGLE_SPACE)
+            .trim()
         if (cleanedPhrase.isEmpty()) return KeywordSanitizationResult.Empty
+
+        val alphanumericCount = cleanedPhrase.count { character -> character.isLetterOrDigit() }
+        if (alphanumericCount == 0) return KeywordSanitizationResult.Empty
+        if (alphanumericCount < KeywordsLimits.MIN_TERM_LENGTH) {
+            return KeywordSanitizationResult.TermTooShort
+        }
 
         return KeywordSanitizationResult.Sanitized(
             effectiveType = TriggerKeywordRuleType.PHRASE,
@@ -79,9 +84,9 @@ class SanitizeKeywordInputUseCaseImpl : SanitizeKeywordInputUseCase {
         selectedType: TriggerKeywordRuleType,
     ): KeywordSanitizationResult {
         val tokens = extractTokens(trimmed)
-        if (tokens.isEmpty()) return KeywordSanitizationResult.Empty
+        if (tokens.isEmpty()) return KeywordSanitizationResult.StartsWithNonAlphanumeric
 
-        if (tokens.any { token -> token.length < KeywordsLimits.MIN_TERM_LENGTH }) {
+        if (tokens.all { token -> token.length < KeywordsLimits.MIN_TERM_LENGTH }) {
             return KeywordSanitizationResult.TermTooShort
         }
 
@@ -111,6 +116,10 @@ class SanitizeKeywordInputUseCaseImpl : SanitizeKeywordInputUseCase {
         selectedType: TriggerKeywordRuleType,
         tokens: List<String>,
     ): TriggerKeywordRuleType {
+        if (selectedType == TriggerKeywordRuleType.ALL_WORDS && tokens.size == 1) {
+            return TriggerKeywordRuleType.WORD
+        }
+
         if (selectedType != TriggerKeywordRuleType.WORD) return selectedType
 
         return when {
@@ -122,6 +131,11 @@ class SanitizeKeywordInputUseCaseImpl : SanitizeKeywordInputUseCase {
         }
     }
 
+    /**
+     * For an [TriggerKeywordRuleType.ALL_WORDS] value with a single token a trailing separator is
+     * kept so the value still round-trips as ALL_WORDS through the storage parser, which detects
+     * ALL_WORDS by the presence of the separator.
+     */
     private fun buildStorageValue(
         effectiveType: TriggerKeywordRuleType,
         tokens: List<String>,

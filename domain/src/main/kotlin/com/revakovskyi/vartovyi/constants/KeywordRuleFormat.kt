@@ -18,5 +18,6 @@ object KeywordRuleFormat {
     val NON_ALPHANUMERIC_RUN_REGEX: Regex = Regex("[^\\p{L}\\p{N}]+")
     val INTERNAL_WHITESPACE_REGEX: Regex = Regex("\\s+")
     val APOSTROPHE_VARIANTS_REGEX: Regex = Regex("[\\u0027\\u2018\\u2019\\u02B9\\u02BB\\u2032]")
+    val PLACEHOLDER_BRACKETS_REGEX: Regex = Regex("[<>]")
 
 }
