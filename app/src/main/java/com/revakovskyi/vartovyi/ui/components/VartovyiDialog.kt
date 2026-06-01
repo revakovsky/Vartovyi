@@ -1,6 +1,7 @@
 package com.revakovskyi.vartovyi.ui.components
 
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.AlertDialog
@@ -19,7 +20,7 @@ fun VartovyiDialog(
     message: String,
     confirmText: String,
     shape: Shape = VartovyiTheme.shapes.large,
-    containerColor: Color = VartovyiTheme.colors.surface,
+    containerColor: Color = VartovyiTheme.colors.surfaceVariant,
     confirmContentColor: Color = VartovyiTheme.colors.primary,
     dismissText: String? = null,
     onConfirm: (() -> Unit)? = null,
@@ -69,6 +70,7 @@ fun VartovyiDialog(
         },
         containerColor = containerColor,
         shape = shape,
+        modifier = Modifier.padding(vertical = VartovyiTheme.spacing.extraLarge)
     )
 }
 
@@ -93,6 +95,30 @@ private fun PreviewVartovyiDialogWithDismiss() {
             title = "Очистити логи?",
             message = "Це видалить усі збережені записи журналу з цього пристрою.",
             confirmText = "Очистити",
+            dismissText = "Скасувати",
+            onDismiss = {},
+            onConfirm = {},
+        )
+    }
+}
+
+@Preview(
+    name = "Vartovyi dialog — long message",
+    heightDp = 640,
+)
+@Composable
+private fun PreviewVartovyiDialogLongMessage() {
+    VartovyiTheme {
+        VartovyiDialog(
+            title = "Як працює імпорт ключових слів",
+            message = "Під час імпорту ви можете обрати, що зробити з наявним списком: " +
+                "повністю замінити його новими словами або додати нові слова поверх " +
+                "існуючих. Якщо ви додаєте поверх, кожне нове слово перевіряється на " +
+                "дублікат у тому самому режимі (слово, усі слова або фраза) — наявні " +
+                "збігаються пропускаються, а решта додається. Дуже довгий текст у діалозі " +
+                "більше не розтягується на весь екран: він обмежений по висоті та " +
+                "прокручується всередині, лишаючи відступ від країв екрана зверху та знизу.",
+            confirmText = "Зрозуміло",
             dismissText = "Скасувати",
             onDismiss = {},
             onConfirm = {},
