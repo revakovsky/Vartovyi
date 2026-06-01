@@ -5,6 +5,7 @@ import android.os.Build
 import android.provider.Settings
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.revakovskyi.vartovyi.model.PermissionsStatus
 import com.revakovskyi.vartovyi.ui.screen.permissions.PermissionsUiContract.Action
 import com.revakovskyi.vartovyi.ui.screen.permissions.PermissionsUiContract.Event
 import com.revakovskyi.vartovyi.ui.screen.permissions.PermissionsUiContract.State
@@ -46,8 +47,14 @@ class PermissionsViewModel : ViewModel() {
         fullScreenIntentGranted: Boolean,
     ) {
         val allGranted = listenerGranted && batteryOptimizationIgnored && postNotificationsGranted
-        val hasMissingPermissions = !allGranted ||
-                !doNotDisturbAccessGranted || !fullScreenIntentGranted
+        val recommendedGranted = doNotDisturbAccessGranted && fullScreenIntentGranted
+        val hasMissingPermissions = !allGranted || !recommendedGranted
+
+        val permissionsStatus = when {
+            !allGranted -> PermissionsStatus.MANDATORY_MISSING
+            !recommendedGranted -> PermissionsStatus.RECOMMENDED_MISSING
+            else -> PermissionsStatus.GRANTED
+        }
 
         _state.update {
             it.copy(
@@ -59,6 +66,7 @@ class PermissionsViewModel : ViewModel() {
                 isPostNotificationsGranted = postNotificationsGranted,
                 isFullScreenIntentGranted = fullScreenIntentGranted,
                 hasMissingPermissions = hasMissingPermissions,
+                permissionsStatus = permissionsStatus,
             )
         }
     }
