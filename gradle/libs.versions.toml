@@ -20,7 +20,7 @@ androidTools = "32.2.1"
 # AndroidX
 coreKtx = "1.18.0"
 activityCompose = "1.13.0"
-composeBom = "2026.05.00"
+composeBom = "2026.05.01"
 navigationCompose = "2.9.8"
 workManager = "2.11.2"
 browser = "1.10.0"
@@ -52,9 +52,9 @@ googleFirebaseCrashlytics = "3.0.7"
 junit5 = "6.1.0"
 junit5Plugin = "2.0.1"
 assertk = "0.28.1"
-mockk = "1.14.9"
+mockk = "1.14.11"
 turbine = "1.2.1"
-junitPlatformLauncher = "2.1.0"
+junitPlatformLauncher = "6.1.0"
 
 #---------------------------------------------------------------------------------------------------
 
