@@ -24,6 +24,8 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.widthIn
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
@@ -62,6 +64,7 @@ private const val ALARM_SCREEN_PULSE_SCALE_MAX = 1.09f
 private const val ALARM_SCREEN_PULSE_DURATION_MS = 1350
 private const val DISMISS_BUTTON_MIN_WIDTH_DP = 200
 private const val DISMISS_BUTTON_WIDTH_FRACTION = 0.7f
+private const val CONTENT_EDGE_SPACER_WEIGHT = 0.2f
 private const val EMPTY_VALUE = ""
 
 class AlarmActivity : ComponentActivity() {
@@ -221,6 +224,8 @@ private fun AlarmContent(
                 .fillMaxSize()
                 .padding(VartovyiTheme.spacing.standard),
         ) {
+            Spacer(modifier = Modifier.weight(CONTENT_EDGE_SPACER_WEIGHT))
+
             Icon(
                 imageVector = ImageVector.vectorResource(R.drawable.alarm),
                 contentDescription = null,
@@ -257,7 +262,10 @@ private fun AlarmContent(
             Column(
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.Center,
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .weight(1f)
+                    .padding(vertical = VartovyiTheme.spacing.standard)
             ) {
                 Text(
                     text = stringResource(R.string.alarm_title),
@@ -267,26 +275,35 @@ private fun AlarmContent(
                 )
 
                 if (sourceChannelName.isNotBlank() || sourceMessageText.isNotBlank()) {
-                    Spacer(modifier = Modifier.height(VartovyiTheme.spacing.extraLarge))
+                    Column(
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.Center,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(top = VartovyiTheme.spacing.medium)
+                            .verticalScroll(rememberScrollState())
+                    ) {
+                        Spacer(modifier = Modifier.height(VartovyiTheme.spacing.extraLarge))
 
-                    if (sourceChannelName.isNotBlank()) {
-                        Text(
-                            text = sourceChannelName,
-                            style = VartovyiTheme.typography.titleLarge,
-                            color = VartovyiTheme.colors.onPrimary,
-                            textAlign = TextAlign.Center,
-                        )
-                    }
+                        if (sourceChannelName.isNotBlank()) {
+                            Text(
+                                text = sourceChannelName,
+                                style = VartovyiTheme.typography.titleLarge,
+                                color = VartovyiTheme.colors.onPrimary,
+                                textAlign = TextAlign.Center,
+                            )
+                        }
 
-                    if (sourceMessageText.isNotBlank()) {
-                        Spacer(modifier = Modifier.height(VartovyiTheme.spacing.medium))
+                        if (sourceMessageText.isNotBlank()) {
+                            Spacer(modifier = Modifier.height(VartovyiTheme.spacing.medium))
 
-                        Text(
-                            text = sourceMessageText,
-                            style = VartovyiTheme.typography.bodyLarge,
-                            color = VartovyiTheme.colors.onBackground,
-                            textAlign = TextAlign.Center,
-                        )
+                            Text(
+                                text = sourceMessageText,
+                                style = VartovyiTheme.typography.bodyLarge,
+                                color = VartovyiTheme.colors.onBackground,
+                                textAlign = TextAlign.Center,
+                            )
+                        }
                     }
                 }
             }
@@ -314,23 +331,104 @@ private fun AlarmContent(
                     style = VartovyiTheme.typography.titleMedium,
                 )
             }
+
+            Spacer(modifier = Modifier.weight(CONTENT_EDGE_SPACER_WEIGHT))
         }
     }
 }
 
 @Preview(
-    name = "Alarm screen",
+    name = "Alarm — channel + message",
     widthDp = 360,
     heightDp = 800,
     showBackground = true,
     backgroundColor = 0xFF0D1117,
 )
 @Composable
-private fun AlarmContentPreview() {
+private fun AlarmContentChannelAndMessagePreview() {
     VartovyiTheme {
         AlarmContent(
             sourceChannelName = "Тривога в Харкові",
             sourceMessageText = "Увага! Повітряна небезпека в області, пройдіть в укриття.",
+            onDismiss = {},
+        )
+    }
+}
+
+@Preview(
+    name = "Alarm — title only",
+    widthDp = 360,
+    heightDp = 800,
+    showBackground = true,
+    backgroundColor = 0xFF0D1117,
+)
+@Composable
+private fun AlarmContentTitleOnlyPreview() {
+    VartovyiTheme {
+        AlarmContent(
+            sourceChannelName = "",
+            sourceMessageText = "",
+            onDismiss = {},
+        )
+    }
+}
+
+@Preview(
+    name = "Alarm — channel only",
+    widthDp = 360,
+    heightDp = 800,
+    showBackground = true,
+    backgroundColor = 0xFF0D1117,
+)
+@Composable
+private fun AlarmContentChannelOnlyPreview() {
+    VartovyiTheme {
+        AlarmContent(
+            sourceChannelName = "Повітряна тривога • Київ",
+            sourceMessageText = "",
+            onDismiss = {},
+        )
+    }
+}
+
+@Preview(
+    name = "Alarm — long message (scroll)",
+    widthDp = 360,
+    heightDp = 800,
+    showBackground = true,
+    backgroundColor = 0xFF0D1117,
+)
+@Composable
+private fun AlarmContentLongMessagePreview() {
+    VartovyiTheme {
+        AlarmContent(
+            sourceChannelName = "Тривога в Харківській області",
+            sourceMessageText = "Увага! Оголошено повітряну тривогу по всій області. " +
+                    "Зафіксовано зліт ворожої авіації та пуски крилатих ракет у напрямку регіону. " +
+                    "Негайно пройдіть до найближчого укриття та залишайтесь там до відбою. " +
+                    "Не нехтуйте власною безпекою, тримайтеся подалі від вікон та зовнішніх стін. " +
+                    "Слідкуйте за офіційними повідомленнями та не поширюйте неперевірену інформацію. " +
+                    "Відбій тривоги буде оголошено окремо — дочекайтесь сигналу про завершення небезпеки.",
+            onDismiss = {},
+        )
+    }
+}
+
+@Preview(
+    name = "Alarm — small screen, long message",
+    widthDp = 320,
+    heightDp = 480,
+    showBackground = true,
+    backgroundColor = 0xFF0D1117,
+)
+@Composable
+private fun AlarmContentSmallScreenLongMessagePreview() {
+    VartovyiTheme {
+        AlarmContent(
+            sourceChannelName = "Тривога в Харківській області",
+            sourceMessageText = "Увага! Оголошено повітряну тривогу по всій області. " +
+                    "Зафіксовано пуски крилатих ракет у напрямку регіону. " +
+                    "Негайно пройдіть до найближчого укриття та залишайтесь там до відбою.",
             onDismiss = {},
         )
     }
