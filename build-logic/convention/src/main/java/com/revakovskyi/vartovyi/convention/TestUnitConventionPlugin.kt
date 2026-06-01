@@ -25,6 +25,7 @@ class TestUnitConventionPlugin : Plugin<Project> {
             dependencies {
                 "testImplementation"(libs.findBundle("testing").get())
                 "testRuntimeOnly"(libs.findLibrary("junit5-engine").get())
+                "testRuntimeOnly"(libs.findLibrary("junit-platform-launcher").get())
             }
         }
     }

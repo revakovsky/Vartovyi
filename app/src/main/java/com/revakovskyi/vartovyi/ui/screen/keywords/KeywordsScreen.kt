@@ -75,6 +75,8 @@ fun KeywordsScreen(
     val chipCopiedMessage = stringResource(R.string.keywords_chip_copied)
     val keywordNormalizedTemplate = stringResource(R.string.keywords_normalized)
     val keywordMultilineNotAllowedMessage = stringResource(R.string.keywords_multiline_not_allowed)
+    val keywordStartsWithNonAlphanumericMessage =
+        stringResource(R.string.keywords_starts_with_non_alphanumeric)
     val keywordsClearedMessage = stringResource(R.string.keywords_clear_completed)
     val keywordsRestoreNothingAddedMessage = stringResource(R.string.keywords_restore_nothing_added)
     val importSuccessMessage = stringResource(R.string.keywords_import_success)
@@ -109,6 +111,13 @@ fun KeywordsScreen(
                 showSnackbarWithClearFocus(
                     focusManager = focusManager,
                     message = keywordMultilineNotAllowedMessage
+                )
+            }
+
+            KeywordsUiContract.Event.KeywordStartsWithNonAlphanumeric -> {
+                showSnackbarWithClearFocus(
+                    focusManager = focusManager,
+                    message = keywordStartsWithNonAlphanumericMessage,
                 )
             }
 

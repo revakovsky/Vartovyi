@@ -3,12 +3,16 @@ package com.revakovskyi.vartovyi.ui.screen.keywords
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.revakovskyi.vartovyi.constants.KeywordRuleFormat
 import com.revakovskyi.vartovyi.constants.KeywordsLimits
 import com.revakovskyi.vartovyi.model.TriggerKeywordRule
 import com.revakovskyi.vartovyi.model.TriggerKeywordRuleType
 import com.revakovskyi.vartovyi.result.KeywordSanitizationResult
 import com.revakovskyi.vartovyi.ui.screen.keywords.KeywordsUiContract.Action
 import com.revakovskyi.vartovyi.ui.screen.keywords.KeywordsUiContract.Event
+import com.revakovskyi.vartovyi.ui.screen.keywords.KeywordsUiContract.Event.KeywordMultiLineNotAllowed
+import com.revakovskyi.vartovyi.ui.screen.keywords.KeywordsUiContract.Event.KeywordStartsWithNonAlphanumeric
+import com.revakovskyi.vartovyi.ui.screen.keywords.KeywordsUiContract.Event.KeywordTermTooShort
 import com.revakovskyi.vartovyi.ui.screen.keywords.KeywordsUiContract.State
 import com.revakovskyi.vartovyi.usecase.keywords.AddKeywordUseCase
 import com.revakovskyi.vartovyi.usecase.keywords.AddStopWordUseCase
@@ -162,14 +166,14 @@ class KeywordsViewModel(
             is KeywordSanitizationResult.Empty -> return
 
             is KeywordSanitizationResult.MultiLineDetected -> {
-                viewModelScope.launch { _events.send(Event.KeywordMultiLineNotAllowed) }
+                viewModelScope.launch { _events.send(KeywordMultiLineNotAllowed) }
                 return
             }
 
             is KeywordSanitizationResult.TermTooShort -> {
                 viewModelScope.launch {
                     _events.send(
-                        Event.KeywordTermTooShort(minLength = KeywordsLimits.MIN_TERM_LENGTH)
+                        KeywordTermTooShort(minLength = KeywordsLimits.MIN_TERM_LENGTH)
                     )
                 }
                 return
@@ -177,6 +181,10 @@ class KeywordsViewModel(
 
             is KeywordSanitizationResult.Sanitized -> {
                 addSanitizedKeyword(sanitized = outcome, selectedType = selectedType)
+            }
+
+            KeywordSanitizationResult.StartsWithNonAlphanumeric -> {
+                viewModelScope.launch { _events.send(KeywordStartsWithNonAlphanumeric) }
             }
         }
     }
@@ -214,11 +222,41 @@ class KeywordsViewModel(
             _state.update { it.copy(inputKeyword = "") }
             _events.send(Event.KeywordAdded)
 
-            val wasModified = newKeywordRule.displayValue != sanitized.normalizedRawInput ||
-                    sanitized.effectiveType != selectedType
+            val wasModified = wasContentModified(
+                sanitized = sanitized,
+                newKeywordRule = newKeywordRule,
+                selectedType = selectedType,
+            )
             if (wasModified) {
                 _events.send(Event.KeywordNormalized(displayValue = newKeywordRule.displayValue))
             }
+        }
+    }
+
+    private fun wasContentModified(
+        sanitized: KeywordSanitizationResult.Sanitized,
+        newKeywordRule: TriggerKeywordRule,
+        selectedType: TriggerKeywordRuleType,
+    ): Boolean {
+        if (sanitized.effectiveType != selectedType) return true
+
+        val resultContent = newKeywordRule.terms.joinToString(
+            separator = KeywordRuleFormat.PHRASE_TERM_SEPARATOR,
+        )
+        val rawContent = stripBalancedOuterQuotes(sanitized.normalizedRawInput)
+
+        return resultContent != rawContent
+    }
+
+    private fun stripBalancedOuterQuotes(value: String): String {
+        val hasBalancedOuterQuotes = value.length >= 2 &&
+                value.startsWith(KeywordRuleFormat.QUOTE) &&
+                value.endsWith(KeywordRuleFormat.QUOTE)
+
+        return if (hasBalancedOuterQuotes) {
+            value.substring(1, value.length - 1)
+        } else {
+            value
         }
     }
 

@@ -11,10 +11,15 @@ data class TriggerKeywordRule(
     val displayValue: String,
 ) {
 
+    /**
+     * Terms are sorted so that order-independent rules (ALL_WORDS matches in any order)
+     * share one signature and are detected as duplicates regardless of input order.
+     */
     fun normalizedSignature(): String {
-        val normalizedTerms = terms.joinToString(
-            separator = KeywordRuleFormat.NORMALIZED_SIGNATURE_SEPARATOR,
-        ) { term -> normalizeText(term) }
+        val normalizedTerms = terms
+            .map { term -> normalizeText(term) }
+            .sorted()
+            .joinToString(separator = KeywordRuleFormat.NORMALIZED_SIGNATURE_SEPARATOR)
         return "${type.name}${KeywordRuleFormat.NORMALIZED_SIGNATURE_SEPARATOR}$normalizedTerms"
     }
 
@@ -26,19 +31,20 @@ data class TriggerKeywordRule(
 
         return when (type) {
             TriggerKeywordRuleType.WORD -> {
-                val term = terms.firstOrNull() ?: return false
-                extractWordTokens(term).all { token -> token in textTokens }
+                val termTokens = extractWordTokens(terms.firstOrNull().orEmpty())
+                termTokens.isNotEmpty() && termTokens.all { token -> token in textTokens }
             }
 
             TriggerKeywordRuleType.ALL_WORDS -> {
-                terms.all { term ->
-                    extractWordTokens(term).all { token -> token in textTokens }
+                terms.isNotEmpty() && terms.all { term ->
+                    val termTokens = extractWordTokens(term)
+                    termTokens.isNotEmpty() && termTokens.all { token -> token in textTokens }
                 }
             }
 
             TriggerKeywordRuleType.PHRASE -> {
-                val phrase = terms.firstOrNull() ?: return false
-                normalizedText.contains(normalizeText(phrase))
+                val phrase = normalizeText(terms.firstOrNull().orEmpty())
+                phrase.isNotEmpty() && normalizedText.contains(phrase)
             }
         }
     }
