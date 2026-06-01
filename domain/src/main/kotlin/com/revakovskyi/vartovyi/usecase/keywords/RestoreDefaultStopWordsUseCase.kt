@@ -2,16 +2,16 @@ package com.revakovskyi.vartovyi.usecase.keywords
 
 import com.revakovskyi.vartovyi.repository.KeywordsRepository
 
-interface RestoreDefaultKeywordsUseCase {
+interface RestoreDefaultStopWordsUseCase {
     suspend operator fun invoke(): Int
 }
 
-class RestoreDefaultKeywordsUseCaseImpl(
+class RestoreDefaultStopWordsUseCaseImpl(
     private val keywordsRepository: KeywordsRepository,
-) : RestoreDefaultKeywordsUseCase {
+) : RestoreDefaultStopWordsUseCase {
 
     override suspend operator fun invoke(): Int {
-        return keywordsRepository.restoreDefaultKeywords()
+        return keywordsRepository.restoreDefaultStopWords()
     }
 
 }
