@@ -47,7 +47,6 @@ class SanitizeKeywordInputUseCaseImpl : SanitizeKeywordInputUseCase {
             character == KeywordRuleFormat.QUOTE.first()
         }
         return totalQuotes == 2 &&
-                trimmed.length >= 2 &&
                 trimmed.startsWith(KeywordRuleFormat.QUOTE) &&
                 trimmed.endsWith(KeywordRuleFormat.QUOTE)
     }
@@ -131,6 +130,11 @@ class SanitizeKeywordInputUseCaseImpl : SanitizeKeywordInputUseCase {
         }
     }
 
+    /**
+     * For an [TriggerKeywordRuleType.ALL_WORDS] value with a single token a trailing separator is
+     * kept so the value still round-trips as ALL_WORDS through the storage parser, which detects
+     * ALL_WORDS by the presence of the separator.
+     */
     private fun buildStorageValue(
         effectiveType: TriggerKeywordRuleType,
         tokens: List<String>,
