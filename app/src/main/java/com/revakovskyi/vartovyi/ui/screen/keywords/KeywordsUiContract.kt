@@ -1,7 +1,9 @@
 package com.revakovskyi.vartovyi.ui.screen.keywords
 
 import androidx.compose.runtime.Immutable
+import com.revakovskyi.vartovyi.constants.POPULAR_TELEGRAM_CHANNELS
 import com.revakovskyi.vartovyi.model.ImportStrategy
+import com.revakovskyi.vartovyi.model.PopularTelegramChannel
 import com.revakovskyi.vartovyi.model.TriggerKeywordRule
 import com.revakovskyi.vartovyi.model.TriggerKeywordRuleType
 import com.revakovskyi.vartovyi.ui.screen.keywords.model.ExportDestination
@@ -41,6 +43,21 @@ interface KeywordsUiContract {
 
         val canExport: Boolean
             get() = keywords.isNotEmpty() || stopWords.isNotEmpty() || telegramChannels.isNotEmpty()
+
+        val suggestedTelegramChannels: List<PopularTelegramChannel>
+            get() {
+                val query = inputTelegramChannel.trim()
+                return POPULAR_TELEGRAM_CHANNELS.filter { suggestion ->
+                    val isAlreadyAdded = telegramChannels.any { channel ->
+                        channel.equals(suggestion.displayName, ignoreCase = true)
+                    }
+                    val matchesQuery = query.isBlank() ||
+                            suggestion.displayName.contains(query, ignoreCase = true) ||
+                            suggestion.handle.contains(query, ignoreCase = true)
+
+                    !isAlreadyAdded && matchesQuery
+                }
+            }
     }
 
     sealed interface Action {
@@ -54,6 +71,7 @@ interface KeywordsUiContract {
         data object ToggleTelegramChannelFilter : Action
         data class UpdateTelegramChannelInput(val value: String) : Action
         data object AddTelegramChannel : Action
+        data class SelectSuggestedTelegramChannel(val channel: String) : Action
         data class RemoveTelegramChannel(val channel: String) : Action
         data object DismissDuplicateWordDialog : Action
         data object ConfirmPendingRemoval : Action
