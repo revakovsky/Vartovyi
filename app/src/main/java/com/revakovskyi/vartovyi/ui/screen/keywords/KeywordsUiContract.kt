@@ -1,6 +1,7 @@
 package com.revakovskyi.vartovyi.ui.screen.keywords
 
 import androidx.compose.runtime.Immutable
+import com.revakovskyi.vartovyi.model.ImportStrategy
 import com.revakovskyi.vartovyi.model.TriggerKeywordRule
 import com.revakovskyi.vartovyi.model.TriggerKeywordRuleType
 
@@ -27,7 +28,8 @@ interface KeywordsUiContract {
         val pendingRemoval: PendingRemoval? = null,
         val isClearKeywordsDialogVisible: Boolean = false,
         val isRestoreDefaultsDialogVisible: Boolean = false,
-        val isImportConfirmationDialogVisible: Boolean = false,
+        val isImportStrategyDialogVisible: Boolean = false,
+        val pendingImportStrategy: ImportStrategy? = null,
     ) {
         val hasKeywordDataToClear: Boolean
             get() = keywords.isNotEmpty() ||
@@ -65,8 +67,8 @@ interface KeywordsUiContract {
         data object NotifyExportSuccess : Action
         data object NotifyExportError : Action
         data object RequestImport : Action
-        data object DismissImportConfirmationDialog : Action
-        data object ConfirmImport : Action
+        data object DismissImportStrategyDialog : Action
+        data class SelectImportStrategy(val strategy: ImportStrategy) : Action
         data class ImportKeywords(val jsonContent: String) : Action
         data object NotifyImportReadError : Action
         data object NotifyImportFileTooLarge : Action
@@ -91,7 +93,11 @@ interface KeywordsUiContract {
         data object KeywordsExportSuccess : Event
         data object KeywordsExportError : Event
         data object LaunchImportFilePicker : Event
-        data object KeywordsImportSuccess : Event
+        data class KeywordsImportSuccess(
+            val strategy: ImportStrategy,
+            val addedCount: Int,
+            val skippedCount: Int,
+        ) : Event
         data object KeywordsImportInvalidFormat : Event
         data class KeywordsImportUnsupportedVersion(val fileVersion: Int) : Event
         data object KeywordsImportWriteError : Event

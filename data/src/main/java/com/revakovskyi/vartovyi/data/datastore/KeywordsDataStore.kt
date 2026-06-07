@@ -7,6 +7,7 @@ import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
 import com.revakovskyi.vartovyi.contract.CrashReporter
+import com.revakovskyi.vartovyi.model.KeywordsDataSnapshot
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import kotlinx.serialization.json.Json
@@ -160,6 +161,31 @@ internal class KeywordsDataStore(
             preferences.remove(Keys.STOP_WORDS)
             preferences.remove(Keys.TELEGRAM_CHANNELS)
             preferences.remove(Keys.TELEGRAM_CHANNEL_FILTER_ENABLED)
+        }
+    }
+
+    /**
+     * Atomically replaces all user data in a single transaction: reads the current snapshot,
+     * applies [transform], and writes the result. Either everything is written or nothing is.
+     */
+    suspend fun replaceAllData(
+        transform: (currentData: KeywordsDataSnapshot) -> KeywordsDataSnapshot,
+    ): Boolean {
+        return context.keywordsDataStore.safeEdit { preferences ->
+            val currentData = KeywordsDataSnapshot(
+                keywords = storedStringList(preferences, Keys.KEYWORDS),
+                stopWords = storedStringList(preferences, Keys.STOP_WORDS),
+                telegramChannels = storedStringList(preferences, Keys.TELEGRAM_CHANNELS),
+                isTelegramChannelFilterEnabled = preferences[Keys.TELEGRAM_CHANNEL_FILTER_ENABLED] == true,
+            )
+
+            val finalData = transform(currentData)
+
+            preferences[Keys.KEYWORDS] = Json.encodeToString(finalData.keywords)
+            preferences[Keys.STOP_WORDS] = Json.encodeToString(finalData.stopWords)
+            preferences[Keys.TELEGRAM_CHANNELS] = Json.encodeToString(finalData.telegramChannels)
+            preferences[Keys.TELEGRAM_CHANNEL_FILTER_ENABLED] =
+                finalData.isTelegramChannelFilterEnabled
         }
     }
 
