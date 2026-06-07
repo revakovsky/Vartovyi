@@ -1,5 +1,6 @@
 package com.revakovskyi.vartovyi.repository
 
+import com.revakovskyi.vartovyi.model.KeywordsDataSnapshot
 import kotlinx.coroutines.flow.Flow
 
 interface KeywordsRepository {
@@ -21,5 +22,8 @@ interface KeywordsRepository {
     suspend fun restoreDefaultKeywords(): Int
     suspend fun restoreDefaultStopWords(): Int
     suspend fun clearAllKeywordsPreferences(): Boolean
+    suspend fun replaceAllKeywordsData(
+        transform: (currentData: KeywordsDataSnapshot) -> KeywordsDataSnapshot,
+    ): Boolean
 
 }
