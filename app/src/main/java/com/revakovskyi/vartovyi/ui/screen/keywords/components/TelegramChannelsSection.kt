@@ -26,6 +26,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.tooling.preview.Preview
 import com.revakovskyi.vartovyi.R
+import com.revakovskyi.vartovyi.model.PopularTelegramChannel
 import com.revakovskyi.vartovyi.ui.components.VartovyiDialog
 import com.revakovskyi.vartovyi.ui.components.VartovyiSwitch
 import com.revakovskyi.vartovyi.ui.theme.VartovyiTheme
@@ -36,15 +37,18 @@ fun TelegramChannelsSection(
     bringIntoViewRequester: BringIntoViewRequester,
     isEnabled: Boolean,
     channels: List<String>,
+    suggestedChannels: List<PopularTelegramChannel>,
     inputValue: String,
     onToggle: () -> Unit,
     onInputChange: (value: String) -> Unit,
     onAdd: () -> Unit,
     onCopy: (text: String) -> Unit,
     onRemove: (channel: String) -> Unit,
+    onSuggestionSelect: (channel: String) -> Unit,
     onFocusChanged: (isFocused: Boolean) -> Unit,
 ) {
     var showInfoDialog by remember { mutableStateOf(false) }
+    var isInputFocused by remember { mutableStateOf(false) }
 
     if (showInfoDialog) {
         VartovyiDialog(
@@ -118,7 +122,6 @@ fun TelegramChannelsSection(
 
                 Column(
                     verticalArrangement = Arrangement.spacedBy(VartovyiTheme.spacing.medium),
-                    modifier = Modifier.bringIntoViewRequester(bringIntoViewRequester),
                 ) {
                     WordInputRow(
                         value = inputValue,
@@ -126,7 +129,17 @@ fun TelegramChannelsSection(
                         onClear = { onInputChange("") },
                         onValueChange = onInputChange,
                         onAdd = onAdd,
-                        onFocusChanged = onFocusChanged,
+                        onFocusChanged = { isFocused ->
+                            isInputFocused = isFocused
+                            onFocusChanged(isFocused)
+                        },
+                        modifier = Modifier.bringIntoViewRequester(bringIntoViewRequester)
+                    )
+
+                    PopularChannelsSuggestions(
+                        visible = isInputFocused && suggestedChannels.isNotEmpty(),
+                        channels = suggestedChannels,
+                        onSelect = onSuggestionSelect,
                     )
 
                     if (channels.isNotEmpty()) {
@@ -165,12 +178,14 @@ private fun PreviewTelegramChannelsSectionDisabled() {
             bringIntoViewRequester = remember { BringIntoViewRequester() },
             isEnabled = false,
             channels = emptyList(),
+            suggestedChannels = emptyList(),
             inputValue = "",
             onToggle = {},
             onInputChange = {},
             onAdd = {},
             onCopy = {},
             onRemove = {},
+            onSuggestionSelect = {},
             onFocusChanged = {},
         )
     }
@@ -184,12 +199,14 @@ private fun PreviewTelegramChannelsSectionEnabledEmpty() {
             bringIntoViewRequester = remember { BringIntoViewRequester() },
             isEnabled = true,
             channels = emptyList(),
+            suggestedChannels = emptyList(),
             inputValue = "",
             onToggle = {},
             onInputChange = {},
             onAdd = {},
             onCopy = {},
             onRemove = {},
+            onSuggestionSelect = {},
             onFocusChanged = {},
         )
     }
@@ -203,12 +220,14 @@ private fun PreviewTelegramChannelsSectionWithChannels() {
             bringIntoViewRequester = remember { BringIntoViewRequester() },
             isEnabled = true,
             channels = listOf("@air_alert_ua", "@kharkiv_alarm"),
+            suggestedChannels = emptyList(),
             inputValue = "",
             onToggle = {},
             onInputChange = {},
             onAdd = {},
             onCopy = {},
             onRemove = {},
+            onSuggestionSelect = {},
             onFocusChanged = {},
         )
     }
