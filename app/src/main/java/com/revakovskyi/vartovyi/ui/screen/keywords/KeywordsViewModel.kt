@@ -92,6 +92,9 @@ class KeywordsViewModel(
             is Action.ToggleTelegramChannelFilter -> toggleTelegramChannelFilter()
             is Action.UpdateTelegramChannelInput -> updateTelegramChannelInput(action.value)
             is Action.AddTelegramChannel -> addTelegramChannel()
+            is Action.SelectSuggestedTelegramChannel -> {
+                selectSuggestedTelegramChannel(action.channel)
+            }
             is Action.RemoveTelegramChannel -> removeTelegramChannel(action.channel)
             is Action.DismissDuplicateWordDialog -> dismissDuplicateWordDialog()
             is Action.ConfirmPendingRemoval -> confirmPendingRemoval()
@@ -371,6 +374,20 @@ class KeywordsViewModel(
 
         if (channel != rawInput.trim()) {
             _events.send(Event.KeywordNormalized(displayValue = channel))
+        }
+    }
+
+    private fun selectSuggestedTelegramChannel(channel: String) {
+        viewModelScope.launch {
+            val isAlreadyAdded = _state.value.telegramChannels.any {
+                it.equals(channel, ignoreCase = true)
+            }
+            if (isAlreadyAdded) return@launch
+
+            val outcome = sanitizeWordInputUseCase(channel, WordInputTarget.TelegramChannel)
+            if (outcome is KeywordSanitizationResult.Sanitized) {
+                addSanitizedTelegramChannel(sanitized = outcome, rawInput = channel)
+            }
         }
     }
 
