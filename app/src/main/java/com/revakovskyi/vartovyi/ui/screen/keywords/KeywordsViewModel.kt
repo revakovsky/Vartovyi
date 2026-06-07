@@ -7,6 +7,7 @@ import com.revakovskyi.vartovyi.constants.KeywordRuleFormat
 import com.revakovskyi.vartovyi.constants.KeywordsLimits
 import com.revakovskyi.vartovyi.model.TriggerKeywordRule
 import com.revakovskyi.vartovyi.model.TriggerKeywordRuleType
+import com.revakovskyi.vartovyi.model.WordInputTarget
 import com.revakovskyi.vartovyi.result.KeywordSanitizationResult
 import com.revakovskyi.vartovyi.ui.screen.keywords.KeywordsUiContract.Action
 import com.revakovskyi.vartovyi.ui.screen.keywords.KeywordsUiContract.Event
@@ -31,7 +32,7 @@ import com.revakovskyi.vartovyi.usecase.keywords.RemoveStopWordUseCase
 import com.revakovskyi.vartovyi.usecase.keywords.RemoveTelegramChannelUseCase
 import com.revakovskyi.vartovyi.usecase.keywords.RestoreDefaultKeywordsUseCase
 import com.revakovskyi.vartovyi.usecase.keywords.RestoreDefaultStopWordsUseCase
-import com.revakovskyi.vartovyi.usecase.keywords.SanitizeKeywordInputUseCase
+import com.revakovskyi.vartovyi.usecase.keywords.SanitizeWordInputUseCase
 import com.revakovskyi.vartovyi.usecase.keywords.ToggleTelegramChannelFilterUseCase
 import com.revakovskyi.vartovyi.utils.parseTriggerKeywordRuleFromStorage
 import kotlinx.coroutines.channels.Channel
@@ -62,7 +63,7 @@ class KeywordsViewModel(
     private val clearKeywordsScreenDataUseCase: ClearKeywordsScreenDataUseCase,
     private val restoreDefaultKeywordsUseCase: RestoreDefaultKeywordsUseCase,
     private val restoreDefaultStopWordsUseCase: RestoreDefaultStopWordsUseCase,
-    private val sanitizeKeywordInputUseCase: SanitizeKeywordInputUseCase,
+    private val sanitizeWordInputUseCase: SanitizeWordInputUseCase,
     private val exportKeywordsUseCase: ExportKeywordsUseCase,
     private val importKeywordsUseCase: ImportKeywordsUseCase,
 ) : ViewModel() {
@@ -161,35 +162,34 @@ class KeywordsViewModel(
     private fun addKeyword() {
         val selectedType = _state.value.selectedTriggerKeywordRuleType
         val rawInput = _state.value.inputKeyword
+        val target = WordInputTarget.TriggerKeyword(selectedType = selectedType)
 
-        when (val outcome = sanitizeKeywordInputUseCase(rawInput, selectedType)) {
-            is KeywordSanitizationResult.Empty -> return
+        viewModelScope.launch {
+            when (val outcome = sanitizeWordInputUseCase(rawInput, target)) {
+                is KeywordSanitizationResult.Empty -> return@launch
 
-            is KeywordSanitizationResult.MultiLineDetected -> {
-                viewModelScope.launch { _events.send(KeywordMultiLineNotAllowed) }
-                return
-            }
+                is KeywordSanitizationResult.MultiLineDetected -> {
+                    _events.send(KeywordMultiLineNotAllowed)
+                }
 
-            is KeywordSanitizationResult.TermTooShort -> {
-                viewModelScope.launch {
+                is KeywordSanitizationResult.TermTooShort -> {
                     _events.send(
                         KeywordTermTooShort(minLength = KeywordsLimits.MIN_TERM_LENGTH)
                     )
                 }
-                return
-            }
 
-            is KeywordSanitizationResult.Sanitized -> {
-                addSanitizedKeyword(sanitized = outcome, selectedType = selectedType)
-            }
+                is KeywordSanitizationResult.Sanitized -> {
+                    addSanitizedKeyword(sanitized = outcome, selectedType = selectedType)
+                }
 
-            KeywordSanitizationResult.StartsWithNonAlphanumeric -> {
-                viewModelScope.launch { _events.send(KeywordStartsWithNonAlphanumeric) }
+                KeywordSanitizationResult.StartsWithNonAlphanumeric -> {
+                    _events.send(KeywordStartsWithNonAlphanumeric)
+                }
             }
         }
     }
 
-    private fun addSanitizedKeyword(
+    private suspend fun addSanitizedKeyword(
         sanitized: KeywordSanitizationResult.Sanitized,
         selectedType: TriggerKeywordRuleType,
     ) {
@@ -209,27 +209,21 @@ class KeywordsViewModel(
         }
 
         if (_state.value.keywords.size >= KeywordsLimits.MAX_TOTAL_KEYWORDS) {
-            viewModelScope.launch {
-                _events.send(
-                    Event.KeywordsMaxReached(max = KeywordsLimits.MAX_TOTAL_KEYWORDS)
-                )
-            }
+            _events.send(Event.KeywordsMaxReached(max = KeywordsLimits.MAX_TOTAL_KEYWORDS))
             return
         }
 
-        viewModelScope.launch {
-            addKeywordUseCase(newKeywordRule.storageValue)
-            _state.update { it.copy(inputKeyword = "") }
-            _events.send(Event.KeywordAdded)
+        addKeywordUseCase(newKeywordRule.storageValue)
+        _state.update { it.copy(inputKeyword = "") }
+        _events.send(Event.KeywordAdded)
 
-            val wasModified = wasContentModified(
-                sanitized = sanitized,
-                newKeywordRule = newKeywordRule,
-                selectedType = selectedType,
-            )
-            if (wasModified) {
-                _events.send(Event.KeywordNormalized(displayValue = newKeywordRule.displayValue))
-            }
+        val wasModified = wasContentModified(
+            sanitized = sanitized,
+            newKeywordRule = newKeywordRule,
+            selectedType = selectedType,
+        )
+        if (wasModified) {
+            _events.send(Event.KeywordNormalized(displayValue = newKeywordRule.displayValue))
         }
     }
 
@@ -269,19 +263,48 @@ class KeywordsViewModel(
     }
 
     private fun addStopWord() {
-        val stopWord = _state.value.inputStopWord.trim()
+        val rawInput = _state.value.inputStopWord
 
-        if (stopWord.isBlank() || stopWord.length < 2) return
+        viewModelScope.launch {
+            when (val outcome = sanitizeWordInputUseCase(rawInput, WordInputTarget.StopWord)) {
+                is KeywordSanitizationResult.Empty -> return@launch
+
+                is KeywordSanitizationResult.MultiLineDetected -> {
+                    _events.send(KeywordMultiLineNotAllowed)
+                }
+
+                is KeywordSanitizationResult.TermTooShort -> {
+                    _events.send(
+                        KeywordTermTooShort(minLength = KeywordsLimits.MIN_TERM_LENGTH)
+                    )
+                }
+
+                is KeywordSanitizationResult.Sanitized -> {
+                    addSanitizedStopWord(sanitized = outcome, rawInput = rawInput)
+                }
+
+                KeywordSanitizationResult.StartsWithNonAlphanumeric -> return@launch
+            }
+        }
+    }
+
+    private suspend fun addSanitizedStopWord(
+        sanitized: KeywordSanitizationResult.Sanitized,
+        rawInput: String,
+    ) {
+        val stopWord = sanitized.storageValue
 
         if (_state.value.stopWords.any { it.equals(stopWord, ignoreCase = true) }) {
             _state.update { it.copy(inputStopWord = "", duplicateWord = stopWord) }
             return
         }
 
-        viewModelScope.launch {
-            addStopWordUseCase(stopWord)
-            _state.update { it.copy(inputStopWord = "") }
-            _events.send(Event.StopWordAdded)
+        addStopWordUseCase(stopWord)
+        _state.update { it.copy(inputStopWord = "") }
+        _events.send(Event.StopWordAdded)
+
+        if (stopWord != rawInput.trim()) {
+            _events.send(Event.KeywordNormalized(displayValue = stopWord))
         }
     }
 
@@ -302,19 +325,48 @@ class KeywordsViewModel(
     }
 
     private fun addTelegramChannel() {
-        val channel = _state.value.inputTelegramChannel.trim()
+        val rawInput = _state.value.inputTelegramChannel
 
-        if (channel.isBlank() || channel.length < 2) return
+        viewModelScope.launch {
+            when (val outcome = sanitizeWordInputUseCase(rawInput, WordInputTarget.TelegramChannel)) {
+                is KeywordSanitizationResult.Empty -> return@launch
+
+                is KeywordSanitizationResult.MultiLineDetected -> {
+                    _events.send(KeywordMultiLineNotAllowed)
+                }
+
+                is KeywordSanitizationResult.TermTooShort -> {
+                    _events.send(
+                        KeywordTermTooShort(minLength = KeywordsLimits.MIN_TERM_LENGTH)
+                    )
+                }
+
+                is KeywordSanitizationResult.Sanitized -> {
+                    addSanitizedTelegramChannel(sanitized = outcome, rawInput = rawInput)
+                }
+
+                KeywordSanitizationResult.StartsWithNonAlphanumeric -> return@launch
+            }
+        }
+    }
+
+    private suspend fun addSanitizedTelegramChannel(
+        sanitized: KeywordSanitizationResult.Sanitized,
+        rawInput: String,
+    ) {
+        val channel = sanitized.storageValue
 
         if (_state.value.telegramChannels.any { it.equals(channel, ignoreCase = true) }) {
             _state.update { it.copy(inputTelegramChannel = "", duplicateWord = channel) }
             return
         }
 
-        viewModelScope.launch {
-            addTelegramChannelUseCase(channel)
-            _state.update { it.copy(inputTelegramChannel = "") }
-            _events.send(Event.TelegramChannelAdded)
+        addTelegramChannelUseCase(channel)
+        _state.update { it.copy(inputTelegramChannel = "") }
+        _events.send(Event.TelegramChannelAdded)
+
+        if (channel != rawInput.trim()) {
+            _events.send(Event.KeywordNormalized(displayValue = channel))
         }
     }
 
