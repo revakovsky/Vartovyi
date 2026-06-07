@@ -16,6 +16,7 @@ import com.revakovskyi.vartovyi.ui.screen.keywords.KeywordsUiContract.Event.Keyw
 import com.revakovskyi.vartovyi.ui.screen.keywords.KeywordsUiContract.Event.KeywordStartsWithNonAlphanumeric
 import com.revakovskyi.vartovyi.ui.screen.keywords.KeywordsUiContract.Event.KeywordTermTooShort
 import com.revakovskyi.vartovyi.ui.screen.keywords.KeywordsUiContract.State
+import com.revakovskyi.vartovyi.ui.screen.keywords.model.ExportDestination
 import com.revakovskyi.vartovyi.usecase.keywords.AddKeywordUseCase
 import com.revakovskyi.vartovyi.usecase.keywords.AddStopWordUseCase
 import com.revakovskyi.vartovyi.usecase.keywords.AddTelegramChannelUseCase
@@ -102,7 +103,9 @@ class KeywordsViewModel(
             is Action.DismissRestoreDefaultsDialog -> dismissRestoreDefaultsDialog()
             is Action.ConfirmRestoreDefaults -> confirmRestoreDefaults()
             is Action.CopyChip -> copyChip(action.text)
-            is Action.ExportKeywords -> exportKeywords()
+            is Action.RequestExport -> requestExport()
+            is Action.DismissExportDestinationDialog -> dismissExportDestinationDialog()
+            is Action.SelectExportDestination -> selectExportDestination(action.destination)
             is Action.NotifyExportSuccess -> notifyExportSuccess()
             is Action.NotifyExportError -> notifyExportError()
             is Action.RequestImport -> requestImport()
@@ -474,12 +477,29 @@ class KeywordsViewModel(
         viewModelScope.launch { _events.send(Event.ChipCopied(text)) }
     }
 
-    private fun exportKeywords() {
+    private fun requestExport() {
+        _state.update { it.copy(isExportDestinationDialogVisible = true) }
+    }
+
+    private fun dismissExportDestinationDialog() {
+        _state.update { it.copy(isExportDestinationDialogVisible = false) }
+    }
+
+    private fun selectExportDestination(destination: ExportDestination) {
+        _state.update { it.copy(isExportDestinationDialogVisible = false) }
+
         viewModelScope.launch {
             when (val result = exportKeywordsUseCase()) {
-                is ExportResult.Success -> _events.send(Event.LaunchExportFilePicker(result.jsonContent))
+                is ExportResult.Success -> {
+                    val event = when (destination) {
+                        ExportDestination.SAVE_TO_FILE -> Event.LaunchExportFilePicker(result.jsonContent)
+                        ExportDestination.SHARE -> Event.LaunchExportShareSheet(result.jsonContent)
+                    }
+                    _events.send(event)
+                }
+
                 is ExportResult.Error -> {
-                    Log.e(TAG, "exportKeywords: failed to build backup", result.exception)
+                    Log.e(TAG, "selectExportDestination: failed to build backup", result.exception)
                     _events.send(Event.KeywordsExportError)
                 }
             }

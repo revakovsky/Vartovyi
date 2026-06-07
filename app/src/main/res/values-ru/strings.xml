@@ -176,6 +176,11 @@
     <string name="keywords_clear_completed">Списки ключевых слов очищены</string>
     <string name="keywords_export">Экспорт</string>
     <string name="keywords_import">Импорт</string>
+    <string name="keywords_export_dialog_title">Экспорт ключевых слов</string>
+    <string name="keywords_export_dialog_message">Как вы хотите экспортировать ваши данные?\n• Сохранить на устройство — выбрать папку и сохранить файл локально.\n• Поделиться — отправить файл через другие приложения.</string>
+    <string name="keywords_export_save">Сохранить на устройство</string>
+    <string name="keywords_export_share">Поделиться</string>
+    <string name="keywords_export_cancel">Отмена</string>
     <string name="keywords_export_success">Ключевые слова успешно экспортированы</string>
     <string name="keywords_export_error">Ошибка экспорта: не удалось записать файл</string>
     <string name="keywords_import_replaced">Существующие данные заменены содержимым импортированного файла</string>

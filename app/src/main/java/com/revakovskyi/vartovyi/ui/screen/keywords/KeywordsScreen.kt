@@ -40,15 +40,18 @@ import com.revakovskyi.vartovyi.R
 import com.revakovskyi.vartovyi.constants.KeywordRuleFormat
 import com.revakovskyi.vartovyi.model.ImportStrategy
 import com.revakovskyi.vartovyi.model.TriggerKeywordRuleType
+import com.revakovskyi.vartovyi.ui.components.DialogChoice
+import com.revakovskyi.vartovyi.ui.components.DialogChoiceRole
 import com.revakovskyi.vartovyi.ui.components.LoadingOverlay
+import com.revakovskyi.vartovyi.ui.components.VartovyiChoiceDialog
 import com.revakovskyi.vartovyi.ui.components.VartovyiDialog
-import com.revakovskyi.vartovyi.ui.screen.keywords.components.ImportStrategyDialog
 import com.revakovskyi.vartovyi.ui.screen.keywords.components.KeywordsBackupRow
 import com.revakovskyi.vartovyi.ui.screen.keywords.components.KeywordsClearButton
 import com.revakovskyi.vartovyi.ui.screen.keywords.components.KeywordsRestoreDefaultsButton
 import com.revakovskyi.vartovyi.ui.screen.keywords.components.KeywordsSection
 import com.revakovskyi.vartovyi.ui.screen.keywords.components.StopWordsSection
 import com.revakovskyi.vartovyi.ui.screen.keywords.components.TelegramChannelsSection
+import com.revakovskyi.vartovyi.ui.screen.keywords.model.ExportDestination
 import com.revakovskyi.vartovyi.ui.theme.VartovyiTheme
 import com.revakovskyi.vartovyi.ui.util.rememberKeywordsBackupHelper
 import com.revakovskyi.vartovyi.ui.util.snackbar.SnackbarController
@@ -232,6 +235,7 @@ fun KeywordsScreen(
             }
 
             is KeywordsUiContract.Event.LaunchExportFilePicker,
+            is KeywordsUiContract.Event.LaunchExportShareSheet,
             is KeywordsUiContract.Event.LaunchImportFilePicker,
                 -> backupHelper.handleEvent(event)
         }
@@ -301,26 +305,77 @@ fun KeywordsScreen(
     }
 
     if (state.isImportStrategyDialogVisible) {
-        ImportStrategyDialog(
+        VartovyiChoiceDialog(
             title = stringResource(R.string.keywords_import_strategy_dialog_title),
             message = stringResource(R.string.keywords_import_strategy_dialog_message),
-            mergeText = stringResource(R.string.keywords_import_strategy_merge),
-            cancelText = stringResource(R.string.keywords_import_strategy_cancel),
-            replaceText = stringResource(R.string.keywords_import_strategy_replace),
-            onMerge = {
-                viewModel.onAction(
-                    KeywordsUiContract.Action.SelectImportStrategy(ImportStrategy.MERGE)
-                )
-            },
-            onReplace = {
-                viewModel.onAction(
-                    KeywordsUiContract.Action.SelectImportStrategy(ImportStrategy.REPLACE)
-                )
-            },
+            choices = listOf(
+                DialogChoice(
+                    text = stringResource(R.string.keywords_import_strategy_merge),
+                    role = DialogChoiceRole.PRIMARY,
+                    onClick = {
+                        viewModel.onAction(
+                            KeywordsUiContract.Action.SelectImportStrategy(ImportStrategy.MERGE)
+                        )
+                    },
+                ),
+                DialogChoice(
+                    text = stringResource(R.string.keywords_import_strategy_replace),
+                    role = DialogChoiceRole.DESTRUCTIVE,
+                    onClick = {
+                        viewModel.onAction(
+                            KeywordsUiContract.Action.SelectImportStrategy(ImportStrategy.REPLACE)
+                        )
+                    },
+                ),
+                DialogChoice(
+                    text = stringResource(R.string.keywords_import_strategy_cancel),
+                    role = DialogChoiceRole.NEUTRAL,
+                    onClick = {
+                        viewModel.onAction(KeywordsUiContract.Action.DismissImportStrategyDialog)
+                    },
+                ),
+            ),
+            onDismiss = { viewModel.onAction(KeywordsUiContract.Action.DismissImportStrategyDialog) },
+        )
+    }
+
+    if (state.isExportDestinationDialogVisible) {
+        VartovyiChoiceDialog(
+            title = stringResource(R.string.keywords_export_dialog_title),
+            message = stringResource(R.string.keywords_export_dialog_message),
+            choices = listOf(
+                DialogChoice(
+                    text = stringResource(R.string.keywords_export_save),
+                    role = DialogChoiceRole.PRIMARY,
+                    onClick = {
+                        viewModel.onAction(
+                            KeywordsUiContract.Action.SelectExportDestination(
+                                ExportDestination.SAVE_TO_FILE
+                            )
+                        )
+                    },
+                ),
+                DialogChoice(
+                    text = stringResource(R.string.keywords_export_share),
+                    role = DialogChoiceRole.PRIMARY,
+                    onClick = {
+                        viewModel.onAction(
+                            KeywordsUiContract.Action.SelectExportDestination(ExportDestination.SHARE)
+                        )
+                    },
+                ),
+                DialogChoice(
+                    text = stringResource(R.string.keywords_export_cancel),
+                    role = DialogChoiceRole.NEUTRAL,
+                    onClick = {
+                        viewModel.onAction(
+                            KeywordsUiContract.Action.DismissExportDestinationDialog
+                        )
+                    },
+                ),
+            ),
             onDismiss = {
-                viewModel.onAction(
-                    KeywordsUiContract.Action.DismissImportStrategyDialog
-                )
+                viewModel.onAction(KeywordsUiContract.Action.DismissExportDestinationDialog)
             },
         )
     }
@@ -455,7 +510,7 @@ private fun KeywordsContent(
             ) {
                 KeywordsBackupRow(
                     isExportEnabled = state.canExport,
-                    onExportClick = { onAction(KeywordsUiContract.Action.ExportKeywords) },
+                    onExportClick = { onAction(KeywordsUiContract.Action.RequestExport) },
                     onImportClick = { onAction(KeywordsUiContract.Action.RequestImport) },
                 )
 

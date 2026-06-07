@@ -4,6 +4,7 @@ import androidx.compose.runtime.Immutable
 import com.revakovskyi.vartovyi.model.ImportStrategy
 import com.revakovskyi.vartovyi.model.TriggerKeywordRule
 import com.revakovskyi.vartovyi.model.TriggerKeywordRuleType
+import com.revakovskyi.vartovyi.ui.screen.keywords.model.ExportDestination
 
 interface KeywordsUiContract {
 
@@ -30,6 +31,7 @@ interface KeywordsUiContract {
         val isRestoreDefaultsDialogVisible: Boolean = false,
         val isImportStrategyDialogVisible: Boolean = false,
         val pendingImportStrategy: ImportStrategy? = null,
+        val isExportDestinationDialogVisible: Boolean = false,
     ) {
         val hasKeywordDataToClear: Boolean
             get() = keywords.isNotEmpty() ||
@@ -63,7 +65,9 @@ interface KeywordsUiContract {
         data object DismissRestoreDefaultsDialog : Action
         data object ConfirmRestoreDefaults : Action
         data class CopyChip(val text: String) : Action
-        data object ExportKeywords : Action
+        data object RequestExport : Action
+        data object DismissExportDestinationDialog : Action
+        data class SelectExportDestination(val destination: ExportDestination) : Action
         data object NotifyExportSuccess : Action
         data object NotifyExportError : Action
         data object RequestImport : Action
@@ -90,6 +94,7 @@ interface KeywordsUiContract {
         data class DefaultKeywordsRestored(val addedCount: Int) : Event
         data class ChipCopied(val text: String) : Event
         data class LaunchExportFilePicker(val jsonContent: String) : Event
+        data class LaunchExportShareSheet(val jsonContent: String) : Event
         data object KeywordsExportSuccess : Event
         data object KeywordsExportError : Event
         data object LaunchImportFilePicker : Event

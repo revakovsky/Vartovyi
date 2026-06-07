@@ -13,11 +13,13 @@ import com.revakovskyi.vartovyi.model.TriggerKeywordRuleType
 import com.revakovskyi.vartovyi.ui.screen.keywords.KeywordsUiContract.Action
 import com.revakovskyi.vartovyi.ui.screen.keywords.KeywordsUiContract.Event
 import com.revakovskyi.vartovyi.ui.screen.keywords.KeywordsUiContract.PendingRemoval
+import com.revakovskyi.vartovyi.ui.screen.keywords.model.ExportDestination
 import com.revakovskyi.vartovyi.usecase.keywords.AddKeywordUseCase
 import com.revakovskyi.vartovyi.usecase.keywords.AddStopWordUseCase
 import com.revakovskyi.vartovyi.usecase.keywords.AddTelegramChannelUseCase
 import com.revakovskyi.vartovyi.usecase.keywords.ClearKeywordsScreenDataUseCase
 import com.revakovskyi.vartovyi.usecase.keywords.ExportKeywordsUseCase
+import com.revakovskyi.vartovyi.usecase.keywords.ExportResult
 import com.revakovskyi.vartovyi.usecase.keywords.ImportKeywordsUseCase
 import com.revakovskyi.vartovyi.usecase.keywords.ImportResult
 import com.revakovskyi.vartovyi.usecase.keywords.ObserveKeywordsUseCase
@@ -791,6 +793,94 @@ class KeywordsViewModelTest {
                 advanceUntilIdle()
 
                 assertThat(events).contains(Event.KeywordsImportUnsupportedVersion(fileVersion = 99))
+            }
+    }
+
+    @Nested
+    inner class Export {
+
+        @Test
+        fun `RequestExport shows the destination dialog`() = runTest(testDispatcher) {
+            val viewModel = createViewModel()
+            val events = collectEvents(viewModel)
+            advanceUntilIdle()
+
+            viewModel.onAction(Action.RequestExport)
+            advanceUntilIdle()
+
+            assertThat(viewModel.state.value.isExportDestinationDialogVisible).isEqualTo(true)
+            assertThat(events).containsNone(
+                Event.LaunchExportFilePicker(""),
+                Event.LaunchExportShareSheet(""),
+            )
+        }
+
+        @Test
+        fun `SelectExportDestination SAVE_TO_FILE emits LaunchExportFilePicker and hides dialog`() =
+            runTest(testDispatcher) {
+                coEvery { exportKeywordsUseCase() } returns ExportResult.Success(jsonContent = "{}")
+
+                val viewModel = createViewModel()
+                val events = collectEvents(viewModel)
+                advanceUntilIdle()
+
+                viewModel.onAction(Action.RequestExport)
+                viewModel.onAction(
+                    Action.SelectExportDestination(ExportDestination.SAVE_TO_FILE)
+                )
+                advanceUntilIdle()
+
+                assertThat(viewModel.state.value.isExportDestinationDialogVisible).isEqualTo(false)
+                assertThat(events).contains(Event.LaunchExportFilePicker(jsonContent = "{}"))
+            }
+
+        @Test
+        fun `SelectExportDestination SHARE emits LaunchExportShareSheet`() =
+            runTest(testDispatcher) {
+                coEvery { exportKeywordsUseCase() } returns ExportResult.Success(jsonContent = "{}")
+
+                val viewModel = createViewModel()
+                val events = collectEvents(viewModel)
+                advanceUntilIdle()
+
+                viewModel.onAction(Action.SelectExportDestination(ExportDestination.SHARE))
+                advanceUntilIdle()
+
+                assertThat(events).contains(Event.LaunchExportShareSheet(jsonContent = "{}"))
+            }
+
+        @Test
+        fun `SelectExportDestination with export error emits KeywordsExportError`() =
+            runTest(testDispatcher) {
+                coEvery { exportKeywordsUseCase() } returns
+                        ExportResult.Error(IllegalStateException("boom"))
+
+                val viewModel = createViewModel()
+                val events = collectEvents(viewModel)
+                advanceUntilIdle()
+
+                viewModel.onAction(Action.SelectExportDestination(ExportDestination.SHARE))
+                advanceUntilIdle()
+
+                assertThat(events).contains(Event.KeywordsExportError)
+            }
+
+        @Test
+        fun `DismissExportDestinationDialog hides the dialog without emitting events`() =
+            runTest(testDispatcher) {
+                val viewModel = createViewModel()
+                val events = collectEvents(viewModel)
+                advanceUntilIdle()
+
+                viewModel.onAction(Action.RequestExport)
+                viewModel.onAction(Action.DismissExportDestinationDialog)
+                advanceUntilIdle()
+
+                assertThat(viewModel.state.value.isExportDestinationDialogVisible).isEqualTo(false)
+                assertThat(events).containsNone(
+                    Event.LaunchExportFilePicker(""),
+                    Event.LaunchExportShareSheet(""),
+                )
             }
     }
 
