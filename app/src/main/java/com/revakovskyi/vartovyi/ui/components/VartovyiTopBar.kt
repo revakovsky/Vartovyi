@@ -25,6 +25,7 @@ import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.revakovskyi.vartovyi.R
+import com.revakovskyi.vartovyi.model.PermissionsStatus
 import com.revakovskyi.vartovyi.ui.theme.VartovyiTheme
 
 private val TOP_BAR_PERMISSION_ICON_SIZE = 24.dp
@@ -34,7 +35,7 @@ private val TOP_BAR_PERMISSION_ICON_SIZE = 24.dp
 fun VartovyiTopBar(
     modifier: Modifier = Modifier,
     title: String,
-    hasMissingPermissions: Boolean,
+    permissionsStatus: PermissionsStatus,
     isEmergencyStopVisible: Boolean,
     scrollBehavior: TopAppBarScrollBehavior = TopAppBarDefaults.pinnedScrollBehavior(),
     additionalActions: (@Composable () -> Unit)? = null,
@@ -74,13 +75,20 @@ fun VartovyiTopBar(
                     tooltipText = stringResource(R.string.permissions_icon_content_description),
                     onClick = onPermissionsClick,
                 ) {
-                    val icon =
-                        if (hasMissingPermissions) ImageVector.vectorResource(R.drawable.security_red)
-                        else ImageVector.vectorResource(R.drawable.security_green)
+                    val icon = when (permissionsStatus) {
+                        PermissionsStatus.MANDATORY_MISSING ->
+                            ImageVector.vectorResource(R.drawable.security_red)
 
-                    val iconColor =
-                        if (hasMissingPermissions) VartovyiTheme.colors.error
-                        else VartovyiTheme.colors.primary
+                        PermissionsStatus.RECOMMENDED_MISSING,
+                        PermissionsStatus.GRANTED,
+                            -> ImageVector.vectorResource(R.drawable.security_green)
+                    }
+
+                    val iconColor = when (permissionsStatus) {
+                        PermissionsStatus.MANDATORY_MISSING -> VartovyiTheme.colors.error
+                        PermissionsStatus.RECOMMENDED_MISSING -> VartovyiTheme.colors.secondary
+                        PermissionsStatus.GRANTED -> VartovyiTheme.colors.primary
+                    }
 
                     Icon(
                         imageVector = icon,
@@ -123,14 +131,14 @@ private fun TopBarTooltipIconButton(
     }
 }
 
-@Preview(name = "All permissions were granted")
+@Preview(name = "Permissions — all granted (green)")
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun VartovyiTopBarPermissionsGrantedPreview() {
     VartovyiTheme {
         VartovyiTopBar(
             title = "Вартовий",
-            hasMissingPermissions = false,
+            permissionsStatus = PermissionsStatus.GRANTED,
             isEmergencyStopVisible = true,
             scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior(),
             onPermissionsClick = {},
@@ -139,14 +147,30 @@ private fun VartovyiTopBarPermissionsGrantedPreview() {
     }
 }
 
-@Preview(name = "Not all permissions were granted")
+@Preview(name = "Permissions — recommended missing (orange)")
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun VartovyiTopBarNotAllPermissionsGrantedPreview() {
+private fun VartovyiTopBarPermissionsRecommendedMissingPreview() {
     VartovyiTheme {
         VartovyiTopBar(
             title = "Вартовий",
-            hasMissingPermissions = true,
+            permissionsStatus = PermissionsStatus.RECOMMENDED_MISSING,
+            isEmergencyStopVisible = false,
+            scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior(),
+            onPermissionsClick = {},
+            onEmergencyStopClick = {},
+        )
+    }
+}
+
+@Preview(name = "Permissions — mandatory missing (red)")
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun VartovyiTopBarPermissionsMandatoryMissingPreview() {
+    VartovyiTheme {
+        VartovyiTopBar(
+            title = "Вартовий",
+            permissionsStatus = PermissionsStatus.MANDATORY_MISSING,
             isEmergencyStopVisible = false,
             scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior(),
             onPermissionsClick = {},
