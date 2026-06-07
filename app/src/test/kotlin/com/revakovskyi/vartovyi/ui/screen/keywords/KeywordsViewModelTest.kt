@@ -6,7 +6,9 @@ import assertk.assertions.containsNone
 import assertk.assertions.isEmpty
 import assertk.assertions.isEqualTo
 import assertk.assertions.isNull
+import assertk.assertions.isTrue
 import com.revakovskyi.vartovyi.constants.KeywordsLimits
+import com.revakovskyi.vartovyi.constants.POPULAR_TELEGRAM_CHANNELS
 import com.revakovskyi.vartovyi.model.TriggerKeywordRuleType
 import com.revakovskyi.vartovyi.ui.screen.keywords.KeywordsUiContract.Action
 import com.revakovskyi.vartovyi.ui.screen.keywords.KeywordsUiContract.Event
@@ -579,6 +581,144 @@ class KeywordsViewModelTest {
                 assertThat(events).contains(Event.TelegramChannelRemoved)
                 assertThat(viewModel.state.value.pendingRemoval).isNull()
             }
+
+        @Test
+        fun `SelectSuggestedTelegramChannel adds the channel and clears input`() =
+            runTest(testDispatcher) {
+                val viewModel = createViewModel()
+                val events = collectEvents(viewModel)
+                advanceUntilIdle()
+
+                viewModel.onAction(
+                    Action.SelectSuggestedTelegramChannel("Повітряні Сили ЗС України")
+                )
+                advanceUntilIdle()
+
+                coVerify(exactly = 1) { addTelegramChannelUseCase("Повітряні Сили ЗС України") }
+                assertThat(viewModel.state.value.inputTelegramChannel).isEqualTo("")
+                assertThat(events).contains(Event.TelegramChannelAdded)
+            }
+
+        @Test
+        fun `SelectSuggestedTelegramChannel ignores an already added channel silently`() =
+            runTest(testDispatcher) {
+                every {
+                    observeTelegramChannelsUseCase()
+                } returns flowOf(listOf("повітряні сили зс україни"))
+
+                val viewModel = createViewModel()
+                val events = collectEvents(viewModel)
+                advanceUntilIdle()
+
+                viewModel.onAction(
+                    Action.SelectSuggestedTelegramChannel("Повітряні Сили ЗС України")
+                )
+                advanceUntilIdle()
+
+                coVerify(exactly = 0) { addTelegramChannelUseCase(any()) }
+                assertThat(events).isEmpty()
+                assertThat(viewModel.state.value.duplicateWord).isNull()
+            }
+
+        @Test
+        fun `all popular channels are suggested when none is added`() = runTest(testDispatcher) {
+            val viewModel = createViewModel()
+            advanceUntilIdle()
+
+            assertThat(viewModel.state.value.suggestedTelegramChannels)
+                .isEqualTo(POPULAR_TELEGRAM_CHANNELS)
+        }
+
+        @Test
+        fun `suggested channels hide already added ones ignoring case`() =
+            runTest(testDispatcher) {
+                every { observeTelegramChannelsUseCase() } returns flowOf(listOf("tlk news"))
+
+                val viewModel = createViewModel()
+                advanceUntilIdle()
+
+                val suggestedNames = viewModel.state.value.suggestedTelegramChannels
+                    .map { suggestion -> suggestion.displayName }
+
+                assertThat(suggestedNames).containsNone("TLK News")
+                assertThat(suggestedNames.size).isEqualTo(POPULAR_TELEGRAM_CHANNELS.size - 1)
+            }
+
+        @Test
+        fun `suggestions are filtered by typed channel name`() = runTest(testDispatcher) {
+            val viewModel = createViewModel()
+            advanceUntilIdle()
+
+            viewModel.onAction(Action.UpdateTelegramChannelInput("полтава"))
+
+            val suggestedNames = viewModel.state.value.suggestedTelegramChannels
+                .map { suggestion -> suggestion.displayName }
+
+            assertThat(suggestedNames).isEqualTo(
+                listOf("Полтава радар | Radar Poltava", "ПОЛТАВА НОВИНИ | СИРЕНА")
+            )
+        }
+
+        @Test
+        fun `suggestion query is trimmed before filtering`() = runTest(testDispatcher) {
+            val viewModel = createViewModel()
+            advanceUntilIdle()
+
+            viewModel.onAction(Action.UpdateTelegramChannelInput("  полтава  "))
+
+            val suggestedNames = viewModel.state.value.suggestedTelegramChannels
+                .map { suggestion -> suggestion.displayName }
+
+            assertThat(suggestedNames).isEqualTo(
+                listOf("Полтава радар | Radar Poltava", "ПОЛТАВА НОВИНИ | СИРЕНА")
+            )
+        }
+
+        @Test
+        fun `suggestions are filtered by typed handle`() = runTest(testDispatcher) {
+            val viewModel = createViewModel()
+            advanceUntilIdle()
+
+            viewModel.onAction(Action.UpdateTelegramChannelInput("@tlk"))
+
+            val suggestedNames = viewModel.state.value.suggestedTelegramChannels
+                .map { suggestion -> suggestion.displayName }
+
+            assertThat(suggestedNames).isEqualTo(listOf("TLK News"))
+        }
+
+        @Test
+        fun `ToggleTelegramChannelFilter invokes the use case`() = runTest(testDispatcher) {
+            val viewModel = createViewModel()
+            advanceUntilIdle()
+
+            viewModel.onAction(Action.ToggleTelegramChannelFilter)
+            advanceUntilIdle()
+
+            coVerify(exactly = 1) { toggleTelegramChannelFilterUseCase() }
+        }
+
+        @Test
+        fun `telegram channel filter flag is propagated into state`() = runTest(testDispatcher) {
+            every { observeTelegramChannelFilterEnabledUseCase() } returns flowOf(true)
+
+            val viewModel = createViewModel()
+            advanceUntilIdle()
+
+            assertThat(viewModel.state.value.isTelegramChannelFilterEnabled).isTrue()
+        }
+
+        @Test
+        fun `ConfirmRestoreDefaults does not touch telegram channels`() = runTest(testDispatcher) {
+            val viewModel = createViewModel()
+            advanceUntilIdle()
+
+            viewModel.onAction(Action.ConfirmRestoreDefaults)
+            advanceUntilIdle()
+
+            coVerify(exactly = 0) { addTelegramChannelUseCase(any()) }
+            coVerify(exactly = 0) { removeTelegramChannelUseCase(any()) }
+        }
     }
 
     @Nested

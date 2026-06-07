@@ -1,6 +1,7 @@
 package com.revakovskyi.vartovyi.ui.screen.keywords
 
 import android.content.ClipData
+import androidx.activity.compose.BackHandler
 import androidx.compose.animation.Crossfade
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.ScrollState
@@ -27,14 +28,17 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusManager
+import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.ClipEntry
 import androidx.compose.ui.platform.LocalClipboard
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.platform.LocalResources
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.revakovskyi.vartovyi.R
 import com.revakovskyi.vartovyi.constants.KeywordRuleFormat
@@ -58,6 +62,9 @@ import org.koin.androidx.compose.koinViewModel
 
 /** Delay to let the keyboard fully animate open before scrolling the active field into view. */
 private const val BRING_INTO_VIEW_DELAY_MS = 400L
+
+/** Input row plus a slice of the suggestions list kept visible above the keyboard. */
+private const val TELEGRAM_SUGGESTIONS_PEEK_HEIGHT_DP = 220
 private const val KEYWORDS_CHIP_CLIP_LABEL = "keywords_chip"
 private const val KEYWORDS_SCROLL_STATE_KEY = "keywords_scroll_state"
 
@@ -306,6 +313,7 @@ private fun KeywordsContent(
     onAction: (action: KeywordsUiContract.Action) -> Unit,
 ) {
     val focusManager = LocalFocusManager.current
+    val density = LocalDensity.current
     val isImeVisible = WindowInsets.isImeVisible
 
     val scrollState = rememberSaveable(saver = ScrollState.Saver, key = KEYWORDS_SCROLL_STATE_KEY) {
@@ -315,12 +323,24 @@ private fun KeywordsContent(
     val keywordsBivr = remember { BringIntoViewRequester() }
     val stopWordsBivr = remember { BringIntoViewRequester() }
     val telegramBivr = remember { BringIntoViewRequester() }
+    val telegramPeekRect = remember(density) {
+        with(density) {
+            Rect(
+                left = 0f,
+                top = 0f,
+                right = 0f,
+                bottom = TELEGRAM_SUGGESTIONS_PEEK_HEIGHT_DP.dp.toPx()
+            )
+        }
+    }
     var activeBivr by remember { mutableStateOf<BringIntoViewRequester?>(null) }
 
     LaunchedEffect(isImeVisible) {
         if (isImeVisible) {
-            activeBivr?.bringIntoView()
-        } else {
+            activeBivr?.let { bivr ->
+                bivr.bringIntoView(if (bivr == telegramBivr) telegramPeekRect else null)
+            }
+        } else if (activeBivr != telegramBivr) {
             focusManager.clearFocus()
         }
     }
@@ -328,7 +348,11 @@ private fun KeywordsContent(
     LaunchedEffect(activeBivr) {
         val bivr = activeBivr ?: return@LaunchedEffect
         delay(BRING_INTO_VIEW_DELAY_MS)
-        bivr.bringIntoView()
+        bivr.bringIntoView(if (bivr == telegramBivr) telegramPeekRect else null)
+    }
+
+    BackHandler(enabled = !isImeVisible && activeBivr == telegramBivr) {
+        focusManager.clearFocus()
     }
 
     Box(
@@ -399,6 +423,7 @@ private fun KeywordsContent(
                 bringIntoViewRequester = telegramBivr,
                 isEnabled = state.isTelegramChannelFilterEnabled,
                 channels = state.telegramChannels,
+                suggestedChannels = state.suggestedTelegramChannels,
                 inputValue = state.inputTelegramChannel,
                 onToggle = { onAction(KeywordsUiContract.Action.ToggleTelegramChannelFilter) },
                 onInputChange = { value ->
@@ -408,6 +433,9 @@ private fun KeywordsContent(
                 onCopy = { text -> onAction(KeywordsUiContract.Action.CopyChip(text)) },
                 onRemove = { channel ->
                     onAction(KeywordsUiContract.Action.RemoveTelegramChannel(channel))
+                },
+                onSuggestionSelect = { channel ->
+                    onAction(KeywordsUiContract.Action.SelectSuggestedTelegramChannel(channel))
                 },
                 onFocusChanged = { isFocused ->
                     if (isFocused) activeBivr = telegramBivr
