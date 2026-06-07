@@ -8,10 +8,9 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.isImeVisible
 import androidx.compose.foundation.layout.padding
@@ -27,21 +26,24 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusManager
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.ClipEntry
 import androidx.compose.ui.platform.LocalClipboard
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalHapticFeedback
+import androidx.compose.ui.platform.LocalResources
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.revakovskyi.vartovyi.R
-import com.revakovskyi.vartovyi.model.TriggerKeywordRule
+import com.revakovskyi.vartovyi.constants.KeywordRuleFormat
 import com.revakovskyi.vartovyi.model.TriggerKeywordRuleType
 import com.revakovskyi.vartovyi.ui.components.LoadingOverlay
 import com.revakovskyi.vartovyi.ui.components.VartovyiDialog
 import com.revakovskyi.vartovyi.ui.screen.keywords.components.KeywordsBackupRow
 import com.revakovskyi.vartovyi.ui.screen.keywords.components.KeywordsClearButton
+import com.revakovskyi.vartovyi.ui.screen.keywords.components.KeywordsRestoreDefaultsButton
 import com.revakovskyi.vartovyi.ui.screen.keywords.components.KeywordsSection
 import com.revakovskyi.vartovyi.ui.screen.keywords.components.StopWordsSection
 import com.revakovskyi.vartovyi.ui.screen.keywords.components.TelegramChannelsSection
@@ -50,6 +52,7 @@ import com.revakovskyi.vartovyi.ui.util.rememberKeywordsBackupHelper
 import com.revakovskyi.vartovyi.ui.util.snackbar.SnackbarController
 import com.revakovskyi.vartovyi.ui.util.snackbar.SnackbarEvent
 import com.revakovskyi.vartovyi.utils.ObserveSingleEvents
+import com.revakovskyi.vartovyi.utils.parseTriggerKeywordRuleFromStorage
 import kotlinx.coroutines.delay
 import org.koin.androidx.compose.koinViewModel
 
@@ -64,11 +67,18 @@ fun KeywordsScreen(
 ) {
     val clipboardManager = LocalClipboard.current
     val hapticFeedback = LocalHapticFeedback.current
+    val focusManager = LocalFocusManager.current
+    val resources = LocalResources.current
 
     val state by viewModel.state.collectAsStateWithLifecycle()
 
     val chipCopiedMessage = stringResource(R.string.keywords_chip_copied)
+    val keywordNormalizedTemplate = stringResource(R.string.keywords_normalized)
+    val keywordMultilineNotAllowedMessage = stringResource(R.string.keywords_multiline_not_allowed)
+    val keywordStartsWithNonAlphanumericMessage =
+        stringResource(R.string.keywords_starts_with_non_alphanumeric)
     val keywordsClearedMessage = stringResource(R.string.keywords_clear_completed)
+    val keywordsRestoreNothingAddedMessage = stringResource(R.string.keywords_restore_nothing_added)
     val importSuccessMessage = stringResource(R.string.keywords_import_success)
     val exportSuccessMessage = stringResource(R.string.keywords_export_success)
     val exportErrorMessage = stringResource(R.string.keywords_export_error)
@@ -89,6 +99,46 @@ fun KeywordsScreen(
             is KeywordsUiContract.Event.TelegramChannelRemoved,
                 -> hapticFeedback.performHapticFeedback(HapticFeedbackType.Confirm)
 
+            is KeywordsUiContract.Event.KeywordNormalized -> {
+                val cleanDisplayValue = event.displayValue.unwrapPhraseQuotes()
+                showSnackbarWithClearFocus(
+                    focusManager = focusManager,
+                    message = keywordNormalizedTemplate.format(cleanDisplayValue),
+                )
+            }
+
+            is KeywordsUiContract.Event.KeywordMultiLineNotAllowed -> {
+                showSnackbarWithClearFocus(
+                    focusManager = focusManager,
+                    message = keywordMultilineNotAllowedMessage
+                )
+            }
+
+            KeywordsUiContract.Event.KeywordStartsWithNonAlphanumeric -> {
+                showSnackbarWithClearFocus(
+                    focusManager = focusManager,
+                    message = keywordStartsWithNonAlphanumericMessage,
+                )
+            }
+
+            is KeywordsUiContract.Event.KeywordTermTooShort -> {
+                val message = resources.getQuantityString(
+                    R.plurals.keywords_term_too_short,
+                    event.minLength,
+                    event.minLength,
+                )
+                showSnackbarWithClearFocus(focusManager = focusManager, message = message)
+            }
+
+            is KeywordsUiContract.Event.KeywordsMaxReached -> {
+                val message = resources.getQuantityString(
+                    R.plurals.keywords_max_reached,
+                    event.max,
+                    event.max,
+                )
+                showSnackbarWithClearFocus(focusManager = focusManager, message = message)
+            }
+
             is KeywordsUiContract.Event.ChipCopied -> {
                 hapticFeedback.performHapticFeedback(HapticFeedbackType.LongPress)
                 SnackbarController.sendEvent(SnackbarEvent(message = chipCopiedMessage))
@@ -101,6 +151,21 @@ fun KeywordsScreen(
             is KeywordsUiContract.Event.KeywordsScreenDataCleared -> {
                 SnackbarController.sendEvent(
                     SnackbarEvent(message = keywordsClearedMessage),
+                )
+            }
+
+            is KeywordsUiContract.Event.DefaultKeywordsRestored -> {
+                val message = if (event.addedCount == 0) {
+                    keywordsRestoreNothingAddedMessage
+                } else {
+                    resources.getQuantityString(
+                        R.plurals.keywords_restore_defaults_added,
+                        event.addedCount,
+                        event.addedCount,
+                    )
+                }
+                SnackbarController.sendEvent(
+                    event = SnackbarEvent(message = message)
                 )
             }
 
@@ -209,6 +274,17 @@ fun KeywordsScreen(
         )
     }
 
+    if (state.isRestoreDefaultsDialogVisible) {
+        VartovyiDialog(
+            title = stringResource(R.string.keywords_restore_defaults_dialog_title),
+            message = stringResource(R.string.keywords_restore_defaults_dialog_message),
+            confirmText = stringResource(R.string.keywords_restore_defaults_dialog_confirm),
+            dismissText = stringResource(R.string.keywords_restore_defaults_dialog_dismiss),
+            onDismiss = { viewModel.onAction(KeywordsUiContract.Action.DismissRestoreDefaultsDialog) },
+            onConfirm = { viewModel.onAction(KeywordsUiContract.Action.ConfirmRestoreDefaults) },
+        )
+    }
+
     if (state.isImportConfirmationDialogVisible) {
         VartovyiDialog(
             title = stringResource(R.string.keywords_import_confirm_dialog_title),
@@ -274,89 +350,118 @@ private fun KeywordsContent(
                     bottom = VartovyiTheme.spacing.small,
                 )
         ) {
-        KeywordsSection(
-            bringIntoViewRequester = keywordsBivr,
-            keywords = state.keywords,
-            selectedTriggerKeywordRuleType = state.selectedTriggerKeywordRuleType,
-            inputValue = state.inputKeyword,
-            inputHint = when (state.selectedTriggerKeywordRuleType) {
-                TriggerKeywordRuleType.WORD -> stringResource(R.string.keywords_trigger_hint_word)
-                TriggerKeywordRuleType.ALL_WORDS -> stringResource(R.string.keywords_trigger_hint_all_words)
-                TriggerKeywordRuleType.PHRASE -> stringResource(R.string.keywords_trigger_hint_phrase)
-            },
-            onTypeSelected = { type ->
-                onAction(KeywordsUiContract.Action.SelectTriggerKeywordRuleType(type))
-            },
-            onInputChange = { value ->
-                onAction(KeywordsUiContract.Action.UpdateKeywordInput(value))
-            },
-            onAdd = { onAction(KeywordsUiContract.Action.AddKeyword) },
-            onCopy = { text -> onAction(KeywordsUiContract.Action.CopyChip(text)) },
-            onRemove = { keywordRule ->
-                onAction(KeywordsUiContract.Action.RemoveKeyword(keywordRule))
-            },
-            onFocusChanged = { isFocused ->
-                if (isFocused) activeBivr = keywordsBivr
-                else if (activeBivr == keywordsBivr) activeBivr = null
-            },
-        )
+            KeywordsSection(
+                bringIntoViewRequester = keywordsBivr,
+                keywords = state.keywords,
+                selectedTriggerKeywordRuleType = state.selectedTriggerKeywordRuleType,
+                inputValue = state.inputKeyword,
+                inputHint = when (state.selectedTriggerKeywordRuleType) {
+                    TriggerKeywordRuleType.WORD -> stringResource(R.string.keywords_trigger_hint_word)
+                    TriggerKeywordRuleType.ALL_WORDS -> stringResource(R.string.keywords_trigger_hint_all_words)
+                    TriggerKeywordRuleType.PHRASE -> stringResource(R.string.keywords_trigger_hint_phrase)
+                },
+                onTypeSelected = { type ->
+                    onAction(KeywordsUiContract.Action.SelectTriggerKeywordRuleType(type))
+                },
+                onInputChange = { value ->
+                    onAction(KeywordsUiContract.Action.UpdateKeywordInput(value))
+                },
+                onAdd = { onAction(KeywordsUiContract.Action.AddKeyword) },
+                onCopy = { text -> onAction(KeywordsUiContract.Action.CopyChip(text)) },
+                onRemove = { keywordRule ->
+                    onAction(KeywordsUiContract.Action.RemoveKeyword(keywordRule))
+                },
+                onFocusChanged = { isFocused ->
+                    if (isFocused) activeBivr = keywordsBivr
+                    else if (activeBivr == keywordsBivr) activeBivr = null
+                },
+            )
 
-        StopWordsSection(
-            bringIntoViewRequester = stopWordsBivr,
-            stopWords = state.stopWords,
-            inputValue = state.inputStopWord,
-            onInputChange = { value ->
-                onAction(KeywordsUiContract.Action.UpdateStopWordInput(value))
-            },
-            onAdd = { onAction(KeywordsUiContract.Action.AddStopWord) },
-            onCopy = { text -> onAction(KeywordsUiContract.Action.CopyChip(text)) },
-            onRemove = { stopWord ->
-                onAction(KeywordsUiContract.Action.RemoveStopWord(stopWord))
-            },
-            onFocusChanged = { isFocused ->
-                if (isFocused) activeBivr = stopWordsBivr
-                else if (activeBivr == stopWordsBivr) activeBivr = null
-            },
-        )
+            StopWordsSection(
+                bringIntoViewRequester = stopWordsBivr,
+                stopWords = state.stopWords,
+                inputValue = state.inputStopWord,
+                onInputChange = { value ->
+                    onAction(KeywordsUiContract.Action.UpdateStopWordInput(value))
+                },
+                onAdd = { onAction(KeywordsUiContract.Action.AddStopWord) },
+                onCopy = { text -> onAction(KeywordsUiContract.Action.CopyChip(text)) },
+                onRemove = { stopWord ->
+                    onAction(KeywordsUiContract.Action.RemoveStopWord(stopWord))
+                },
+                onFocusChanged = { isFocused ->
+                    if (isFocused) activeBivr = stopWordsBivr
+                    else if (activeBivr == stopWordsBivr) activeBivr = null
+                },
+            )
 
-        TelegramChannelsSection(
-            bringIntoViewRequester = telegramBivr,
-            isEnabled = state.isTelegramChannelFilterEnabled,
-            channels = state.telegramChannels,
-            inputValue = state.inputTelegramChannel,
-            onToggle = { onAction(KeywordsUiContract.Action.ToggleTelegramChannelFilter) },
-            onInputChange = { value ->
-                onAction(KeywordsUiContract.Action.UpdateTelegramChannelInput(value))
-            },
-            onAdd = { onAction(KeywordsUiContract.Action.AddTelegramChannel) },
-            onCopy = { text -> onAction(KeywordsUiContract.Action.CopyChip(text)) },
-            onRemove = { channel ->
-                onAction(KeywordsUiContract.Action.RemoveTelegramChannel(channel))
-            },
-            onFocusChanged = { isFocused ->
-                if (isFocused) activeBivr = telegramBivr
-                else if (activeBivr == telegramBivr) activeBivr = null
-            },
-        )
+            TelegramChannelsSection(
+                bringIntoViewRequester = telegramBivr,
+                isEnabled = state.isTelegramChannelFilterEnabled,
+                channels = state.telegramChannels,
+                inputValue = state.inputTelegramChannel,
+                onToggle = { onAction(KeywordsUiContract.Action.ToggleTelegramChannelFilter) },
+                onInputChange = { value ->
+                    onAction(KeywordsUiContract.Action.UpdateTelegramChannelInput(value))
+                },
+                onAdd = { onAction(KeywordsUiContract.Action.AddTelegramChannel) },
+                onCopy = { text -> onAction(KeywordsUiContract.Action.CopyChip(text)) },
+                onRemove = { channel ->
+                    onAction(KeywordsUiContract.Action.RemoveTelegramChannel(channel))
+                },
+                onFocusChanged = { isFocused ->
+                    if (isFocused) activeBivr = telegramBivr
+                    else if (activeBivr == telegramBivr) activeBivr = null
+                },
+            )
 
-        Spacer(modifier = Modifier.height(VartovyiTheme.spacing.small))
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.spacedBy(VartovyiTheme.spacing.medium),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(
+                        top = VartovyiTheme.spacing.medium,
+                        bottom = VartovyiTheme.spacing.small,
+                    )
+            ) {
+                KeywordsBackupRow(
+                    isExportEnabled = state.canExport,
+                    onExportClick = { onAction(KeywordsUiContract.Action.ExportKeywords) },
+                    onImportClick = { onAction(KeywordsUiContract.Action.RequestImport) },
+                )
 
-        KeywordsBackupRow(
-            isExportEnabled = state.canExport,
-            onExportClick = { onAction(KeywordsUiContract.Action.ExportKeywords) },
-            onImportClick = { onAction(KeywordsUiContract.Action.RequestImport) },
-        )
+                KeywordsRestoreDefaultsButton(
+                    onClick = { onAction(KeywordsUiContract.Action.OpenRestoreDefaultsDialog) },
+                )
 
-        Spacer(modifier = Modifier.height(VartovyiTheme.spacing.small))
-
-        KeywordsClearButton(
-            isEnabled = state.hasKeywordDataToClear,
-            onClick = { onAction(KeywordsUiContract.Action.OpenClearKeywordsDialog) },
-            modifier = Modifier.padding(bottom = VartovyiTheme.spacing.small)
-        )
+                KeywordsClearButton(
+                    isEnabled = state.hasKeywordDataToClear,
+                    onClick = { onAction(KeywordsUiContract.Action.OpenClearKeywordsDialog) },
+                    modifier = Modifier.padding(bottom = VartovyiTheme.spacing.small)
+                )
+            }
         }
     }
 }
+
+private suspend fun showSnackbarWithClearFocus(
+    focusManager: FocusManager,
+    message: String,
+) {
+    focusManager.clearFocus()
+    SnackbarController.sendEvent(SnackbarEvent(message = message))
+}
+
+private fun String.unwrapPhraseQuotes(): String =
+    if (length >= 2 &&
+        startsWith(KeywordRuleFormat.QUOTE) &&
+        endsWith(KeywordRuleFormat.QUOTE)
+    ) {
+        substring(1, length - 1)
+    } else {
+        this
+    }
 
 @Preview(name = "Keywords — empty", heightDp = 900)
 @Composable
@@ -378,9 +483,9 @@ private fun KeywordsContentWithDataPreview() {
             modifier = Modifier.fillMaxSize(),
             state = KeywordsUiContract.State(
                 keywords = listOf(
-                    TriggerKeywordRule.fromStorageValue("Салтівка"),
-                    TriggerKeywordRule.fromStorageValue("ракета + харків"),
-                    TriggerKeywordRule.fromStorageValue("\"вибух біля дому\""),
+                    parseTriggerKeywordRuleFromStorage("Салтівка"),
+                    parseTriggerKeywordRuleFromStorage("ракета + харків"),
+                    parseTriggerKeywordRuleFromStorage("\"вибух біля дому\""),
                 ),
                 stopWords = listOf("відбій", "чисто", "минула"),
             ),
@@ -397,8 +502,8 @@ private fun KeywordsContentTelegramFilterPreview() {
             modifier = Modifier.fillMaxSize(),
             state = KeywordsUiContract.State(
                 keywords = listOf(
-                    TriggerKeywordRule.fromStorageValue("Салтівка"),
-                    TriggerKeywordRule.fromStorageValue("ракета + харків"),
+                    parseTriggerKeywordRuleFromStorage("Салтівка"),
+                    parseTriggerKeywordRuleFromStorage("ракета + харків"),
                 ),
                 stopWords = listOf("відбій"),
                 isTelegramChannelFilterEnabled = true,

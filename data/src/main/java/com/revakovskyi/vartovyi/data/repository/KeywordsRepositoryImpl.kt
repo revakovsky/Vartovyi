@@ -1,5 +1,7 @@
 package com.revakovskyi.vartovyi.data.repository
 
+import com.revakovskyi.vartovyi.constants.DEFAULT_KEYWORDS_SEED
+import com.revakovskyi.vartovyi.constants.DEFAULT_STOP_WORDS_SEED
 import com.revakovskyi.vartovyi.data.datastore.KeywordsDataStore
 import com.revakovskyi.vartovyi.repository.KeywordsRepository
 import kotlinx.coroutines.flow.Flow
@@ -13,7 +15,9 @@ internal class KeywordsRepositoryImpl(
     override val keywords: Flow<List<String>> = keywordsDataStore.keywords
     override val stopWords: Flow<List<String>> = keywordsDataStore.stopWords
     override val telegramChannels: Flow<List<String>> = keywordsDataStore.telegramChannels
-    override val isTelegramChannelFilterEnabled: Flow<Boolean> = keywordsDataStore.isTelegramChannelFilterEnabled
+    override val isTelegramChannelFilterEnabled: Flow<Boolean> =
+        keywordsDataStore.isTelegramChannelFilterEnabled
+
     private val keywordsMutationMutex = Mutex()
 
     override suspend fun addKeyword(keyword: String): Boolean {
@@ -65,8 +69,34 @@ internal class KeywordsRepositoryImpl(
         return keywordsDataStore.setTelegramChannelFilterEnabled(enabled)
     }
 
+    override suspend fun seedDefaultKeywordsIfNeeded() {
+        keywordsMutationMutex.withLock {
+            keywordsDataStore.seedDefaultKeywordsIfNeeded(DEFAULT_KEYWORDS_SEED)
+        }
+    }
+
+    override suspend fun seedDefaultStopWordsIfNeeded() {
+        keywordsMutationMutex.withLock {
+            keywordsDataStore.seedDefaultStopWordsIfNeeded(DEFAULT_STOP_WORDS_SEED)
+        }
+    }
+
+    override suspend fun restoreDefaultKeywords(): Int {
+        return keywordsMutationMutex.withLock {
+            keywordsDataStore.mergeKeywords(DEFAULT_KEYWORDS_SEED)
+        }
+    }
+
+    override suspend fun restoreDefaultStopWords(): Int {
+        return keywordsMutationMutex.withLock {
+            keywordsDataStore.mergeStopWords(DEFAULT_STOP_WORDS_SEED)
+        }
+    }
+
     override suspend fun clearAllKeywordsPreferences(): Boolean {
-        return keywordsDataStore.clearAllPreferences()
+        return keywordsMutationMutex.withLock {
+            keywordsDataStore.clearAllPreferences()
+        }
     }
 
 }

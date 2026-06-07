@@ -104,6 +104,33 @@
     <string name="keywords_remove_dialog_confirm">Удалить</string>
     <string name="keywords_remove_dialog_dismiss">Отмена</string>
     <string name="keywords_chip_copied">Текст метки скопирован</string>
+    <string name="keywords_normalized">Сохранено как «%s»</string>
+    <string name="keywords_multiline_not_allowed">Только одна строка на ключевое слово</string>
+    <string name="keywords_starts_with_non_alphanumeric">Ключевое слово должно начинаться с буквы или цифры</string>
+    <plurals name="keywords_term_too_short">
+        <item quantity="one">Каждое слово — минимум %d символ</item>
+        <item quantity="few">Каждое слово — минимум %d символа</item>
+        <item quantity="many">Каждое слово — минимум %d символов</item>
+        <item quantity="other">Каждое слово — минимум %d символов</item>
+    </plurals>
+    <plurals name="keywords_max_reached">
+        <item quantity="one">Не более %d ключевого слова</item>
+        <item quantity="few">Не более %d ключевых слов</item>
+        <item quantity="many">Не более %d ключевых слов</item>
+        <item quantity="other">Не более %d ключевых слов</item>
+    </plurals>
+    <string name="keywords_restore_defaults">Восстановить по умолчанию</string>
+    <string name="keywords_restore_defaults_dialog_title">Восстановить ключевые слова по умолчанию?</string>
+    <string name="keywords_restore_defaults_dialog_message">Слова по умолчанию будут добавлены в список без удаления существующих. Дубликаты будут пропущены.</string>
+    <string name="keywords_restore_defaults_dialog_confirm">Восстановить</string>
+    <string name="keywords_restore_defaults_dialog_dismiss">Отмена</string>
+    <plurals name="keywords_restore_defaults_added">
+        <item quantity="one">Добавлено %d ключевое слово</item>
+        <item quantity="few">Добавлено %d ключевых слова</item>
+        <item quantity="many">Добавлено %d ключевых слов</item>
+        <item quantity="other">Добавлено %d ключевых слов</item>
+    </plurals>
+    <string name="keywords_restore_nothing_added">Все слова по умолчанию уже в списке</string>
     <string name="permissions_warning">Предоставьте все необходимые разрешения для стабильного фонового мониторинга</string>
     <string name="permissions_listener_title">Доступ к уведомлениям</string>
     <string name="permissions_listener_description">Позволяет читать входящие уведомления Telegram</string>
@@ -175,7 +202,7 @@
     <string name="onboarding_permissions_body">Обязательные — без них приложение не работает:\n• Доступ к уведомлениям\n• Показ собственных уведомлений\n• Неограниченная работа в фоне (батарея)\n\nРекомендуемые — для полной защиты:\n• Режим «Не беспокоить»\n• Полноэкранные уведомления\n\nПодробное описание каждого разрешения есть на экране Разрешения в приложении.</string>
 
     <string name="onboarding_keywords_title">Настройте ключевые слова</string>
-    <string name="onboarding_keywords_body">Ключевые слова — главная настройка. Именно они определяют, когда сработает сирена.\n\nСлова-триггеры — сообщение с этими словами запустит тревогу. Три режима: Слово, Все слова, Фраза.\n\nСтоп-слова — если найдено в сообщении, тревога не сработает.\n\nФильтр каналов — необязательно. Ограничивает мониторинг только выбранными Telegram-каналами.\n\n💡 Совет: после первого срабатывания откройте экран Журнал и скопируйте слова прямо оттуда.</string>
+    <string name="onboarding_keywords_body">Ключевые слова — главная настройка. Именно они определяют, когда сработает сирена.\n\nСлова-триггеры — сообщение с этими словами запустит тревогу. Три режима: Слово, Все слова, Фраза.\n\nСтоп-слова — если найдено в сообщении, тревога не сработает.\n\nФильтр каналов — необязательно. Ограничивает мониторинг только выбранными Telegram-каналами.\n\n💬 Каналы могут писать на украинском или русском. Если следите за украиноязычными — добавьте украинские варианты слов-триггеров отдельно (например «Киев» и «Київ»).\n\n💡 Совет: после первого срабатывания откройте экран Журнал и скопируйте слова прямо оттуда.</string>
     <string name="onboarding_open_keywords">Открыть ключевые слова</string>
     <string name="onboarding_keywords_later_hint">Вы можете настроить сейчас или вернуться к этому позже в приложении.</string>
 
