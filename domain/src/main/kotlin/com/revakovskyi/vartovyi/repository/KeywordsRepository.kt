@@ -9,17 +9,17 @@ interface KeywordsRepository {
     val telegramChannels: Flow<List<String>>
     val isTelegramChannelFilterEnabled: Flow<Boolean>
 
-    suspend fun addKeyword(keyword: String)
-    suspend fun removeKeyword(keyword: String)
-    suspend fun addStopWord(stopWord: String)
-    suspend fun removeStopWord(stopWord: String)
-    suspend fun addTelegramChannel(channel: String)
-    suspend fun removeTelegramChannel(channel: String)
-    suspend fun setTelegramChannelFilterEnabled(enabled: Boolean)
+    suspend fun addKeyword(keyword: String): Boolean
+    suspend fun removeKeyword(keyword: String): Boolean
+    suspend fun addStopWord(stopWord: String): Boolean
+    suspend fun removeStopWord(stopWord: String): Boolean
+    suspend fun addTelegramChannel(channel: String): Boolean
+    suspend fun removeTelegramChannel(channel: String): Boolean
+    suspend fun setTelegramChannelFilterEnabled(enabled: Boolean): Boolean
     suspend fun seedDefaultKeywordsIfNeeded()
     suspend fun seedDefaultStopWordsIfNeeded()
     suspend fun restoreDefaultKeywords(): Int
     suspend fun restoreDefaultStopWords(): Int
-    suspend fun clearAllKeywordsPreferences()
+    suspend fun clearAllKeywordsPreferences(): Boolean
 
 }

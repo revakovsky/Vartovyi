@@ -529,7 +529,7 @@ class KeywordsViewModel(
                 }
 
                 is ImportResult.WriteError -> {
-                    Log.e(TAG, "importKeywords: write error", result.exception)
+                    Log.e(TAG, "importKeywords: write error")
                     _events.send(Event.KeywordsImportWriteError)
                 }
 
