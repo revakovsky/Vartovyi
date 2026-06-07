@@ -16,57 +16,57 @@ internal class KeywordsRepositoryImpl(
     override val isTelegramChannelFilterEnabled: Flow<Boolean> = keywordsDataStore.isTelegramChannelFilterEnabled
     private val keywordsMutationMutex = Mutex()
 
-    override suspend fun addKeyword(keyword: String) {
-        if (keyword.isBlank()) return
+    override suspend fun addKeyword(keyword: String): Boolean {
+        if (keyword.isBlank()) return true
 
         val normalizedKeyword = keyword.trim()
-        keywordsMutationMutex.withLock {
+        return keywordsMutationMutex.withLock {
             keywordsDataStore.addKeywordIfMissing(normalizedKeyword)
         }
     }
 
-    override suspend fun removeKeyword(keyword: String) {
-        keywordsMutationMutex.withLock {
+    override suspend fun removeKeyword(keyword: String): Boolean {
+        return keywordsMutationMutex.withLock {
             keywordsDataStore.removeKeyword(keyword)
         }
     }
 
-    override suspend fun addStopWord(stopWord: String) {
-        if (stopWord.isBlank()) return
+    override suspend fun addStopWord(stopWord: String): Boolean {
+        if (stopWord.isBlank()) return true
 
         val normalizedStopWord = stopWord.trim()
-        keywordsMutationMutex.withLock {
+        return keywordsMutationMutex.withLock {
             keywordsDataStore.addStopWordIfMissing(normalizedStopWord)
         }
     }
 
-    override suspend fun removeStopWord(stopWord: String) {
-        keywordsMutationMutex.withLock {
+    override suspend fun removeStopWord(stopWord: String): Boolean {
+        return keywordsMutationMutex.withLock {
             keywordsDataStore.removeStopWord(stopWord)
         }
     }
 
-    override suspend fun addTelegramChannel(channel: String) {
-        if (channel.isBlank()) return
+    override suspend fun addTelegramChannel(channel: String): Boolean {
+        if (channel.isBlank()) return true
 
         val normalizedChannel = channel.trim()
-        keywordsMutationMutex.withLock {
+        return keywordsMutationMutex.withLock {
             keywordsDataStore.addTelegramChannelIfMissing(normalizedChannel)
         }
     }
 
-    override suspend fun removeTelegramChannel(channel: String) {
-        keywordsMutationMutex.withLock {
+    override suspend fun removeTelegramChannel(channel: String): Boolean {
+        return keywordsMutationMutex.withLock {
             keywordsDataStore.removeTelegramChannel(channel)
         }
     }
 
-    override suspend fun setTelegramChannelFilterEnabled(enabled: Boolean) {
-        keywordsDataStore.setTelegramChannelFilterEnabled(enabled)
+    override suspend fun setTelegramChannelFilterEnabled(enabled: Boolean): Boolean {
+        return keywordsDataStore.setTelegramChannelFilterEnabled(enabled)
     }
 
-    override suspend fun clearAllKeywordsPreferences() {
-        keywordsDataStore.clearAllPreferences()
+    override suspend fun clearAllKeywordsPreferences(): Boolean {
+        return keywordsDataStore.clearAllPreferences()
     }
 
 }
