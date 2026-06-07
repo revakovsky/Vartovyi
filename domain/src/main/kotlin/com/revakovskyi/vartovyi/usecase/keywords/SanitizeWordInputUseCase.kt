@@ -3,22 +3,28 @@ package com.revakovskyi.vartovyi.usecase.keywords
 import com.revakovskyi.vartovyi.constants.KeywordRuleFormat
 import com.revakovskyi.vartovyi.constants.KeywordsLimits
 import com.revakovskyi.vartovyi.model.TriggerKeywordRuleType
+import com.revakovskyi.vartovyi.model.WordInputTarget
 import com.revakovskyi.vartovyi.result.KeywordSanitizationResult
 import com.revakovskyi.vartovyi.utils.normalizeApostrophes
 import com.revakovskyi.vartovyi.utils.normalizeUnicode
 
-interface SanitizeKeywordInputUseCase {
+/**
+ * Sanitizes raw word input from the Keywords screen. Cleaning is shared across all targets;
+ * only the storage format differs: trigger-rule format (quotes / `+`) for
+ * [WordInputTarget.TriggerKeyword], plain cleaned text for the rest.
+ */
+interface SanitizeWordInputUseCase {
     operator fun invoke(
         rawInput: String,
-        selectedType: TriggerKeywordRuleType,
+        target: WordInputTarget,
     ): KeywordSanitizationResult
 }
 
-class SanitizeKeywordInputUseCaseImpl : SanitizeKeywordInputUseCase {
+class SanitizeWordInputUseCaseImpl : SanitizeWordInputUseCase {
 
     override operator fun invoke(
         rawInput: String,
-        selectedType: TriggerKeywordRuleType,
+        target: WordInputTarget,
     ): KeywordSanitizationResult {
         val preprocessed = rawInput.normalizeUnicode()
             .replace(KeywordRuleFormat.PLACEHOLDER_BRACKETS_REGEX, "")
@@ -32,15 +38,43 @@ class SanitizeKeywordInputUseCaseImpl : SanitizeKeywordInputUseCase {
         val trimmed = preprocessed.trim()
         if (trimmed.isEmpty()) return KeywordSanitizationResult.Empty
 
+        return when (target) {
+            is WordInputTarget.TriggerKeyword -> sanitizeTriggerKeyword(
+                trimmed = trimmed,
+                selectedType = target.selectedType,
+            )
+
+            is WordInputTarget.StopWord,
+            is WordInputTarget.TelegramChannel,
+                -> sanitizePlainText(trimmed)
+        }
+    }
+
+    private fun sanitizeTriggerKeyword(
+        trimmed: String,
+        selectedType: TriggerKeywordRuleType,
+    ): KeywordSanitizationResult {
         val hasBalancedOuterQuotes = hasBalancedOuterQuotes(trimmed)
         val isPhraseIntent = hasBalancedOuterQuotes ||
                 selectedType == TriggerKeywordRuleType.PHRASE
 
         return if (isPhraseIntent) {
-            sanitizeAsPhrase(trimmed = trimmed, stripOuterQuotes = hasBalancedOuterQuotes)
+            sanitizeWholeText(
+                trimmed = trimmed,
+                stripOuterQuotes = hasBalancedOuterQuotes,
+                wrapInQuotes = true,
+            )
         } else {
             sanitizeAsWordOrAllWords(trimmed = trimmed, selectedType = selectedType)
         }
+    }
+
+    private fun sanitizePlainText(trimmed: String): KeywordSanitizationResult {
+        return sanitizeWholeText(
+            trimmed = trimmed,
+            stripOuterQuotes = hasBalancedOuterQuotes(trimmed),
+            wrapInQuotes = false,
+        )
     }
 
     private fun hasBalancedOuterQuotes(trimmed: String): Boolean {
@@ -52,29 +86,36 @@ class SanitizeKeywordInputUseCaseImpl : SanitizeKeywordInputUseCase {
                 trimmed.endsWith(KeywordRuleFormat.QUOTE)
     }
 
-    private fun sanitizeAsPhrase(
+    private fun sanitizeWholeText(
         trimmed: String,
         stripOuterQuotes: Boolean,
+        wrapInQuotes: Boolean,
     ): KeywordSanitizationResult {
         val unquoted = if (stripOuterQuotes) {
             trimmed.substring(1, trimmed.length - 1)
         } else {
             trimmed
         }
-        val cleanedPhrase = unquoted
+        val cleanedText = unquoted
             .replace(KeywordRuleFormat.INTERNAL_WHITESPACE_REGEX, KeywordRuleFormat.SINGLE_SPACE)
             .trim()
-        if (cleanedPhrase.isEmpty()) return KeywordSanitizationResult.Empty
+        if (cleanedText.isEmpty()) return KeywordSanitizationResult.Empty
 
-        val alphanumericCount = cleanedPhrase.count { character -> character.isLetterOrDigit() }
+        val alphanumericCount = cleanedText.count { character -> character.isLetterOrDigit() }
         if (alphanumericCount == 0) return KeywordSanitizationResult.Empty
         if (alphanumericCount < KeywordsLimits.MIN_TERM_LENGTH) {
             return KeywordSanitizationResult.TermTooShort
         }
 
+        val storageValue = if (wrapInQuotes) {
+            "${KeywordRuleFormat.QUOTE}$cleanedText${KeywordRuleFormat.QUOTE}"
+        } else {
+            cleanedText
+        }
+
         return KeywordSanitizationResult.Sanitized(
             effectiveType = TriggerKeywordRuleType.PHRASE,
-            storageValue = "${KeywordRuleFormat.QUOTE}$cleanedPhrase${KeywordRuleFormat.QUOTE}",
+            storageValue = storageValue,
             normalizedRawInput = trimmed,
         )
     }
@@ -131,11 +172,7 @@ class SanitizeKeywordInputUseCaseImpl : SanitizeKeywordInputUseCase {
         }
     }
 
-    /**
-     * For an [TriggerKeywordRuleType.ALL_WORDS] value with a single token a trailing separator is
-     * kept so the value still round-trips as ALL_WORDS through the storage parser, which detects
-     * ALL_WORDS by the presence of the separator.
-     */
+    /** ALL_WORDS always has 2+ tokens here — [resolveEffectiveType] demotes single-token to WORD. */
     private fun buildStorageValue(
         effectiveType: TriggerKeywordRuleType,
         tokens: List<String>,
@@ -146,8 +183,7 @@ class SanitizeKeywordInputUseCaseImpl : SanitizeKeywordInputUseCase {
         }
 
         TriggerKeywordRuleType.ALL_WORDS -> {
-            val joined = tokens.joinToString(KeywordRuleFormat.ALL_WORDS_SEPARATOR)
-            if (tokens.size == 1) "$joined${KeywordRuleFormat.ALL_WORDS_SEPARATOR}" else joined
+            tokens.joinToString(KeywordRuleFormat.ALL_WORDS_SEPARATOR)
         }
 
         TriggerKeywordRuleType.WORD -> tokens.first()

@@ -4,21 +4,18 @@ import android.content.Context
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.booleanPreferencesKey
-import androidx.datastore.preferences.core.edit
-import androidx.datastore.preferences.core.emptyPreferences
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
 import com.revakovskyi.vartovyi.contract.CrashReporter
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.map
 import kotlinx.serialization.json.Json
-import java.io.IOException
 
 private const val DATASTORE_NAME = "vartovyi_keywords"
 
 private val Context.keywordsDataStore: DataStore<Preferences> by preferencesDataStore(
-    name = DATASTORE_NAME
+    name = DATASTORE_NAME,
+    corruptionHandler = preferencesCorruptionHandler(),
 )
 
 internal class KeywordsDataStore(
@@ -37,85 +34,88 @@ internal class KeywordsDataStore(
 
     val keywords: Flow<List<String>> = context.keywordsDataStore.data
         .safeCatch()
-        .map { preferences -> preferences.decodeStringList(Keys.KEYWORDS) }
+        .map { preferences -> storedStringList(preferences, Keys.KEYWORDS) }
 
     val stopWords: Flow<List<String>> = context.keywordsDataStore.data
         .safeCatch()
-        .map { preferences -> preferences.decodeStringList(Keys.STOP_WORDS) }
+        .map { preferences -> storedStringList(preferences, Keys.STOP_WORDS) }
 
     val telegramChannels: Flow<List<String>> = context.keywordsDataStore.data
         .safeCatch()
-        .map { preferences -> preferences.decodeStringList(Keys.TELEGRAM_CHANNELS) }
+        .map { preferences -> storedStringList(preferences, Keys.TELEGRAM_CHANNELS) }
 
     val isTelegramChannelFilterEnabled: Flow<Boolean> = context.keywordsDataStore.data
         .safeCatch()
         .map { prefs -> prefs[Keys.TELEGRAM_CHANNEL_FILTER_ENABLED] ?: false }
 
-    suspend fun addKeywordIfMissing(keyword: String) {
-        context.keywordsDataStore.edit { preferences ->
-            val currentKeywords = preferences.decodeStringList(Keys.KEYWORDS)
-            if (keyword in currentKeywords) return@edit
+    suspend fun addKeywordIfMissing(keyword: String): Boolean {
+        return context.keywordsDataStore.safeEdit { preferences ->
+            val currentKeywords = storedStringList(preferences, Keys.KEYWORDS)
+            if (keyword in currentKeywords) return@safeEdit
+
             preferences[Keys.KEYWORDS] = Json.encodeToString(currentKeywords + keyword)
         }
     }
 
-    suspend fun removeKeyword(keyword: String) {
-        context.keywordsDataStore.edit { preferences ->
-            val currentKeywords = preferences.decodeStringList(Keys.KEYWORDS)
+    suspend fun removeKeyword(keyword: String): Boolean {
+        return context.keywordsDataStore.safeEdit { preferences ->
+            val currentKeywords = storedStringList(preferences, Keys.KEYWORDS)
             preferences[Keys.KEYWORDS] = Json.encodeToString(currentKeywords - keyword)
         }
     }
 
-    suspend fun addStopWordIfMissing(stopWord: String) {
-        context.keywordsDataStore.edit { preferences ->
-            val currentStopWords = preferences.decodeStringList(Keys.STOP_WORDS)
-            if (stopWord in currentStopWords) return@edit
+    suspend fun addStopWordIfMissing(stopWord: String): Boolean {
+        return context.keywordsDataStore.safeEdit { preferences ->
+            val currentStopWords = storedStringList(preferences, Keys.STOP_WORDS)
+            if (stopWord in currentStopWords) return@safeEdit
+
             preferences[Keys.STOP_WORDS] = Json.encodeToString(currentStopWords + stopWord)
         }
     }
 
-    suspend fun removeStopWord(stopWord: String) {
-        context.keywordsDataStore.edit { preferences ->
-            val currentStopWords = preferences.decodeStringList(Keys.STOP_WORDS)
+    suspend fun removeStopWord(stopWord: String): Boolean {
+        return context.keywordsDataStore.safeEdit { preferences ->
+            val currentStopWords = storedStringList(preferences, Keys.STOP_WORDS)
             preferences[Keys.STOP_WORDS] = Json.encodeToString(currentStopWords - stopWord)
         }
     }
 
-    suspend fun addTelegramChannelIfMissing(channel: String) {
-        context.keywordsDataStore.edit { preferences ->
-            val currentChannels = preferences.decodeStringList(Keys.TELEGRAM_CHANNELS)
-            if (channel in currentChannels) return@edit
+    suspend fun addTelegramChannelIfMissing(channel: String): Boolean {
+        return context.keywordsDataStore.safeEdit { preferences ->
+            val currentChannels = storedStringList(preferences, Keys.TELEGRAM_CHANNELS)
+            if (channel in currentChannels) return@safeEdit
+
             preferences[Keys.TELEGRAM_CHANNELS] = Json.encodeToString(currentChannels + channel)
         }
     }
 
-    suspend fun removeTelegramChannel(channel: String) {
-        context.keywordsDataStore.edit { preferences ->
-            val currentChannels = preferences.decodeStringList(Keys.TELEGRAM_CHANNELS)
+    suspend fun removeTelegramChannel(channel: String): Boolean {
+        return context.keywordsDataStore.safeEdit { preferences ->
+            val currentChannels = storedStringList(preferences, Keys.TELEGRAM_CHANNELS)
             preferences[Keys.TELEGRAM_CHANNELS] = Json.encodeToString(currentChannels - channel)
         }
     }
 
-    suspend fun setTelegramChannelFilterEnabled(enabled: Boolean) {
-        context.keywordsDataStore.edit { it[Keys.TELEGRAM_CHANNEL_FILTER_ENABLED] = enabled }
+    suspend fun setTelegramChannelFilterEnabled(enabled: Boolean): Boolean {
+        return context.keywordsDataStore.safeEdit { it[Keys.TELEGRAM_CHANNEL_FILTER_ENABLED] = enabled }
     }
 
-    suspend fun seedDefaultKeywordsIfNeeded(defaults: List<String>) {
-        context.keywordsDataStore.edit { preferences ->
+    suspend fun seedDefaultKeywordsIfNeeded(defaults: List<String>): Boolean {
+        return context.keywordsDataStore.safeEdit { preferences ->
             val alreadySeeded = preferences[Keys.KEYWORDS_SEEDED] == true
-            if (alreadySeeded) return@edit
+            if (alreadySeeded) return@safeEdit
 
             preferences[Keys.KEYWORDS] = Json.encodeToString(defaults)
             preferences[Keys.KEYWORDS_SEEDED] = true
         }
     }
 
-    suspend fun seedDefaultStopWordsIfNeeded(defaults: List<String>) {
-        context.keywordsDataStore.edit { preferences ->
+    suspend fun seedDefaultStopWordsIfNeeded(defaults: List<String>): Boolean {
+        return context.keywordsDataStore.safeEdit { preferences ->
             val alreadySeeded = preferences[Keys.STOP_WORDS_SEEDED] == true
-            if (alreadySeeded) return@edit
+            if (alreadySeeded) return@safeEdit
 
-            val currentStopWords = preferences.decodeStringList(Keys.STOP_WORDS)
+            val currentStopWords = storedStringList(preferences, Keys.STOP_WORDS)
             if (currentStopWords.isEmpty()) {
                 preferences[Keys.STOP_WORDS] = Json.encodeToString(defaults)
             }
@@ -126,10 +126,10 @@ internal class KeywordsDataStore(
 
     suspend fun mergeKeywords(defaults: List<String>): Int {
         var addedCount = 0
-        context.keywordsDataStore.edit { preferences ->
-            val currentKeywords = preferences.decodeStringList(Keys.KEYWORDS)
+        context.keywordsDataStore.safeEdit { preferences ->
+            val currentKeywords = storedStringList(preferences, Keys.KEYWORDS)
             val missingKeywords = defaults.filter { keyword -> keyword !in currentKeywords }
-            if (missingKeywords.isEmpty()) return@edit
+            if (missingKeywords.isEmpty()) return@safeEdit
 
             preferences[Keys.KEYWORDS] = Json.encodeToString(currentKeywords + missingKeywords)
             addedCount = missingKeywords.size
@@ -139,10 +139,10 @@ internal class KeywordsDataStore(
 
     suspend fun mergeStopWords(defaults: List<String>): Int {
         var addedCount = 0
-        context.keywordsDataStore.edit { preferences ->
-            val currentStopWords = preferences.decodeStringList(Keys.STOP_WORDS)
+        context.keywordsDataStore.safeEdit { preferences ->
+            val currentStopWords = storedStringList(preferences, Keys.STOP_WORDS)
             val missingStopWords = defaults.filter { stopWord -> stopWord !in currentStopWords }
-            if (missingStopWords.isEmpty()) return@edit
+            if (missingStopWords.isEmpty()) return@safeEdit
 
             preferences[Keys.STOP_WORDS] = Json.encodeToString(currentStopWords + missingStopWords)
             addedCount = missingStopWords.size
@@ -151,11 +151,11 @@ internal class KeywordsDataStore(
     }
 
     /**
-     * Removes only the user data keys. The `*_SEEDED` flags are intentionally kept so cleared
-     * defaults are not re-seeded on the next launch (they seed only once, on first install).
+     * Removes only the user data keys; `*_SEEDED` flags stay so cleared defaults are not
+     * re-seeded on the next launch.
      */
-    suspend fun clearAllPreferences() {
-        context.keywordsDataStore.edit { preferences ->
+    suspend fun clearAllPreferences(): Boolean {
+        return context.keywordsDataStore.safeEdit { preferences ->
             preferences.remove(Keys.KEYWORDS)
             preferences.remove(Keys.STOP_WORDS)
             preferences.remove(Keys.TELEGRAM_CHANNELS)
@@ -163,18 +163,17 @@ internal class KeywordsDataStore(
         }
     }
 
-    private fun Preferences.decodeStringList(key: Preferences.Key<String>): List<String> =
-        this[key]
-            ?.let { stored ->
-                runCatching { Json.decodeFromString<List<String>>(stored) }
+    private fun storedStringList(
+        preferences: Preferences,
+        key: Preferences.Key<String>,
+    ): List<String> {
+        return preferences[key]
+            ?.let { storedValue ->
+                runCatching { Json.decodeFromString<List<String>>(storedValue) }
                     .onFailure { throwable -> crashReporter.report(throwable) }
                     .getOrDefault(emptyList())
             }
             ?: emptyList()
-
-    private fun Flow<Preferences>.safeCatch(): Flow<Preferences> =
-        catch { e ->
-            if (e is IOException) emit(emptyPreferences()) else throw e
-        }
+    }
 
 }

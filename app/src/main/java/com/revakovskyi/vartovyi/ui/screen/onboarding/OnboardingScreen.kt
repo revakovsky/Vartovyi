@@ -42,7 +42,7 @@ import com.revakovskyi.vartovyi.utils.ObserveSingleEvents
 import org.koin.compose.viewmodel.koinViewModel
 
 private enum class OnboardingPage {
-    WELCOME, TELEGRAM, PERMISSIONS, DEVICE_TIPS, KEYWORDS, LAUNCH,
+    WELCOME, TELEGRAM, PERMISSIONS, KEYWORDS, DEVICE_TIPS, LAUNCH,
 }
 
 @Composable
@@ -241,7 +241,7 @@ private fun OnboardingContentPermissionsGrantedPreview() {
 private fun OnboardingContentDeviceTipsPreview() {
     VartovyiTheme {
         OnboardingContent(
-            state = OnboardingUiContract.State(currentPage = 3),
+            state = OnboardingUiContract.State(currentPage = 4),
             isRequiredPermissionsGranted = true,
             onAction = {},
         )
