@@ -1,5 +1,6 @@
 package com.revakovskyi.vartovyi.usecase.notification
 
+import com.revakovskyi.vartovyi.constants.KeywordRuleFormat
 import com.revakovskyi.vartovyi.contract.ElapsedRealtimeProvider
 import com.revakovskyi.vartovyi.controllers.alarm.AlarmController
 import com.revakovskyi.vartovyi.model.AlertEvent
@@ -8,6 +9,9 @@ import com.revakovskyi.vartovyi.model.NotificationPayload
 import com.revakovskyi.vartovyi.repository.KeywordsRepository
 import com.revakovskyi.vartovyi.repository.LogRepository
 import com.revakovskyi.vartovyi.repository.SettingsRepository
+import com.revakovskyi.vartovyi.utils.normalizeApostrophes
+import com.revakovskyi.vartovyi.utils.normalizeForMatching
+import com.revakovskyi.vartovyi.utils.normalizeUnicode
 import com.revakovskyi.vartovyi.utils.parseTriggerKeywordRuleFromStorage
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.sync.Mutex
@@ -183,8 +187,11 @@ class ProcessIncomingTelegramNotificationUseCaseImpl(
     ): String? {
         if (keywords.isEmpty()) return null
 
-        val lowerText = text.lowercase()
-        val hasStopWord = stopWords.any { stopWord -> lowerText.contains(stopWord.lowercase()) }
+        val normalizedText = text.normalizeForMatching()
+        val hasStopWord = stopWords.any { stopWord ->
+            val normalizedStopWord = stopWord.normalizeForMatching()
+            normalizedStopWord.isNotEmpty() && normalizedText.contains(normalizedStopWord)
+        }
         if (hasStopWord) return null
 
         return keywords.asSequence()
@@ -215,11 +222,14 @@ class ProcessIncomingTelegramNotificationUseCaseImpl(
 
     private fun normalizeChannelNameForComparison(rawChannelName: String): String {
         val cleanedChannelName = rawChannelName
-            .trim()
+            .normalizeUnicode()
+            .normalizeApostrophes()
             .replace(UNICODE_VARIATION_SELECTOR_15.toString(), EMPTY_STRING)
             .replace(UNICODE_VARIATION_SELECTOR_16.toString(), EMPTY_STRING)
             .replace(ZERO_WIDTH_JOINER.toString(), EMPTY_STRING)
             .replace(ZERO_WIDTH_NON_JOINER.toString(), EMPTY_STRING)
+            .replace(KeywordRuleFormat.INTERNAL_WHITESPACE_REGEX, KeywordRuleFormat.SINGLE_SPACE)
+            .trim()
 
         val withoutDecorativePrefix = cleanedChannelName.replace(
             nonWordOrDigitPrefixRegex,

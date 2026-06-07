@@ -4,12 +4,11 @@ import com.revakovskyi.vartovyi.model.KeywordsBackup
 import com.revakovskyi.vartovyi.repository.KeywordsRepository
 import kotlinx.serialization.SerializationException
 import kotlinx.serialization.json.Json
-import java.io.IOException
 
 sealed interface ImportResult {
     data object Success : ImportResult
     data class InvalidFormat(val exception: Exception) : ImportResult
-    data class WriteError(val exception: Exception) : ImportResult
+    data object WriteError : ImportResult
     data class UnsupportedVersion(val fileVersion: Int) : ImportResult
 }
 
@@ -34,18 +33,13 @@ class ImportKeywordsUseCaseImpl(
             return ImportResult.UnsupportedVersion(backup.version)
         }
 
-        return try {
-            keywordsRepository.clearAllKeywordsPreferences()
+        val allWritesSucceeded = keywordsRepository.clearAllKeywordsPreferences() &&
+                backup.keywords.all { keywordsRepository.addKeyword(it) } &&
+                backup.stopWords.all { keywordsRepository.addStopWord(it) } &&
+                backup.telegramChannels.all { keywordsRepository.addTelegramChannel(it) } &&
+                keywordsRepository.setTelegramChannelFilterEnabled(backup.isTelegramChannelFilterEnabled)
 
-            backup.keywords.forEach { keywordsRepository.addKeyword(it) }
-            backup.stopWords.forEach { keywordsRepository.addStopWord(it) }
-            backup.telegramChannels.forEach { keywordsRepository.addTelegramChannel(it) }
-            keywordsRepository.setTelegramChannelFilterEnabled(backup.isTelegramChannelFilterEnabled)
-
-            ImportResult.Success
-        } catch (e: IOException) {
-            ImportResult.WriteError(e)
-        }
+        return if (allWritesSucceeded) ImportResult.Success else ImportResult.WriteError
     }
 
 }

@@ -3,6 +3,7 @@ package com.revakovskyi.vartovyi.usecase.keywords
 import assertk.assertThat
 import assertk.assertions.isEqualTo
 import com.revakovskyi.vartovyi.model.TriggerKeywordRuleType
+import com.revakovskyi.vartovyi.model.WordInputTarget
 import com.revakovskyi.vartovyi.result.KeywordSanitizationResult
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
@@ -13,13 +14,13 @@ import org.junit.jupiter.params.provider.Arguments
 import org.junit.jupiter.params.provider.CsvSource
 import org.junit.jupiter.params.provider.MethodSource
 
-class SanitizeKeywordInputUseCaseTest {
+class SanitizeWordInputUseCaseTest {
 
-    private lateinit var useCase: SanitizeKeywordInputUseCase
+    private lateinit var useCase: SanitizeWordInputUseCase
 
     @BeforeEach
     fun setUp() {
-        useCase = SanitizeKeywordInputUseCaseImpl()
+        useCase = SanitizeWordInputUseCaseImpl()
     }
 
     // region Rejected inputs
@@ -33,13 +34,16 @@ class SanitizeKeywordInputUseCaseTest {
             "---!!!---, PHRASE",
         )
         fun `input resolves to Empty`(rawInput: String, selectedType: TriggerKeywordRuleType) {
-            val result = useCase(rawInput = rawInput, selectedType = selectedType)
+            val result = sanitizeTriggerKeyword(rawInput = rawInput, selectedType = selectedType)
             assertThat(result).isEqualTo(KeywordSanitizationResult.Empty)
         }
 
         @Test
         fun `only-symbols input resolves to StartsWithNonAlphanumeric`() {
-            val result = useCase(rawInput = "!!!@#\$", selectedType = TriggerKeywordRuleType.WORD)
+            val result = sanitizeTriggerKeyword(
+                rawInput = "!!!@#\$",
+                selectedType = TriggerKeywordRuleType.WORD,
+            )
             assertThat(result).isEqualTo(KeywordSanitizationResult.StartsWithNonAlphanumeric)
         }
 
@@ -55,13 +59,13 @@ class SanitizeKeywordInputUseCaseTest {
             rawInput: String,
             selectedType: TriggerKeywordRuleType,
         ) {
-            val result = useCase(rawInput = rawInput, selectedType = selectedType)
+            val result = sanitizeTriggerKeyword(rawInput = rawInput, selectedType = selectedType)
             assertThat(result).isEqualTo(KeywordSanitizationResult.TermTooShort)
         }
 
         @Test
         fun `input with only invisible unicode chars resolves to Empty`() {
-            val result = useCase(
+            val result = sanitizeTriggerKeyword(
                 rawInput = "​‌‍﻿ ",
                 selectedType = TriggerKeywordRuleType.WORD
             )
@@ -70,13 +74,16 @@ class SanitizeKeywordInputUseCaseTest {
 
         @Test
         fun `newline in the middle resolves to MultiLineDetected`() {
-            val result = useCase(rawInput = "abc\ndef", selectedType = TriggerKeywordRuleType.WORD)
+            val result = sanitizeTriggerKeyword(
+                rawInput = "abc\ndef",
+                selectedType = TriggerKeywordRuleType.WORD,
+            )
             assertThat(result).isEqualTo(KeywordSanitizationResult.MultiLineDetected)
         }
 
         @Test
         fun `carriage return and newline resolves to MultiLineDetected`() {
-            val result = useCase(
+            val result = sanitizeTriggerKeyword(
                 rawInput = "abc\r\ndef",
                 selectedType = TriggerKeywordRuleType.WORD
             )
@@ -85,7 +92,10 @@ class SanitizeKeywordInputUseCaseTest {
 
         @Test
         fun `newline at the end resolves to MultiLineDetected`() {
-            val result = useCase(rawInput = "abc\n", selectedType = TriggerKeywordRuleType.WORD)
+            val result = sanitizeTriggerKeyword(
+                rawInput = "abc\n",
+                selectedType = TriggerKeywordRuleType.WORD,
+            )
             assertThat(result).isEqualTo(KeywordSanitizationResult.MultiLineDetected)
         }
     }
@@ -117,7 +127,7 @@ class SanitizeKeywordInputUseCaseTest {
             expectedStorage: String,
             expectedNormalizedRawInput: String,
         ) {
-            val result = useCase(rawInput = rawInput, selectedType = selectedType)
+            val result = sanitizeTriggerKeyword(rawInput = rawInput, selectedType = selectedType)
 
             assertThat(result).isEqualTo(
                 KeywordSanitizationResult.Sanitized(
@@ -151,7 +161,7 @@ class SanitizeKeywordInputUseCaseTest {
             expectedStorage: String,
             expectedNormalizedRawInput: String,
         ) {
-            val result = useCase(rawInput = rawInput, selectedType = selectedType)
+            val result = sanitizeTriggerKeyword(rawInput = rawInput, selectedType = selectedType)
 
             assertThat(result).isEqualTo(
                 KeywordSanitizationResult.Sanitized(
@@ -186,7 +196,7 @@ class SanitizeKeywordInputUseCaseTest {
             expectedStorage: String,
             expectedNormalizedRawInput: String,
         ) {
-            val result = useCase(rawInput = rawInput, selectedType = selectedType)
+            val result = sanitizeTriggerKeyword(rawInput = rawInput, selectedType = selectedType)
 
             assertThat(result).isEqualTo(
                 KeywordSanitizationResult.Sanitized(
@@ -219,7 +229,7 @@ class SanitizeKeywordInputUseCaseTest {
             expectedStorage: String,
             expectedNormalizedRawInput: String,
         ) {
-            val result = useCase(rawInput = rawInput, selectedType = selectedType)
+            val result = sanitizeTriggerKeyword(rawInput = rawInput, selectedType = selectedType)
 
             assertThat(result).isEqualTo(
                 KeywordSanitizationResult.Sanitized(
@@ -257,7 +267,7 @@ class SanitizeKeywordInputUseCaseTest {
             expectedStorage: String,
             expectedNormalizedRawInput: String,
         ) {
-            val result = useCase(rawInput = rawInput, selectedType = selectedType)
+            val result = sanitizeTriggerKeyword(rawInput = rawInput, selectedType = selectedType)
 
             assertThat(result).isEqualTo(
                 KeywordSanitizationResult.Sanitized(
@@ -282,7 +292,7 @@ class SanitizeKeywordInputUseCaseTest {
             selectedType: TriggerKeywordRuleType,
             expectedResult: KeywordSanitizationResult,
         ) {
-            val result = useCase(rawInput = rawInput, selectedType = selectedType)
+            val result = sanitizeTriggerKeyword(rawInput = rawInput, selectedType = selectedType)
             assertThat(result).isEqualTo(expectedResult)
         }
 
@@ -401,7 +411,7 @@ class SanitizeKeywordInputUseCaseTest {
             selectedType: TriggerKeywordRuleType,
             expectedResult: KeywordSanitizationResult,
         ) {
-            val result = useCase(rawInput = rawInput, selectedType = selectedType)
+            val result = sanitizeTriggerKeyword(rawInput = rawInput, selectedType = selectedType)
             assertThat(result).isEqualTo(expectedResult)
         }
 
@@ -418,7 +428,7 @@ class SanitizeKeywordInputUseCaseTest {
             expectedStorage: String,
             expectedNormalizedRawInput: String,
         ) {
-            val result = useCase(rawInput = rawInput, selectedType = selectedType)
+            val result = sanitizeTriggerKeyword(rawInput = rawInput, selectedType = selectedType)
             assertThat(result).isEqualTo(
                 KeywordSanitizationResult.Sanitized(
                     effectiveType = expectedType,
@@ -462,5 +472,93 @@ class SanitizeKeywordInputUseCaseTest {
         }
     }
     // endregion
+
+    // region Plain text inputs (stop words and Telegram channels)
+    @Nested
+    @TestInstance(TestInstance.Lifecycle.PER_CLASS)
+    inner class PlainTextInputs {
+
+        @ParameterizedTest
+        @MethodSource("rejectedPlainCases")
+        fun `invalid input resolves to the expected rejection`(
+            target: WordInputTarget,
+            rawInput: String,
+            expectedResult: KeywordSanitizationResult,
+        ) {
+            val result = useCase(rawInput = rawInput, target = target)
+            assertThat(result).isEqualTo(expectedResult)
+        }
+
+        @ParameterizedTest
+        @MethodSource("validPlainCases")
+        fun `valid input is stored as cleaned plain text without storage formatting`(
+            target: WordInputTarget,
+            rawInput: String,
+            expectedStorage: String,
+            expectedNormalizedRawInput: String,
+        ) {
+            val result = useCase(rawInput = rawInput, target = target)
+
+            assertThat(result).isEqualTo(
+                KeywordSanitizationResult.Sanitized(
+                    effectiveType = TriggerKeywordRuleType.PHRASE,
+                    storageValue = expectedStorage,
+                    normalizedRawInput = expectedNormalizedRawInput,
+                )
+            )
+        }
+
+        private fun plainTargets(): List<WordInputTarget> = listOf(
+            WordInputTarget.StopWord,
+            WordInputTarget.TelegramChannel,
+        )
+
+        private fun rejectedPlainCases(): List<Arguments> = plainTargets().flatMap { target ->
+            listOf(
+                Arguments.of(target, "", KeywordSanitizationResult.Empty),
+                Arguments.of(target, "   ", KeywordSanitizationResult.Empty),
+                Arguments.of(target, "---!!!---", KeywordSanitizationResult.Empty),
+                Arguments.of(target, "🚨🚨", KeywordSanitizationResult.Empty),
+                Arguments.of(target, "​‌‍﻿ ", KeywordSanitizationResult.Empty),
+                Arguments.of(target, "a", KeywordSanitizationResult.TermTooShort),
+                Arguments.of(target, "!!!а", KeywordSanitizationResult.TermTooShort),
+                Arguments.of(target, "перший\nдругий", KeywordSanitizationResult.MultiLineDetected),
+                Arguments.of(
+                    target,
+                    "перший\r\nдругий",
+                    KeywordSanitizationResult.MultiLineDetected,
+                ),
+            )
+        }
+
+        private fun validPlainCases(): List<Arguments> = plainTargets().flatMap { target ->
+            listOf(
+                Arguments.of(target, "Пригород", "Пригород", "Пригород"),
+                Arguments.of(target, "  off   topic  ", "off topic", "off   topic"),
+                // balanced outer quotes are stripped, no quotes in storage
+                Arguments.of(target, "\"новини\"", "новини", "\"новини\""),
+                // edge emoji are preserved in the stored value
+                Arguments.of(
+                    target,
+                    "🚨 Повітряні цілі Київ",
+                    "🚨 Повітряні цілі Київ",
+                    "🚨 Повітряні цілі Київ",
+                ),
+                Arguments.of(target, "@air_alert_ua", "@air_alert_ua", "@air_alert_ua"),
+                Arguments.of(target, "Київ'янин", "Київʼянин", "Київʼянин"),
+                Arguments.of(target, "ｒａｋｅｔａ", "raketa", "raketa"),
+                Arguments.of(target, "<Пригород>", "Пригород", "Пригород"),
+            )
+        }
+    }
+    // endregion
+
+    private fun sanitizeTriggerKeyword(
+        rawInput: String,
+        selectedType: TriggerKeywordRuleType,
+    ): KeywordSanitizationResult = useCase(
+        rawInput = rawInput,
+        target = WordInputTarget.TriggerKeyword(selectedType = selectedType),
+    )
 
 }

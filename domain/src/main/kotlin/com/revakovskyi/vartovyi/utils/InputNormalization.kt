@@ -8,3 +8,11 @@ internal fun String.normalizeApostrophes(): String =
 
 internal fun String.normalizeUnicode(): String =
     Normalizer.normalize(this, Normalizer.Form.NFKC)
+
+/** Brings both sides of a match (stored value and incoming text) to one canonical form. */
+internal fun String.normalizeForMatching(): String =
+    normalizeUnicode()
+        .normalizeApostrophes()
+        .lowercase()
+        .replace(KeywordRuleFormat.INTERNAL_WHITESPACE_REGEX, KeywordRuleFormat.SINGLE_SPACE)
+        .trim()

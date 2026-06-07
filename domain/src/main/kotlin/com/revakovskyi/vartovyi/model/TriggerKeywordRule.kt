@@ -2,6 +2,7 @@ package com.revakovskyi.vartovyi.model
 
 import com.revakovskyi.vartovyi.constants.KeywordRuleFormat
 import com.revakovskyi.vartovyi.utils.normalizeApostrophes
+import com.revakovskyi.vartovyi.utils.normalizeForMatching
 import com.revakovskyi.vartovyi.utils.normalizeUnicode
 
 data class TriggerKeywordRule(
@@ -59,12 +60,6 @@ data class TriggerKeywordRule(
             .toSet()
     }
 
-    private fun normalizeText(value: String): String {
-        return value.normalizeUnicode()
-            .normalizeApostrophes()
-            .lowercase()
-            .replace(KeywordRuleFormat.INTERNAL_WHITESPACE_REGEX, KeywordRuleFormat.SINGLE_SPACE)
-            .trim()
-    }
+    private fun normalizeText(value: String): String = value.normalizeForMatching()
 
 }

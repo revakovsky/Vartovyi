@@ -40,6 +40,7 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navOptions
 import com.revakovskyi.vartovyi.R
+import com.revakovskyi.vartovyi.model.PermissionsStatus
 import com.revakovskyi.vartovyi.navigation.BottomNavItem
 import com.revakovskyi.vartovyi.navigation.NavGraph
 import com.revakovskyi.vartovyi.navigation.Routes
@@ -127,7 +128,7 @@ class MainActivity : ComponentActivity() {
                 startDestination = startDestination,
                 isAlarmRunning = mainState.isAlarmRunning,
                 monitoringState = mainState.monitoringState,
-                hasMissingPermissions = permissionsState.hasMissingPermissions,
+                permissionsStatus = permissionsState.permissionsStatus,
                 allPermissionsGranted = permissionsState.allGranted,
                 onRefreshPermissions = onRefreshPermissions,
                 onStopAlarm = { mainViewModel.onAction(MainUiContract.Action.StopAlarm) },
@@ -140,7 +141,7 @@ class MainActivity : ComponentActivity() {
         startDestination: Any,
         isAlarmRunning: Boolean,
         monitoringState: com.revakovskyi.vartovyi.model.MonitoringState,
-        hasMissingPermissions: Boolean,
+        permissionsStatus: PermissionsStatus,
         allPermissionsGranted: Boolean,
         onRefreshPermissions: () -> Unit,
         onStopAlarm: () -> Unit,
@@ -213,7 +214,7 @@ class MainActivity : ComponentActivity() {
                     if (selectedNavItem != null) {
                         VartovyiTopBar(
                             title = topBarTitle,
-                            hasMissingPermissions = hasMissingPermissions,
+                            permissionsStatus = permissionsStatus,
                             isEmergencyStopVisible = isAlarmRunning,
                             scrollBehavior = topBarScrollBehavior,
                             additionalActions = if (selectedNavItem == BottomNavItem.Logs) {
