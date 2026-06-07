@@ -3,6 +3,7 @@ package com.revakovskyi.vartovyi.data.repository
 import com.revakovskyi.vartovyi.constants.DEFAULT_KEYWORDS_SEED
 import com.revakovskyi.vartovyi.constants.DEFAULT_STOP_WORDS_SEED
 import com.revakovskyi.vartovyi.data.datastore.KeywordsDataStore
+import com.revakovskyi.vartovyi.model.KeywordsDataSnapshot
 import com.revakovskyi.vartovyi.repository.KeywordsRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.sync.Mutex
@@ -96,6 +97,14 @@ internal class KeywordsRepositoryImpl(
     override suspend fun clearAllKeywordsPreferences(): Boolean {
         return keywordsMutationMutex.withLock {
             keywordsDataStore.clearAllPreferences()
+        }
+    }
+
+    override suspend fun replaceAllKeywordsData(
+        transform: (currentData: KeywordsDataSnapshot) -> KeywordsDataSnapshot,
+    ): Boolean {
+        return keywordsMutationMutex.withLock {
+            keywordsDataStore.replaceAllData(transform)
         }
     }
 
