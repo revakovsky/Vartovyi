@@ -61,7 +61,6 @@ import org.koin.androidx.compose.koinViewModel
 /** Delay to let the keyboard fully animate open before scrolling the active field into view. */
 private const val BRING_INTO_VIEW_DELAY_MS = 400L
 private const val KEYWORDS_CHIP_CLIP_LABEL = "keywords_chip"
-private const val KEYWORDS_SCROLL_STATE_KEY = "keywords_scroll_state"
 
 @Composable
 fun KeywordsScreen(
@@ -337,7 +336,7 @@ private fun KeywordsContent(
     val focusManager = LocalFocusManager.current
     val isImeVisible = WindowInsets.isImeVisible
 
-    val scrollState = rememberSaveable(saver = ScrollState.Saver, key = KEYWORDS_SCROLL_STATE_KEY) {
+    val scrollState = rememberSaveable(saver = ScrollState.Saver) {
         ScrollState(0)
     }
 
