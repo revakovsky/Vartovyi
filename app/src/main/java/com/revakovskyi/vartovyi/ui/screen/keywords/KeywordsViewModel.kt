@@ -5,6 +5,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.revakovskyi.vartovyi.constants.KeywordRuleFormat
 import com.revakovskyi.vartovyi.constants.KeywordsLimits
+import com.revakovskyi.vartovyi.model.ImportStrategy
 import com.revakovskyi.vartovyi.model.TriggerKeywordRule
 import com.revakovskyi.vartovyi.model.TriggerKeywordRuleType
 import com.revakovskyi.vartovyi.model.WordInputTarget
@@ -105,8 +106,8 @@ class KeywordsViewModel(
             is Action.NotifyExportSuccess -> notifyExportSuccess()
             is Action.NotifyExportError -> notifyExportError()
             is Action.RequestImport -> requestImport()
-            is Action.DismissImportConfirmationDialog -> dismissImportConfirmationDialog()
-            is Action.ConfirmImport -> confirmImport()
+            is Action.DismissImportStrategyDialog -> dismissImportStrategyDialog()
+            is Action.SelectImportStrategy -> selectImportStrategy(action.strategy)
             is Action.ImportKeywords -> importKeywords(action.jsonContent)
             is Action.NotifyImportReadError -> notifyImportReadError()
             is Action.NotifyImportFileTooLarge -> notifyImportFileTooLarge()
@@ -503,25 +504,47 @@ class KeywordsViewModel(
 
     private fun requestImport() {
         if (_state.value.hasKeywordDataToClear) {
-            _state.update { it.copy(isImportConfirmationDialogVisible = true) }
+            _state.update { it.copy(isImportStrategyDialogVisible = true) }
         } else {
+            _state.update { it.copy(pendingImportStrategy = ImportStrategy.REPLACE) }
             viewModelScope.launch { _events.send(Event.LaunchImportFilePicker) }
         }
     }
 
-    private fun dismissImportConfirmationDialog() {
-        _state.update { it.copy(isImportConfirmationDialogVisible = false) }
+    private fun dismissImportStrategyDialog() {
+        _state.update {
+            it.copy(
+                isImportStrategyDialogVisible = false,
+                pendingImportStrategy = null,
+            )
+        }
     }
 
-    private fun confirmImport() {
-        _state.update { it.copy(isImportConfirmationDialogVisible = false) }
+    private fun selectImportStrategy(strategy: ImportStrategy) {
+        _state.update {
+            it.copy(
+                isImportStrategyDialogVisible = false,
+                pendingImportStrategy = strategy,
+            )
+        }
         viewModelScope.launch { _events.send(Event.LaunchImportFilePicker) }
     }
 
     private fun importKeywords(jsonContent: String) {
+        val strategy = _state.value.pendingImportStrategy ?: ImportStrategy.REPLACE
+        _state.update { it.copy(pendingImportStrategy = null) }
+
         viewModelScope.launch {
-            when (val result = importKeywordsUseCase(jsonContent)) {
-                is ImportResult.Success -> _events.send(Event.KeywordsImportSuccess)
+            when (val result = importKeywordsUseCase(jsonContent, strategy)) {
+                is ImportResult.Success -> {
+                    _events.send(
+                        Event.KeywordsImportSuccess(
+                            strategy = result.strategy,
+                            addedCount = result.addedCount,
+                            skippedCount = result.skippedCount,
+                        )
+                    )
+                }
 
                 is ImportResult.InvalidFormat -> {
                     Log.e(TAG, "importKeywords: exception", result.exception)

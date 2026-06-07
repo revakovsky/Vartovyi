@@ -38,9 +38,11 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.revakovskyi.vartovyi.R
 import com.revakovskyi.vartovyi.constants.KeywordRuleFormat
+import com.revakovskyi.vartovyi.model.ImportStrategy
 import com.revakovskyi.vartovyi.model.TriggerKeywordRuleType
 import com.revakovskyi.vartovyi.ui.components.LoadingOverlay
 import com.revakovskyi.vartovyi.ui.components.VartovyiDialog
+import com.revakovskyi.vartovyi.ui.screen.keywords.components.ImportStrategyDialog
 import com.revakovskyi.vartovyi.ui.screen.keywords.components.KeywordsBackupRow
 import com.revakovskyi.vartovyi.ui.screen.keywords.components.KeywordsClearButton
 import com.revakovskyi.vartovyi.ui.screen.keywords.components.KeywordsRestoreDefaultsButton
@@ -72,21 +74,6 @@ fun KeywordsScreen(
 
     val state by viewModel.state.collectAsStateWithLifecycle()
 
-    val chipCopiedMessage = stringResource(R.string.keywords_chip_copied)
-    val keywordNormalizedTemplate = stringResource(R.string.keywords_normalized)
-    val keywordMultilineNotAllowedMessage = stringResource(R.string.keywords_multiline_not_allowed)
-    val keywordStartsWithNonAlphanumericMessage =
-        stringResource(R.string.keywords_starts_with_non_alphanumeric)
-    val keywordsClearedMessage = stringResource(R.string.keywords_clear_completed)
-    val keywordsRestoreNothingAddedMessage = stringResource(R.string.keywords_restore_nothing_added)
-    val importSuccessMessage = stringResource(R.string.keywords_import_success)
-    val exportSuccessMessage = stringResource(R.string.keywords_export_success)
-    val exportErrorMessage = stringResource(R.string.keywords_export_error)
-    val importInvalidFormatMessage = stringResource(R.string.keywords_import_invalid_format)
-    val importUnsupportedVersion = stringResource(R.string.keywords_import_unsupported_version)
-    val importWriteErrorMessage = stringResource(R.string.keywords_import_write_error)
-    val importFileTooLargeMessage = stringResource(R.string.keywords_import_file_too_large)
-
     val backupHelper = rememberKeywordsBackupHelper(onAction = viewModel::onAction)
 
     ObserveSingleEvents(flow = viewModel.events) { event ->
@@ -103,21 +90,24 @@ fun KeywordsScreen(
                 val cleanDisplayValue = event.displayValue.unwrapPhraseQuotes()
                 showSnackbarWithClearFocus(
                     focusManager = focusManager,
-                    message = keywordNormalizedTemplate.format(cleanDisplayValue),
+                    message = resources.getString(
+                        R.string.keywords_normalized,
+                        cleanDisplayValue,
+                    ),
                 )
             }
 
             is KeywordsUiContract.Event.KeywordMultiLineNotAllowed -> {
                 showSnackbarWithClearFocus(
                     focusManager = focusManager,
-                    message = keywordMultilineNotAllowedMessage
+                    message = resources.getString(R.string.keywords_multiline_not_allowed),
                 )
             }
 
             KeywordsUiContract.Event.KeywordStartsWithNonAlphanumeric -> {
                 showSnackbarWithClearFocus(
                     focusManager = focusManager,
-                    message = keywordStartsWithNonAlphanumericMessage,
+                    message = resources.getString(R.string.keywords_starts_with_non_alphanumeric),
                 )
             }
 
@@ -141,7 +131,9 @@ fun KeywordsScreen(
 
             is KeywordsUiContract.Event.ChipCopied -> {
                 hapticFeedback.performHapticFeedback(HapticFeedbackType.LongPress)
-                SnackbarController.sendEvent(SnackbarEvent(message = chipCopiedMessage))
+                SnackbarController.sendEvent(
+                    SnackbarEvent(message = resources.getString(R.string.keywords_chip_copied))
+                )
 
                 clipboardManager.setClipEntry(
                     ClipEntry(ClipData.newPlainText(KEYWORDS_CHIP_CLIP_LABEL, event.text))
@@ -150,13 +142,13 @@ fun KeywordsScreen(
 
             is KeywordsUiContract.Event.KeywordsScreenDataCleared -> {
                 SnackbarController.sendEvent(
-                    SnackbarEvent(message = keywordsClearedMessage),
+                    SnackbarEvent(message = resources.getString(R.string.keywords_clear_completed)),
                 )
             }
 
             is KeywordsUiContract.Event.DefaultKeywordsRestored -> {
                 val message = if (event.addedCount == 0) {
-                    keywordsRestoreNothingAddedMessage
+                    resources.getString(R.string.keywords_restore_nothing_added)
                 } else {
                     resources.getQuantityString(
                         R.plurals.keywords_restore_defaults_added,
@@ -171,34 +163,54 @@ fun KeywordsScreen(
 
             is KeywordsUiContract.Event.KeywordsExportSuccess -> {
                 SnackbarController.sendEvent(
-                    SnackbarEvent(message = exportSuccessMessage),
+                    SnackbarEvent(message = resources.getString(R.string.keywords_export_success)),
                 )
             }
 
             is KeywordsUiContract.Event.KeywordsExportError -> {
                 SnackbarController.sendEvent(
-                    SnackbarEvent(message = exportErrorMessage),
+                    SnackbarEvent(message = resources.getString(R.string.keywords_export_error)),
                 )
             }
 
             is KeywordsUiContract.Event.KeywordsImportSuccess -> {
+                val message = when {
+                    event.strategy == ImportStrategy.REPLACE -> {
+                        resources.getString(R.string.keywords_import_replaced)
+                    }
+
+                    event.addedCount == 0 -> {
+                        resources.getString(R.string.keywords_import_merge_nothing_added)
+                    }
+
+                    else -> {
+                        resources.getQuantityString(
+                            R.plurals.keywords_import_merged_added,
+                            event.addedCount,
+                            event.addedCount,
+                            event.skippedCount,
+                        )
+                    }
+                }
                 SnackbarController.sendEvent(
-                    SnackbarEvent(message = importSuccessMessage),
+                    SnackbarEvent(message = message),
                 )
             }
 
             is KeywordsUiContract.Event.KeywordsImportInvalidFormat -> {
                 SnackbarController.sendEvent(
-                    SnackbarEvent(message = importInvalidFormatMessage)
+                    SnackbarEvent(
+                        message = resources.getString(R.string.keywords_import_invalid_format)
+                    )
                 )
             }
 
             is KeywordsUiContract.Event.KeywordsImportUnsupportedVersion -> {
                 SnackbarController.sendEvent(
                     SnackbarEvent(
-                        message = String.format(
-                            importUnsupportedVersion,
-                            event.fileVersion
+                        message = resources.getString(
+                            R.string.keywords_import_unsupported_version,
+                            event.fileVersion,
                         )
                     ),
                 )
@@ -206,13 +218,17 @@ fun KeywordsScreen(
 
             is KeywordsUiContract.Event.KeywordsImportWriteError -> {
                 SnackbarController.sendEvent(
-                    SnackbarEvent(message = importWriteErrorMessage),
+                    SnackbarEvent(
+                        message = resources.getString(R.string.keywords_import_write_error)
+                    ),
                 )
             }
 
             is KeywordsUiContract.Event.KeywordsImportFileTooLarge -> {
                 SnackbarController.sendEvent(
-                    SnackbarEvent(message = importFileTooLargeMessage),
+                    SnackbarEvent(
+                        message = resources.getString(R.string.keywords_import_file_too_large)
+                    ),
                 )
             }
 
@@ -285,15 +301,28 @@ fun KeywordsScreen(
         )
     }
 
-    if (state.isImportConfirmationDialogVisible) {
-        VartovyiDialog(
-            title = stringResource(R.string.keywords_import_confirm_dialog_title),
-            message = stringResource(R.string.keywords_import_confirm_dialog_message),
-            confirmText = stringResource(R.string.keywords_import_confirm_dialog_confirm),
-            dismissText = stringResource(R.string.keywords_import_confirm_dialog_dismiss),
-            confirmContentColor = VartovyiTheme.colors.error,
-            onDismiss = { viewModel.onAction(KeywordsUiContract.Action.DismissImportConfirmationDialog) },
-            onConfirm = { viewModel.onAction(KeywordsUiContract.Action.ConfirmImport) },
+    if (state.isImportStrategyDialogVisible) {
+        ImportStrategyDialog(
+            title = stringResource(R.string.keywords_import_strategy_dialog_title),
+            message = stringResource(R.string.keywords_import_strategy_dialog_message),
+            mergeText = stringResource(R.string.keywords_import_strategy_merge),
+            cancelText = stringResource(R.string.keywords_import_strategy_cancel),
+            replaceText = stringResource(R.string.keywords_import_strategy_replace),
+            onMerge = {
+                viewModel.onAction(
+                    KeywordsUiContract.Action.SelectImportStrategy(ImportStrategy.MERGE)
+                )
+            },
+            onReplace = {
+                viewModel.onAction(
+                    KeywordsUiContract.Action.SelectImportStrategy(ImportStrategy.REPLACE)
+                )
+            },
+            onDismiss = {
+                viewModel.onAction(
+                    KeywordsUiContract.Action.DismissImportStrategyDialog
+                )
+            },
         )
     }
 }
