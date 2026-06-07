@@ -171,6 +171,11 @@
     <string name="keywords_clear_completed">Keyword lists were cleared</string>
     <string name="keywords_export">Export</string>
     <string name="keywords_import">Import</string>
+    <string name="keywords_export_dialog_title">Export keywords</string>
+    <string name="keywords_export_dialog_message">How would you like to export your data?\n• Save to device — choose a folder and store the file locally.\n• Share — send the file through other apps.</string>
+    <string name="keywords_export_save">Save to device</string>
+    <string name="keywords_export_share">Share</string>
+    <string name="keywords_export_cancel">Cancel</string>
     <string name="keywords_export_success">Keywords exported successfully</string>
     <string name="keywords_export_error">Export failed: could not write the file</string>
     <string name="keywords_import_replaced">Existing data was replaced with the imported file</string>
