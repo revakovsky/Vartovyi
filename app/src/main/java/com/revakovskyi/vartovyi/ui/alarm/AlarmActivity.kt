@@ -149,7 +149,7 @@ class AlarmActivity : ComponentActivity() {
             action = AlarmContract.ACTION_STOP
         }
         ContextCompat.startForegroundService(this, stopIntent)
-        finish()
+        finishAndRemoveTask()
     }
 
     private fun updateAlarmContentFromIntent(intent: Intent?) {
