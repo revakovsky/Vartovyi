@@ -62,19 +62,42 @@ fun PermissionItemCard(
                         color = VartovyiTheme.colors.onSurface,
                     )
 
-                    val statusColor =
-                        if (isGranted) VartovyiTheme.colors.primary
-                        else VartovyiTheme.colors.error
+                    val statusColor = if (isGranted) VartovyiTheme.colors.primary
+                    else VartovyiTheme.colors.error
 
                     val statusText =
                         if (isGranted) stringResource(R.string.permissions_status_granted)
                         else stringResource(R.string.permissions_status_missing)
 
-                    Text(
-                        text = statusText,
-                        style = VartovyiTheme.typography.labelMedium,
-                        color = statusColor,
-                    )
+                    val requirementColor = if (isRequired) VartovyiTheme.colors.error
+                    else VartovyiTheme.colors.onSecondaryContainer
+
+                    val requirementText =
+                        if (isRequired) stringResource(R.string.permissions_required)
+                        else stringResource(R.string.permissions_recommended)
+
+                    Row(
+                        horizontalArrangement = Arrangement.spacedBy(VartovyiTheme.spacing.small),
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
+                        if (!isGranted) {
+                            PulsingDot(color = requirementColor)
+                        }
+
+                        Text(
+                            text = statusText,
+                            style = VartovyiTheme.typography.labelMedium,
+                            color = statusColor,
+                        )
+
+                        if (!isGranted) {
+                            Text(
+                                text = "($requirementText)",
+                                style = VartovyiTheme.typography.labelSmall,
+                                color = VartovyiTheme.colors.onSurface,
+                            )
+                        }
+                    }
                 }
 
                 VartovyiSwitch(
@@ -90,26 +113,6 @@ fun PermissionItemCard(
                 style = VartovyiTheme.typography.bodySmall,
                 color = VartovyiTheme.colors.onSurfaceVariant,
             )
-
-            Row(
-                horizontalArrangement = Arrangement.spacedBy(VartovyiTheme.spacing.small),
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                PulsingDot(
-                    color = if (isRequired) VartovyiTheme.colors.error
-                    else VartovyiTheme.colors.onSecondaryContainer,
-                )
-
-                Text(
-                    text = if (isRequired) {
-                        stringResource(R.string.permissions_required)
-                    } else {
-                        stringResource(R.string.permissions_recommended)
-                    },
-                    style = VartovyiTheme.typography.labelSmall,
-                    color = VartovyiTheme.colors.onSurface,
-                )
-            }
         }
     }
 }
@@ -173,12 +176,29 @@ private fun PreviewPermissionGrantedItemCard() {
     }
 }
 
-@Preview(name = "Permission item — not granted")
+@Preview(name = "Permission item — required, not granted")
 @Composable
-private fun PreviewPermissionNotGrantedItemCard() {
+private fun PreviewPermissionRequiredNotGrantedItemCard() {
     VartovyiTheme {
         PermissionItemCard(
-            title = "Test permisiion",
+            title = "Test permission",
+            description = "Test description for test permission",
+            isGranted = false,
+            isRequired = true,
+            onAction = {},
+            onSwitchToggle = { _ ->
+                PermissionsUiContract.Action.RequestPostNotificationsPermission
+            },
+        )
+    }
+}
+
+@Preview(name = "Permission item — recommended, not granted")
+@Composable
+private fun PreviewPermissionRecommendedNotGrantedItemCard() {
+    VartovyiTheme {
+        PermissionItemCard(
+            title = "Test permission",
             description = "Test description for test permission",
             isGranted = false,
             isRequired = false,
@@ -206,20 +226,5 @@ private fun PreviewPermissionGrantedItemCardWithLongText() {
                 PermissionsUiContract.Action.RequestPostNotificationsPermission
             },
         )
-    }
-}
-
-@Preview(name = "Permission requirement dots")
-@Composable
-private fun PreviewPulsingDot() {
-    VartovyiTheme {
-        Row(
-            horizontalArrangement = Arrangement.spacedBy(VartovyiTheme.spacing.standard),
-            modifier = Modifier.padding(VartovyiTheme.spacing.standard),
-        ) {
-            PulsingDot(color = VartovyiTheme.colors.error)
-
-            PulsingDot(color = VartovyiTheme.colors.onSecondaryContainer)
-        }
     }
 }
