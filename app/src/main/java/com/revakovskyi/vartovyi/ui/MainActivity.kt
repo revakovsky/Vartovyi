@@ -129,7 +129,6 @@ class MainActivity : ComponentActivity() {
                 isAlarmRunning = mainState.isAlarmRunning,
                 monitoringState = mainState.monitoringState,
                 permissionsStatus = permissionsState.permissionsStatus,
-                allPermissionsGranted = permissionsState.allGranted,
                 onRefreshPermissions = onRefreshPermissions,
                 onStopAlarm = { mainViewModel.onAction(MainUiContract.Action.StopAlarm) },
             )
@@ -142,7 +141,6 @@ class MainActivity : ComponentActivity() {
         isAlarmRunning: Boolean,
         monitoringState: com.revakovskyi.vartovyi.model.MonitoringState,
         permissionsStatus: PermissionsStatus,
-        allPermissionsGranted: Boolean,
         onRefreshPermissions: () -> Unit,
         onStopAlarm: () -> Unit,
     ) {
@@ -265,7 +263,7 @@ class MainActivity : ComponentActivity() {
                 NavGraph(
                     navController = navController,
                     startDestination = startDestination,
-                    isRequiredPermissionsGranted = allPermissionsGranted,
+                    permissionsStatus = permissionsStatus,
                     onRefreshPermissions = onRefreshPermissions,
                     isLogInfoDialogVisible = showLogInfoDialog,
                     onDismissLogInfoDialog = { showLogInfoDialog = false },
