@@ -8,10 +8,12 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import com.revakovskyi.vartovyi.R
+import com.revakovskyi.vartovyi.ui.components.PulsingDot
 import com.revakovskyi.vartovyi.ui.components.VartovyiSwitch
 import com.revakovskyi.vartovyi.ui.screen.permissions.PermissionsUiContract
 import com.revakovskyi.vartovyi.ui.theme.VartovyiTheme
@@ -49,19 +51,42 @@ fun PermissionItemCard(
                         color = VartovyiTheme.colors.onSurface,
                     )
 
-                    val statusColor =
-                        if (isGranted) VartovyiTheme.colors.primary
-                        else VartovyiTheme.colors.error
+                    val statusColor = if (isGranted) VartovyiTheme.colors.primary
+                    else VartovyiTheme.colors.error
 
                     val statusText =
                         if (isGranted) stringResource(R.string.permissions_status_granted)
                         else stringResource(R.string.permissions_status_missing)
 
-                    Text(
-                        text = statusText,
-                        style = VartovyiTheme.typography.labelMedium,
-                        color = statusColor,
-                    )
+                    val requirementColor = if (isRequired) VartovyiTheme.colors.error
+                    else VartovyiTheme.colors.onSecondaryContainer
+
+                    val requirementText =
+                        if (isRequired) stringResource(R.string.permissions_required)
+                        else stringResource(R.string.permissions_recommended)
+
+                    Row(
+                        horizontalArrangement = Arrangement.spacedBy(VartovyiTheme.spacing.small),
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
+                        if (!isGranted) {
+                            PulsingDot(color = requirementColor)
+                        }
+
+                        Text(
+                            text = statusText,
+                            style = VartovyiTheme.typography.labelMedium,
+                            color = statusColor,
+                        )
+
+                        if (!isGranted) {
+                            Text(
+                                text = "($requirementText)",
+                                style = VartovyiTheme.typography.labelSmall,
+                                color = VartovyiTheme.colors.onSurface,
+                            )
+                        }
+                    }
                 }
 
                 VartovyiSwitch(
@@ -75,16 +100,6 @@ fun PermissionItemCard(
             Text(
                 text = description,
                 style = VartovyiTheme.typography.bodySmall,
-                color = VartovyiTheme.colors.onSurfaceVariant,
-            )
-
-            Text(
-                text = if (isRequired) {
-                    stringResource(R.string.permissions_required)
-                } else {
-                    stringResource(R.string.permissions_recommended)
-                },
-                style = VartovyiTheme.typography.labelSmall,
                 color = VartovyiTheme.colors.onSurfaceVariant,
             )
         }
@@ -108,12 +123,29 @@ private fun PreviewPermissionGrantedItemCard() {
     }
 }
 
-@Preview(name = "Permission item — not granted")
+@Preview(name = "Permission item — required, not granted")
 @Composable
-private fun PreviewPermissionNotGrantedItemCard() {
+private fun PreviewPermissionRequiredNotGrantedItemCard() {
     VartovyiTheme {
         PermissionItemCard(
-            title = "Test permisiion",
+            title = "Test permission",
+            description = "Test description for test permission",
+            isGranted = false,
+            isRequired = true,
+            onAction = {},
+            onSwitchToggle = { _ ->
+                PermissionsUiContract.Action.RequestPostNotificationsPermission
+            },
+        )
+    }
+}
+
+@Preview(name = "Permission item — recommended, not granted")
+@Composable
+private fun PreviewPermissionRecommendedNotGrantedItemCard() {
+    VartovyiTheme {
+        PermissionItemCard(
+            title = "Test permission",
             description = "Test description for test permission",
             isGranted = false,
             isRequired = false,

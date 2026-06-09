@@ -40,5 +40,9 @@ gradlePlugin {
             id = "vartovyi.android.room"
             implementationClass = "com.revakovskyi.vartovyi.convention.AndroidRoomConventionPlugin"
         }
+        register("testUnit") {
+            id = "vartovyi.test.unit"
+            implementationClass = "com.revakovskyi.vartovyi.convention.TestUnitConventionPlugin"
+        }
     }
 }

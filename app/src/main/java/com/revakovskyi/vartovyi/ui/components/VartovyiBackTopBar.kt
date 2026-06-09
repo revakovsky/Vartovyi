@@ -1,4 +1,4 @@
-package com.revakovskyi.vartovyi.ui.screen.permissions.components
+package com.revakovskyi.vartovyi.ui.components
 
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -22,15 +22,17 @@ private val TOP_BAR_BACK_ICON_SIZE = 24.dp
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun PermissionsHeader(
+fun VartovyiBackTopBar(
     modifier: Modifier = Modifier,
+    title: String,
+    backContentDescription: String,
     onNavigateBack: () -> Unit,
 ) {
     TopAppBar(
         modifier = modifier,
         title = {
             Text(
-                text = stringResource(R.string.permissions_title),
+                text = title,
                 style = VartovyiTheme.typography.titleLarge,
                 color = VartovyiTheme.colors.onBackground,
             )
@@ -39,7 +41,7 @@ fun PermissionsHeader(
             IconButton(onClick = onNavigateBack) {
                 Icon(
                     imageVector = ImageVector.vectorResource(R.drawable.back),
-                    contentDescription = stringResource(R.string.permissions_back),
+                    contentDescription = backContentDescription,
                     tint = VartovyiTheme.colors.onBackground,
                     modifier = Modifier.size(TOP_BAR_BACK_ICON_SIZE)
                 )
@@ -51,9 +53,11 @@ fun PermissionsHeader(
 
 @Preview
 @Composable
-private fun PermissionsHeaderPreview() {
+private fun VartovyiBackTopBarPreview() {
     VartovyiTheme {
-        PermissionsHeader(
+        VartovyiBackTopBar(
+            title = stringResource(R.string.permissions_title),
+            backContentDescription = stringResource(R.string.permissions_back),
             onNavigateBack = {},
         )
     }

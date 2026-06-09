@@ -1,6 +1,6 @@
 package com.revakovskyi.vartovyi.controllers.alarm
 
-import com.revakovskyi.vartovyi.utils.ElapsedRealtimeProvider
+import com.revakovskyi.vartovyi.contract.ElapsedRealtimeProvider
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay

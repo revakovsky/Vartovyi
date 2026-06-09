@@ -1,14 +1,18 @@
 package com.revakovskyi.vartovyi.usecase.notification
 
+import com.revakovskyi.vartovyi.constants.KeywordRuleFormat
+import com.revakovskyi.vartovyi.contract.ElapsedRealtimeProvider
 import com.revakovskyi.vartovyi.controllers.alarm.AlarmController
 import com.revakovskyi.vartovyi.model.AlertEvent
 import com.revakovskyi.vartovyi.model.AlertEventStatus
 import com.revakovskyi.vartovyi.model.NotificationPayload
-import com.revakovskyi.vartovyi.model.TriggerKeywordRule
 import com.revakovskyi.vartovyi.repository.KeywordsRepository
 import com.revakovskyi.vartovyi.repository.LogRepository
 import com.revakovskyi.vartovyi.repository.SettingsRepository
-import com.revakovskyi.vartovyi.utils.ElapsedRealtimeProvider
+import com.revakovskyi.vartovyi.utils.normalizeApostrophes
+import com.revakovskyi.vartovyi.utils.normalizeForMatching
+import com.revakovskyi.vartovyi.utils.normalizeUnicode
+import com.revakovskyi.vartovyi.utils.parseTriggerKeywordRuleFromStorage
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
@@ -183,24 +187,28 @@ class ProcessIncomingTelegramNotificationUseCaseImpl(
     ): String? {
         if (keywords.isEmpty()) return null
 
-        val lowerText = text.lowercase()
-        val hasStopWord = stopWords.any { stopWord -> lowerText.contains(stopWord.lowercase()) }
+        val normalizedText = text.normalizeForMatching()
+        val hasStopWord = stopWords.any { stopWord ->
+            val normalizedStopWord = stopWord.normalizeForMatching()
+            normalizedStopWord.isNotEmpty() && normalizedText.contains(normalizedStopWord)
+        }
         if (hasStopWord) return null
 
         return keywords.asSequence()
-            .map { keyword -> TriggerKeywordRule.fromStorageValue(keyword) }
+            .map { keyword -> parseTriggerKeywordRuleFromStorage(keyword) }
             .firstOrNull { keywordRule -> keywordRule.matches(text) }
             ?.displayValue
     }
 
+    /** Fail-open: a disabled filter, or an enabled one with no channels, allows every notification. */
     private fun isChannelAllowed(
         isFilterEnabled: Boolean,
         title: String,
         allowedChannels: List<String>,
     ): Boolean {
-        if (!isFilterEnabled) return true
+        if (!isFilterEnabled || allowedChannels.isEmpty()) return true
+
         if (title.isBlank()) return false
-        if (allowedChannels.isEmpty()) return false
 
         val normalizedTitle = normalizeChannelNameForComparison(title)
         if (normalizedTitle.isBlank()) return false
@@ -214,11 +222,14 @@ class ProcessIncomingTelegramNotificationUseCaseImpl(
 
     private fun normalizeChannelNameForComparison(rawChannelName: String): String {
         val cleanedChannelName = rawChannelName
-            .trim()
+            .normalizeUnicode()
+            .normalizeApostrophes()
             .replace(UNICODE_VARIATION_SELECTOR_15.toString(), EMPTY_STRING)
             .replace(UNICODE_VARIATION_SELECTOR_16.toString(), EMPTY_STRING)
             .replace(ZERO_WIDTH_JOINER.toString(), EMPTY_STRING)
             .replace(ZERO_WIDTH_NON_JOINER.toString(), EMPTY_STRING)
+            .replace(KeywordRuleFormat.INTERNAL_WHITESPACE_REGEX, KeywordRuleFormat.SINGLE_SPACE)
+            .trim()
 
         val withoutDecorativePrefix = cleanedChannelName.replace(
             nonWordOrDigitPrefixRegex,

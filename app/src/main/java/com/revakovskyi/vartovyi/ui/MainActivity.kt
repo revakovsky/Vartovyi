@@ -40,6 +40,7 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navOptions
 import com.revakovskyi.vartovyi.R
+import com.revakovskyi.vartovyi.model.PermissionsStatus
 import com.revakovskyi.vartovyi.navigation.BottomNavItem
 import com.revakovskyi.vartovyi.navigation.NavGraph
 import com.revakovskyi.vartovyi.navigation.Routes
@@ -123,12 +124,15 @@ class MainActivity : ComponentActivity() {
                 if (!onboardingState.isCompleted) Routes.Onboarding
                 else Routes.Home
 
+            val isRecommendedGranted = permissionsState.isDoNotDisturbAccessGranted &&
+                    permissionsState.isFullScreenIntentGranted
+
             MainAppScaffold(
                 startDestination = startDestination,
                 isAlarmRunning = mainState.isAlarmRunning,
                 monitoringState = mainState.monitoringState,
-                hasMissingPermissions = permissionsState.hasMissingPermissions,
-                allPermissionsGranted = permissionsState.allGranted,
+                permissionsStatus = permissionsState.permissionsStatus,
+                isRecommendedGranted = isRecommendedGranted,
                 onRefreshPermissions = onRefreshPermissions,
                 onStopAlarm = { mainViewModel.onAction(MainUiContract.Action.StopAlarm) },
             )
@@ -140,8 +144,8 @@ class MainActivity : ComponentActivity() {
         startDestination: Any,
         isAlarmRunning: Boolean,
         monitoringState: com.revakovskyi.vartovyi.model.MonitoringState,
-        hasMissingPermissions: Boolean,
-        allPermissionsGranted: Boolean,
+        permissionsStatus: PermissionsStatus,
+        isRecommendedGranted: Boolean,
         onRefreshPermissions: () -> Unit,
         onStopAlarm: () -> Unit,
     ) {
@@ -213,7 +217,7 @@ class MainActivity : ComponentActivity() {
                     if (selectedNavItem != null) {
                         VartovyiTopBar(
                             title = topBarTitle,
-                            hasMissingPermissions = hasMissingPermissions,
+                            permissionsStatus = permissionsStatus,
                             isEmergencyStopVisible = isAlarmRunning,
                             scrollBehavior = topBarScrollBehavior,
                             additionalActions = if (selectedNavItem == BottomNavItem.Logs) {
@@ -264,7 +268,8 @@ class MainActivity : ComponentActivity() {
                 NavGraph(
                     navController = navController,
                     startDestination = startDestination,
-                    isRequiredPermissionsGranted = allPermissionsGranted,
+                    permissionsStatus = permissionsStatus,
+                    isRecommendedGranted = isRecommendedGranted,
                     onRefreshPermissions = onRefreshPermissions,
                     isLogInfoDialogVisible = showLogInfoDialog,
                     onDismissLogInfoDialog = { showLogInfoDialog = false },
