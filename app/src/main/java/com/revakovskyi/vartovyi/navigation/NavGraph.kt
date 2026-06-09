@@ -1,6 +1,7 @@
 package com.revakovskyi.vartovyi.navigation
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavDestination.Companion.hasRoute
 import androidx.navigation.NavHostController
@@ -34,6 +35,7 @@ fun NavGraph(
     navController: NavHostController,
     startDestination: Any,
     permissionsStatus: PermissionsStatus,
+    isRecommendedGranted: Boolean,
     isLogInfoDialogVisible: Boolean,
     onRefreshPermissions: () -> Unit,
     onDismissLogInfoDialog: () -> Unit,
@@ -46,6 +48,7 @@ fun NavGraph(
         composable<Routes.Onboarding> {
             OnboardingScreen(
                 permissionsStatus = permissionsStatus,
+                isRecommendedGranted = isRecommendedGranted,
                 onClose = {
                     val navigatedUp = navController.navigateUp()
                     if (!navigatedUp) {
@@ -79,7 +82,19 @@ fun NavGraph(
         }
 
         composable<Routes.Keywords> {
-            KeywordsScreen()
+            val isFromOnboarding = remember {
+                navController.previousBackStackEntry
+                    ?.destination
+                    ?.hasRoute(Routes.Onboarding::class) == true
+            }
+
+            KeywordsScreen(
+                onNavigateBack = if (isFromOnboarding) {
+                    { navController.navigateUp() }
+                } else {
+                    null
+                },
+            )
         }
 
         composable<Routes.Log> { backStackEntry ->
@@ -104,12 +119,7 @@ fun NavGraph(
         }
 
         composable<Routes.Permissions> {
-            val isFromOnboarding = navController.previousBackStackEntry
-                ?.destination
-                ?.hasRoute(Routes.Onboarding::class) == true
-
             PermissionsScreen(
-                isFromOnboarding = isFromOnboarding,
                 onNavigateBack = { navController.navigateUp() },
                 onRefreshPermissions = onRefreshPermissions,
             )

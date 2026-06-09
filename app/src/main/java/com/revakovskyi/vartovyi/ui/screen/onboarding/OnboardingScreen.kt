@@ -49,6 +49,7 @@ private enum class OnboardingPage {
 @Composable
 fun OnboardingScreen(
     permissionsStatus: PermissionsStatus,
+    isRecommendedGranted: Boolean,
     viewModel: OnboardingViewModel = koinViewModel(),
     onClose: () -> Unit,
     onOpenPermissions: () -> Unit,
@@ -67,6 +68,7 @@ fun OnboardingScreen(
     OnboardingContent(
         state = state,
         permissionsStatus = permissionsStatus,
+        isRecommendedGranted = isRecommendedGranted,
         onAction = viewModel::onAction,
     )
 }
@@ -76,6 +78,7 @@ private fun OnboardingContent(
     modifier: Modifier = Modifier,
     state: OnboardingUiContract.State,
     permissionsStatus: PermissionsStatus,
+    isRecommendedGranted: Boolean,
     onAction: (action: OnboardingUiContract.Action) -> Unit,
 ) {
     val pagerState = rememberPagerState(pageCount = { state.totalPages })
@@ -115,6 +118,7 @@ private fun OnboardingContent(
                     OnboardingPage.PERMISSIONS -> {
                         OnboardingPagePermissions(
                             permissionsStatus = permissionsStatus,
+                            isRecommendedGranted = isRecommendedGranted,
                             onOpenPermissions = { onAction(OnboardingUiContract.Action.OpenPermissions) },
                         )
                     }
@@ -208,6 +212,7 @@ private fun OnboardingContentFirstPagePreview() {
         OnboardingContent(
             state = OnboardingUiContract.State(currentPage = 0),
             permissionsStatus = PermissionsStatus.MANDATORY_MISSING,
+            isRecommendedGranted = false,
             onAction = {},
         )
     }
@@ -220,6 +225,7 @@ private fun OnboardingContentPermissionsMandatoryMissingPreview() {
         OnboardingContent(
             state = OnboardingUiContract.State(currentPage = 2),
             permissionsStatus = PermissionsStatus.MANDATORY_MISSING,
+            isRecommendedGranted = false,
             onAction = {},
         )
     }
@@ -232,6 +238,7 @@ private fun OnboardingContentPermissionsRecommendedMissingPreview() {
         OnboardingContent(
             state = OnboardingUiContract.State(currentPage = 2),
             permissionsStatus = PermissionsStatus.RECOMMENDED_MISSING,
+            isRecommendedGranted = false,
             onAction = {},
         )
     }
@@ -244,6 +251,7 @@ private fun OnboardingContentPermissionsGrantedPreview() {
         OnboardingContent(
             state = OnboardingUiContract.State(currentPage = 2),
             permissionsStatus = PermissionsStatus.GRANTED,
+            isRecommendedGranted = true,
             onAction = {},
         )
     }
@@ -256,6 +264,7 @@ private fun OnboardingContentDeviceTipsPreview() {
         OnboardingContent(
             state = OnboardingUiContract.State(currentPage = 4),
             permissionsStatus = PermissionsStatus.GRANTED,
+            isRecommendedGranted = true,
             onAction = {},
         )
     }
@@ -268,6 +277,7 @@ private fun OnboardingContentLastPagePreview() {
         OnboardingContent(
             state = OnboardingUiContract.State(currentPage = 5),
             permissionsStatus = PermissionsStatus.GRANTED,
+            isRecommendedGranted = true,
             onAction = {},
         )
     }

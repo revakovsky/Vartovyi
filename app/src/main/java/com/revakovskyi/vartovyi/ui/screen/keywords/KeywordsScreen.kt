@@ -47,6 +47,7 @@ import com.revakovskyi.vartovyi.model.TriggerKeywordRuleType
 import com.revakovskyi.vartovyi.ui.components.DialogChoice
 import com.revakovskyi.vartovyi.ui.components.DialogChoiceRole
 import com.revakovskyi.vartovyi.ui.components.LoadingOverlay
+import com.revakovskyi.vartovyi.ui.components.VartovyiBackTopBar
 import com.revakovskyi.vartovyi.ui.components.VartovyiChoiceDialog
 import com.revakovskyi.vartovyi.ui.components.VartovyiDialog
 import com.revakovskyi.vartovyi.ui.screen.keywords.components.KeywordsBackupRow
@@ -75,6 +76,7 @@ private const val KEYWORDS_CHIP_CLIP_LABEL = "keywords_chip"
 @Composable
 fun KeywordsScreen(
     viewModel: KeywordsViewModel = koinViewModel(),
+    onNavigateBack: (() -> Unit)? = null,
 ) {
     val clipboardManager = LocalClipboard.current
     val hapticFeedback = LocalHapticFeedback.current
@@ -259,6 +261,7 @@ fun KeywordsScreen(
             KeywordsContent(
                 state = state,
                 onAction = viewModel::onAction,
+                onNavigateBack = onNavigateBack,
             )
         }
     }
@@ -394,6 +397,7 @@ private fun KeywordsContent(
     modifier: Modifier = Modifier,
     state: KeywordsUiContract.State,
     onAction: (action: KeywordsUiContract.Action) -> Unit,
+    onNavigateBack: (() -> Unit)? = null,
 ) {
     val focusManager = LocalFocusManager.current
     val density = LocalDensity.current
@@ -438,119 +442,133 @@ private fun KeywordsContent(
         focusManager.clearFocus()
     }
 
-    Box(
-        contentAlignment = Alignment.TopCenter,
-        modifier = modifier.fillMaxSize(),
-    ) {
-        Column(
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(VartovyiTheme.spacing.small),
-            modifier = Modifier
-                .widthIn(max = VartovyiTheme.spacing.contentMaxWidth)
-                .fillMaxSize()
-                .imePadding()
-                .verticalScroll(scrollState)
-                .padding(
-                    start = VartovyiTheme.spacing.small,
-                    end = VartovyiTheme.spacing.small,
-                    top = VartovyiTheme.spacing.medium,
-                    bottom = VartovyiTheme.spacing.small,
-                )
+    Column(modifier = modifier.fillMaxSize()) {
+        if (onNavigateBack != null) {
+            VartovyiBackTopBar(
+                title = stringResource(R.string.onboarding_keywords_title),
+                backContentDescription = stringResource(R.string.keywords_back),
+                onNavigateBack = onNavigateBack,
+            )
+        }
+
+        Box(
+            contentAlignment = Alignment.TopCenter,
+            modifier = Modifier.weight(1f),
         ) {
-            KeywordsSection(
-                bringIntoViewRequester = keywordsBivr,
-                keywords = state.keywords,
-                selectedTriggerKeywordRuleType = state.selectedTriggerKeywordRuleType,
-                inputValue = state.inputKeyword,
-                inputHint = when (state.selectedTriggerKeywordRuleType) {
-                    TriggerKeywordRuleType.WORD -> stringResource(R.string.keywords_trigger_hint_word)
-                    TriggerKeywordRuleType.ALL_WORDS -> stringResource(R.string.keywords_trigger_hint_all_words)
-                    TriggerKeywordRuleType.PHRASE -> stringResource(R.string.keywords_trigger_hint_phrase)
-                },
-                onTypeSelected = { type ->
-                    onAction(KeywordsUiContract.Action.SelectTriggerKeywordRuleType(type))
-                },
-                onInputChange = { value ->
-                    onAction(KeywordsUiContract.Action.UpdateKeywordInput(value))
-                },
-                onAdd = { onAction(KeywordsUiContract.Action.AddKeyword) },
-                onCopy = { text -> onAction(KeywordsUiContract.Action.CopyChip(text)) },
-                onRemove = { keywordRule ->
-                    onAction(KeywordsUiContract.Action.RemoveKeyword(keywordRule))
-                },
-                onFocusChanged = { isFocused ->
-                    if (isFocused) activeBivr = keywordsBivr
-                    else if (activeBivr == keywordsBivr) activeBivr = null
-                },
-            )
-
-            StopWordsSection(
-                bringIntoViewRequester = stopWordsBivr,
-                stopWords = state.stopWords,
-                inputValue = state.inputStopWord,
-                onInputChange = { value ->
-                    onAction(KeywordsUiContract.Action.UpdateStopWordInput(value))
-                },
-                onAdd = { onAction(KeywordsUiContract.Action.AddStopWord) },
-                onCopy = { text -> onAction(KeywordsUiContract.Action.CopyChip(text)) },
-                onRemove = { stopWord ->
-                    onAction(KeywordsUiContract.Action.RemoveStopWord(stopWord))
-                },
-                onFocusChanged = { isFocused ->
-                    if (isFocused) activeBivr = stopWordsBivr
-                    else if (activeBivr == stopWordsBivr) activeBivr = null
-                },
-            )
-
-            TelegramChannelsSection(
-                bringIntoViewRequester = telegramBivr,
-                isEnabled = state.isTelegramChannelFilterEnabled,
-                channels = state.telegramChannels,
-                suggestedChannels = state.suggestedTelegramChannels,
-                inputValue = state.inputTelegramChannel,
-                onToggle = { onAction(KeywordsUiContract.Action.ToggleTelegramChannelFilter) },
-                onInputChange = { value ->
-                    onAction(KeywordsUiContract.Action.UpdateTelegramChannelInput(value))
-                },
-                onAdd = { onAction(KeywordsUiContract.Action.AddTelegramChannel) },
-                onCopy = { text -> onAction(KeywordsUiContract.Action.CopyChip(text)) },
-                onRemove = { channel ->
-                    onAction(KeywordsUiContract.Action.RemoveTelegramChannel(channel))
-                },
-                onSuggestionSelect = { channel ->
-                    onAction(KeywordsUiContract.Action.SelectSuggestedTelegramChannel(channel))
-                },
-                onFocusChanged = { isFocused ->
-                    if (isFocused) activeBivr = telegramBivr
-                    else if (activeBivr == telegramBivr) activeBivr = null
-                },
-            )
-
             Column(
                 horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.spacedBy(VartovyiTheme.spacing.medium),
+                verticalArrangement = Arrangement.spacedBy(VartovyiTheme.spacing.small),
                 modifier = Modifier
-                    .fillMaxWidth()
+                    .widthIn(max = VartovyiTheme.spacing.contentMaxWidth)
+                    .fillMaxSize()
+                    .imePadding()
+                    .verticalScroll(scrollState)
                     .padding(
-                        top = VartovyiTheme.spacing.medium,
+                        start = VartovyiTheme.spacing.small,
+                        end = VartovyiTheme.spacing.small,
+                        top = if (onNavigateBack != null) {
+                            VartovyiTheme.spacing.small
+                        } else {
+                            VartovyiTheme.spacing.medium
+                        },
                         bottom = VartovyiTheme.spacing.small,
                     )
             ) {
-                KeywordsBackupRow(
-                    isExportEnabled = state.canExport,
-                    onExportClick = { onAction(KeywordsUiContract.Action.RequestExport) },
-                    onImportClick = { onAction(KeywordsUiContract.Action.RequestImport) },
+                KeywordsSection(
+                    bringIntoViewRequester = keywordsBivr,
+                    keywords = state.keywords,
+                    selectedTriggerKeywordRuleType = state.selectedTriggerKeywordRuleType,
+                    inputValue = state.inputKeyword,
+                    inputHint = when (state.selectedTriggerKeywordRuleType) {
+                        TriggerKeywordRuleType.WORD -> stringResource(R.string.keywords_trigger_hint_word)
+                        TriggerKeywordRuleType.ALL_WORDS -> stringResource(R.string.keywords_trigger_hint_all_words)
+                        TriggerKeywordRuleType.PHRASE -> stringResource(R.string.keywords_trigger_hint_phrase)
+                    },
+                    onTypeSelected = { type ->
+                        onAction(KeywordsUiContract.Action.SelectTriggerKeywordRuleType(type))
+                    },
+                    onInputChange = { value ->
+                        onAction(KeywordsUiContract.Action.UpdateKeywordInput(value))
+                    },
+                    onAdd = { onAction(KeywordsUiContract.Action.AddKeyword) },
+                    onCopy = { text -> onAction(KeywordsUiContract.Action.CopyChip(text)) },
+                    onRemove = { keywordRule ->
+                        onAction(KeywordsUiContract.Action.RemoveKeyword(keywordRule))
+                    },
+                    onFocusChanged = { isFocused ->
+                        if (isFocused) activeBivr = keywordsBivr
+                        else if (activeBivr == keywordsBivr) activeBivr = null
+                    },
                 )
 
-                KeywordsRestoreDefaultsButton(
-                    onClick = { onAction(KeywordsUiContract.Action.OpenRestoreDefaultsDialog) },
+                StopWordsSection(
+                    bringIntoViewRequester = stopWordsBivr,
+                    stopWords = state.stopWords,
+                    inputValue = state.inputStopWord,
+                    onInputChange = { value ->
+                        onAction(KeywordsUiContract.Action.UpdateStopWordInput(value))
+                    },
+                    onAdd = { onAction(KeywordsUiContract.Action.AddStopWord) },
+                    onCopy = { text -> onAction(KeywordsUiContract.Action.CopyChip(text)) },
+                    onRemove = { stopWord ->
+                        onAction(KeywordsUiContract.Action.RemoveStopWord(stopWord))
+                    },
+                    onFocusChanged = { isFocused ->
+                        if (isFocused) activeBivr = stopWordsBivr
+                        else if (activeBivr == stopWordsBivr) activeBivr = null
+                    },
                 )
 
-                KeywordsClearButton(
-                    isEnabled = state.hasKeywordDataToClear,
-                    onClick = { onAction(KeywordsUiContract.Action.OpenClearKeywordsDialog) },
-                    modifier = Modifier.padding(bottom = VartovyiTheme.spacing.small)
+                TelegramChannelsSection(
+                    bringIntoViewRequester = telegramBivr,
+                    isEnabled = state.isTelegramChannelFilterEnabled,
+                    channels = state.telegramChannels,
+                    suggestedChannels = state.suggestedTelegramChannels,
+                    inputValue = state.inputTelegramChannel,
+                    onToggle = { onAction(KeywordsUiContract.Action.ToggleTelegramChannelFilter) },
+                    onInputChange = { value ->
+                        onAction(KeywordsUiContract.Action.UpdateTelegramChannelInput(value))
+                    },
+                    onAdd = { onAction(KeywordsUiContract.Action.AddTelegramChannel) },
+                    onCopy = { text -> onAction(KeywordsUiContract.Action.CopyChip(text)) },
+                    onRemove = { channel ->
+                        onAction(KeywordsUiContract.Action.RemoveTelegramChannel(channel))
+                    },
+                    onSuggestionSelect = { channel ->
+                        onAction(KeywordsUiContract.Action.SelectSuggestedTelegramChannel(channel))
+                    },
+                    onFocusChanged = { isFocused ->
+                        if (isFocused) activeBivr = telegramBivr
+                        else if (activeBivr == telegramBivr) activeBivr = null
+                    },
                 )
+
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.spacedBy(VartovyiTheme.spacing.medium),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(
+                            top = VartovyiTheme.spacing.medium,
+                            bottom = VartovyiTheme.spacing.small,
+                        )
+                ) {
+                    KeywordsBackupRow(
+                        isExportEnabled = state.canExport,
+                        onExportClick = { onAction(KeywordsUiContract.Action.RequestExport) },
+                        onImportClick = { onAction(KeywordsUiContract.Action.RequestImport) },
+                    )
+
+                    KeywordsRestoreDefaultsButton(
+                        onClick = { onAction(KeywordsUiContract.Action.OpenRestoreDefaultsDialog) },
+                    )
+
+                    KeywordsClearButton(
+                        isEnabled = state.hasKeywordDataToClear,
+                        onClick = { onAction(KeywordsUiContract.Action.OpenClearKeywordsDialog) },
+                        modifier = Modifier.padding(bottom = VartovyiTheme.spacing.small)
+                    )
+                }
             }
         }
     }
