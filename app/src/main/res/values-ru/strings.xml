@@ -144,17 +144,17 @@
         <item quantity="other">Добавлено %d ключевых слов</item>
     </plurals>
     <string name="keywords_restore_nothing_added">Все слова по умолчанию уже в списке</string>
-    <string name="permissions_warning">Предоставьте все необходимые разрешения для стабильного фонового мониторинга</string>
+    <string name="permissions_warning">Для стабильного фонового мониторинга предоставьте все обязательные и рекомендуемые разрешения</string>
     <string name="permissions_listener_title">Доступ к уведомлениям</string>
-    <string name="permissions_listener_description">Позволяет читать входящие уведомления Telegram</string>
+    <string name="permissions_listener_description">Позволяет перехватывать уведомления Telegram для поиска ключевых слов. Без него мониторинг не работает</string>
     <string name="permissions_battery_title">Оптимизация батареи</string>
-    <string name="permissions_battery_description">Отключите оптимизацию, чтобы приложение стабильно работало в фоне</string>
-    <string name="permissions_dnd_title">Обход режима «Не беспокоить»</string>
-    <string name="permissions_dnd_description">Позволяет тревоге проходить при беззвучном режиме и DND</string>
+    <string name="permissions_battery_description">Позволяет приложению работать в фоне без ограничений. Без этого система может остановить мониторинг через ~15 минут</string>
+    <string name="permissions_dnd_title">Режим «Не беспокоить»</string>
+    <string name="permissions_dnd_description">Позволяет сирене звучать в беззвучном режиме и «Не беспокоить». Без этого тревога может быть беззвучной</string>
     <string name="permissions_post_notifications_title">Показ уведомлений</string>
-    <string name="permissions_post_notifications_description">Позволяет показывать уведомления тревоги на Android 13+</string>
-    <string name="permissions_full_screen_title">Полноэкранный intent</string>
-    <string name="permissions_full_screen_description">Позволяет открывать полноэкранную тревогу на экране блокировки</string>
+    <string name="permissions_post_notifications_description">Позволяет показывать уведомления тревоги. На Android 13+ требуется отдельное подтверждение</string>
+    <string name="permissions_full_screen_title">Полноэкранный показ</string>
+    <string name="permissions_full_screen_description">Открывает экран тревоги поверх блокировки. На Android 14+ требуется отдельное разрешение</string>
     <string name="permissions_status_granted">Предоставлено</string>
     <string name="permissions_status_missing">Нет</string>
     <string name="permissions_required">Обязательно</string>
