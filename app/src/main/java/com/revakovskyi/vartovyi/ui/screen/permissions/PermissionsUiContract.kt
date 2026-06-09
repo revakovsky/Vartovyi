@@ -1,6 +1,7 @@
 package com.revakovskyi.vartovyi.ui.screen.permissions
 
 import androidx.compose.runtime.Immutable
+import com.revakovskyi.vartovyi.model.PermissionsStatus
 
 interface PermissionsUiContract {
 
@@ -14,6 +15,7 @@ interface PermissionsUiContract {
         val isPostNotificationsGranted: Boolean = false,
         val isFullScreenIntentGranted: Boolean = false,
         val hasMissingPermissions: Boolean = true,
+        val permissionsStatus: PermissionsStatus = PermissionsStatus.MANDATORY_MISSING,
     )
 
     sealed interface Action {

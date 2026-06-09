@@ -9,8 +9,8 @@ import org.gradle.kotlin.dsl.withType
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
-private val javaVersion = JavaVersion.VERSION_11
-private val localJvmTarget = JvmTarget.JVM_11
+private val javaVersion = JavaVersion.VERSION_17
+private val localJvmTarget = JvmTarget.JVM_17
 
 internal fun Project.configureKotlinAndroid(
     commonExtension: CommonExtension,

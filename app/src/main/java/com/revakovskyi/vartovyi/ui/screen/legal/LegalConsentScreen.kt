@@ -107,6 +107,7 @@ private fun LegalConsentContent(
                         text = stringResource(R.string.legal_consent_description),
                         style = VartovyiTheme.typography.bodyLarge,
                         color = VartovyiTheme.colors.onSurface,
+                        textAlign = TextAlign.Center,
                         modifier = Modifier.fillMaxWidth()
                     )
 
@@ -116,12 +117,15 @@ private fun LegalConsentContent(
                         modifier = Modifier.fillMaxWidth(),
                     ) {
                         Column(
+                            horizontalAlignment = Alignment.CenterHorizontally,
                             modifier = Modifier.padding(VartovyiTheme.spacing.standard)
                         ) {
                             Text(
                                 text = stringResource(R.string.legal_consent_important_label),
                                 style = VartovyiTheme.typography.labelLarge,
                                 color = VartovyiTheme.colors.onErrorContainer,
+                                textAlign = TextAlign.Center,
+                                modifier = Modifier.fillMaxWidth(),
                             )
 
                             Spacer(modifier = Modifier.height(VartovyiTheme.spacing.extraSmall))
@@ -130,6 +134,8 @@ private fun LegalConsentContent(
                                 text = stringResource(R.string.legal_consent_disclaimer),
                                 style = VartovyiTheme.typography.bodyMedium,
                                 color = VartovyiTheme.colors.onErrorContainer,
+                                textAlign = TextAlign.Center,
+                                modifier = Modifier.fillMaxWidth(),
                             )
                         }
                     }

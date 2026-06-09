@@ -1,6 +1,7 @@
 plugins {
     alias(libs.plugins.vartovyi.android.library)
     alias(libs.plugins.vartovyi.android.room)
+    alias(libs.plugins.vartovyi.test.unit)
 }
 
 android {

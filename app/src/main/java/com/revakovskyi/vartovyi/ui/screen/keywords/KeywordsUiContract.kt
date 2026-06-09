@@ -1,8 +1,12 @@
 package com.revakovskyi.vartovyi.ui.screen.keywords
 
 import androidx.compose.runtime.Immutable
+import com.revakovskyi.vartovyi.constants.POPULAR_TELEGRAM_CHANNELS
+import com.revakovskyi.vartovyi.model.ImportStrategy
+import com.revakovskyi.vartovyi.model.PopularTelegramChannel
 import com.revakovskyi.vartovyi.model.TriggerKeywordRule
 import com.revakovskyi.vartovyi.model.TriggerKeywordRuleType
+import com.revakovskyi.vartovyi.ui.screen.keywords.model.ExportDestination
 
 interface KeywordsUiContract {
 
@@ -26,7 +30,10 @@ interface KeywordsUiContract {
         val duplicateWord: String? = null,
         val pendingRemoval: PendingRemoval? = null,
         val isClearKeywordsDialogVisible: Boolean = false,
-        val isImportConfirmationDialogVisible: Boolean = false,
+        val isRestoreDefaultsDialogVisible: Boolean = false,
+        val isImportStrategyDialogVisible: Boolean = false,
+        val pendingImportStrategy: ImportStrategy? = null,
+        val isExportDestinationDialogVisible: Boolean = false,
     ) {
         val hasKeywordDataToClear: Boolean
             get() = keywords.isNotEmpty() ||
@@ -36,6 +43,21 @@ interface KeywordsUiContract {
 
         val canExport: Boolean
             get() = keywords.isNotEmpty() || stopWords.isNotEmpty() || telegramChannels.isNotEmpty()
+
+        val suggestedTelegramChannels: List<PopularTelegramChannel>
+            get() {
+                val query = inputTelegramChannel.trim()
+                return POPULAR_TELEGRAM_CHANNELS.filter { suggestion ->
+                    val isAlreadyAdded = telegramChannels.any { channel ->
+                        channel.equals(suggestion.displayName, ignoreCase = true)
+                    }
+                    val matchesQuery = query.isBlank() ||
+                            suggestion.displayName.contains(query, ignoreCase = true) ||
+                            suggestion.handle.contains(query, ignoreCase = true)
+
+                    !isAlreadyAdded && matchesQuery
+                }
+            }
     }
 
     sealed interface Action {
@@ -49,6 +71,7 @@ interface KeywordsUiContract {
         data object ToggleTelegramChannelFilter : Action
         data class UpdateTelegramChannelInput(val value: String) : Action
         data object AddTelegramChannel : Action
+        data class SelectSuggestedTelegramChannel(val channel: String) : Action
         data class RemoveTelegramChannel(val channel: String) : Action
         data object DismissDuplicateWordDialog : Action
         data object ConfirmPendingRemoval : Action
@@ -56,13 +79,18 @@ interface KeywordsUiContract {
         data object OpenClearKeywordsDialog : Action
         data object DismissClearKeywordsDialog : Action
         data object ConfirmClearKeywords : Action
+        data object OpenRestoreDefaultsDialog : Action
+        data object DismissRestoreDefaultsDialog : Action
+        data object ConfirmRestoreDefaults : Action
         data class CopyChip(val text: String) : Action
-        data object ExportKeywords : Action
+        data object RequestExport : Action
+        data object DismissExportDestinationDialog : Action
+        data class SelectExportDestination(val destination: ExportDestination) : Action
         data object NotifyExportSuccess : Action
         data object NotifyExportError : Action
         data object RequestImport : Action
-        data object DismissImportConfirmationDialog : Action
-        data object ConfirmImport : Action
+        data object DismissImportStrategyDialog : Action
+        data class SelectImportStrategy(val strategy: ImportStrategy) : Action
         data class ImportKeywords(val jsonContent: String) : Action
         data object NotifyImportReadError : Action
         data object NotifyImportFileTooLarge : Action
@@ -70,18 +98,29 @@ interface KeywordsUiContract {
 
     sealed interface Event {
         data object KeywordAdded : Event
+        data class KeywordNormalized(val displayValue: String) : Event
+        data object KeywordMultiLineNotAllowed : Event
+        data class KeywordTermTooShort(val minLength: Int) : Event
+        data object KeywordStartsWithNonAlphanumeric : Event
+        data class KeywordsMaxReached(val max: Int) : Event
         data object KeywordRemoved : Event
         data object StopWordAdded : Event
         data object StopWordRemoved : Event
         data object TelegramChannelAdded : Event
         data object TelegramChannelRemoved : Event
         data object KeywordsScreenDataCleared : Event
+        data class DefaultKeywordsRestored(val addedCount: Int) : Event
         data class ChipCopied(val text: String) : Event
         data class LaunchExportFilePicker(val jsonContent: String) : Event
+        data class LaunchExportShareSheet(val jsonContent: String) : Event
         data object KeywordsExportSuccess : Event
         data object KeywordsExportError : Event
         data object LaunchImportFilePicker : Event
-        data object KeywordsImportSuccess : Event
+        data class KeywordsImportSuccess(
+            val strategy: ImportStrategy,
+            val addedCount: Int,
+            val skippedCount: Int,
+        ) : Event
         data object KeywordsImportInvalidFormat : Event
         data class KeywordsImportUnsupportedVersion(val fileVersion: Int) : Event
         data object KeywordsImportWriteError : Event

@@ -16,6 +16,7 @@ import com.revakovskyi.vartovyi.R
 import com.revakovskyi.vartovyi.model.TriggerKeywordRule
 import com.revakovskyi.vartovyi.model.TriggerKeywordRuleType
 import com.revakovskyi.vartovyi.ui.theme.VartovyiTheme
+import com.revakovskyi.vartovyi.utils.parseTriggerKeywordRuleFromStorage
 
 @Composable
 fun KeywordsSection(
@@ -124,9 +125,9 @@ private fun PreviewKeywordsSectionWithWords() {
             bringIntoViewRequester = remember { BringIntoViewRequester() },
             selectedTriggerKeywordRuleType = TriggerKeywordRuleType.ALL_WORDS,
             keywords = listOf(
-                TriggerKeywordRule.fromStorageValue("Салтівка"),
-                TriggerKeywordRule.fromStorageValue("ракета + харків"),
-                TriggerKeywordRule.fromStorageValue("\"шахед на місто\""),
+                parseTriggerKeywordRuleFromStorage("Салтівка"),
+                parseTriggerKeywordRuleFromStorage("ракета + харків"),
+                parseTriggerKeywordRuleFromStorage("\"шахед на місто\""),
             ),
             inputValue = "",
             inputHint = "e.g. rocket + kharkiv",

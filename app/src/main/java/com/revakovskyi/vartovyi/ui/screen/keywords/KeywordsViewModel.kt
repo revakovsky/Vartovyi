@@ -3,11 +3,20 @@ package com.revakovskyi.vartovyi.ui.screen.keywords
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.revakovskyi.vartovyi.constants.KeywordRuleFormat
+import com.revakovskyi.vartovyi.constants.KeywordsLimits
+import com.revakovskyi.vartovyi.model.ImportStrategy
 import com.revakovskyi.vartovyi.model.TriggerKeywordRule
 import com.revakovskyi.vartovyi.model.TriggerKeywordRuleType
+import com.revakovskyi.vartovyi.model.WordInputTarget
+import com.revakovskyi.vartovyi.result.KeywordSanitizationResult
 import com.revakovskyi.vartovyi.ui.screen.keywords.KeywordsUiContract.Action
 import com.revakovskyi.vartovyi.ui.screen.keywords.KeywordsUiContract.Event
+import com.revakovskyi.vartovyi.ui.screen.keywords.KeywordsUiContract.Event.KeywordMultiLineNotAllowed
+import com.revakovskyi.vartovyi.ui.screen.keywords.KeywordsUiContract.Event.KeywordStartsWithNonAlphanumeric
+import com.revakovskyi.vartovyi.ui.screen.keywords.KeywordsUiContract.Event.KeywordTermTooShort
 import com.revakovskyi.vartovyi.ui.screen.keywords.KeywordsUiContract.State
+import com.revakovskyi.vartovyi.ui.screen.keywords.model.ExportDestination
 import com.revakovskyi.vartovyi.usecase.keywords.AddKeywordUseCase
 import com.revakovskyi.vartovyi.usecase.keywords.AddStopWordUseCase
 import com.revakovskyi.vartovyi.usecase.keywords.AddTelegramChannelUseCase
@@ -23,7 +32,11 @@ import com.revakovskyi.vartovyi.usecase.keywords.ObserveTelegramChannelsUseCase
 import com.revakovskyi.vartovyi.usecase.keywords.RemoveKeywordUseCase
 import com.revakovskyi.vartovyi.usecase.keywords.RemoveStopWordUseCase
 import com.revakovskyi.vartovyi.usecase.keywords.RemoveTelegramChannelUseCase
+import com.revakovskyi.vartovyi.usecase.keywords.RestoreDefaultKeywordsUseCase
+import com.revakovskyi.vartovyi.usecase.keywords.RestoreDefaultStopWordsUseCase
+import com.revakovskyi.vartovyi.usecase.keywords.SanitizeWordInputUseCase
 import com.revakovskyi.vartovyi.usecase.keywords.ToggleTelegramChannelFilterUseCase
+import com.revakovskyi.vartovyi.utils.parseTriggerKeywordRuleFromStorage
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -50,6 +63,9 @@ class KeywordsViewModel(
     private val removeTelegramChannelUseCase: RemoveTelegramChannelUseCase,
     private val toggleTelegramChannelFilterUseCase: ToggleTelegramChannelFilterUseCase,
     private val clearKeywordsScreenDataUseCase: ClearKeywordsScreenDataUseCase,
+    private val restoreDefaultKeywordsUseCase: RestoreDefaultKeywordsUseCase,
+    private val restoreDefaultStopWordsUseCase: RestoreDefaultStopWordsUseCase,
+    private val sanitizeWordInputUseCase: SanitizeWordInputUseCase,
     private val exportKeywordsUseCase: ExportKeywordsUseCase,
     private val importKeywordsUseCase: ImportKeywordsUseCase,
 ) : ViewModel() {
@@ -76,6 +92,9 @@ class KeywordsViewModel(
             is Action.ToggleTelegramChannelFilter -> toggleTelegramChannelFilter()
             is Action.UpdateTelegramChannelInput -> updateTelegramChannelInput(action.value)
             is Action.AddTelegramChannel -> addTelegramChannel()
+            is Action.SelectSuggestedTelegramChannel -> {
+                selectSuggestedTelegramChannel(action.channel)
+            }
             is Action.RemoveTelegramChannel -> removeTelegramChannel(action.channel)
             is Action.DismissDuplicateWordDialog -> dismissDuplicateWordDialog()
             is Action.ConfirmPendingRemoval -> confirmPendingRemoval()
@@ -83,13 +102,18 @@ class KeywordsViewModel(
             is Action.OpenClearKeywordsDialog -> openClearKeywordsDialog()
             is Action.DismissClearKeywordsDialog -> dismissClearKeywordsDialog()
             is Action.ConfirmClearKeywords -> confirmClearKeywords()
+            is Action.OpenRestoreDefaultsDialog -> openRestoreDefaultsDialog()
+            is Action.DismissRestoreDefaultsDialog -> dismissRestoreDefaultsDialog()
+            is Action.ConfirmRestoreDefaults -> confirmRestoreDefaults()
             is Action.CopyChip -> copyChip(action.text)
-            is Action.ExportKeywords -> exportKeywords()
+            is Action.RequestExport -> requestExport()
+            is Action.DismissExportDestinationDialog -> dismissExportDestinationDialog()
+            is Action.SelectExportDestination -> selectExportDestination(action.destination)
             is Action.NotifyExportSuccess -> notifyExportSuccess()
             is Action.NotifyExportError -> notifyExportError()
             is Action.RequestImport -> requestImport()
-            is Action.DismissImportConfirmationDialog -> dismissImportConfirmationDialog()
-            is Action.ConfirmImport -> confirmImport()
+            is Action.DismissImportStrategyDialog -> dismissImportStrategyDialog()
+            is Action.SelectImportStrategy -> selectImportStrategy(action.strategy)
             is Action.ImportKeywords -> importKeywords(action.jsonContent)
             is Action.NotifyImportReadError -> notifyImportReadError()
             is Action.NotifyImportFileTooLarge -> notifyImportFileTooLarge()
@@ -105,7 +129,7 @@ class KeywordsViewModel(
             observeTelegramChannelFilterEnabledUseCase(),
         ) { keywords, stopWords, telegramChannels, isTelegramChannelFilterEnabled ->
             val parsedKeywords = keywords.map { keyword ->
-                TriggerKeywordRule.fromStorageValue(keyword)
+                parseTriggerKeywordRuleFromStorage(keyword)
             }
             val sortedKeywords = parsedKeywords.sortedWith(
                 compareBy(
@@ -143,29 +167,97 @@ class KeywordsViewModel(
     }
 
     private fun addKeyword() {
-        val newKeywordRule = TriggerKeywordRule.create(
-            type = _state.value.selectedTriggerKeywordRuleType,
-            input = _state.value.inputKeyword,
-        ) ?: return
+        val selectedType = _state.value.selectedTriggerKeywordRuleType
+        val rawInput = _state.value.inputKeyword
+        val target = WordInputTarget.TriggerKeyword(selectedType = selectedType)
 
-        if (
-            _state.value.keywords.any { keywordRule ->
-                keywordRule.normalizedSignature() == newKeywordRule.normalizedSignature()
+        viewModelScope.launch {
+            when (val outcome = sanitizeWordInputUseCase(rawInput, target)) {
+                is KeywordSanitizationResult.Empty -> return@launch
+
+                is KeywordSanitizationResult.MultiLineDetected -> {
+                    _events.send(KeywordMultiLineNotAllowed)
+                }
+
+                is KeywordSanitizationResult.TermTooShort -> {
+                    _events.send(
+                        KeywordTermTooShort(minLength = KeywordsLimits.MIN_TERM_LENGTH)
+                    )
+                }
+
+                is KeywordSanitizationResult.Sanitized -> {
+                    addSanitizedKeyword(sanitized = outcome, selectedType = selectedType)
+                }
+
+                KeywordSanitizationResult.StartsWithNonAlphanumeric -> {
+                    _events.send(KeywordStartsWithNonAlphanumeric)
+                }
             }
-        ) {
+        }
+    }
+
+    private suspend fun addSanitizedKeyword(
+        sanitized: KeywordSanitizationResult.Sanitized,
+        selectedType: TriggerKeywordRuleType,
+    ) {
+        val newKeywordRule = parseTriggerKeywordRuleFromStorage(sanitized.storageValue)
+
+        val isDuplicate = _state.value.keywords.any { keywordRule ->
+            keywordRule.normalizedSignature() == newKeywordRule.normalizedSignature()
+        }
+        if (isDuplicate) {
             _state.update {
                 it.copy(
                     inputKeyword = "",
-                    duplicateWord = newKeywordRule.displayValue
+                    duplicateWord = newKeywordRule.displayValue,
                 )
             }
             return
         }
 
-        viewModelScope.launch {
-            addKeywordUseCase(newKeywordRule.storageValue)
-            _state.update { it.copy(inputKeyword = "") }
-            _events.send(Event.KeywordAdded)
+        if (_state.value.keywords.size >= KeywordsLimits.MAX_TOTAL_KEYWORDS) {
+            _events.send(Event.KeywordsMaxReached(max = KeywordsLimits.MAX_TOTAL_KEYWORDS))
+            return
+        }
+
+        addKeywordUseCase(newKeywordRule.storageValue)
+        _state.update { it.copy(inputKeyword = "") }
+        _events.send(Event.KeywordAdded)
+
+        val wasModified = wasContentModified(
+            sanitized = sanitized,
+            newKeywordRule = newKeywordRule,
+            selectedType = selectedType,
+        )
+        if (wasModified) {
+            _events.send(Event.KeywordNormalized(displayValue = newKeywordRule.displayValue))
+        }
+    }
+
+    private fun wasContentModified(
+        sanitized: KeywordSanitizationResult.Sanitized,
+        newKeywordRule: TriggerKeywordRule,
+        selectedType: TriggerKeywordRuleType,
+    ): Boolean {
+        if (sanitized.effectiveType != selectedType) return true
+
+        val resultContent = newKeywordRule.terms.joinToString(
+            separator = KeywordRuleFormat.PHRASE_TERM_SEPARATOR,
+        )
+        val rawContent = stripBalancedOuterQuotes(sanitized.normalizedRawInput)
+
+        return resultContent != rawContent
+    }
+
+    private fun stripBalancedOuterQuotes(value: String): String {
+        val hasBalancedOuterQuotes = value.length >= 2 &&
+                value.startsWith(KeywordRuleFormat.QUOTE) &&
+                value.endsWith(KeywordRuleFormat.QUOTE)
+
+        return if (hasBalancedOuterQuotes) {
+            value.substring(1, value.length - 1)
+        } else {
+            value
         }
     }
 
@@ -178,19 +270,48 @@ class KeywordsViewModel(
     }
 
     private fun addStopWord() {
-        val stopWord = _state.value.inputStopWord.trim()
+        val rawInput = _state.value.inputStopWord
 
-        if (stopWord.isBlank() || stopWord.length < 2) return
+        viewModelScope.launch {
+            when (val outcome = sanitizeWordInputUseCase(rawInput, WordInputTarget.StopWord)) {
+                is KeywordSanitizationResult.Empty -> return@launch
+
+                is KeywordSanitizationResult.MultiLineDetected -> {
+                    _events.send(KeywordMultiLineNotAllowed)
+                }
+
+                is KeywordSanitizationResult.TermTooShort -> {
+                    _events.send(
+                        KeywordTermTooShort(minLength = KeywordsLimits.MIN_TERM_LENGTH)
+                    )
+                }
+
+                is KeywordSanitizationResult.Sanitized -> {
+                    addSanitizedStopWord(sanitized = outcome, rawInput = rawInput)
+                }
+
+                KeywordSanitizationResult.StartsWithNonAlphanumeric -> return@launch
+            }
+        }
+    }
+
+    private suspend fun addSanitizedStopWord(
+        sanitized: KeywordSanitizationResult.Sanitized,
+        rawInput: String,
+    ) {
+        val stopWord = sanitized.storageValue
 
         if (_state.value.stopWords.any { it.equals(stopWord, ignoreCase = true) }) {
             _state.update { it.copy(inputStopWord = "", duplicateWord = stopWord) }
             return
         }
 
-        viewModelScope.launch {
-            addStopWordUseCase(stopWord)
-            _state.update { it.copy(inputStopWord = "") }
-            _events.send(Event.StopWordAdded)
+        addStopWordUseCase(stopWord)
+        _state.update { it.copy(inputStopWord = "") }
+        _events.send(Event.StopWordAdded)
+
+        if (stopWord != rawInput.trim()) {
+            _events.send(Event.KeywordNormalized(displayValue = stopWord))
         }
     }
 
@@ -211,19 +332,62 @@ class KeywordsViewModel(
     }
 
     private fun addTelegramChannel() {
-        val channel = _state.value.inputTelegramChannel.trim()
+        val rawInput = _state.value.inputTelegramChannel
 
-        if (channel.isBlank() || channel.length < 2) return
+        viewModelScope.launch {
+            when (val outcome = sanitizeWordInputUseCase(rawInput, WordInputTarget.TelegramChannel)) {
+                is KeywordSanitizationResult.Empty -> return@launch
+
+                is KeywordSanitizationResult.MultiLineDetected -> {
+                    _events.send(KeywordMultiLineNotAllowed)
+                }
+
+                is KeywordSanitizationResult.TermTooShort -> {
+                    _events.send(
+                        KeywordTermTooShort(minLength = KeywordsLimits.MIN_TERM_LENGTH)
+                    )
+                }
+
+                is KeywordSanitizationResult.Sanitized -> {
+                    addSanitizedTelegramChannel(sanitized = outcome, rawInput = rawInput)
+                }
+
+                KeywordSanitizationResult.StartsWithNonAlphanumeric -> return@launch
+            }
+        }
+    }
+
+    private suspend fun addSanitizedTelegramChannel(
+        sanitized: KeywordSanitizationResult.Sanitized,
+        rawInput: String,
+    ) {
+        val channel = sanitized.storageValue
 
         if (_state.value.telegramChannels.any { it.equals(channel, ignoreCase = true) }) {
             _state.update { it.copy(inputTelegramChannel = "", duplicateWord = channel) }
             return
         }
 
+        addTelegramChannelUseCase(channel)
+        _state.update { it.copy(inputTelegramChannel = "") }
+        _events.send(Event.TelegramChannelAdded)
+
+        if (channel != rawInput.trim()) {
+            _events.send(Event.KeywordNormalized(displayValue = channel))
+        }
+    }
+
+    private fun selectSuggestedTelegramChannel(channel: String) {
         viewModelScope.launch {
-            addTelegramChannelUseCase(channel)
-            _state.update { it.copy(inputTelegramChannel = "") }
-            _events.send(Event.TelegramChannelAdded)
+            val isAlreadyAdded = _state.value.telegramChannels.any {
+                it.equals(channel, ignoreCase = true)
+            }
+            if (isAlreadyAdded) return@launch
+
+            val outcome = sanitizeWordInputUseCase(channel, WordInputTarget.TelegramChannel)
+            if (outcome is KeywordSanitizationResult.Sanitized) {
+                addSanitizedTelegramChannel(sanitized = outcome, rawInput = channel)
+            }
         }
     }
 
@@ -298,16 +462,61 @@ class KeywordsViewModel(
         }
     }
 
+    private fun openRestoreDefaultsDialog() {
+        _state.update { currentState ->
+            currentState.copy(isRestoreDefaultsDialogVisible = true)
+        }
+    }
+
+    private fun dismissRestoreDefaultsDialog() {
+        _state.update { currentState ->
+            currentState.copy(isRestoreDefaultsDialogVisible = false)
+        }
+    }
+
+    private fun confirmRestoreDefaults() {
+        viewModelScope.launch {
+            val addedKeywordsCount = restoreDefaultKeywordsUseCase()
+            val addedStopWordsCount = restoreDefaultStopWordsUseCase()
+
+            _state.update { currentState ->
+                currentState.copy(isRestoreDefaultsDialogVisible = false)
+            }
+            _events.send(
+                Event.DefaultKeywordsRestored(
+                    addedCount = addedKeywordsCount + addedStopWordsCount
+                )
+            )
+        }
+    }
+
     private fun copyChip(text: String) {
         viewModelScope.launch { _events.send(Event.ChipCopied(text)) }
     }
 
-    private fun exportKeywords() {
+    private fun requestExport() {
+        _state.update { it.copy(isExportDestinationDialogVisible = true) }
+    }
+
+    private fun dismissExportDestinationDialog() {
+        _state.update { it.copy(isExportDestinationDialogVisible = false) }
+    }
+
+    private fun selectExportDestination(destination: ExportDestination) {
+        _state.update { it.copy(isExportDestinationDialogVisible = false) }
+
         viewModelScope.launch {
             when (val result = exportKeywordsUseCase()) {
-                is ExportResult.Success -> _events.send(Event.LaunchExportFilePicker(result.jsonContent))
+                is ExportResult.Success -> {
+                    val event = when (destination) {
+                        ExportDestination.SAVE_TO_FILE -> Event.LaunchExportFilePicker(result.jsonContent)
+                        ExportDestination.SHARE -> Event.LaunchExportShareSheet(result.jsonContent)
+                    }
+                    _events.send(event)
+                }
+
                 is ExportResult.Error -> {
-                    Log.e(TAG, "exportKeywords: failed to build backup", result.exception)
+                    Log.e(TAG, "selectExportDestination: failed to build backup", result.exception)
                     _events.send(Event.KeywordsExportError)
                 }
             }
@@ -332,25 +541,47 @@ class KeywordsViewModel(
 
     private fun requestImport() {
         if (_state.value.hasKeywordDataToClear) {
-            _state.update { it.copy(isImportConfirmationDialogVisible = true) }
+            _state.update { it.copy(isImportStrategyDialogVisible = true) }
         } else {
+            _state.update { it.copy(pendingImportStrategy = ImportStrategy.REPLACE) }
             viewModelScope.launch { _events.send(Event.LaunchImportFilePicker) }
         }
     }
 
-    private fun dismissImportConfirmationDialog() {
-        _state.update { it.copy(isImportConfirmationDialogVisible = false) }
+    private fun dismissImportStrategyDialog() {
+        _state.update {
+            it.copy(
+                isImportStrategyDialogVisible = false,
+                pendingImportStrategy = null,
+            )
+        }
     }
 
-    private fun confirmImport() {
-        _state.update { it.copy(isImportConfirmationDialogVisible = false) }
+    private fun selectImportStrategy(strategy: ImportStrategy) {
+        _state.update {
+            it.copy(
+                isImportStrategyDialogVisible = false,
+                pendingImportStrategy = strategy,
+            )
+        }
         viewModelScope.launch { _events.send(Event.LaunchImportFilePicker) }
     }
 
     private fun importKeywords(jsonContent: String) {
+        val strategy = _state.value.pendingImportStrategy ?: ImportStrategy.REPLACE
+        _state.update { it.copy(pendingImportStrategy = null) }
+
         viewModelScope.launch {
-            when (val result = importKeywordsUseCase(jsonContent)) {
-                is ImportResult.Success -> _events.send(Event.KeywordsImportSuccess)
+            when (val result = importKeywordsUseCase(jsonContent, strategy)) {
+                is ImportResult.Success -> {
+                    _events.send(
+                        Event.KeywordsImportSuccess(
+                            strategy = result.strategy,
+                            addedCount = result.addedCount,
+                            skippedCount = result.skippedCount,
+                        )
+                    )
+                }
 
                 is ImportResult.InvalidFormat -> {
                     Log.e(TAG, "importKeywords: exception", result.exception)
@@ -358,7 +589,7 @@ class KeywordsViewModel(
                 }
 
                 is ImportResult.WriteError -> {
-                    Log.e(TAG, "importKeywords: write error", result.exception)
+                    Log.e(TAG, "importKeywords: write error")
                     _events.send(Event.KeywordsImportWriteError)
                 }
 

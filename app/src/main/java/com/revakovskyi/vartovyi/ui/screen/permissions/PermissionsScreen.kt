@@ -24,15 +24,17 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.core.app.ActivityCompat
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.revakovskyi.vartovyi.R
 import com.revakovskyi.vartovyi.ui.components.LoadingOverlay
+import com.revakovskyi.vartovyi.ui.components.VartovyiBackTopBar
 import com.revakovskyi.vartovyi.ui.screen.permissions.components.PermissionItemCard
-import com.revakovskyi.vartovyi.ui.screen.permissions.components.PermissionsHeader
 import com.revakovskyi.vartovyi.ui.screen.permissions.components.PermissionsWarningCard
 import com.revakovskyi.vartovyi.ui.screen.permissions.utils.buildPermissionItems
 import com.revakovskyi.vartovyi.ui.theme.VartovyiTheme
@@ -46,7 +48,6 @@ private const val ACTION_MANAGE_SPECIAL_APP_ACCESSES =
 @Composable
 fun PermissionsScreen(
     viewModel: PermissionsViewModel = koinActivityViewModel(),
-    isFromOnboarding: Boolean = false,
     onNavigateBack: () -> Unit,
     onRefreshPermissions: () -> Unit,
 ) {
@@ -118,7 +119,6 @@ fun PermissionsScreen(
     } else {
         PermissionsContent(
             state = state,
-            isFromOnboarding = isFromOnboarding,
             onAction = viewModel::onAction,
         )
     }
@@ -128,7 +128,6 @@ fun PermissionsScreen(
 private fun PermissionsContent(
     modifier: Modifier = Modifier,
     state: PermissionsUiContract.State,
-    isFromOnboarding: Boolean = false,
     onAction: (action: PermissionsUiContract.Action) -> Unit,
 ) {
     val permissionItems = buildPermissionItems(state = state)
@@ -147,12 +146,12 @@ private fun PermissionsContent(
                 .widthIn(max = VartovyiTheme.spacing.contentMaxWidth)
                 .fillMaxSize()
         ) {
-            if (!isFromOnboarding) {
-                item(contentType = "header") {
-                    PermissionsHeader(
-                        onNavigateBack = { onAction(PermissionsUiContract.Action.NavigateBack) },
-                    )
-                }
+            item(contentType = "header") {
+                VartovyiBackTopBar(
+                    title = stringResource(R.string.permissions_title),
+                    backContentDescription = stringResource(R.string.permissions_back),
+                    onNavigateBack = { onAction(PermissionsUiContract.Action.NavigateBack) },
+                )
             }
 
             if (state.hasMissingPermissions) {

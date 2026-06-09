@@ -33,7 +33,7 @@ internal fun Context.checkPermissions(): PermissionsCheckResult {
             hasRuntimePermission && NotificationManagerCompat.from(this)
                 .areNotificationsEnabled()
         } else {
-            NotificationManagerCompat.from(this).areNotificationsEnabled()
+            true
         }
 
     val batteryOptimizationIgnored = getSystemService(PowerManager::class.java)

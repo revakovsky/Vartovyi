@@ -1,6 +1,7 @@
 package com.revakovskyi.vartovyi.ui.util
 
 import android.content.Context
+import android.content.Intent
 import android.net.Uri
 import android.provider.OpenableColumns
 import android.util.Log
@@ -12,11 +13,13 @@ import androidx.compose.runtime.Stable
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.platform.LocalContext
+import androidx.core.content.FileProvider
 import com.revakovskyi.vartovyi.ui.screen.keywords.KeywordsUiContract
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import java.io.File
 import java.io.IOException
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
@@ -27,6 +30,9 @@ private const val EXPORT_FILENAME_DATE_PATTERN = "yyyy-MM-dd_HH-mm-ss"
 private const val TAG = "KeywordsBackupHelper"
 private const val MAX_BACKUP_FILE_SIZE_BYTES = 2 * 1024 * 1024L
 private const val FILE_SIZE_UNKNOWN = -1L
+private const val EXPORT_CACHE_DIR_NAME = "exports"
+private const val FILE_PROVIDER_AUTHORITY_SUFFIX = ".fileprovider"
+private const val SHARE_MIME_TYPE = "application/json"
 
 @Stable
 class KeywordsBackupHelper(
@@ -43,6 +49,7 @@ class KeywordsBackupHelper(
     fun handleEvent(event: KeywordsUiContract.Event) {
         when (event) {
             is KeywordsUiContract.Event.LaunchExportFilePicker -> launchExportPicker(event.jsonContent)
+            is KeywordsUiContract.Event.LaunchExportShareSheet -> shareExport(event.jsonContent)
             is KeywordsUiContract.Event.LaunchImportFilePicker -> launchImportPicker()
             else -> Unit
         }
@@ -144,6 +151,52 @@ class KeywordsBackupHelper(
 
     private fun launchImportPicker() {
         importLauncher?.launch(arrayOf("application/json"))
+    }
+
+    private fun shareExport(jsonContent: String) {
+        scope.launch {
+            try {
+                val shareUri = withContext(Dispatchers.IO) { writeExportToCache(jsonContent) }
+                val sendIntent = Intent(Intent.ACTION_SEND).apply {
+                    type = SHARE_MIME_TYPE
+                    putExtra(Intent.EXTRA_STREAM, shareUri)
+                    addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+                }
+                context.startActivity(Intent.createChooser(sendIntent, null))
+            } catch (e: IOException) {
+                Log.e(TAG, "shareExport: exception", e)
+                onAction(KeywordsUiContract.Action.NotifyExportError)
+            }
+        }
+    }
+
+    private fun writeExportToCache(jsonContent: String): Uri {
+        val exportDir = prepareCleanExportDir()
+        val timestamp = LocalDateTime
+            .now()
+            .format(DateTimeFormatter.ofPattern(EXPORT_FILENAME_DATE_PATTERN))
+
+        val exportFile = File(
+            exportDir,
+            "${EXPORT_FILENAME_PREFIX}_${timestamp}${EXPORT_FILENAME_EXTENSION}",
+        )
+        exportFile.writeText(jsonContent, Charsets.UTF_8)
+
+        return FileProvider.getUriForFile(
+            context,
+            "${context.packageName}$FILE_PROVIDER_AUTHORITY_SUFFIX",
+            exportFile,
+        )
+    }
+
+    private fun prepareCleanExportDir(): File {
+        val exportDir = File(context.cacheDir, EXPORT_CACHE_DIR_NAME)
+        exportDir.deleteRecursively()
+
+        if (!exportDir.mkdirs() && !exportDir.isDirectory) {
+            throw IOException("Failed to create export cache directory: ${exportDir.absolutePath}")
+        }
+        return exportDir
     }
 
 }
