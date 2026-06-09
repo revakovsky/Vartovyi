@@ -9,6 +9,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navOptions
 import androidx.navigation.toRoute
+import com.revakovskyi.vartovyi.model.PermissionsStatus
 import com.revakovskyi.vartovyi.ui.screen.home.HomeScreen
 import com.revakovskyi.vartovyi.ui.screen.keywords.KeywordsScreen
 import com.revakovskyi.vartovyi.ui.screen.log.LogScreen
@@ -32,7 +33,7 @@ fun NavGraph(
     modifier: Modifier = Modifier,
     navController: NavHostController,
     startDestination: Any,
-    isRequiredPermissionsGranted: Boolean,
+    permissionsStatus: PermissionsStatus,
     isLogInfoDialogVisible: Boolean,
     onRefreshPermissions: () -> Unit,
     onDismissLogInfoDialog: () -> Unit,
@@ -44,7 +45,7 @@ fun NavGraph(
     ) {
         composable<Routes.Onboarding> {
             OnboardingScreen(
-                isRequiredPermissionsGranted = isRequiredPermissionsGranted,
+                permissionsStatus = permissionsStatus,
                 onClose = {
                     val navigatedUp = navController.navigateUp()
                     if (!navigatedUp) {
@@ -60,7 +61,7 @@ fun NavGraph(
 
         composable<Routes.Home> {
             HomeScreen(
-                isRequiredPermissionsGranted = isRequiredPermissionsGranted,
+                isRequiredPermissionsGranted = permissionsStatus != PermissionsStatus.MANDATORY_MISSING,
                 onNavigateToKeywords = {
                     navController.navigate(
                         route = Routes.Keywords,

@@ -18,9 +18,8 @@ tasks.register("installGitHooks") {
     group = "git hooks"
 
     doLast {
-        def gitCommonDir = ["git", "rev-parse", "--git-common-dir"].execute(null, rootDir).text.trim()
-        def hooksDir = file("${gitCommonDir}/hooks")
-        def preCommitHook = file("${hooksDir}/pre-commit")
+        def hooksDir = new File(rootDir, ".git/hooks")
+        def preCommitHook = new File(hooksDir, "pre-commit")
 
         preCommitHook.text = """#!/bin/sh
 

@@ -9,6 +9,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.tooling.preview.Preview
 import com.revakovskyi.vartovyi.R
+import com.revakovskyi.vartovyi.model.PermissionsStatus
 import com.revakovskyi.vartovyi.ui.components.VartovyiActionButton
 import com.revakovskyi.vartovyi.ui.components.VartovyiActionButtonStyle
 import com.revakovskyi.vartovyi.ui.theme.VartovyiTheme
@@ -16,18 +17,21 @@ import com.revakovskyi.vartovyi.ui.theme.VartovyiTheme
 @Composable
 fun OnboardingPagePermissions(
     modifier: Modifier = Modifier,
-    arePermissionsGranted: Boolean,
+    permissionsStatus: PermissionsStatus,
     onOpenPermissions: () -> Unit,
 ) {
     val imageVector = ImageVector.vectorResource(
-        if (arePermissionsGranted) R.drawable.security_green
-        else R.drawable.security_red
+        when (permissionsStatus) {
+            PermissionsStatus.MANDATORY_MISSING -> R.drawable.security_red
+            PermissionsStatus.RECOMMENDED_MISSING,
+            PermissionsStatus.GRANTED -> R.drawable.security_green
+        }
     )
 
-    val imageTint = if (arePermissionsGranted) {
-        VartovyiTheme.colors.primary
-    } else {
-        VartovyiTheme.colors.error
+    val imageTint = when (permissionsStatus) {
+        PermissionsStatus.GRANTED -> VartovyiTheme.colors.primary
+        PermissionsStatus.RECOMMENDED_MISSING -> VartovyiTheme.colors.secondary
+        PermissionsStatus.MANDATORY_MISSING -> VartovyiTheme.colors.error
     }
 
     OnboardingPageLayout(
@@ -48,12 +52,12 @@ fun OnboardingPagePermissions(
     )
 }
 
-@Preview(showBackground = true)
+@Preview(showBackground = true, name = "Mandatory missing (red)")
 @Composable
-private fun OnboardingPagePermissionsNotGrantedPreview() {
+private fun OnboardingPagePermissionsMandatoryMissingPreview() {
     VartovyiTheme {
         OnboardingPagePermissions(
-            arePermissionsGranted = false,
+            permissionsStatus = PermissionsStatus.MANDATORY_MISSING,
             onOpenPermissions = {},
             modifier = Modifier
                 .fillMaxSize()
@@ -62,12 +66,26 @@ private fun OnboardingPagePermissionsNotGrantedPreview() {
     }
 }
 
-@Preview(showBackground = true)
+@Preview(showBackground = true, name = "Recommended missing (orange)")
+@Composable
+private fun OnboardingPagePermissionsRecommendedMissingPreview() {
+    VartovyiTheme {
+        OnboardingPagePermissions(
+            permissionsStatus = PermissionsStatus.RECOMMENDED_MISSING,
+            onOpenPermissions = {},
+            modifier = Modifier
+                .fillMaxSize()
+                .background(VartovyiTheme.colors.background)
+        )
+    }
+}
+
+@Preview(showBackground = true, name = "All granted (green)")
 @Composable
 private fun OnboardingPagePermissionsGrantedPreview() {
     VartovyiTheme {
         OnboardingPagePermissions(
-            arePermissionsGranted = true,
+            permissionsStatus = PermissionsStatus.GRANTED,
             onOpenPermissions = {},
             modifier = Modifier
                 .fillMaxSize()

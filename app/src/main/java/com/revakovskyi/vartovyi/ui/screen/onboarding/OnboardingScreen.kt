@@ -28,6 +28,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.revakovskyi.vartovyi.R
+import com.revakovskyi.vartovyi.model.PermissionsStatus
 import com.revakovskyi.vartovyi.ui.components.VartovyiActionButton
 import com.revakovskyi.vartovyi.ui.components.VartovyiActionButtonStyle
 import com.revakovskyi.vartovyi.ui.screen.onboarding.components.OnboardingPageDeviceTips
@@ -47,7 +48,7 @@ private enum class OnboardingPage {
 
 @Composable
 fun OnboardingScreen(
-    isRequiredPermissionsGranted: Boolean,
+    permissionsStatus: PermissionsStatus,
     viewModel: OnboardingViewModel = koinViewModel(),
     onClose: () -> Unit,
     onOpenPermissions: () -> Unit,
@@ -65,7 +66,7 @@ fun OnboardingScreen(
 
     OnboardingContent(
         state = state,
-        isRequiredPermissionsGranted = isRequiredPermissionsGranted,
+        permissionsStatus = permissionsStatus,
         onAction = viewModel::onAction,
     )
 }
@@ -74,7 +75,7 @@ fun OnboardingScreen(
 private fun OnboardingContent(
     modifier: Modifier = Modifier,
     state: OnboardingUiContract.State,
-    isRequiredPermissionsGranted: Boolean,
+    permissionsStatus: PermissionsStatus,
     onAction: (action: OnboardingUiContract.Action) -> Unit,
 ) {
     val pagerState = rememberPagerState(pageCount = { state.totalPages })
@@ -113,7 +114,7 @@ private fun OnboardingContent(
 
                     OnboardingPage.PERMISSIONS -> {
                         OnboardingPagePermissions(
-                            arePermissionsGranted = isRequiredPermissionsGranted,
+                            permissionsStatus = permissionsStatus,
                             onOpenPermissions = { onAction(OnboardingUiContract.Action.OpenPermissions) },
                         )
                     }
@@ -206,31 +207,43 @@ private fun OnboardingContentFirstPagePreview() {
     VartovyiTheme {
         OnboardingContent(
             state = OnboardingUiContract.State(currentPage = 0),
-            isRequiredPermissionsGranted = false,
+            permissionsStatus = PermissionsStatus.MANDATORY_MISSING,
             onAction = {},
         )
     }
 }
 
-@Preview(showBackground = true)
+@Preview(showBackground = true, name = "Permissions — mandatory missing (red)")
 @Composable
-private fun OnboardingContentPermissionsNotGrantedPreview() {
+private fun OnboardingContentPermissionsMandatoryMissingPreview() {
     VartovyiTheme {
         OnboardingContent(
             state = OnboardingUiContract.State(currentPage = 2),
-            isRequiredPermissionsGranted = false,
+            permissionsStatus = PermissionsStatus.MANDATORY_MISSING,
             onAction = {},
         )
     }
 }
 
-@Preview(showBackground = true)
+@Preview(showBackground = true, name = "Permissions — recommended missing (orange)")
+@Composable
+private fun OnboardingContentPermissionsRecommendedMissingPreview() {
+    VartovyiTheme {
+        OnboardingContent(
+            state = OnboardingUiContract.State(currentPage = 2),
+            permissionsStatus = PermissionsStatus.RECOMMENDED_MISSING,
+            onAction = {},
+        )
+    }
+}
+
+@Preview(showBackground = true, name = "Permissions — all granted (green)")
 @Composable
 private fun OnboardingContentPermissionsGrantedPreview() {
     VartovyiTheme {
         OnboardingContent(
             state = OnboardingUiContract.State(currentPage = 2),
-            isRequiredPermissionsGranted = true,
+            permissionsStatus = PermissionsStatus.GRANTED,
             onAction = {},
         )
     }
@@ -242,7 +255,7 @@ private fun OnboardingContentDeviceTipsPreview() {
     VartovyiTheme {
         OnboardingContent(
             state = OnboardingUiContract.State(currentPage = 4),
-            isRequiredPermissionsGranted = true,
+            permissionsStatus = PermissionsStatus.GRANTED,
             onAction = {},
         )
     }
@@ -254,7 +267,7 @@ private fun OnboardingContentLastPagePreview() {
     VartovyiTheme {
         OnboardingContent(
             state = OnboardingUiContract.State(currentPage = 5),
-            isRequiredPermissionsGranted = true,
+            permissionsStatus = PermissionsStatus.GRANTED,
             onAction = {},
         )
     }
