@@ -106,7 +106,11 @@ internal class KeywordsDataStore(
             val alreadySeeded = preferences[Keys.KEYWORDS_SEEDED] == true
             if (alreadySeeded) return@safeEdit
 
-            preferences[Keys.KEYWORDS] = Json.encodeToString(defaults)
+            val existingKeywords = storedStringList(preferences, Keys.KEYWORDS)
+            if (existingKeywords.isEmpty()) {
+                preferences[Keys.KEYWORDS] = Json.encodeToString(defaults)
+            }
+
             preferences[Keys.KEYWORDS_SEEDED] = true
         }
     }
