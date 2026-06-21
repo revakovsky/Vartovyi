@@ -19,3 +19,4 @@ local.properties
 /.kotlin/
 /keystore/
 /TODO.md
+/app/google-services.json
