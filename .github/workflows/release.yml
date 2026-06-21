@@ -32,6 +32,9 @@ jobs:
           mkdir -p app/keystore
           echo "${{ secrets.KEYSTORE_BASE64 }}" | base64 -d > app/keystore/vartovyi-release.jks
 
+      - name: Decode google-services.json
+        run: echo "${{ secrets.GOOGLE_SERVICES_JSON }}" | base64 -d > app/google-services.json
+
       - name: Build release AAB
         env:
           KEYSTORE_FILE: keystore/vartovyi-release.jks
