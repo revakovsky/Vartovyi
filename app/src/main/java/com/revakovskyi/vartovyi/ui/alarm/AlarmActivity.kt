@@ -9,6 +9,7 @@ import android.view.KeyEvent
 import android.view.WindowManager
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.activity.enableEdgeToEdge
 import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.infiniteRepeatable
@@ -23,6 +24,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
@@ -87,6 +89,8 @@ class AlarmActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        enableEdgeToEdge()
+
         configureAlarmWindow()
         registerAlarmStopReceiver()
         updateAlarmContentFromIntent(intent)
@@ -222,6 +226,7 @@ private fun AlarmContent(
             verticalArrangement = Arrangement.SpaceEvenly,
             modifier = Modifier
                 .fillMaxSize()
+                .systemBarsPadding()
                 .padding(VartovyiTheme.spacing.standard),
         ) {
             Spacer(modifier = Modifier.weight(CONTENT_EDGE_SPACER_WEIGHT))
