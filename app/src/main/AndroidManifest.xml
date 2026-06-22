@@ -20,9 +20,7 @@
     <uses-permission
         android:name="android.permission.FOREGROUND_SERVICE"
         tools:ignore="ForegroundServicesPolicy" />
-    <!-- AlarmService -->
-    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_MEDIA_PLAYBACK" />
-    <!-- MonitoringForegroundService -->
+    <!-- AlarmService + MonitoringForegroundService -->
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_SPECIAL_USE" />
 
     <!-- AlarmActivity via AlarmService full-screen notification -->
@@ -80,7 +78,11 @@
         <service
             android:name=".service.alarm.AlarmService"
             android:exported="false"
-            android:foregroundServiceType="mediaPlayback" />
+            android:foregroundServiceType="specialUse">
+            <property
+                android:name="android.app.PROPERTY_SPECIAL_USE_FGS_SUBTYPE"
+                android:value="Plays alarm sound and vibrates to alert the user when a keyword match is detected in incoming notifications" />
+        </service>
 
         <service
             android:name=".service.notification_monitoring.MonitoringForegroundService"
