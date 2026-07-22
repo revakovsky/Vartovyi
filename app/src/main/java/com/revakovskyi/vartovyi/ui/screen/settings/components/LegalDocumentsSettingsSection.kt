@@ -23,7 +23,7 @@ fun LegalDocumentsSettingsSection(
     onOpenTroubleshootingClick: () -> Unit,
 ) {
     Column(
-        verticalArrangement = Arrangement.spacedBy(VartovyiTheme.spacing.standard),
+        verticalArrangement = Arrangement.spacedBy(VartovyiTheme.spacing.large),
         modifier = modifier
             .fillMaxWidth()
             .padding(vertical = VartovyiTheme.spacing.medium)
