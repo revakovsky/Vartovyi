@@ -25,12 +25,12 @@ private const val MAX_VISIBLE_KEYWORDS = 5
 @Composable
 fun KeywordsCard(
     keywords: List<String>,
-    onMoreClick: () -> Unit,
-    onAddKeywords: () -> Unit,
+    onClick: () -> Unit,
 ) {
     Surface(
         color = VartovyiTheme.colors.surface,
         shape = VartovyiTheme.shapes.large,
+        onClick = onClick,
     ) {
         Column(
             modifier = Modifier
@@ -38,7 +38,7 @@ fun KeywordsCard(
                 .padding(VartovyiTheme.spacing.medium)
         ) {
             Text(
-                text = stringResource(R.string.home_keywords_title),
+                text = stringResource(R.string.nav_keywords),
                 style = VartovyiTheme.typography.titleMedium,
                 color = VartovyiTheme.colors.onSurface,
             )
@@ -52,7 +52,7 @@ fun KeywordsCard(
                     color = VartovyiTheme.colors.onSurfaceVariant,
                 )
 
-                TextButton(onClick = onAddKeywords) {
+                TextButton(onClick = onClick) {
                     Text(
                         text = stringResource(R.string.home_add),
                         style = VartovyiTheme.typography.bodyLink,
@@ -74,7 +74,6 @@ fun KeywordsCard(
                     if (remainingCount > 0) {
                         HomeKeywordChip(
                             text = stringResource(R.string.home_and_more, remainingCount),
-                            onClick = onMoreClick,
                         )
                     }
                 }
@@ -89,8 +88,7 @@ private fun PreviewKeywordsCard() {
     VartovyiTheme {
         KeywordsCard(
             keywords = listOf("ракета", "вибух", "тривога", "атака", "бомба"),
-            onAddKeywords = {},
-            onMoreClick = {},
+            onClick = {},
         )
     }
 }
@@ -101,8 +99,7 @@ private fun PreviewKeywordsCardEmpty() {
     VartovyiTheme {
         KeywordsCard(
             keywords = listOf(),
-            onAddKeywords = {},
-            onMoreClick = {},
+            onClick = {},
         )
     }
 }
@@ -118,8 +115,7 @@ private fun PreviewKeywordsCardLongWords() {
                 "вибух",
                 "короткий текст та ще трохи довший текст",
             ),
-            onAddKeywords = {},
-            onMoreClick = {},
+            onClick = {},
         )
     }
 }

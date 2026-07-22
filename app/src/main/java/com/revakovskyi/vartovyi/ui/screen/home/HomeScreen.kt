@@ -151,8 +151,7 @@ private fun HomeContent(
             ) {
                 KeywordsCard(
                     keywords = state.keywords,
-                    onAddKeywords = { onAction(HomeUiContract.Action.NavigateToKeywords) },
-                    onMoreClick = { onAction(HomeUiContract.Action.NavigateToKeywords) },
+                    onClick = { onAction(HomeUiContract.Action.NavigateToKeywords) },
                 )
 
                 LastAlertCard(
