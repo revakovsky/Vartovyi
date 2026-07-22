@@ -1,7 +1,7 @@
 package com.revakovskyi.vartovyi.ui.screen.onboarding
 
 internal enum class OnboardingPage {
-    WELCOME, TELEGRAM, KEYWORDS, DEVICE_TIPS, LAUNCH,
+    WELCOME, TELEGRAM, KEYWORDS, LAUNCH,
 }
 
 object OnboardingUiContract {

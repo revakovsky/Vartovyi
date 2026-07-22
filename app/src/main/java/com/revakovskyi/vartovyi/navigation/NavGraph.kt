@@ -17,6 +17,7 @@ import com.revakovskyi.vartovyi.ui.screen.log.LogScreen
 import com.revakovskyi.vartovyi.ui.screen.onboarding.OnboardingScreen
 import com.revakovskyi.vartovyi.ui.screen.permissions.PermissionsScreen
 import com.revakovskyi.vartovyi.ui.screen.settings.SettingsScreen
+import com.revakovskyi.vartovyi.ui.screen.troubleshooting.TroubleshootingScreen
 
 private fun tabNavOptions(): NavOptions = navOptions {
     popUpTo<Routes.Home> { saveState = true }
@@ -111,13 +112,21 @@ fun NavGraph(
                     )
                 },
                 onNavigateToOnboarding = { navController.navigate(Routes.Onboarding) },
+                onNavigateToTroubleshooting = { navController.navigate(Routes.Troubleshooting) },
             )
         }
 
         composable<Routes.Permissions> {
             PermissionsScreen(
                 onNavigateBack = { navController.navigateUp() },
+                onNavigateToTroubleshooting = { navController.navigate(Routes.Troubleshooting) },
                 onRefreshPermissions = onRefreshPermissions,
+            )
+        }
+
+        composable<Routes.Troubleshooting> {
+            TroubleshootingScreen(
+                onNavigateBack = { navController.navigateUp() },
             )
         }
     }

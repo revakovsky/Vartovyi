@@ -90,6 +90,7 @@ class SettingsViewModel(
             is Action.OpenPrivacyPolicy -> openPrivacyPolicyUrl()
             is Action.OpenTermsOfUse -> openTermsOfUseUrl()
             is Action.OpenOnboardingGuide -> openOnboardingGuide()
+            is Action.OpenTroubleshooting -> openTroubleshooting()
             is Action.ShowResetToFactoryDefaultsDialog -> showResetToFactoryDefaultsDialog()
             is Action.DismissResetToFactoryDefaultsDialog -> dismissResetToFactoryDefaultsDialog()
             is Action.ConfirmResetToFactoryDefaults -> confirmResetToFactoryDefaults()
@@ -294,6 +295,13 @@ class SettingsViewModel(
         skipCollapseOnNextScreenStop = true
         viewModelScope.launch {
             _events.send(Event.OpenOnboardingGuide)
+        }
+    }
+
+    private fun openTroubleshooting() {
+        skipCollapseOnNextScreenStop = true
+        viewModelScope.launch {
+            _events.send(Event.OpenTroubleshooting)
         }
     }
 

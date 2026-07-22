@@ -8,6 +8,8 @@
     <string name="emergency_stop_content_description">Stop Alarm</string>
     <string name="permissions_title">Permissions</string>
     <string name="permissions_back">Back</string>
+    <string name="permissions_troubleshooting_question">Having trouble?</string>
+    <string name="permissions_troubleshooting_link">Troubleshooting</string>
     <string name="monitoring_active">Monitoring active</string>
     <string name="monitoring_inactive">Monitoring inactive</string>
     <string name="home_alarm_retrigger_cooldown">Next alarm not earlier than in %1$s</string>
@@ -37,6 +39,8 @@
     <string name="settings_section_data">Data</string>
     <string name="settings_section_info">Info</string>
     <string name="settings_open_onboarding_guide">Open onboarding guide</string>
+    <string name="settings_open_troubleshooting">Troubleshooting</string>
+    <string name="troubleshooting_back">Back</string>
     <string name="settings_version_number" translatable="false">version: %1$s</string>
     <string name="settings_schedule_enabled_title">Work by schedule</string>
     <string name="settings_schedule_start_title">Start</string>
@@ -238,23 +242,21 @@
     <string name="onboarding_open_keywords">Open keywords</string>
     <string name="onboarding_keywords_later_hint">You can set it up now or come back to it later</string>
 
-    <string name="onboarding_device_tips_title">Device Tips</string>
-    <string name="onboarding_device_tips_intro">ℹ️ This step is optional — come back if Vartovyi stops working reliably in the background. You can open this later via «Info» in Settings</string>
-    <string name="onboarding_device_tips_lead">Some manufacturers add extra background restrictions on top of standard Android permissions. Tap your device below to see the steps</string>
-    <string name="onboarding_device_tips_xiaomi_miui_title">Xiaomi · POCO · Redmi (MIUI)</string>
-    <string name="onboarding_device_tips_xiaomi_miui_body">• Autostart — Settings → Apps → Manage apps → Vartovyi → Permissions → Autostart → enable Vartovyi (on MIUI 14 it\'s «Background autostart»)\n• Pop-up windows — Settings → Apps → Manage apps → Vartovyi → Other permissions → Display pop-up windows while running in background → enable Vartovyi</string>
-    <string name="onboarding_device_tips_xiaomi_hyperos_title">Xiaomi · POCO · Redmi (HyperOS)</string>
-    <string name="onboarding_device_tips_xiaomi_hyperos_body">• Autostart — Settings → Apps → Manage apps → Vartovyi → Background autostart → enable Vartovyi\n• Pop-up windows — Settings → Apps → Manage apps → Vartovyi → Other permissions → Display pop-up windows while running in background → enable Vartovyi</string>
-    <string name="onboarding_device_tips_samsung_title">Samsung (One UI)</string>
-    <string name="onboarding_device_tips_samsung_body">• Settings → Battery and device care → Battery → Background usage limits → Never sleeping apps → add Vartovyi\n• On One UI 7 the top item may simply be «Battery»: Settings → Battery → Background usage limits → Never sleeping apps\n• If Vartovyi is not in the list — that\'s fine. It means Samsung hasn\'t flagged it for sleeping yet. The app is already protected if Battery optimization is disabled</string>
-    <string name="onboarding_device_tips_oppo_title">OPPO · OnePlus · Realme (ColorOS / OxygenOS / Realme UI)</string>
-    <string name="onboarding_device_tips_oppo_body">• Auto-launch — Settings → App management → Auto-launch → enable Vartovyi (older ColorOS: Phone Manager → Startup Manager)\n• Battery — Settings → Battery → App Battery Management → Vartovyi → allow background activity (OnePlus: Battery optimization → Vartovyi → Don\'t optimize)</string>
-    <string name="onboarding_device_tips_huawei_title">Huawei · Honor (EMUI / HarmonyOS)</string>
-    <string name="onboarding_device_tips_huawei_body">• App launch — Settings → Battery → App launch → Vartovyi → turn off «Manage automatically» → enable Auto-launch, Secondary launch, Run in background\n• On EMUI 11+ it\'s Settings → Apps → App launch; on Honor (MagicOS) — Optimizer → App launch</string>
-    <string name="onboarding_device_tips_vivo_title">Vivo (FuntouchOS / OriginOS)</string>
-    <string name="onboarding_device_tips_vivo_body">• Autostart — Settings → More settings → Applications → Autostart → enable Vartovyi\n• Battery — Settings → Battery → High background power consumption → enable Vartovyi</string>
-    <string name="onboarding_device_tips_other_title">Other brands</string>
-    <string name="onboarding_device_tips_other_body">If the app is not working correctly in the background — search for «autostart» or «background activity» in your device Settings and allow Vartovyi</string>
+    <string name="troubleshooting_lead">Some manufacturers add extra background restrictions on top of standard Android permissions. Tap your device below to see the steps</string>
+    <string name="troubleshooting_xiaomi_miui_title">Xiaomi · POCO · Redmi (MIUI)</string>
+    <string name="troubleshooting_xiaomi_miui_body">• Autostart — Settings → Apps → Manage apps → Vartovyi → Permissions → Autostart → enable Vartovyi (on MIUI 14 it\'s «Background autostart»)\n• Pop-up windows — Settings → Apps → Manage apps → Vartovyi → Other permissions → Display pop-up windows while running in background → enable Vartovyi</string>
+    <string name="troubleshooting_xiaomi_hyperos_title">Xiaomi · POCO · Redmi (HyperOS)</string>
+    <string name="troubleshooting_xiaomi_hyperos_body">• Autostart — Settings → Apps → Manage apps → Vartovyi → Background autostart → enable Vartovyi\n• Pop-up windows — Settings → Apps → Manage apps → Vartovyi → Other permissions → Display pop-up windows while running in background → enable Vartovyi</string>
+    <string name="troubleshooting_samsung_title">Samsung (One UI)</string>
+    <string name="troubleshooting_samsung_body">• Settings → Battery and device care → Battery → Background usage limits → Never sleeping apps → add Vartovyi\n• On One UI 7 the top item may simply be «Battery»: Settings → Battery → Background usage limits → Never sleeping apps\n• If Vartovyi is not in the list — that\'s fine. It means Samsung hasn\'t flagged it for sleeping yet. The app is already protected if Battery optimization is disabled</string>
+    <string name="troubleshooting_oppo_title">OPPO · OnePlus · Realme (ColorOS / OxygenOS / Realme UI)</string>
+    <string name="troubleshooting_oppo_body">• Auto-launch — Settings → App management → Auto-launch → enable Vartovyi (older ColorOS: Phone Manager → Startup Manager)\n• Battery — Settings → Battery → App Battery Management → Vartovyi → allow background activity (OnePlus: Battery optimization → Vartovyi → Don\'t optimize)</string>
+    <string name="troubleshooting_huawei_title">Huawei · Honor (EMUI / HarmonyOS)</string>
+    <string name="troubleshooting_huawei_body">• App launch — Settings → Battery → App launch → Vartovyi → turn off «Manage automatically» → enable Auto-launch, Secondary launch, Run in background\n• On EMUI 11+ it\'s Settings → Apps → App launch; on Honor (MagicOS) — Optimizer → App launch</string>
+    <string name="troubleshooting_vivo_title">Vivo (FuntouchOS / OriginOS)</string>
+    <string name="troubleshooting_vivo_body">• Autostart — Settings → More settings → Applications → Autostart → enable Vartovyi\n• Battery — Settings → Battery → High background power consumption → enable Vartovyi</string>
+    <string name="troubleshooting_other_title">Other brands</string>
+    <string name="troubleshooting_other_body">If the app is not working correctly in the background — search for «autostart» or «background activity» in your device Settings and allow Vartovyi</string>
     <string name="onboarding_launch_title">Launch and test</string>
     <string name="onboarding_launch_body">Tap Activate on the home screen — the shield will light up and Vartovyi will start monitoring Telegram notifications in the background.\n\nCheck right away that everything works:\n• Ask someone to send you a Telegram message containing your keyword (a direct message or one in a shared group).\n• Make sure notifications for that chat aren\'t muted — otherwise Vartovyi won\'t see it.\n• If you enabled the channel filter — the message must come from one of the selected channels.\n\nDidn\'t fire? Open the Logs screen — it shows whether an event arrived and what went wrong.\n\nAll set. Stay safe. 🛡\n\nYou can reopen this guide later in the Info section of the Settings screen.</string>
 </resources>

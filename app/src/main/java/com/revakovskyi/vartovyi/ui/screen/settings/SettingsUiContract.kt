@@ -43,6 +43,7 @@ interface SettingsUiContract {
         data object OpenPrivacyPolicy : Action
         data object OpenTermsOfUse : Action
         data object OpenOnboardingGuide : Action
+        data object OpenTroubleshooting : Action
         data object ShowResetToFactoryDefaultsDialog : Action
         data object DismissResetToFactoryDefaultsDialog : Action
         data object ConfirmResetToFactoryDefaults : Action
@@ -57,6 +58,7 @@ interface SettingsUiContract {
         data class OpenUrl(val url: String) : Event
         data object ShowFactoryResetCompleted : Event
         data object OpenOnboardingGuide : Event
+        data object OpenTroubleshooting : Event
         data object LaunchSoundPicker : Event
     }
 

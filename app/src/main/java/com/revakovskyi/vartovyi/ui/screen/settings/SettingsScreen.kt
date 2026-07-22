@@ -61,6 +61,7 @@ fun SettingsScreen(
     viewModel: SettingsViewModel = koinViewModel(),
     onNavigateToHome: () -> Unit,
     onNavigateToOnboarding: () -> Unit,
+    onNavigateToTroubleshooting: () -> Unit,
 ) {
     val context = LocalContext.current
     val lifecycleOwner = LocalLifecycleOwner.current
@@ -116,6 +117,7 @@ fun SettingsScreen(
             }
 
             is SettingsUiContract.Event.OpenOnboardingGuide -> onNavigateToOnboarding()
+            is SettingsUiContract.Event.OpenTroubleshooting -> onNavigateToTroubleshooting()
 
             SettingsUiContract.Event.LaunchSoundPicker -> {
                 alarmSoundPickerLauncher.launch(
@@ -350,6 +352,9 @@ private fun SettingsContent(
                     },
                     onOpenOnboardingGuideClick = {
                         onAction(SettingsUiContract.Action.OpenOnboardingGuide)
+                    },
+                    onOpenTroubleshootingClick = {
+                        onAction(SettingsUiContract.Action.OpenTroubleshooting)
                     },
                 )
             }
