@@ -57,7 +57,7 @@
     <string name="settings_reset_factory_completed">Settings were reset to factory defaults</string>
     <string name="settings_test_alarm_channel_name">Test Alarm</string>
     <string name="settings_test_alarm_message_text">This is a test alarm notification.</string>
-    <string name="home_permissions_required_snackbar">Grant required permissions before activating monitoring</string>
+    <string name="home_permissions_required_snackbar">Grant required permissions to start monitoring</string>
     <string name="home_permissions_required_snackbar_action">Permissions</string>
     <string name="legal_consent_title">Before you start</string>
     <string name="legal_consent_description">To continue, review Privacy Policy and Terms of Use. By tapping Confirm, you acknowledge that you have read and accepted these documents.</string>

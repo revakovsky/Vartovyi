@@ -56,7 +56,7 @@
     <string name="settings_reset_factory_completed">Налаштування скинуто до заводських</string>
     <string name="settings_test_alarm_channel_name">Тестова тривога</string>
     <string name="settings_test_alarm_message_text">Це тестове повідомлення тривоги.</string>
-    <string name="home_permissions_required_snackbar">Надайте обов’язкові дозволи перед активацією моніторингу</string>
+    <string name="home_permissions_required_snackbar">Надайте обов’язкові дозволи для запуску моніторингу</string>
     <string name="home_permissions_required_snackbar_action">Дозволи</string>
     <string name="legal_consent_title">Перед початком</string>
     <string name="legal_consent_description">Щоб продовжити, перегляньте Privacy Policy та Terms of Use. Натискаючи «Підтвердити», ви підтверджуєте, що ознайомилися та погодилися з цими документами.</string>

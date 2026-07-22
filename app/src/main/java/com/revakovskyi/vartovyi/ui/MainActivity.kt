@@ -124,15 +124,11 @@ class MainActivity : ComponentActivity() {
                 if (!onboardingState.isCompleted) Routes.Onboarding
                 else Routes.Home
 
-            val isRecommendedGranted = permissionsState.isDoNotDisturbAccessGranted &&
-                    permissionsState.isFullScreenIntentGranted
-
             MainAppScaffold(
                 startDestination = startDestination,
                 isAlarmRunning = mainState.isAlarmRunning,
                 monitoringState = mainState.monitoringState,
                 permissionsStatus = permissionsState.permissionsStatus,
-                isRecommendedGranted = isRecommendedGranted,
                 onRefreshPermissions = onRefreshPermissions,
                 onStopAlarm = { mainViewModel.onAction(MainUiContract.Action.StopAlarm) },
             )
@@ -145,7 +141,6 @@ class MainActivity : ComponentActivity() {
         isAlarmRunning: Boolean,
         monitoringState: com.revakovskyi.vartovyi.model.MonitoringState,
         permissionsStatus: PermissionsStatus,
-        isRecommendedGranted: Boolean,
         onRefreshPermissions: () -> Unit,
         onStopAlarm: () -> Unit,
     ) {
@@ -269,7 +264,6 @@ class MainActivity : ComponentActivity() {
                     navController = navController,
                     startDestination = startDestination,
                     permissionsStatus = permissionsStatus,
-                    isRecommendedGranted = isRecommendedGranted,
                     onRefreshPermissions = onRefreshPermissions,
                     isLogInfoDialogVisible = showLogInfoDialog,
                     onDismissLogInfoDialog = { showLogInfoDialog = false },
