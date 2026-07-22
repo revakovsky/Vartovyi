@@ -56,7 +56,7 @@
     <string name="settings_reset_factory_completed">Настройки сброшены к заводским</string>
     <string name="settings_test_alarm_channel_name">Тестовая тревога</string>
     <string name="settings_test_alarm_message_text">Это тестовое уведомление тревоги.</string>
-    <string name="home_permissions_required_snackbar">Предоставьте необходимые разрешения перед включением мониторинга</string>
+    <string name="home_permissions_required_snackbar">Предоставьте необходимые разрешения для запуска мониторинга</string>
     <string name="home_permissions_required_snackbar_action">Разрешения</string>
     <string name="legal_consent_title">Перед началом</string>
     <string name="legal_consent_description">Чтобы продолжить, ознакомьтесь с Политикой конфиденциальности и Условиями использования. Нажимая «Подтвердить», вы подтверждаете, что прочитали и приняли эти документы.</string>

@@ -35,7 +35,6 @@ fun NavGraph(
     navController: NavHostController,
     startDestination: Any,
     permissionsStatus: PermissionsStatus,
-    isRecommendedGranted: Boolean,
     isLogInfoDialogVisible: Boolean,
     onRefreshPermissions: () -> Unit,
     onDismissLogInfoDialog: () -> Unit,
@@ -47,8 +46,6 @@ fun NavGraph(
     ) {
         composable<Routes.Onboarding> {
             OnboardingScreen(
-                permissionsStatus = permissionsStatus,
-                isRecommendedGranted = isRecommendedGranted,
                 onClose = {
                     val navigatedUp = navController.navigateUp()
                     if (!navigatedUp) {
@@ -57,7 +54,6 @@ fun NavGraph(
                         }
                     }
                 },
-                onOpenPermissions = { navController.navigate(Routes.Permissions) },
                 onOpenKeywords = { navController.navigate(Routes.Keywords) },
             )
         }
