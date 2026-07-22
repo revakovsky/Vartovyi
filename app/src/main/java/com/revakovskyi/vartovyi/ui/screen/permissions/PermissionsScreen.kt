@@ -10,14 +10,18 @@ import android.os.Build
 import android.provider.Settings
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
@@ -26,6 +30,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.sp
 import androidx.core.app.ActivityCompat
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
@@ -38,6 +43,7 @@ import com.revakovskyi.vartovyi.ui.screen.permissions.components.PermissionItemC
 import com.revakovskyi.vartovyi.ui.screen.permissions.components.PermissionsWarningCard
 import com.revakovskyi.vartovyi.ui.screen.permissions.utils.buildPermissionItems
 import com.revakovskyi.vartovyi.ui.theme.VartovyiTheme
+import com.revakovskyi.vartovyi.ui.theme.bodyLink
 import com.revakovskyi.vartovyi.utils.ObserveSingleEvents
 import org.koin.compose.viewmodel.koinActivityViewModel
 
@@ -50,6 +56,7 @@ fun PermissionsScreen(
     viewModel: PermissionsViewModel = koinActivityViewModel(),
     onNavigateBack: () -> Unit,
     onRefreshPermissions: () -> Unit,
+    onNavigateToTroubleshooting: () -> Unit,
 ) {
     val context = LocalContext.current
     val lifecycleOwner = LocalLifecycleOwner.current
@@ -95,6 +102,7 @@ fun PermissionsScreen(
     ObserveSingleEvents(flow = viewModel.events) { event ->
         when (event) {
             is PermissionsUiContract.Event.NavigateBack -> onNavigateBack()
+            is PermissionsUiContract.Event.OpenTroubleshooting -> onNavigateToTroubleshooting()
             is PermissionsUiContract.Event.LaunchPostNotificationsPermissionRequest -> {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
                     postNotificationsLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
@@ -138,10 +146,7 @@ private fun PermissionsContent(
     ) {
         LazyColumn(
             verticalArrangement = Arrangement.spacedBy(VartovyiTheme.spacing.small),
-            contentPadding = PaddingValues(
-                top = VartovyiTheme.spacing.medium,
-                bottom = VartovyiTheme.spacing.medium,
-            ),
+            contentPadding = PaddingValues(bottom = VartovyiTheme.spacing.medium),
             modifier = Modifier
                 .widthIn(max = VartovyiTheme.spacing.contentMaxWidth)
                 .fillMaxSize()
@@ -172,6 +177,35 @@ private fun PermissionsContent(
                     onSwitchToggle = permissionItem.onSwitchToggle,
                     modifier = Modifier.padding(horizontal = VartovyiTheme.spacing.standard)
                 )
+            }
+
+            item(contentType = "footer") {
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.spacedBy(VartovyiTheme.spacing.medium),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(VartovyiTheme.spacing.large)
+                ) {
+                    Text(
+                        text = stringResource(R.string.permissions_troubleshooting_question),
+                        style = VartovyiTheme.typography.bodyMedium,
+                        color = VartovyiTheme.colors.onSurfaceVariant,
+                    )
+
+                    Text(
+                        text = stringResource(R.string.permissions_troubleshooting_link),
+                        style = VartovyiTheme.typography.bodyLink.copy(
+                            fontSize = 14.sp,
+                            lineHeight = 24.sp,
+                            letterSpacing = 0.15.sp,
+                        ),
+                        color = VartovyiTheme.colors.primary,
+                        modifier = Modifier.clickable {
+                            onAction(PermissionsUiContract.Action.OpenTroubleshooting)
+                        }
+                    )
+                }
             }
         }
     }

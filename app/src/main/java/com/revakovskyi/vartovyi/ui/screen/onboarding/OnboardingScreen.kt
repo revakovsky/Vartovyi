@@ -30,7 +30,6 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.revakovskyi.vartovyi.R
 import com.revakovskyi.vartovyi.ui.components.VartovyiActionButton
 import com.revakovskyi.vartovyi.ui.components.VartovyiActionButtonStyle
-import com.revakovskyi.vartovyi.ui.screen.onboarding.components.OnboardingPageDeviceTips
 import com.revakovskyi.vartovyi.ui.screen.onboarding.components.OnboardingPageKeywords
 import com.revakovskyi.vartovyi.ui.screen.onboarding.components.OnboardingPageLaunch
 import com.revakovskyi.vartovyi.ui.screen.onboarding.components.OnboardingPageTelegram
@@ -107,7 +106,6 @@ private fun OnboardingContent(
                         )
                     }
 
-                    OnboardingPage.DEVICE_TIPS -> OnboardingPageDeviceTips()
                     OnboardingPage.LAUNCH -> OnboardingPageLaunch()
                     null -> OnboardingPageWelcome()
                 }
@@ -195,21 +193,10 @@ private fun OnboardingContentFirstPagePreview() {
 
 @Preview(showBackground = true)
 @Composable
-private fun OnboardingContentDeviceTipsPreview() {
-    VartovyiTheme {
-        OnboardingContent(
-            state = OnboardingUiContract.State(currentPage = 3),
-            onAction = {},
-        )
-    }
-}
-
-@Preview(showBackground = true)
-@Composable
 private fun OnboardingContentLastPagePreview() {
     VartovyiTheme {
         OnboardingContent(
-            state = OnboardingUiContract.State(currentPage = 4),
+            state = OnboardingUiContract.State(currentPage = 3),
             onAction = {},
         )
     }

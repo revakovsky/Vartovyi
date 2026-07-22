@@ -8,6 +8,8 @@
     <string name="emergency_stop_content_description">Остановить тревогу</string>
     <string name="permissions_title">Разрешения</string>
     <string name="permissions_back">Назад</string>
+    <string name="permissions_troubleshooting_question">Есть проблемы?</string>
+    <string name="permissions_troubleshooting_link">Устранение неполадок</string>
     <string name="monitoring_active">Мониторинг активен</string>
     <string name="monitoring_inactive">Мониторинг неактивен</string>
     <string name="home_alarm_retrigger_cooldown">Следующая тревога не раньше чем через %1$s</string>
@@ -37,6 +39,8 @@
     <string name="settings_section_data">Данные</string>
     <string name="settings_section_info">Инфо</string>
     <string name="settings_open_onboarding_guide">Открыть онбординг</string>
+    <string name="settings_open_troubleshooting">Устранение неполадок</string>
+    <string name="troubleshooting_back">Назад</string>
     <string name="settings_schedule_enabled_title">Работать по расписанию</string>
     <string name="settings_schedule_start_title">Начало</string>
     <string name="settings_schedule_end_title">Конец</string>
@@ -245,23 +249,21 @@
     <string name="onboarding_open_keywords">Открыть ключевые слова</string>
     <string name="onboarding_keywords_later_hint">Вы можете настроить сейчас или вернуться к этому позже</string>
 
-    <string name="onboarding_device_tips_title">Советы для устройства</string>
-    <string name="onboarding_device_tips_intro">ℹ️ Этот шаг необязательный — вернитесь к нему, если Vartovyi перестанет стабильно работать в фоне. Открыть позже можно через «Инфо» в Настройках</string>
-    <string name="onboarding_device_tips_lead">Некоторые производители добавляют собственные ограничения для фоновых процессов поверх стандартных разрешений Android. Нажмите на своё устройство ниже, чтобы увидеть шаги</string>
-    <string name="onboarding_device_tips_xiaomi_miui_title">Xiaomi · POCO · Redmi (MIUI)</string>
-    <string name="onboarding_device_tips_xiaomi_miui_body">• Автозапуск — Настройки → Приложения → Все приложения → Vartovyi → Разрешения → Автозапуск → включите Vartovyi (на MIUI 14 — «Автозапуск в фоновом режиме»)\n• Всплывающие окна — Настройки → Приложения → Все приложения → Vartovyi → Другие разрешения → Отображение всплывающих окон в фоновом режиме → включите Vartovyi</string>
-    <string name="onboarding_device_tips_xiaomi_hyperos_title">Xiaomi · POCO · Redmi (HyperOS)</string>
-    <string name="onboarding_device_tips_xiaomi_hyperos_body">• Автозапуск — Настройки → Приложения → Все приложения → Vartovyi → Автозапуск в фоновом режиме → включите Vartovyi\n• Всплывающие окна — Настройки → Приложения → Все приложения → Vartovyi → Другие разрешения → Отображение всплывающих окон в фоновом режиме → включите Vartovyi</string>
-    <string name="onboarding_device_tips_samsung_title">Samsung (One UI)</string>
-    <string name="onboarding_device_tips_samsung_body">• Настройки → Обслуживание устройства → Батарея → Ограничения в фоновом режиме → Никогда не спящие приложения → добавьте Vartovyi\n• На некоторых сборках верхний пункт называется «Обслуживание устройства и батарея»\n• На One UI 7 верхний пункт может называться просто «Батарея»: Настройки → Батарея → Ограничения в фоновом режиме → Никогда не спящие приложения\n• Если Vartovyi отсутствует в списке — это нормально. Это значит, что Samsung ещё не пометил его для перевода в сон. Приложение уже защищено, если отключена оптимизация батареи</string>
-    <string name="onboarding_device_tips_oppo_title">OPPO · OnePlus · Realme (ColorOS / OxygenOS / Realme UI)</string>
-    <string name="onboarding_device_tips_oppo_body">• Автозапуск — Настройки → Управление приложениями → Автозапуск → включите Vartovyi (на старых ColorOS: Диспетчер телефона → Менеджер запуска)\n• Батарея — Настройки → Батарея → Управление расходом заряда приложений → Vartovyi → разрешите фоновую активность (OnePlus: Оптимизация батареи → Vartovyi → Не оптимизировать)</string>
-    <string name="onboarding_device_tips_huawei_title">Huawei · Honor (EMUI / HarmonyOS)</string>
-    <string name="onboarding_device_tips_huawei_body">• Запуск приложений — Настройки → Батарея → Запуск приложений → Vartovyi → выключите «Управлять автоматически» → включите Автозапуск, Косвенный запуск, Работа в фоновом режиме\n• На EMUI 11+ это Настройки → Приложения → Запуск приложений; на Honor (MagicOS) — Оптимизатор → Запуск приложений</string>
-    <string name="onboarding_device_tips_vivo_title">Vivo (FuntouchOS / OriginOS)</string>
-    <string name="onboarding_device_tips_vivo_body">• Автозапуск — Настройки → Дополнительные настройки → Приложения → Автозапуск → включите Vartovyi\n• Батарея — Настройки → Аккумулятор → Высокое фоновое энергопотребление → включите Vartovyi</string>
-    <string name="onboarding_device_tips_other_title">Другие производители</string>
-    <string name="onboarding_device_tips_other_body">Если приложение работает в фоне некорректно — найдите в настройках пункт «автозапуск» или «фоновая активность» и разрешите работу для Vartovyi</string>
+    <string name="troubleshooting_lead">Некоторые производители добавляют собственные ограничения для фоновых процессов поверх стандартных разрешений Android. Нажмите на своё устройство ниже, чтобы увидеть шаги</string>
+    <string name="troubleshooting_xiaomi_miui_title">Xiaomi · POCO · Redmi (MIUI)</string>
+    <string name="troubleshooting_xiaomi_miui_body">• Автозапуск — Настройки → Приложения → Все приложения → Vartovyi → Разрешения → Автозапуск → включите Vartovyi (на MIUI 14 — «Автозапуск в фоновом режиме»)\n• Всплывающие окна — Настройки → Приложения → Все приложения → Vartovyi → Другие разрешения → Отображение всплывающих окон в фоновом режиме → включите Vartovyi</string>
+    <string name="troubleshooting_xiaomi_hyperos_title">Xiaomi · POCO · Redmi (HyperOS)</string>
+    <string name="troubleshooting_xiaomi_hyperos_body">• Автозапуск — Настройки → Приложения → Все приложения → Vartovyi → Автозапуск в фоновом режиме → включите Vartovyi\n• Всплывающие окна — Настройки → Приложения → Все приложения → Vartovyi → Другие разрешения → Отображение всплывающих окон в фоновом режиме → включите Vartovyi</string>
+    <string name="troubleshooting_samsung_title">Samsung (One UI)</string>
+    <string name="troubleshooting_samsung_body">• Настройки → Обслуживание устройства → Батарея → Ограничения в фоновом режиме → Никогда не спящие приложения → добавьте Vartovyi\n• На некоторых сборках верхний пункт называется «Обслуживание устройства и батарея»\n• На One UI 7 верхний пункт может называться просто «Батарея»: Настройки → Батарея → Ограничения в фоновом режиме → Никогда не спящие приложения\n• Если Vartovyi отсутствует в списке — это нормально. Это значит, что Samsung ещё не пометил его для перевода в сон. Приложение уже защищено, если отключена оптимизация батареи</string>
+    <string name="troubleshooting_oppo_title">OPPO · OnePlus · Realme (ColorOS / OxygenOS / Realme UI)</string>
+    <string name="troubleshooting_oppo_body">• Автозапуск — Настройки → Управление приложениями → Автозапуск → включите Vartovyi (на старых ColorOS: Диспетчер телефона → Менеджер запуска)\n• Батарея — Настройки → Батарея → Управление расходом заряда приложений → Vartovyi → разрешите фоновую активность (OnePlus: Оптимизация батареи → Vartovyi → Не оптимизировать)</string>
+    <string name="troubleshooting_huawei_title">Huawei · Honor (EMUI / HarmonyOS)</string>
+    <string name="troubleshooting_huawei_body">• Запуск приложений — Настройки → Батарея → Запуск приложений → Vartovyi → выключите «Управлять автоматически» → включите Автозапуск, Косвенный запуск, Работа в фоновом режиме\n• На EMUI 11+ это Настройки → Приложения → Запуск приложений; на Honor (MagicOS) — Оптимизатор → Запуск приложений</string>
+    <string name="troubleshooting_vivo_title">Vivo (FuntouchOS / OriginOS)</string>
+    <string name="troubleshooting_vivo_body">• Автозапуск — Настройки → Дополнительные настройки → Приложения → Автозапуск → включите Vartovyi\n• Батарея — Настройки → Аккумулятор → Высокое фоновое энергопотребление → включите Vartovyi</string>
+    <string name="troubleshooting_other_title">Другие производители</string>
+    <string name="troubleshooting_other_body">Если приложение работает в фоне некорректно — найдите в настройках пункт «автозапуск» или «фоновая активность» и разрешите работу для Vartovyi</string>
     <string name="onboarding_launch_title">Запустите и проверьте</string>
     <string name="onboarding_launch_body">Нажмите «Активировать» на главном экране — щит загорится, и Vartovyi начнёт отслеживать Telegram-уведомления в фоне.\n\nСразу проверьте, что всё работает:\n• Попросите кого-нибудь отправить вам в Telegram сообщение с вашим ключевым словом (личное или в общую группу).\n• Убедитесь, что уведомления для этого чата не отключены — иначе Vartovyi его не увидит.\n• Если вы включили фильтр каналов — сообщение должно прийти именно из выбранного канала.\n\nНе сработало? Откройте экран Журнал — там видно, пришло ли событие и что пошло не так.\n\nВсё готово. Берегите себя. 🛡\n\nОткрыть это руководство снова можно в разделе «Инфо» на экране Настроек.</string>
 </resources>

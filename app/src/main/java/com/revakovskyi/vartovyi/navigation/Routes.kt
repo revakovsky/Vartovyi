@@ -24,4 +24,7 @@ sealed interface Routes {
     @Serializable
     data object Permissions : Routes
 
+    @Serializable
+    data object Troubleshooting : Routes
+
 }
