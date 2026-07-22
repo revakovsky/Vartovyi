@@ -15,7 +15,6 @@
     <string name="home_alarm_retrigger_cooldown">Наступна тривога не раніше ніж за %1$s</string>
     <string name="monitoring_activate">Активувати</string>
     <string name="monitoring_deactivate">Вимкнути</string>
-    <string name="home_keywords_title">Ключові слова</string>
     <string name="home_add_keywords_hint">Ключові слова ще не додані</string>
     <string name="home_add">Додати</string>
     <string name="home_and_more">+%d ще…</string>
@@ -83,7 +82,7 @@
     <string name="alarm_dismiss">Закрити</string>
     <string name="alarm_title">Тривога</string>
     <string name="keywords_trigger_words">Тригер-слова</string>
-    <string name="keywords_trigger_tooltip">🟢 Режим «Слово»:\n- шукає окреме слово у точній формі;\n- «ракета» спрацює на «летить ракета», але не на «ракети» чи «ракету»;\n- «нд» спрацює на «тривога на НД», але не на «фундамент».\n\n🟢 Режим «Усі слова»:\n- всі введені слова мають бути присутні (порядок не важливий);\n- кожне слово шукається точно — «ракета» не спрацює на «ракети» чи «ракетою»;\n- слова розділяй пробілом, комою, дефісом або +;\n- «ракета + харків» спрацює на «ракета летить у Харків», але не на «ракети над Харковом» і не на «ракета летить у Київ».\n\n🟢 Режим «Фраза»:\n- шукає конкретну послідовність слів;\n- лапки додавати не потрібно;\n- «ракета на харків» спрацює лише коли в тексті є саме ця фраза.\n\n☝️ Регістр не враховується у всіх режимах (великі/малі літери не впливають на збіг).\n\n💡 Порада:\n- для точності використовуй «Усі слова» або «Фразу»;\n- для загальних спрацювань використовуй «Слово»;\n- у режимі «Слово» можна ввести кілька слів — застосунок автоматично переключиться на «Усі слова» (2–6 слів) або «Фразу» (7+ слів);\n- щоб одразу ввести фразу — оберніть текст у лапки: «ракета на місто»;\n- після першого сповіщення відкрийте екран Журнал і скопіюйте потрібні слова прямо звідти.</string>
+    <string name="keywords_trigger_tooltip">🟢 Режим «Слово»:\n- шукає окреме слово у точній формі;\n- «ракета» спрацює на «летить ракета», але не на «ракети» чи «ракету»;\n- «нд» спрацює на «тривога на НД», але не на «фундамент».\n\n🟢 Режим «Усі слова»:\n- всі введені слова мають бути присутні (порядок не важливий);\n- кожне слово шукається точно — «ракета» не спрацює на «ракети» чи «ракетою»;\n- слова розділяй пробілом, комою, дефісом або +;\n- «ракета + харків» спрацює на «ракета летить у Харків», але не на «ракети над Харковом» і не на «ракета летить у Київ».\n\n🟢 Режим «Фраза»:\n- шукає конкретну послідовність слів;\n- лапки додавати не потрібно;\n- «ракета на харків» спрацює лише коли в тексті є саме ця фраза.\n\n☝️ Регістр не враховується у всіх режимах (великі/малі літери не впливають на збіг).\n\n💡 Порада:\n- для точності використовуй «Усі слова» або «Фразу»;\n- для загальних спрацювань використовуй «Слово»;\n- у режимі «Слово» можна ввести кілька слів — застосунок автоматично переключиться на «Усі слова» (2–6 слів) або «Фразу» (7+ слів);\n- щоб одразу ввести фразу — оберніть текст у лапки: «ракета на місто»;\n- якщо ваш канал пише російською — додайте також російські варіанти слів («Київ» і «Киев»);\n- після першого сповіщення відкрийте екран Журнал і скопіюйте потрібні слова прямо звідти.</string>
     <string name="keywords_trigger_hint_word">Наприклад: ракета</string>
     <string name="keywords_trigger_hint_all_words">Наприклад: ракета + харків</string>
     <string name="keywords_trigger_hint_phrase">Наприклад: ракета на харків</string>
@@ -218,36 +217,20 @@
     <string name="onboarding_next">Далі</string>
     <string name="onboarding_complete">Готово</string>
     <string name="onboarding_skip">Пропустити</string>
-    <string name="onboarding_open_permissions">Відкрити дозволи</string>
+    <string name="onboarding_skip_hint">Онбординг завжди доступний у Налаштуваннях → Інфо</string>
 
     <string name="onboarding_welcome_title">Vartovyi</string>
-    <string name="onboarding_welcome_body">Налаштуйте один раз — Вартовий слухає. Розпізнає. Сповіщає.\n\nVartovyi працює разом із Telegram — у фоні зчитує сповіщення від Telegram-каналів, шукає ваші тригер-слова і сповіщає вас про збіги.\n\nЯк тільки знайдено збіг — додаток миттєво вмикає гучну сирену, навіть якщо телефон на беззвучному режимі</string>
-    <string name="onboarding_welcome_privacy_note">🔒 Усі ваші дані зберігаються лише на вашому пристрої. Нічого не надсилається на жодний сервер чи сторонні сервіси — ваша конфіденційність повністю захищена</string>
+    <string name="onboarding_welcome_tagline">Налаштуйте один раз — Вартовий слухає. Розпізнає. Сповіщає.</string>
+    <string name="onboarding_welcome_explanation">Вартовий працює разом із Telegram. Після налаштування додатку та увімкнення моніторингу він у фоні зчитує сповіщення від Telegram-каналів і шукає збіги з вашими тригер-словами.</string>
+    <string name="onboarding_welcome_siren">Як тільки знайдено збіг — додаток миттєво вмикає гучну сирену, навіть якщо телефон на беззвучному режимі.</string>
+    <string name="onboarding_welcome_keywords_hint">На екрані «Тригери» вже є приклад того, як правильно вводити тригер-слова — просто замініть їх на свої</string>
+    <string name="onboarding_welcome_privacy_note">🔒 Усі ваші дані зберігаються лише на вашому пристрої. Нічого не надсилається на жодний сервер чи сторонні сервіси — ваша конфіденційність повністю захищена!</string>
 
     <string name="onboarding_telegram_title">Налаштуйте Telegram</string>
     <string name="onboarding_telegram_body_1">Якщо Telegram ще не встановлений — завантажте його з Google Play або будь-якого іншого магазину додатків. Підтримуються офіційний Telegram, Telegram X та NekoX.\n\nЗнайдіть у додатку Telegram канал, який сповіщає про повітряну небезпеку для всієї України або конкретно вашого регіону чи міста.\n⚠️ ОБОВʼЯЗКОВО підпишіться на такий канал! Саме звідти Vartovyi отримуватиме сповіщення для перевірки</string>
     <string name="onboarding_telegram_body_2">⚠️ ОБОВʼЯЗКОВО увімкніть сповіщення для каналу — без них Vartovyi не отримуватиме повідомлень!\n\nНалаштування каналу → «Сповіщати» → «Зі звуком» або «Без звуку». Рекомендуємо без звуку — сирену подасть Vartovyi</string>
 
-    <string name="onboarding_permissions_title">Надайте дозволи</string>
-    <string name="onboarding_permissions_mandatory_header">Обов\'язкові</string>
-    <string name="onboarding_permissions_recommended_header">Рекомендовані</string>
-    <string name="onboarding_permissions_footer">Детальний опис кожного дозволу є на екрані Дозволи в додатку</string>
-    <string name="onboarding_permissions_mandatory_granted">Усі обов\'язкові дозволи надані</string>
-    <string name="onboarding_permissions_recommended_granted">Усі рекомендовані дозволи надані</string>
-    <string name="onboarding_permissions_all_granted">Усі дозволи надані</string>
 
-    <string name="keywords_back">Назад</string>
-    <string name="onboarding_keywords_title">Ключові слова</string>
-    <string name="onboarding_keywords_intro">Ключові слова — головне налаштування. Саме вони визначають, коли спрацює сирена.</string>
-    <string name="onboarding_keywords_trigger_words_header">Тригер-слова</string>
-    <string name="onboarding_keywords_trigger_words_body">Повідомлення з цими словами запустить сирену. Доступно три режими: Слово, Всі слова, Фраза.</string>
-    <string name="onboarding_keywords_stop_words_header">Стоп-слова</string>
-    <string name="onboarding_keywords_stop_words_body">Якщо слово є у повідомленні, тривога не спрацює.</string>
-    <string name="onboarding_keywords_channel_filter_header">Фільтр каналів</string>
-    <string name="onboarding_keywords_channel_filter_body">Необов\'язково. Обмежує моніторинг лише обраними каналами Telegram.</string>
-    <string name="onboarding_keywords_notes">☝️ Якщо ваш канал пише російською — додайте також російські варіанти тригер-слів («Київ» і «Киев»).\n\n💡 Після увімкнення моніторингу сповіщень від Telegram відкрийте екран Журнал і скопіюйте потрібні слова прямо звідти</string>
-    <string name="onboarding_open_keywords">Відкрити ключові слова</string>
-    <string name="onboarding_keywords_later_hint">Ви можете налаштувати зараз або повернутися до цього пізніше</string>
 
     <string name="troubleshooting_lead">Деякі виробники додають власні обмеження для фонових процесів поверх стандартних дозволів Android. Натисніть на свій пристрій нижче, щоб побачити кроки</string>
     <string name="troubleshooting_xiaomi_miui_title">Xiaomi · POCO · Redmi (MIUI)</string>
@@ -264,6 +247,4 @@
     <string name="troubleshooting_vivo_body">• Автозапуск — Налаштування → Додаткові налаштування → Програми → Автозапуск → увімкніть Vartovyi\n• Батарея — Налаштування → Акумулятор → Високе фонове енергоспоживання → увімкніть Vartovyi</string>
     <string name="troubleshooting_other_title">Інші виробники</string>
     <string name="troubleshooting_other_body">Якщо додаток працює у фоні некоректно — знайдіть у налаштуваннях пункт «автозапуск» або «фонова активність» і дозвольте роботу для Vartovyi</string>
-    <string name="onboarding_launch_title">Запустіть та перевірте</string>
-    <string name="onboarding_launch_body">Натисніть «Активувати» на головному екрані — щит засвітиться, і Vartovyi почне відстежувати Telegram-сповіщення у фоні.\n\nОдразу перевірте, що все працює:\n• Попросіть когось надіслати вам у Telegram повідомлення з вашим ключовим словом (особисте або у спільну групу).\n• Переконайтесь, що сповіщення для цього чату не вимкнені — інакше Vartovyi його не побачить.\n• Якщо ви увімкнули фільтр каналів — повідомлення має надійти саме з обраного каналу.\n\nНе спрацювало? Відкрийте екран Журнал — там видно, чи надійшла подія і що пішло не так.\n\nВсе готово. Бережіть себе. 🛡\n\nВідкрити цей гайд знову можна в розділі «Інфо» на екрані Налаштувань.</string>
 </resources>

@@ -15,7 +15,6 @@
     <string name="home_alarm_retrigger_cooldown">Next alarm not earlier than in %1$s</string>
     <string name="monitoring_activate">Activate</string>
     <string name="monitoring_deactivate">Deactivate</string>
-    <string name="home_keywords_title">Keywords</string>
     <string name="home_add_keywords_hint">No keywords added yet</string>
     <string name="home_add">Add</string>
     <string name="home_and_more" tools:ignore="PluralsCandidate">+%d more…</string>
@@ -84,7 +83,7 @@
     <string name="alarm_dismiss">Dismiss</string>
     <string name="alarm_title">Alarm</string>
     <string name="keywords_trigger_words">Trigger words</string>
-    <string name="keywords_trigger_tooltip">🟢 Mode \"Word\":\n- searches for a standalone word in its exact form;\n- \"rocket\" matches \"a rocket is flying\", but not \"rockets\" or \"rocketry\";\n- \"nd\" matches \"alert in nd\", but not \"fundament\".\n\n🟢 Mode \"All words\":\n- all entered words must be present (order does not matter);\n- each word is matched exactly — \"rocket\" will not match \"rockets\" or \"rocketry\";\n- separate with space, comma, dash, or +;\n- \"rocket + kharkiv\" matches \"rocket flying to Kharkiv\", but not \"rockets over Kharkiv\" and not \"rocket flying to Kyiv\".\n\n🟢 Mode \"Phrase\":\n- searches for an exact sequence of words;\n- do not use quotation marks;\n- \"rocket to kharkiv\" matches only when this exact phrase is present.\n\n☝️ Letter case is ignored in all modes (uppercase/lowercase does not affect matching).\n\n💡 Tip:\n- use \"All words\" or \"Phrase\" for precise alerts;\n- use \"Word\" for broader alerts;\n- in \"Word\" mode, typing multiple words will automatically switch to \"All words\" (2–6 words) or \"Phrase\" (7+ words);\n- to enter a phrase directly — wrap the text in quotes: \"rocket to the city\";\n- after your first alert, open the Logs screen and copy the words you need directly from there.</string>
+    <string name="keywords_trigger_tooltip">🟢 Mode \"Word\":\n- searches for a standalone word in its exact form;\n- \"rocket\" matches \"a rocket is flying\", but not \"rockets\" or \"rocketry\";\n- \"nd\" matches \"alert in nd\", but not \"fundament\".\n\n🟢 Mode \"All words\":\n- all entered words must be present (order does not matter);\n- each word is matched exactly — \"rocket\" will not match \"rockets\" or \"rocketry\";\n- separate with space, comma, dash, or +;\n- \"rocket + kharkiv\" matches \"rocket flying to Kharkiv\", but not \"rockets over Kharkiv\" and not \"rocket flying to Kyiv\".\n\n🟢 Mode \"Phrase\":\n- searches for an exact sequence of words;\n- do not use quotation marks;\n- \"rocket to kharkiv\" matches only when this exact phrase is present.\n\n☝️ Letter case is ignored in all modes (uppercase/lowercase does not affect matching).\n\n💡 Tip:\n- use \"All words\" or \"Phrase\" for precise alerts;\n- use \"Word\" for broader alerts;\n- in \"Word\" mode, typing multiple words will automatically switch to \"All words\" (2–6 words) or \"Phrase\" (7+ words);\n- to enter a phrase directly — wrap the text in quotes: \"rocket to the city\";\n- if your channel posts in Russian — add Russian variants of the words too («Київ» and «Киев»);\n- after your first alert, open the Logs screen and copy the words you need directly from there.</string>
     <string name="keywords_trigger_hint_word">e.g. rocket</string>
     <string name="keywords_trigger_hint_all_words">e.g. rocket + kharkiv</string>
     <string name="keywords_trigger_hint_phrase">e.g. rocket to kharkiv</string>
@@ -211,36 +210,20 @@
     <string name="onboarding_next">Next</string>
     <string name="onboarding_complete">Done</string>
     <string name="onboarding_skip">Skip</string>
-    <string name="onboarding_open_permissions">Open permissions</string>
+    <string name="onboarding_skip_hint">The onboarding guide is always available in Settings → Info</string>
 
     <string name="onboarding_welcome_title">Vartovyi</string>
-    <string name="onboarding_welcome_body">Set up once — Vartovyi listens. Detects. Alerts.\n\nVartovyi works together with Telegram — in the background it reads notifications from Telegram channels, searches for your trigger words and alerts you about matches.\n\nThe moment a match is found — the app immediately triggers a loud siren, even if your phone is on silent</string>
-    <string name="onboarding_welcome_privacy_note">🔒 All your data is stored only on your device. Nothing is sent to any servers or third-party services — your privacy is fully protected</string>
+    <string name="onboarding_welcome_tagline">Set up once — Vartovyi listens. Detects. Alerts.</string>
+    <string name="onboarding_welcome_explanation">Vartovyi works together with Telegram. Once you finish setup and turn on monitoring, it reads Telegram channel notifications in the background and looks for matches with your trigger words.</string>
+    <string name="onboarding_welcome_siren">The moment a match is found — the app immediately triggers a loud siren, even if your phone is on silent.</string>
+    <string name="onboarding_welcome_keywords_hint">The «Keywords» screen already has an example of how to enter trigger words correctly — just replace them with your own</string>
+    <string name="onboarding_welcome_privacy_note">🔒 All your data is stored only on your device. Nothing is sent to any servers or third-party services — your privacy is fully protected!</string>
 
     <string name="onboarding_telegram_title">Set up Telegram</string>
     <string name="onboarding_telegram_body_1">If Telegram is not installed yet — download it from Google Play or any other app store. Supported clients: official Telegram, Telegram X and NekoX.\n\nFind a channel in the Telegram app that reports air raid alerts for all of Ukraine or specifically your region or city.\n⚠️ MAKE SURE to subscribe to that channel! This is where Vartovyi will receive notifications to monitor</string>
     <string name="onboarding_telegram_body_2">⚠️ MAKE SURE to enable notifications for the channel — without them Vartovyi will not receive any messages!\n\nChannel settings → «Notify» → «With sound» or «Without sound». We recommend without sound — Vartovyi will sound the siren</string>
 
-    <string name="onboarding_permissions_title">Grant permissions</string>
-    <string name="onboarding_permissions_mandatory_header">Required</string>
-    <string name="onboarding_permissions_recommended_header">Recommended</string>
-    <string name="onboarding_permissions_footer">A detailed description of each permission is available on the Permissions screen inside the app</string>
-    <string name="onboarding_permissions_mandatory_granted">All required permissions granted</string>
-    <string name="onboarding_permissions_recommended_granted">All recommended permissions granted</string>
-    <string name="onboarding_permissions_all_granted">All permissions granted</string>
 
-    <string name="keywords_back">Back</string>
-    <string name="onboarding_keywords_title">Keywords</string>
-    <string name="onboarding_keywords_intro">Keywords are the core setting — they determine when the siren triggers.</string>
-    <string name="onboarding_keywords_trigger_words_header">Trigger words</string>
-    <string name="onboarding_keywords_trigger_words_body">A message containing these words will trigger the siren. Three modes: Word, All Words, Phrase.</string>
-    <string name="onboarding_keywords_stop_words_header">Stop words</string>
-    <string name="onboarding_keywords_stop_words_body">If a word is found in a message, the alarm won\'t fire.</string>
-    <string name="onboarding_keywords_channel_filter_header">Channel filter</string>
-    <string name="onboarding_keywords_channel_filter_body">Optional. Restricts monitoring to selected Telegram channels only.</string>
-    <string name="onboarding_keywords_notes">☝️ If your channel posts in Russian — add Russian variants of your trigger words too (e.g. «Київ» and «Киев»).\n\n💡 After enabling Telegram notification monitoring, open the Logs screen and copy the words you need directly from there</string>
-    <string name="onboarding_open_keywords">Open keywords</string>
-    <string name="onboarding_keywords_later_hint">You can set it up now or come back to it later</string>
 
     <string name="troubleshooting_lead">Some manufacturers add extra background restrictions on top of standard Android permissions. Tap your device below to see the steps</string>
     <string name="troubleshooting_xiaomi_miui_title">Xiaomi · POCO · Redmi (MIUI)</string>
@@ -257,6 +240,4 @@
     <string name="troubleshooting_vivo_body">• Autostart — Settings → More settings → Applications → Autostart → enable Vartovyi\n• Battery — Settings → Battery → High background power consumption → enable Vartovyi</string>
     <string name="troubleshooting_other_title">Other brands</string>
     <string name="troubleshooting_other_body">If the app is not working correctly in the background — search for «autostart» or «background activity» in your device Settings and allow Vartovyi</string>
-    <string name="onboarding_launch_title">Launch and test</string>
-    <string name="onboarding_launch_body">Tap Activate on the home screen — the shield will light up and Vartovyi will start monitoring Telegram notifications in the background.\n\nCheck right away that everything works:\n• Ask someone to send you a Telegram message containing your keyword (a direct message or one in a shared group).\n• Make sure notifications for that chat aren\'t muted — otherwise Vartovyi won\'t see it.\n• If you enabled the channel filter — the message must come from one of the selected channels.\n\nDidn\'t fire? Open the Logs screen — it shows whether an event arrived and what went wrong.\n\nAll set. Stay safe. 🛡\n\nYou can reopen this guide later in the Info section of the Settings screen.</string>
 </resources>

@@ -35,7 +35,6 @@ class OnboardingViewModel(
             is OnboardingUiContract.Action.PageChanged -> onPageChanged(action.pageIndex)
             is OnboardingUiContract.Action.Complete -> complete()
             is OnboardingUiContract.Action.Skip -> skip()
-            is OnboardingUiContract.Action.OpenKeywords -> openKeywords()
         }
     }
 
@@ -46,7 +45,6 @@ class OnboardingViewModel(
                     it.copy(
                         isLoading = false,
                         isCompleted = isCompleted,
-                        canSkip = isCompleted,
                     )
                 }
             }
@@ -81,13 +79,10 @@ class OnboardingViewModel(
 
     private fun skip() {
         viewModelScope.launch {
+            if (!_state.value.isCompleted) {
+                _events.send(OnboardingUiContract.Event.ShowSkipHint)
+            }
             _events.send(OnboardingUiContract.Event.Close)
-        }
-    }
-
-    private fun openKeywords() {
-        viewModelScope.launch {
-            _events.send(OnboardingUiContract.Event.OpenKeywords)
         }
     }
 

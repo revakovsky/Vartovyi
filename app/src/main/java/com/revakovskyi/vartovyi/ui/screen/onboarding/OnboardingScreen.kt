@@ -30,12 +30,12 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.revakovskyi.vartovyi.R
 import com.revakovskyi.vartovyi.ui.components.VartovyiActionButton
 import com.revakovskyi.vartovyi.ui.components.VartovyiActionButtonStyle
-import com.revakovskyi.vartovyi.ui.screen.onboarding.components.OnboardingPageKeywords
-import com.revakovskyi.vartovyi.ui.screen.onboarding.components.OnboardingPageLaunch
 import com.revakovskyi.vartovyi.ui.screen.onboarding.components.OnboardingPageTelegram
 import com.revakovskyi.vartovyi.ui.screen.onboarding.components.OnboardingPageWelcome
 import com.revakovskyi.vartovyi.ui.screen.onboarding.components.OnboardingProgressDots
 import com.revakovskyi.vartovyi.ui.theme.VartovyiTheme
+import com.revakovskyi.vartovyi.ui.util.snackbar.SnackbarController
+import com.revakovskyi.vartovyi.ui.util.snackbar.SnackbarEvent
 import com.revakovskyi.vartovyi.utils.ObserveSingleEvents
 import org.koin.compose.viewmodel.koinViewModel
 
@@ -43,14 +43,17 @@ import org.koin.compose.viewmodel.koinViewModel
 fun OnboardingScreen(
     viewModel: OnboardingViewModel = koinViewModel(),
     onClose: () -> Unit,
-    onOpenKeywords: () -> Unit,
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
+
+    val skipHintMessage = stringResource(R.string.onboarding_skip_hint)
 
     ObserveSingleEvents(flow = viewModel.events) { event ->
         when (event) {
             is OnboardingUiContract.Event.Close -> onClose()
-            is OnboardingUiContract.Event.OpenKeywords -> onOpenKeywords()
+            is OnboardingUiContract.Event.ShowSkipHint -> {
+                SnackbarController.sendEvent(SnackbarEvent(message = skipHintMessage))
+            }
         }
     }
 
@@ -99,14 +102,6 @@ private fun OnboardingContent(
                 when (OnboardingPage.entries.getOrNull(page)) {
                     OnboardingPage.WELCOME -> OnboardingPageWelcome()
                     OnboardingPage.TELEGRAM -> OnboardingPageTelegram()
-
-                    OnboardingPage.KEYWORDS -> {
-                        OnboardingPageKeywords(
-                            onOpenKeywords = { onAction(OnboardingUiContract.Action.OpenKeywords) }
-                        )
-                    }
-
-                    OnboardingPage.LAUNCH -> OnboardingPageLaunch()
                     null -> OnboardingPageWelcome()
                 }
             }
@@ -155,21 +150,19 @@ private fun OnboardingContent(
                 }
             }
 
-            if (state.canSkip) {
-                Text(
-                    text = stringResource(R.string.onboarding_skip),
-                    style = VartovyiTheme.typography.bodyMedium,
-                    color = VartovyiTheme.colors.onSurfaceVariant,
-                    modifier = Modifier
-                        .align(Alignment.CenterHorizontally)
-                        .padding(top = VartovyiTheme.spacing.standard)
-                        .clickable(
-                            indication = null,
-                            interactionSource = remember { MutableInteractionSource() },
-                            onClick = { onAction(OnboardingUiContract.Action.Skip) }
-                        ),
-                )
-            }
+            Text(
+                text = stringResource(R.string.onboarding_skip),
+                style = VartovyiTheme.typography.bodyMedium,
+                color = VartovyiTheme.colors.onSurfaceVariant,
+                modifier = Modifier
+                    .align(Alignment.CenterHorizontally)
+                    .padding(top = VartovyiTheme.spacing.standard)
+                    .clickable(
+                        indication = null,
+                        interactionSource = remember { MutableInteractionSource() },
+                        onClick = { onAction(OnboardingUiContract.Action.Skip) }
+                    ),
+            )
 
             Spacer(
                 modifier = Modifier
@@ -196,7 +189,7 @@ private fun OnboardingContentFirstPagePreview() {
 private fun OnboardingContentLastPagePreview() {
     VartovyiTheme {
         OnboardingContent(
-            state = OnboardingUiContract.State(currentPage = 3),
+            state = OnboardingUiContract.State(currentPage = 1),
             onAction = {},
         )
     }
