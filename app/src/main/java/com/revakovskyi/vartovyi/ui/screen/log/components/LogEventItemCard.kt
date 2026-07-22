@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.text.selection.SelectionContainer
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Surface
@@ -70,11 +71,13 @@ fun LogEventItemCard(
                         color = VartovyiTheme.colors.onSurfaceVariant,
                     )
 
-                    Text(
-                        text = event.senderName,
-                        style = VartovyiTheme.typography.bodySmall,
-                        color = VartovyiTheme.colors.onSurface,
-                    )
+                    SelectionContainer {
+                        Text(
+                            text = event.senderName,
+                            style = VartovyiTheme.typography.bodySmall,
+                            color = VartovyiTheme.colors.onSurface,
+                        )
+                    }
                 }
 
                 IconButton(
@@ -95,13 +98,14 @@ fun LogEventItemCard(
                 verticalAlignment = Alignment.CenterVertically,
                 modifier = Modifier.fillMaxWidth(),
             ) {
-                Text(
-                    text = event.messageText,
-                    style = VartovyiTheme.typography.bodyMedium,
-                    color = VartovyiTheme.colors.onSurface,
-                    maxLines = MESSAGE_MAX_LINES,
-                    modifier = Modifier.weight(1f),
-                )
+                SelectionContainer(modifier = Modifier.weight(1f)) {
+                    Text(
+                        text = event.messageText,
+                        style = VartovyiTheme.typography.bodyMedium,
+                        color = VartovyiTheme.colors.onSurface,
+                        maxLines = MESSAGE_MAX_LINES,
+                    )
+                }
 
                 IconButton(
                     onClick = { onCopyMessageClick(event.messageText) },
