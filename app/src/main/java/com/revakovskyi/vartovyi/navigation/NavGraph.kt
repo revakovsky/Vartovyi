@@ -1,9 +1,7 @@
 package com.revakovskyi.vartovyi.navigation
 
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
-import androidx.navigation.NavDestination.Companion.hasRoute
 import androidx.navigation.NavHostController
 import androidx.navigation.NavOptions
 import androidx.navigation.compose.NavHost
@@ -55,7 +53,6 @@ fun NavGraph(
                         }
                     }
                 },
-                onOpenKeywords = { navController.navigate(Routes.Keywords) },
             )
         }
 
@@ -79,19 +76,7 @@ fun NavGraph(
         }
 
         composable<Routes.Keywords> {
-            val isFromOnboarding = remember {
-                navController.previousBackStackEntry
-                    ?.destination
-                    ?.hasRoute(Routes.Onboarding::class) == true
-            }
-
-            KeywordsScreen(
-                onNavigateBack = if (isFromOnboarding) {
-                    { navController.navigateUp() }
-                } else {
-                    null
-                },
-            )
+            KeywordsScreen()
         }
 
         composable<Routes.Log> { backStackEntry ->

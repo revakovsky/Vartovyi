@@ -147,7 +147,6 @@ class MainActivity : ComponentActivity() {
         val navController = rememberNavController()
         val currentBackStackEntry by navController.currentBackStackEntryAsState()
         val currentDestination = currentBackStackEntry?.destination
-        val previousDestination = navController.previousBackStackEntry?.destination
 
         val snackbarHostState = remember { SnackbarHostState() }
 
@@ -170,19 +169,13 @@ class MainActivity : ComponentActivity() {
             }
         }
 
-        val isKeywordsFromOnboarding =
-            currentDestination?.hasRoute(Routes.Keywords::class) == true &&
-                    previousDestination?.hasRoute(Routes.Onboarding::class) == true
-
         val isOnboarding = currentDestination?.hasRoute(Routes.Onboarding::class) == true
 
         val selectedNavItem: BottomNavItem? = when {
             currentDestination?.hasRoute(Routes.Home::class) == true -> BottomNavItem.Home
             currentDestination?.hasRoute(Routes.Log::class) == true -> BottomNavItem.Logs
             currentDestination?.hasRoute(Routes.Settings::class) == true -> BottomNavItem.Settings
-            currentDestination?.hasRoute(Routes.Keywords::class) == true &&
-                    !isKeywordsFromOnboarding -> BottomNavItem.Keywords
-
+            currentDestination?.hasRoute(Routes.Keywords::class) == true -> BottomNavItem.Keywords
             else -> null
         }
 

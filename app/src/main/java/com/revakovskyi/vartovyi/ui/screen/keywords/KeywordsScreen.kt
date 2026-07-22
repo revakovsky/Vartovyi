@@ -47,7 +47,6 @@ import com.revakovskyi.vartovyi.model.TriggerKeywordRuleType
 import com.revakovskyi.vartovyi.ui.components.DialogChoice
 import com.revakovskyi.vartovyi.ui.components.DialogChoiceRole
 import com.revakovskyi.vartovyi.ui.components.LoadingOverlay
-import com.revakovskyi.vartovyi.ui.components.VartovyiBackTopBar
 import com.revakovskyi.vartovyi.ui.components.VartovyiChoiceDialog
 import com.revakovskyi.vartovyi.ui.components.VartovyiDialog
 import com.revakovskyi.vartovyi.ui.screen.keywords.components.KeywordsBackupRow
@@ -76,7 +75,6 @@ private const val KEYWORDS_CHIP_CLIP_LABEL = "keywords_chip"
 @Composable
 fun KeywordsScreen(
     viewModel: KeywordsViewModel = koinViewModel(),
-    onNavigateBack: (() -> Unit)? = null,
 ) {
     val clipboardManager = LocalClipboard.current
     val hapticFeedback = LocalHapticFeedback.current
@@ -261,7 +259,6 @@ fun KeywordsScreen(
             KeywordsContent(
                 state = state,
                 onAction = viewModel::onAction,
-                onNavigateBack = onNavigateBack,
             )
         }
     }
@@ -397,7 +394,6 @@ private fun KeywordsContent(
     modifier: Modifier = Modifier,
     state: KeywordsUiContract.State,
     onAction: (action: KeywordsUiContract.Action) -> Unit,
-    onNavigateBack: (() -> Unit)? = null,
 ) {
     val focusManager = LocalFocusManager.current
     val density = LocalDensity.current
@@ -443,14 +439,6 @@ private fun KeywordsContent(
     }
 
     Column(modifier = modifier.fillMaxSize()) {
-        if (onNavigateBack != null) {
-            VartovyiBackTopBar(
-                title = stringResource(R.string.onboarding_keywords_title),
-                backContentDescription = stringResource(R.string.keywords_back),
-                onNavigateBack = onNavigateBack,
-            )
-        }
-
         Box(
             contentAlignment = Alignment.TopCenter,
             modifier = Modifier.weight(1f),
@@ -463,16 +451,7 @@ private fun KeywordsContent(
                     .fillMaxSize()
                     .imePadding()
                     .verticalScroll(scrollState)
-                    .padding(
-                        start = VartovyiTheme.spacing.small,
-                        end = VartovyiTheme.spacing.small,
-                        top = if (onNavigateBack != null) {
-                            VartovyiTheme.spacing.small
-                        } else {
-                            VartovyiTheme.spacing.medium
-                        },
-                        bottom = VartovyiTheme.spacing.small,
-                    )
+                    .padding(VartovyiTheme.spacing.small)
             ) {
                 KeywordsSection(
                     bringIntoViewRequester = keywordsBivr,
