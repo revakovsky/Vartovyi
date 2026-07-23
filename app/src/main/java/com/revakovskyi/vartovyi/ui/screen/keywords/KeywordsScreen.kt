@@ -453,6 +453,28 @@ private fun KeywordsContent(
                     .verticalScroll(scrollState)
                     .padding(VartovyiTheme.spacing.small)
             ) {
+                TelegramChannelsSection(
+                    bringIntoViewRequester = telegramBivr,
+                    channels = state.telegramChannels,
+                    suggestedChannels = state.suggestedTelegramChannels,
+                    inputValue = state.inputTelegramChannel,
+                    onInputChange = { value ->
+                        onAction(KeywordsUiContract.Action.UpdateTelegramChannelInput(value))
+                    },
+                    onAdd = { onAction(KeywordsUiContract.Action.AddTelegramChannel) },
+                    onCopy = { text -> onAction(KeywordsUiContract.Action.CopyChip(text)) },
+                    onRemove = { channel ->
+                        onAction(KeywordsUiContract.Action.RemoveTelegramChannel(channel))
+                    },
+                    onSuggestionSelect = { channel ->
+                        onAction(KeywordsUiContract.Action.SelectSuggestedTelegramChannel(channel))
+                    },
+                    onFocusChanged = { isFocused ->
+                        if (isFocused) activeBivr = telegramBivr
+                        else if (activeBivr == telegramBivr) activeBivr = null
+                    },
+                )
+
                 KeywordsSection(
                     bringIntoViewRequester = keywordsBivr,
                     keywords = state.keywords,
@@ -495,30 +517,6 @@ private fun KeywordsContent(
                     onFocusChanged = { isFocused ->
                         if (isFocused) activeBivr = stopWordsBivr
                         else if (activeBivr == stopWordsBivr) activeBivr = null
-                    },
-                )
-
-                TelegramChannelsSection(
-                    bringIntoViewRequester = telegramBivr,
-                    isEnabled = state.isTelegramChannelFilterEnabled,
-                    channels = state.telegramChannels,
-                    suggestedChannels = state.suggestedTelegramChannels,
-                    inputValue = state.inputTelegramChannel,
-                    onToggle = { onAction(KeywordsUiContract.Action.ToggleTelegramChannelFilter) },
-                    onInputChange = { value ->
-                        onAction(KeywordsUiContract.Action.UpdateTelegramChannelInput(value))
-                    },
-                    onAdd = { onAction(KeywordsUiContract.Action.AddTelegramChannel) },
-                    onCopy = { text -> onAction(KeywordsUiContract.Action.CopyChip(text)) },
-                    onRemove = { channel ->
-                        onAction(KeywordsUiContract.Action.RemoveTelegramChannel(channel))
-                    },
-                    onSuggestionSelect = { channel ->
-                        onAction(KeywordsUiContract.Action.SelectSuggestedTelegramChannel(channel))
-                    },
-                    onFocusChanged = { isFocused ->
-                        if (isFocused) activeBivr = telegramBivr
-                        else if (activeBivr == telegramBivr) activeBivr = null
                     },
                 )
 
@@ -602,7 +600,7 @@ private fun KeywordsContentWithDataPreview() {
     }
 }
 
-@Preview(name = "Keywords — Telegram filter on", heightDp = 900)
+@Preview(name = "Keywords — with Telegram channels", heightDp = 900)
 @Composable
 private fun KeywordsContentTelegramFilterPreview() {
     VartovyiTheme {
@@ -614,7 +612,6 @@ private fun KeywordsContentTelegramFilterPreview() {
                     parseTriggerKeywordRuleFromStorage("ракета + харків"),
                 ),
                 stopWords = listOf("відбій"),
-                isTelegramChannelFilterEnabled = true,
                 telegramChannels = listOf("@air_alert_ua", "@kharkiv_alarm"),
             ),
             onAction = {},

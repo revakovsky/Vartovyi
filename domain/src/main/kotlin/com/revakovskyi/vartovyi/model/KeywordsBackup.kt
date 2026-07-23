@@ -8,11 +8,11 @@ data class KeywordsBackup(
     val keywords: List<String>,
     val stopWords: List<String>,
     val telegramChannels: List<String>,
-    val isTelegramChannelFilterEnabled: Boolean,
 ) {
 
     companion object {
-        const val CURRENT_VERSION = 1
+        /** v2 dropped `isTelegramChannelFilterEnabled`; older files still decode via `ignoreUnknownKeys` */
+        const val CURRENT_VERSION = 2
     }
 
 }

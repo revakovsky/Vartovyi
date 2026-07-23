@@ -4,9 +4,7 @@ import assertk.assertThat
 import assertk.assertions.containsExactly
 import assertk.assertions.isEmpty
 import assertk.assertions.isEqualTo
-import assertk.assertions.isFalse
 import assertk.assertions.isInstanceOf
-import assertk.assertions.isTrue
 import com.revakovskyi.vartovyi.model.KeywordsBackup
 import com.revakovskyi.vartovyi.model.KeywordsDataSnapshot
 import kotlinx.coroutines.test.runTest
@@ -26,12 +24,11 @@ class ExportKeywordsUseCaseTest {
     }
 
     @Test
-    fun `invoke returns Success mapping all four sources into the backup`() = runTest {
+    fun `invoke returns Success mapping all three sources into the backup`() = runTest {
         repository.snapshot.value = KeywordsDataSnapshot(
             keywords = listOf("ракета", "шахед"),
             stopWords = listOf("навчання", "відбій"),
             telegramChannels = listOf("Повітряні Сили", "TLK News"),
-            isTelegramChannelFilterEnabled = true,
         )
 
         val result = useCase()
@@ -43,16 +40,14 @@ class ExportKeywordsUseCaseTest {
         assertThat(backup.keywords).containsExactly("ракета", "шахед")
         assertThat(backup.stopWords).containsExactly("навчання", "відбій")
         assertThat(backup.telegramChannels).containsExactly("Повітряні Сили", "TLK News")
-        assertThat(backup.isTelegramChannelFilterEnabled).isTrue()
     }
 
     @Test
-    fun `invoke serializes empty lists and disabled filter`() = runTest {
+    fun `invoke serializes empty lists`() = runTest {
         repository.snapshot.value = KeywordsDataSnapshot(
             keywords = emptyList(),
             stopWords = emptyList(),
             telegramChannels = emptyList(),
-            isTelegramChannelFilterEnabled = false,
         )
 
         val result = useCase()
@@ -63,7 +58,6 @@ class ExportKeywordsUseCaseTest {
         assertThat(backup.keywords).isEmpty()
         assertThat(backup.stopWords).isEmpty()
         assertThat(backup.telegramChannels).isEmpty()
-        assertThat(backup.isTelegramChannelFilterEnabled).isFalse()
     }
 
     private fun decodeBackup(jsonContent: String): KeywordsBackup =

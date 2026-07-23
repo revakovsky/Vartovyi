@@ -24,7 +24,6 @@ interface KeywordsUiContract {
         val stopWords: List<String> = emptyList(),
         val inputKeyword: String = "",
         val inputStopWord: String = "",
-        val isTelegramChannelFilterEnabled: Boolean = false,
         val telegramChannels: List<String> = emptyList(),
         val inputTelegramChannel: String = "",
         val duplicateWord: String? = null,
@@ -38,8 +37,7 @@ interface KeywordsUiContract {
         val hasKeywordDataToClear: Boolean
             get() = keywords.isNotEmpty() ||
                     stopWords.isNotEmpty() ||
-                    telegramChannels.isNotEmpty() ||
-                    isTelegramChannelFilterEnabled
+                    telegramChannels.isNotEmpty()
 
         val canExport: Boolean
             get() = keywords.isNotEmpty() || stopWords.isNotEmpty() || telegramChannels.isNotEmpty()
@@ -68,7 +66,6 @@ interface KeywordsUiContract {
         data class RemoveKeyword(val keyword: TriggerKeywordRule) : Action
         data object AddStopWord : Action
         data class RemoveStopWord(val stopWord: String) : Action
-        data object ToggleTelegramChannelFilter : Action
         data class UpdateTelegramChannelInput(val value: String) : Action
         data object AddTelegramChannel : Action
         data class SelectSuggestedTelegramChannel(val channel: String) : Action

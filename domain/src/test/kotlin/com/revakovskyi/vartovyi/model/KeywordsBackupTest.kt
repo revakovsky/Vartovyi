@@ -3,14 +3,15 @@ package com.revakovskyi.vartovyi.model
 import assertk.assertThat
 import assertk.assertions.containsExactly
 import assertk.assertions.isEqualTo
-import assertk.assertions.isTrue
-import kotlinx.serialization.json.Json
+import com.revakovskyi.vartovyi.usecase.keywords.ImportKeywordsUseCaseImpl
 import org.junit.jupiter.api.Test
 
 class KeywordsBackupTest {
 
+    private val tolerantJson = ImportKeywordsUseCaseImpl.JSON
+
     @Test
-    fun `decoding a backup without a version field falls back to CURRENT_VERSION`() {
+    fun `legacy backup without version and with the dropped filter flag still decodes`() {
         val jsonWithoutVersion = """
             {
               "keywords": [
@@ -37,7 +38,10 @@ class KeywordsBackupTest {
             }
         """.trimIndent()
 
-        val backup = Json.decodeFromString(KeywordsBackup.serializer(), jsonWithoutVersion)
+        val backup = tolerantJson.decodeFromString(
+            KeywordsBackup.serializer(),
+            jsonWithoutVersion,
+        )
 
         assertThat(backup.version).isEqualTo(KeywordsBackup.CURRENT_VERSION)
         assertThat(backup.keywords).containsExactly(
@@ -60,7 +64,6 @@ class KeywordsBackupTest {
             "TLK News",
             "@air_alert_ua",
         )
-        assertThat(backup.isTelegramChannelFilterEnabled).isTrue()
     }
 
 }

@@ -10,7 +10,6 @@ import com.revakovskyi.vartovyi.usecase.keywords.ExportKeywordsUseCase
 import com.revakovskyi.vartovyi.usecase.keywords.ImportKeywordsUseCase
 import com.revakovskyi.vartovyi.usecase.keywords.ObserveKeywordsUseCase
 import com.revakovskyi.vartovyi.usecase.keywords.ObserveStopWordsUseCase
-import com.revakovskyi.vartovyi.usecase.keywords.ObserveTelegramChannelFilterEnabledUseCase
 import com.revakovskyi.vartovyi.usecase.keywords.ObserveTelegramChannelsUseCase
 import com.revakovskyi.vartovyi.usecase.keywords.RemoveKeywordUseCase
 import com.revakovskyi.vartovyi.usecase.keywords.RemoveStopWordUseCase
@@ -19,7 +18,6 @@ import com.revakovskyi.vartovyi.usecase.keywords.RestoreDefaultKeywordsUseCase
 import com.revakovskyi.vartovyi.usecase.keywords.RestoreDefaultStopWordsUseCase
 import com.revakovskyi.vartovyi.usecase.keywords.SanitizeWordInputUseCase
 import com.revakovskyi.vartovyi.usecase.keywords.SanitizeWordInputUseCaseImpl
-import com.revakovskyi.vartovyi.usecase.keywords.ToggleTelegramChannelFilterUseCase
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.mockkStatic
@@ -42,16 +40,12 @@ abstract class KeywordsViewModelBaseTest {
     protected val observeKeywordsUseCase = mockk<ObserveKeywordsUseCase>()
     protected val observeStopWordsUseCase = mockk<ObserveStopWordsUseCase>()
     protected val observeTelegramChannelsUseCase = mockk<ObserveTelegramChannelsUseCase>()
-    protected val observeTelegramChannelFilterEnabledUseCase =
-        mockk<ObserveTelegramChannelFilterEnabledUseCase>()
     protected val addKeywordUseCase = mockk<AddKeywordUseCase>(relaxed = true)
     protected val removeKeywordUseCase = mockk<RemoveKeywordUseCase>(relaxed = true)
     protected val addStopWordUseCase = mockk<AddStopWordUseCase>(relaxed = true)
     protected val removeStopWordUseCase = mockk<RemoveStopWordUseCase>(relaxed = true)
     protected val addTelegramChannelUseCase = mockk<AddTelegramChannelUseCase>(relaxed = true)
     protected val removeTelegramChannelUseCase = mockk<RemoveTelegramChannelUseCase>(relaxed = true)
-    protected val toggleTelegramChannelFilterUseCase =
-        mockk<ToggleTelegramChannelFilterUseCase>(relaxed = true)
     protected val clearKeywordsScreenDataUseCase =
         mockk<ClearKeywordsScreenDataUseCase>(relaxed = true)
     protected val restoreDefaultKeywordsUseCase =
@@ -76,7 +70,6 @@ abstract class KeywordsViewModelBaseTest {
         every { observeKeywordsUseCase() } returns flowOf(emptyList())
         every { observeStopWordsUseCase() } returns flowOf(emptyList())
         every { observeTelegramChannelsUseCase() } returns flowOf(emptyList())
-        every { observeTelegramChannelFilterEnabledUseCase() } returns flowOf(false)
     }
 
     @AfterEach
@@ -90,14 +83,12 @@ abstract class KeywordsViewModelBaseTest {
         observeKeywordsUseCase = observeKeywordsUseCase,
         observeStopWordsUseCase = observeStopWordsUseCase,
         observeTelegramChannelsUseCase = observeTelegramChannelsUseCase,
-        observeTelegramChannelFilterEnabledUseCase = observeTelegramChannelFilterEnabledUseCase,
         addKeywordUseCase = addKeywordUseCase,
         removeKeywordUseCase = removeKeywordUseCase,
         addStopWordUseCase = addStopWordUseCase,
         removeStopWordUseCase = removeStopWordUseCase,
         addTelegramChannelUseCase = addTelegramChannelUseCase,
         removeTelegramChannelUseCase = removeTelegramChannelUseCase,
-        toggleTelegramChannelFilterUseCase = toggleTelegramChannelFilterUseCase,
         clearKeywordsScreenDataUseCase = clearKeywordsScreenDataUseCase,
         restoreDefaultKeywordsUseCase = restoreDefaultKeywordsUseCase,
         restoreDefaultStopWordsUseCase = restoreDefaultStopWordsUseCase,

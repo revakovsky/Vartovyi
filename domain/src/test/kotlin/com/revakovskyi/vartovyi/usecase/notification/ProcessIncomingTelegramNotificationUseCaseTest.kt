@@ -53,7 +53,6 @@ class ProcessIncomingTelegramNotificationUseCaseTest {
         every {
             settingsRepository.alarmRetriggerCooldownUntilElapsedRealtimeMillis
         } returns flowOf(0L)
-        every { keywordsRepository.isTelegramChannelFilterEnabled } returns flowOf(false)
         every { keywordsRepository.telegramChannels } returns flowOf(emptyList())
         every { keywordsRepository.keywords } returns flowOf(listOf("ракета"))
         every { keywordsRepository.stopWords } returns flowOf(emptyList())
@@ -124,9 +123,14 @@ class ProcessIncomingTelegramNotificationUseCaseTest {
     @Nested
     inner class ChannelFilter {
 
-        @BeforeEach
-        fun enableFilter() {
-            every { keywordsRepository.isTelegramChannelFilterEnabled } returns flowOf(true)
+        @Test
+        fun `any channel is allowed when the channel list is empty`() = runTest {
+            val result = useCase(
+                testPayload(title = "Будь-який канал", text = "Ракета над містом")
+            )
+
+            assertThat(result).isTrue()
+            verify(exactly = 1) { alarmController.triggerAlarm(any(), any()) }
         }
 
         @Test
@@ -168,7 +172,7 @@ class ProcessIncomingTelegramNotificationUseCaseTest {
         }
 
         @Test
-        fun `unknown channel is blocked when filter is enabled`() = runTest {
+        fun `unknown channel is blocked when the channel list is non-empty`() = runTest {
             every { keywordsRepository.telegramChannels } returns flowOf(listOf("Кохана"))
 
             val result = useCase(

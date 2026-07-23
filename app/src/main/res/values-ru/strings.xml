@@ -94,10 +94,9 @@
     <string name="keywords_stop_tooltip">Если сообщение содержит любое стоп-слово — тревога не сработает.\n\nПолезно для фильтрации сообщений об отбое, где ваши триггерные слова тоже могут появиться.\n\n⚠️ Стоп-слово ищется как подстрока: «отбой» заблокирует также «отбойник».\n\n☝️ Регистр не учитывается (верхний/нижний не влияет на совпадение).\n\n💡 Пример: триггер «Киев» + стоп-слово «отбой» → «отбой, угрозы для Киева больше нет» сирену не запустит.</string>
     <string name="keywords_stop_hint">напр. всё чисто</string>
     <string name="keywords_telegram_channels">Каналы Telegram</string>
-    <string name="keywords_optional">Необязательно</string>
-    <string name="keywords_all_channels_monitored">Отслеживаются все каналы</string>
     <string name="keywords_telegram_channel_hint">напр. Повітряні Сили ЗС України</string>
     <string name="keywords_telegram_channel_tip">Тревога срабатывает только по сообщениям из этих каналов</string>
+    <string name="keywords_telegram_channels_empty_hint">Пусто — Vartovyi слушает все каналы Telegram</string>
     <string name="keywords_telegram_channel_tooltip">⚠️ НЕ вводите ссылку (t.me/…) или адрес (@channel) — они никогда не совпадут с названием в уведомлении.\n\nВводите название канала точно так, как оно отображается в вашем списке чатов Telegram — например, «Повітряні Сили ЗС України», а не «t.me/kpszsu» или «@kpszsu».\n\nEmoji на краях названия не влияют на совпадение: «Повітряні цілі Київ» и «🚨 Повітряні цілі Київ» сработают одинаково.\n\n☝️ Регистр не имеет значения — пишите название так, как удобно.\n\n💡 Совет: если тревоги от канала перестали приходить — проверьте, не изменил ли он название. Если изменил — удалите и добавьте снова с новым названием.</string>
     <string name="keywords_popular_channels_title">Популярные каналы</string>
     <string name="keywords_popular_channels_group_national">Общенациональные</string>
