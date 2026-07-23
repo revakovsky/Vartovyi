@@ -33,7 +33,7 @@ class ImportKeywordsUseCaseImpl(
         strategy: ImportStrategy,
     ): ImportResult {
         val backup = try {
-            Json.decodeFromString(KeywordsBackup.serializer(), jsonContent)
+            JSON.decodeFromString(KeywordsBackup.serializer(), jsonContent)
         } catch (e: SerializationException) {
             return ImportResult.InvalidFormat(e)
         } catch (e: IllegalArgumentException) {
@@ -78,11 +78,6 @@ class ImportKeywordsUseCaseImpl(
                 keywords = keywordsOutcome.merged,
                 stopWords = stopWordsOutcome.merged,
                 telegramChannels = telegramChannelsOutcome.merged,
-                isTelegramChannelFilterEnabled = when (strategy) {
-                    ImportStrategy.REPLACE -> backup.isTelegramChannelFilterEnabled
-                    ImportStrategy.MERGE ->
-                        currentData.isTelegramChannelFilterEnabled || backup.isTelegramChannelFilterEnabled
-                },
             )
         }
 
@@ -124,12 +119,14 @@ class ImportKeywordsUseCaseImpl(
         val skipped: Int,
     )
 
-    private companion object {
-        val EMPTY_SNAPSHOT = KeywordsDataSnapshot(
+    companion object {
+        /** Tolerates keys removed in newer backup versions (e.g. the dropped channel-filter flag) */
+        val JSON = Json { ignoreUnknownKeys = true }
+
+        private val EMPTY_SNAPSHOT = KeywordsDataSnapshot(
             keywords = emptyList(),
             stopWords = emptyList(),
             telegramChannels = emptyList(),
-            isTelegramChannelFilterEnabled = false,
         )
     }
 

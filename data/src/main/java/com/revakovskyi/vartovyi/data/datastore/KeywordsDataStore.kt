@@ -28,9 +28,13 @@ internal class KeywordsDataStore(
         val KEYWORDS = stringPreferencesKey("keywords")
         val STOP_WORDS = stringPreferencesKey("stop_words")
         val TELEGRAM_CHANNELS = stringPreferencesKey("telegram_channels")
-        val TELEGRAM_CHANNEL_FILTER_ENABLED = booleanPreferencesKey("telegram_channel_filter_enabled")
         val KEYWORDS_SEEDED = booleanPreferencesKey("keywords_seeded")
         val STOP_WORDS_SEEDED = booleanPreferencesKey("stop_words_seeded")
+        val CHANNEL_FILTER_MIGRATED = booleanPreferencesKey("channel_filter_migration_done")
+
+        /** Legacy toggle, replaced by an empty [Keys.TELEGRAM_CHANNELS] meaning "listen to all". */
+        val LEGACY_TELEGRAM_CHANNEL_FILTER_ENABLED =
+            booleanPreferencesKey("telegram_channel_filter_enabled")
     }
 
     val keywords: Flow<List<String>> = context.keywordsDataStore.data
@@ -44,10 +48,6 @@ internal class KeywordsDataStore(
     val telegramChannels: Flow<List<String>> = context.keywordsDataStore.data
         .safeCatch()
         .map { preferences -> storedStringList(preferences, Keys.TELEGRAM_CHANNELS) }
-
-    val isTelegramChannelFilterEnabled: Flow<Boolean> = context.keywordsDataStore.data
-        .safeCatch()
-        .map { prefs -> prefs[Keys.TELEGRAM_CHANNEL_FILTER_ENABLED] ?: false }
 
     suspend fun addKeywordIfMissing(keyword: String): Boolean {
         return context.keywordsDataStore.safeEdit { preferences ->
@@ -97,8 +97,26 @@ internal class KeywordsDataStore(
         }
     }
 
-    suspend fun setTelegramChannelFilterEnabled(enabled: Boolean): Boolean {
-        return context.keywordsDataStore.safeEdit { it[Keys.TELEGRAM_CHANNEL_FILTER_ENABLED] = enabled }
+    /**
+     * One-time migration from the legacy channel-filter toggle to the "empty list = listen to
+     * all" rule. A disabled filter used to mean "listen to all" regardless of the saved list, so
+     * that list is cleared to keep the same behavior; an enabled filter keeps its channels as the
+     * active allow-list. Safe to call on every launch — runs its effect only once per install.
+     */
+    suspend fun migrateChannelFilterFlagIfNeeded(): Boolean {
+        return context.keywordsDataStore.safeEdit { preferences ->
+            val alreadyMigrated = preferences[Keys.CHANNEL_FILTER_MIGRATED] == true
+            if (alreadyMigrated) return@safeEdit
+
+            val wasFilterEnabled = preferences[Keys.LEGACY_TELEGRAM_CHANNEL_FILTER_ENABLED] ?: false
+
+            if (!wasFilterEnabled) {
+                preferences.remove(Keys.TELEGRAM_CHANNELS)
+            }
+
+            preferences.remove(Keys.LEGACY_TELEGRAM_CHANNEL_FILTER_ENABLED)
+            preferences[Keys.CHANNEL_FILTER_MIGRATED] = true
+        }
     }
 
     suspend fun seedDefaultKeywordsIfNeeded(defaults: List<String>): Boolean {
@@ -164,7 +182,6 @@ internal class KeywordsDataStore(
             preferences.remove(Keys.KEYWORDS)
             preferences.remove(Keys.STOP_WORDS)
             preferences.remove(Keys.TELEGRAM_CHANNELS)
-            preferences.remove(Keys.TELEGRAM_CHANNEL_FILTER_ENABLED)
         }
     }
 
@@ -180,7 +197,6 @@ internal class KeywordsDataStore(
                 keywords = storedStringList(preferences, Keys.KEYWORDS),
                 stopWords = storedStringList(preferences, Keys.STOP_WORDS),
                 telegramChannels = storedStringList(preferences, Keys.TELEGRAM_CHANNELS),
-                isTelegramChannelFilterEnabled = preferences[Keys.TELEGRAM_CHANNEL_FILTER_ENABLED] == true,
             )
 
             val finalData = transform(currentData)
@@ -188,8 +204,6 @@ internal class KeywordsDataStore(
             preferences[Keys.KEYWORDS] = Json.encodeToString(finalData.keywords)
             preferences[Keys.STOP_WORDS] = Json.encodeToString(finalData.stopWords)
             preferences[Keys.TELEGRAM_CHANNELS] = Json.encodeToString(finalData.telegramChannels)
-            preferences[Keys.TELEGRAM_CHANNEL_FILTER_ENABLED] =
-                finalData.isTelegramChannelFilterEnabled
         }
     }
 

@@ -16,8 +16,6 @@ internal class KeywordsRepositoryImpl(
     override val keywords: Flow<List<String>> = keywordsDataStore.keywords
     override val stopWords: Flow<List<String>> = keywordsDataStore.stopWords
     override val telegramChannels: Flow<List<String>> = keywordsDataStore.telegramChannels
-    override val isTelegramChannelFilterEnabled: Flow<Boolean> =
-        keywordsDataStore.isTelegramChannelFilterEnabled
 
     private val keywordsMutationMutex = Mutex()
 
@@ -66,8 +64,8 @@ internal class KeywordsRepositoryImpl(
         }
     }
 
-    override suspend fun setTelegramChannelFilterEnabled(enabled: Boolean): Boolean {
-        return keywordsDataStore.setTelegramChannelFilterEnabled(enabled)
+    override suspend fun migrateChannelFilterFlagIfNeeded(): Boolean {
+        return keywordsDataStore.migrateChannelFilterFlagIfNeeded()
     }
 
     override suspend fun seedDefaultKeywordsIfNeeded() {

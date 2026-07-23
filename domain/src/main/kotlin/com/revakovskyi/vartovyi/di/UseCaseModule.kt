@@ -20,12 +20,12 @@ import com.revakovskyi.vartovyi.usecase.keywords.ExportKeywordsUseCase
 import com.revakovskyi.vartovyi.usecase.keywords.ExportKeywordsUseCaseImpl
 import com.revakovskyi.vartovyi.usecase.keywords.ImportKeywordsUseCase
 import com.revakovskyi.vartovyi.usecase.keywords.ImportKeywordsUseCaseImpl
+import com.revakovskyi.vartovyi.usecase.keywords.MigrateLegacyChannelFilterUseCase
+import com.revakovskyi.vartovyi.usecase.keywords.MigrateLegacyChannelFilterUseCaseImpl
 import com.revakovskyi.vartovyi.usecase.keywords.ObserveKeywordsUseCase
 import com.revakovskyi.vartovyi.usecase.keywords.ObserveKeywordsUseCaseImpl
 import com.revakovskyi.vartovyi.usecase.keywords.ObserveStopWordsUseCase
 import com.revakovskyi.vartovyi.usecase.keywords.ObserveStopWordsUseCaseImpl
-import com.revakovskyi.vartovyi.usecase.keywords.ObserveTelegramChannelFilterEnabledUseCase
-import com.revakovskyi.vartovyi.usecase.keywords.ObserveTelegramChannelFilterEnabledUseCaseImpl
 import com.revakovskyi.vartovyi.usecase.keywords.ObserveTelegramChannelsUseCase
 import com.revakovskyi.vartovyi.usecase.keywords.ObserveTelegramChannelsUseCaseImpl
 import com.revakovskyi.vartovyi.usecase.keywords.RemoveKeywordUseCase
@@ -44,8 +44,6 @@ import com.revakovskyi.vartovyi.usecase.keywords.SeedDefaultKeywordsUseCase
 import com.revakovskyi.vartovyi.usecase.keywords.SeedDefaultKeywordsUseCaseImpl
 import com.revakovskyi.vartovyi.usecase.keywords.SeedDefaultStopWordsUseCase
 import com.revakovskyi.vartovyi.usecase.keywords.SeedDefaultStopWordsUseCaseImpl
-import com.revakovskyi.vartovyi.usecase.keywords.ToggleTelegramChannelFilterUseCase
-import com.revakovskyi.vartovyi.usecase.keywords.ToggleTelegramChannelFilterUseCaseImpl
 import com.revakovskyi.vartovyi.usecase.legal.AcceptCurrentLegalDocumentsUseCase
 import com.revakovskyi.vartovyi.usecase.legal.AcceptCurrentLegalDocumentsUseCaseImpl
 import com.revakovskyi.vartovyi.usecase.legal.ObserveLegalConsentStateUseCase
@@ -119,10 +117,9 @@ val useCaseModule = module {
     singleOf(::AddStopWordUseCaseImpl) { bind<AddStopWordUseCase>() }
     singleOf(::RemoveStopWordUseCaseImpl) { bind<RemoveStopWordUseCase>() }
     singleOf(::ObserveTelegramChannelsUseCaseImpl) { bind<ObserveTelegramChannelsUseCase>() }
-    singleOf(::ObserveTelegramChannelFilterEnabledUseCaseImpl) { bind<ObserveTelegramChannelFilterEnabledUseCase>() }
     singleOf(::AddTelegramChannelUseCaseImpl) { bind<AddTelegramChannelUseCase>() }
     singleOf(::RemoveTelegramChannelUseCaseImpl) { bind<RemoveTelegramChannelUseCase>() }
-    singleOf(::ToggleTelegramChannelFilterUseCaseImpl) { bind<ToggleTelegramChannelFilterUseCase>() }
+    singleOf(::MigrateLegacyChannelFilterUseCaseImpl) { bind<MigrateLegacyChannelFilterUseCase>() }
     singleOf(::ExportKeywordsUseCaseImpl) { bind<ExportKeywordsUseCase>() }
     singleOf(::ImportKeywordsUseCaseImpl) { bind<ImportKeywordsUseCase>() }
     singleOf(::SeedDefaultKeywordsUseCaseImpl) { bind<SeedDefaultKeywordsUseCase>() }

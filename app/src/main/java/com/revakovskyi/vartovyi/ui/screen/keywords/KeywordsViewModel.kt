@@ -27,7 +27,6 @@ import com.revakovskyi.vartovyi.usecase.keywords.ImportKeywordsUseCase
 import com.revakovskyi.vartovyi.usecase.keywords.ImportResult
 import com.revakovskyi.vartovyi.usecase.keywords.ObserveKeywordsUseCase
 import com.revakovskyi.vartovyi.usecase.keywords.ObserveStopWordsUseCase
-import com.revakovskyi.vartovyi.usecase.keywords.ObserveTelegramChannelFilterEnabledUseCase
 import com.revakovskyi.vartovyi.usecase.keywords.ObserveTelegramChannelsUseCase
 import com.revakovskyi.vartovyi.usecase.keywords.RemoveKeywordUseCase
 import com.revakovskyi.vartovyi.usecase.keywords.RemoveStopWordUseCase
@@ -35,7 +34,6 @@ import com.revakovskyi.vartovyi.usecase.keywords.RemoveTelegramChannelUseCase
 import com.revakovskyi.vartovyi.usecase.keywords.RestoreDefaultKeywordsUseCase
 import com.revakovskyi.vartovyi.usecase.keywords.RestoreDefaultStopWordsUseCase
 import com.revakovskyi.vartovyi.usecase.keywords.SanitizeWordInputUseCase
-import com.revakovskyi.vartovyi.usecase.keywords.ToggleTelegramChannelFilterUseCase
 import com.revakovskyi.vartovyi.utils.parseTriggerKeywordRuleFromStorage
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.Flow
@@ -54,14 +52,12 @@ class KeywordsViewModel(
     private val observeKeywordsUseCase: ObserveKeywordsUseCase,
     private val observeStopWordsUseCase: ObserveStopWordsUseCase,
     private val observeTelegramChannelsUseCase: ObserveTelegramChannelsUseCase,
-    private val observeTelegramChannelFilterEnabledUseCase: ObserveTelegramChannelFilterEnabledUseCase,
     private val addKeywordUseCase: AddKeywordUseCase,
     private val removeKeywordUseCase: RemoveKeywordUseCase,
     private val addStopWordUseCase: AddStopWordUseCase,
     private val removeStopWordUseCase: RemoveStopWordUseCase,
     private val addTelegramChannelUseCase: AddTelegramChannelUseCase,
     private val removeTelegramChannelUseCase: RemoveTelegramChannelUseCase,
-    private val toggleTelegramChannelFilterUseCase: ToggleTelegramChannelFilterUseCase,
     private val clearKeywordsScreenDataUseCase: ClearKeywordsScreenDataUseCase,
     private val restoreDefaultKeywordsUseCase: RestoreDefaultKeywordsUseCase,
     private val restoreDefaultStopWordsUseCase: RestoreDefaultStopWordsUseCase,
@@ -89,7 +85,6 @@ class KeywordsViewModel(
             is Action.RemoveKeyword -> removeKeyword(action.keyword)
             is Action.AddStopWord -> addStopWord()
             is Action.RemoveStopWord -> removeStopWord(action.stopWord)
-            is Action.ToggleTelegramChannelFilter -> toggleTelegramChannelFilter()
             is Action.UpdateTelegramChannelInput -> updateTelegramChannelInput(action.value)
             is Action.AddTelegramChannel -> addTelegramChannel()
             is Action.SelectSuggestedTelegramChannel -> {
@@ -126,8 +121,7 @@ class KeywordsViewModel(
             observeKeywordsUseCase(),
             observeStopWordsUseCase(),
             observeTelegramChannelsUseCase(),
-            observeTelegramChannelFilterEnabledUseCase(),
-        ) { keywords, stopWords, telegramChannels, isTelegramChannelFilterEnabled ->
+        ) { keywords, stopWords, telegramChannels ->
             val parsedKeywords = keywords.map { keyword ->
                 parseTriggerKeywordRuleFromStorage(keyword)
             }
@@ -143,7 +137,6 @@ class KeywordsViewModel(
                     keywords = sortedKeywords,
                     stopWords = stopWords,
                     telegramChannels = telegramChannels,
-                    isTelegramChannelFilterEnabled = isTelegramChannelFilterEnabled,
                     isLoading = if (isFirstEmission) false else currentState.isLoading,
                 )
             }
@@ -321,10 +314,6 @@ class KeywordsViewModel(
                 pendingRemoval = KeywordsUiContract.PendingRemoval.StopWord(stopWord)
             )
         }
-    }
-
-    private fun toggleTelegramChannelFilter() {
-        viewModelScope.launch { toggleTelegramChannelFilterUseCase() }
     }
 
     private fun updateTelegramChannelInput(value: String) {

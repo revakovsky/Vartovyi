@@ -76,7 +76,6 @@ class ProcessIncomingTelegramNotificationUseCaseImpl(
             endTime = settingsRepository.endTime.first(),
         )
         val isChannelAllowed = isChannelAllowed(
-            isFilterEnabled = keywordsRepository.isTelegramChannelFilterEnabled.first(),
             title = payload.title,
             allowedChannels = keywordsRepository.telegramChannels.first(),
         )
@@ -200,13 +199,12 @@ class ProcessIncomingTelegramNotificationUseCaseImpl(
             ?.displayValue
     }
 
-    /** Fail-open: a disabled filter, or an enabled one with no channels, allows every notification. */
+    /** Fail-open: an empty allow-list means every channel is allowed. */
     private fun isChannelAllowed(
-        isFilterEnabled: Boolean,
         title: String,
         allowedChannels: List<String>,
     ): Boolean {
-        if (!isFilterEnabled || allowedChannels.isEmpty()) return true
+        if (allowedChannels.isEmpty()) return true
 
         if (title.isBlank()) return false
 

@@ -95,10 +95,9 @@
     <string name="keywords_stop_tooltip">If a message contains any stop word — the alarm will not fire.\n\nUseful for filtering "all clear" messages where your trigger words may also appear.\n\n⚠️ A stop word is matched as a substring: "safe" will also block "unsafe".\n\n☝️ Letter case is ignored (uppercase/lowercase does not affect matching).\n\n💡 Example: trigger "Kyiv" + stop word "all clear" → "all clear, no more threat for Kyiv" will not trigger the alarm.</string>
     <string name="keywords_stop_hint">e.g. all clear</string>
     <string name="keywords_telegram_channels">Telegram channels</string>
-    <string name="keywords_optional">Optional</string>
-    <string name="keywords_all_channels_monitored">All channels are being monitored</string>
     <string name="keywords_telegram_channel_hint">e.g. Повітряні Сили ЗС України</string>
     <string name="keywords_telegram_channel_tip">Only messages from these channels will trigger the alarm</string>
+    <string name="keywords_telegram_channels_empty_hint">Empty — Vartovyi listens to all Telegram channels</string>
     <string name="keywords_telegram_channel_tooltip">⚠️ Do NOT enter a link (t.me/…) or channel address (@channel) — they will never match the name in the notification.\n\nEnter the channel name exactly as it appears in your Telegram chat list — for example, "Повітряні Сили ЗС України", not "t.me/kpszsu" or "@kpszsu".\n\nEmoji at the edges of the name do not affect matching: "Повітряні цілі Київ" and "🚨 Повітряні цілі Київ" work the same.\n\n☝️ Letter case does not matter — type the name however you like.\n\n💡 Tip: if alarms from a channel stop coming — check whether it was renamed. If so, remove it and add it again with the new name.</string>
     <string name="keywords_popular_channels_title">Popular channels</string>
     <string name="keywords_popular_channels_group_national">Nationwide</string>
