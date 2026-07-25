@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.text.TextAutoSize
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
@@ -19,6 +20,7 @@ import androidx.compose.ui.unit.dp
 import com.revakovskyi.vartovyi.R
 import com.revakovskyi.vartovyi.model.PopularChannelRegion
 import com.revakovskyi.vartovyi.model.PopularTelegramChannel
+import com.revakovskyi.vartovyi.ui.theme.MinAutoSizeFontSize
 import com.revakovskyi.vartovyi.ui.theme.VartovyiTheme
 
 private const val SUGGESTIONS_MAX_HEIGHT_DP = 280
@@ -105,7 +107,12 @@ private fun SuggestedChannelRow(
             style = VartovyiTheme.typography.bodyMedium,
             color = VartovyiTheme.colors.onSurface,
             maxLines = 1,
+            softWrap = false,
             overflow = TextOverflow.Ellipsis,
+            autoSize = TextAutoSize.StepBased(
+                minFontSize = MinAutoSizeFontSize,
+                maxFontSize = VartovyiTheme.typography.bodyMedium.fontSize,
+            ),
         )
 
         Text(
@@ -113,7 +120,12 @@ private fun SuggestedChannelRow(
             style = VartovyiTheme.typography.bodySmall,
             color = VartovyiTheme.colors.onSurfaceVariant,
             maxLines = 1,
+            softWrap = false,
             overflow = TextOverflow.Ellipsis,
+            autoSize = TextAutoSize.StepBased(
+                minFontSize = MinAutoSizeFontSize,
+                maxFontSize = VartovyiTheme.typography.bodySmall.fontSize,
+            ),
         )
     }
 }
