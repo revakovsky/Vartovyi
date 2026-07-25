@@ -74,7 +74,27 @@ fun OnboardingPageTelegram(
             Spacer(modifier = Modifier.height(VartovyiTheme.spacing.standard))
 
             Text(
-                text = stringResource(R.string.onboarding_telegram_body_1),
+                text = stringResource(R.string.onboarding_telegram_intro),
+                style = VartovyiTheme.typography.bodyLarge,
+                color = VartovyiTheme.colors.onSurface,
+                textAlign = TextAlign.Center,
+                modifier = Modifier.fillMaxWidth()
+            )
+
+            Spacer(modifier = Modifier.height(VartovyiTheme.spacing.extraLarge))
+
+            Text(
+                text = stringResource(R.string.onboarding_telegram_step_1_title),
+                style = VartovyiTheme.typography.titleMedium,
+                color = VartovyiTheme.colors.onBackground,
+                textAlign = TextAlign.Center,
+                modifier = Modifier.fillMaxWidth()
+            )
+
+            Spacer(modifier = Modifier.height(VartovyiTheme.spacing.standard))
+
+            Text(
+                text = stringResource(R.string.onboarding_telegram_step_1_body),
                 style = VartovyiTheme.typography.bodyLarge,
                 color = VartovyiTheme.colors.onSurface,
                 textAlign = TextAlign.Center,
@@ -90,10 +110,20 @@ fun OnboardingPageTelegram(
                 modifier = Modifier.fillMaxWidth(SCREENSHOT_WIDTH_FRACTION)
             )
 
-            Spacer(modifier = Modifier.height(VartovyiTheme.spacing.medium))
+            Spacer(modifier = Modifier.height(VartovyiTheme.spacing.extraLarge))
 
             Text(
-                text = stringResource(R.string.onboarding_telegram_body_2),
+                text = stringResource(R.string.onboarding_telegram_step_2_title),
+                style = VartovyiTheme.typography.titleMedium,
+                color = VartovyiTheme.colors.onBackground,
+                textAlign = TextAlign.Center,
+                modifier = Modifier.fillMaxWidth()
+            )
+
+            Spacer(modifier = Modifier.height(VartovyiTheme.spacing.standard))
+
+            Text(
+                text = stringResource(R.string.onboarding_telegram_step_2_body),
                 style = VartovyiTheme.typography.bodyLarge,
                 color = VartovyiTheme.colors.onSurface,
                 textAlign = TextAlign.Center,
@@ -111,8 +141,28 @@ fun OnboardingPageTelegram(
 
             Spacer(modifier = Modifier.height(VartovyiTheme.spacing.extraLarge))
 
+            Text(
+                text = stringResource(R.string.onboarding_telegram_step_3_title),
+                style = VartovyiTheme.typography.titleMedium,
+                color = VartovyiTheme.colors.onBackground,
+                textAlign = TextAlign.Center,
+                modifier = Modifier.fillMaxWidth()
+            )
+
+            Spacer(modifier = Modifier.height(VartovyiTheme.spacing.standard))
+
+            Text(
+                text = stringResource(R.string.onboarding_telegram_step_3_body),
+                style = VartovyiTheme.typography.bodyLarge,
+                color = VartovyiTheme.colors.onSurface,
+                textAlign = TextAlign.Center,
+                modifier = Modifier.fillMaxWidth()
+            )
+
+            Spacer(modifier = Modifier.height(VartovyiTheme.spacing.extraLarge))
+
             Image(
-                painter = painterResource(R.drawable.tg_4),
+                painter = painterResource(R.drawable.tg_3),
                 contentDescription = null,
                 contentScale = ContentScale.FillWidth,
                 modifier = Modifier.fillMaxWidth(SCREENSHOT_WIDTH_FRACTION)
@@ -121,7 +171,7 @@ fun OnboardingPageTelegram(
             Spacer(modifier = Modifier.height(VartovyiTheme.spacing.extraLarge))
 
             Image(
-                painter = painterResource(R.drawable.tg_3),
+                painter = painterResource(R.drawable.tg_4),
                 contentDescription = null,
                 contentScale = ContentScale.FillWidth,
                 modifier = Modifier.fillMaxWidth(SCREENSHOT_WIDTH_FRACTION)

@@ -57,7 +57,10 @@ fun SectionContainer(
     title: String,
     titleTooltipText: String? = null,
     isExpanded: Boolean,
-    border: BorderStroke? = null,
+    border: BorderStroke? = BorderStroke(
+        width = VartovyiTheme.spacing.one,
+        color = VartovyiTheme.colors.outlineVariant,
+    ),
     contentPadding: PaddingValues = PaddingValues(VartovyiTheme.spacing.standard),
     onHeaderClick: () -> Unit,
     content: @Composable () -> Unit,

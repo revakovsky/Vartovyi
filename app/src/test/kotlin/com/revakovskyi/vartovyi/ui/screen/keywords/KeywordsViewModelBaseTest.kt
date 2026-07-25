@@ -16,6 +16,8 @@ import com.revakovskyi.vartovyi.usecase.keywords.RemoveStopWordUseCase
 import com.revakovskyi.vartovyi.usecase.keywords.RemoveTelegramChannelUseCase
 import com.revakovskyi.vartovyi.usecase.keywords.SanitizeWordInputUseCase
 import com.revakovskyi.vartovyi.usecase.keywords.SanitizeWordInputUseCaseImpl
+import com.revakovskyi.vartovyi.usecase.onboarding.ObserveKeywordsChannelsIntroHiddenUseCase
+import com.revakovskyi.vartovyi.usecase.onboarding.SetKeywordsChannelsIntroHiddenUseCase
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.mockkStatic
@@ -48,6 +50,10 @@ abstract class KeywordsViewModelBaseTest {
         mockk<ClearKeywordsScreenDataUseCase>(relaxed = true)
     protected val exportKeywordsUseCase = mockk<ExportKeywordsUseCase>(relaxed = true)
     protected val importKeywordsUseCase = mockk<ImportKeywordsUseCase>(relaxed = true)
+    protected val observeKeywordsChannelsIntroHiddenUseCase =
+        mockk<ObserveKeywordsChannelsIntroHiddenUseCase>(relaxed = true)
+    protected val setKeywordsChannelsIntroHiddenUseCase =
+        mockk<SetKeywordsChannelsIntroHiddenUseCase>(relaxed = true)
     protected val sanitizeWordInputUseCase: SanitizeWordInputUseCase =
         SanitizeWordInputUseCaseImpl()
 
@@ -64,6 +70,7 @@ abstract class KeywordsViewModelBaseTest {
         every { observeKeywordsUseCase() } returns flowOf(emptyList())
         every { observeStopWordsUseCase() } returns flowOf(emptyList())
         every { observeTelegramChannelsUseCase() } returns flowOf(emptyList())
+        every { observeKeywordsChannelsIntroHiddenUseCase() } returns flowOf(true)
     }
 
     @AfterEach
@@ -87,6 +94,8 @@ abstract class KeywordsViewModelBaseTest {
         sanitizeWordInputUseCase = sanitizeWordInputUseCase,
         exportKeywordsUseCase = exportKeywordsUseCase,
         importKeywordsUseCase = importKeywordsUseCase,
+        observeKeywordsChannelsIntroHiddenUseCase = observeKeywordsChannelsIntroHiddenUseCase,
+        setKeywordsChannelsIntroHiddenUseCase = setKeywordsChannelsIntroHiddenUseCase,
     )
 
     protected fun TestScope.collectEvents(viewModel: KeywordsViewModel): List<Event> {
