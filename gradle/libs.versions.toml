@@ -3,10 +3,10 @@
 # Config
 appId = "com.revakovskyi.vartovyi"
 
-compileSdk = "36"
-compileSdkMinorApi = "1"
+compileSdk = "37"
+compileSdkMinorApi = "0"
 minSdk = "28"
-targetSdk = "36"
+targetSdk = "37"
 
 versionCode = "6"
 versionName = "1.5"
