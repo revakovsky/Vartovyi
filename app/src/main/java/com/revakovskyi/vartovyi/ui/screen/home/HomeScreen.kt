@@ -24,6 +24,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.revakovskyi.vartovyi.R
+import com.revakovskyi.vartovyi.constants.DEFAULT_KEYWORDS_SEED
 import com.revakovskyi.vartovyi.model.AlertEvent
 import com.revakovskyi.vartovyi.model.AlertEventStatus
 import com.revakovskyi.vartovyi.model.MonitoringState
@@ -149,14 +150,17 @@ private fun HomeContent(
                 verticalArrangement = Arrangement.spacedBy(VartovyiTheme.spacing.small),
                 modifier = Modifier.padding(horizontal = VartovyiTheme.spacing.small),
             ) {
-                KeywordsCard(
-                    keywords = state.keywords,
-                    onClick = { onAction(HomeUiContract.Action.NavigateToKeywords) },
-                )
+                if (state.needsKeywordsAttention) {
+                    KeywordsCard(
+                        keywords = state.keywords,
+                        onClick = { onAction(HomeUiContract.Action.NavigateToKeywords) },
+                    )
+                }
 
                 LastAlertCard(
                     lastAlertEvent = state.lastAlertEvent,
-                    onClick = {
+                    onClick = { onAction(HomeUiContract.Action.NavigateToLog()) },
+                    onEventClick = {
                         onAction(
                             HomeUiContract.Action.NavigateToLog(
                                 logEntryId = state.lastAlertEvent?.id,
@@ -183,7 +187,7 @@ private fun HomeContentInactivePreview() {
     }
 }
 
-@Preview(name = "Active — with keywords")
+@Preview(name = "Active — real keywords, card hidden")
 @Composable
 private fun HomeContentActiveWithKeywordsPreview() {
     VartovyiTheme {
@@ -191,6 +195,22 @@ private fun HomeContentActiveWithKeywordsPreview() {
             state = HomeUiContract.State(
                 monitoringState = MonitoringState.ACTIVE,
                 keywords = listOf("ракета", "вибух", "тривога", "атака", "бомба"),
+            ),
+            isRequiredPermissionsGranted = true,
+            onAction = {},
+            onShowPermissionsRequiredMessage = {},
+        )
+    }
+}
+
+@Preview(name = "Active — only default keywords, CTA shown")
+@Composable
+private fun HomeContentActiveWithDefaultKeywordsPreview() {
+    VartovyiTheme {
+        HomeContent(
+            state = HomeUiContract.State(
+                monitoringState = MonitoringState.ACTIVE,
+                keywords = DEFAULT_KEYWORDS_SEED,
             ),
             isRequiredPermissionsGranted = true,
             onAction = {},

@@ -6,7 +6,6 @@ import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.relocation.BringIntoViewRequester
 import androidx.compose.foundation.relocation.bringIntoViewRequester
-import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
@@ -15,6 +14,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import com.revakovskyi.vartovyi.R
 import com.revakovskyi.vartovyi.model.TriggerKeywordRule
 import com.revakovskyi.vartovyi.model.TriggerKeywordRuleType
+import com.revakovskyi.vartovyi.ui.components.VartovyiSurface
 import com.revakovskyi.vartovyi.ui.theme.VartovyiTheme
 import com.revakovskyi.vartovyi.utils.parseTriggerKeywordRuleFromStorage
 
@@ -33,11 +33,7 @@ fun KeywordsSection(
     onRemove: (keyword: TriggerKeywordRule) -> Unit,
     onFocusChanged: (isFocused: Boolean) -> Unit,
 ) {
-    Surface(
-        color = VartovyiTheme.colors.surface,
-        shape = VartovyiTheme.shapes.large,
-        modifier = modifier,
-    ) {
+    VartovyiSurface(modifier = modifier) {
         Column(
             verticalArrangement = Arrangement.spacedBy(VartovyiTheme.spacing.medium),
             modifier = Modifier.padding(VartovyiTheme.spacing.standard),
@@ -47,15 +43,15 @@ fun KeywordsSection(
                 tooltipText = stringResource(R.string.keywords_trigger_tooltip),
             )
 
-            TriggerRuleTypeSelector(
-                selectedTriggerKeywordRuleType = selectedTriggerKeywordRuleType,
-                onTypeSelected = onTypeSelected,
-            )
-
             Column(
                 verticalArrangement = Arrangement.spacedBy(VartovyiTheme.spacing.medium),
                 modifier = Modifier.bringIntoViewRequester(bringIntoViewRequester),
             ) {
+                TriggerRuleTypeSelector(
+                    selectedTriggerKeywordRuleType = selectedTriggerKeywordRuleType,
+                    onTypeSelected = onTypeSelected,
+                )
+
                 WordInputRow(
                     value = inputValue,
                     hint = inputHint,
@@ -64,23 +60,23 @@ fun KeywordsSection(
                     onAdd = onAdd,
                     onFocusChanged = onFocusChanged,
                 )
+            }
 
-                if (keywords.isNotEmpty()) {
-                    FlowRow(
-                        horizontalArrangement = Arrangement.spacedBy(VartovyiTheme.spacing.small),
-                        verticalArrangement = Arrangement.spacedBy(VartovyiTheme.spacing.small),
-                    ) {
-                        keywords.forEach { keywordRule ->
-                            val modeLabel = getModeLabel(type = keywordRule.type)
-                            val chipText = "[$modeLabel] ${keywordRule.displayValue}"
-                            WordChip(
-                                text = chipText,
-                                containerColor = VartovyiTheme.colors.primaryContainer,
-                                contentColor = VartovyiTheme.colors.onPrimaryContainer,
-                                onLongPress = { onCopy(keywordRule.displayValue) },
-                                onRemove = { onRemove(keywordRule) },
-                            )
-                        }
+            if (keywords.isNotEmpty()) {
+                FlowRow(
+                    horizontalArrangement = Arrangement.spacedBy(VartovyiTheme.spacing.small),
+                    verticalArrangement = Arrangement.spacedBy(VartovyiTheme.spacing.small),
+                ) {
+                    keywords.forEach { keywordRule ->
+                        val modeLabel = getModeLabel(type = keywordRule.type)
+                        val chipText = "[$modeLabel] ${keywordRule.displayValue}"
+                        WordChip(
+                            text = chipText,
+                            containerColor = VartovyiTheme.colors.primaryContainer,
+                            contentColor = VartovyiTheme.colors.onPrimaryContainer,
+                            onLongPress = { onCopy(keywordRule.displayValue) },
+                            onRemove = { onRemove(keywordRule) },
+                        )
                     }
                 }
             }

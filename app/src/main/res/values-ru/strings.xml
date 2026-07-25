@@ -1,4 +1,4 @@
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
     <string name="app_name">Vartovyi</string>
     <string name="nav_home">Главная</string>
     <string name="nav_keywords">Ключевые слова</string>
@@ -17,7 +17,7 @@
     <string name="monitoring_deactivate">Выключить</string>
     <string name="home_add_keywords_hint">Ключевые слова ещё не добавлены</string>
     <string name="home_add">Добавить</string>
-    <string name="home_and_more">ещё +%d…</string>
+    <string name="home_replace_default_keywords_hint">☝️ Замените слова-примеры на свои, а примеры можно удалить!</string>
     <string name="home_last_trigger">Последнее срабатывание</string>
     <string name="home_no_triggers">Пока нет срабатываний</string>
     <string name="settings_test_alarm">Тестовая тревога</string>
@@ -50,7 +50,7 @@
     <string name="settings_data_log_size_value_items">%1$d</string>
     <string name="settings_data_alarm_cooldown_title">Пауза между тревогами</string>
     <string name="settings_data_alarm_cooldown_value_minutes">%1$d мин</string>
-    <string name="settings_data_alarm_cooldown_tooltip">После срабатывания тревоги новые срабатывания блокируются на выбранное время (1 / 3 / 5 / 10 мин). По умолчанию — 5 мин. Сообщения во время паузы попадают в журнал со статусом «Пропущено (пауза)».\n\n☝️ Остановка тревоги вручную паузу не сбрасывает — она завершится только когда истечёт выбранное время.\n\n💡 Помогает избежать дублирования, если канал отправляет несколько сообщений подряд об одном событии.</string>
+    <string name="settings_data_alarm_cooldown_tooltip" tools:ignore="TypographyFractions">После срабатывания тревоги новые срабатывания блокируются на выбранное время (1 / 3 / 5 / 10 мин). По умолчанию — 5 мин. Сообщения во время паузы попадают в журнал со статусом «Пропущено (пауза)».\n\n☝️ Остановка тревоги вручную паузу не сбрасывает — она завершится только когда истечёт выбранное время.\n\n💡 Помогает избежать дублирования, если канал отправляет несколько сообщений подряд об одном событии.</string>
     <string name="settings_reset_factory_button">Сбросить настройки</string>
     <string name="settings_reset_factory_dialog_title">Сбросить все настройки?</string>
     <string name="settings_reset_factory_dialog_message">Все настройки приложения вернутся к заводским (звук, расписание, лимит журнала, пауза между тревогами). Мониторинг будет выключен.\n\nКлючевые слова, стоп-слова, каналы Telegram и фильтры каналов будут очищены.\n\nЖурнал событий будет удалён.\n\nПодтверждение Privacy Policy и Terms of Use сохранится — повторно соглашаться не придётся.\n\nЭто действие нельзя отменить.</string>
@@ -95,10 +95,11 @@
     <string name="keywords_stop_hint">напр. всё чисто</string>
     <string name="keywords_telegram_channels">Каналы Telegram</string>
     <string name="keywords_telegram_channel_hint">напр. Повітряні Сили ЗС України</string>
-    <string name="keywords_telegram_channel_tip">Тревога срабатывает только по сообщениям из этих каналов</string>
-    <string name="keywords_telegram_channels_empty_hint">Пусто — Vartovyi слушает все каналы Telegram</string>
-    <string name="keywords_telegram_channel_tooltip">⚠️ НЕ вводите ссылку (t.me/…) или адрес (@channel) — они никогда не совпадут с названием в уведомлении.\n\nВводите название канала точно так, как оно отображается в вашем списке чатов Telegram — например, «Повітряні Сили ЗС України», а не «t.me/kpszsu» или «@kpszsu».\n\nEmoji на краях названия не влияют на совпадение: «Повітряні цілі Київ» и «🚨 Повітряні цілі Київ» сработают одинаково.\n\n☝️ Регистр не имеет значения — пишите название так, как удобно.\n\n💡 Совет: если тревоги от канала перестали приходить — проверьте, не изменил ли он название. Если изменил — удалите и добавьте снова с новым названием.</string>
-    <string name="keywords_popular_channels_title">Популярные каналы</string>
+    <string name="keywords_choose_from_list">Выбрать из списка</string>
+    <string name="keywords_popular_channels_no_match">По вашему запросу каналов не найдено</string>
+    <string name="keywords_telegram_channel_tip">Сейчас отслеживаются уведомления только для выбранных каналов</string>
+    <string name="keywords_telegram_channels_empty_hint">Сейчас отслеживаются все уведомления от Telegram</string>
+    <string name="keywords_telegram_channel_tooltip">Если список каналов Telegram пуст — Vartovyi слушает все уведомления от Telegram, которые вам приходят. Добавьте каналы, чтобы тревога срабатывала только по сообщениям из выбранных каналов.\n\n⚠️ НЕ вводите ссылку (t.me/…) или адрес (@channel) — они никогда не совпадут с названием в уведомлении.\n\nВводите название канала точно так, как оно отображается в вашем списке чатов Telegram — например, «Повітряні Сили ЗС України», а не «t.me/kpszsu» или «@kpszsu».\n\nEmoji на краях названия не влияют на совпадение: «Повітряні цілі Київ» и «🚨 Повітряні цілі Київ» сработают одинаково.\n\n☝️ Регистр не имеет значения — пишите название так, как удобно.\n\n💡 Совет: если тревоги от канала перестали приходить — проверьте, не изменил ли он название. Если изменил — удалите и добавьте снова с новым названием.</string>
     <string name="keywords_popular_channels_group_national">Общенациональные</string>
     <string name="keywords_popular_channels_group_chernihiv">Чернигов</string>
     <string name="keywords_popular_channels_group_sumy">Сумы</string>
