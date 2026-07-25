@@ -1,5 +1,6 @@
 package com.revakovskyi.vartovyi.ui.screen.onboarding
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.revakovskyi.vartovyi.usecase.onboarding.ObserveOnboardingCompletedUseCase
@@ -12,6 +13,8 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+
+private const val ONBOARDING_VIEW_MODEL_TAG = "OnboardingViewModel"
 
 class OnboardingViewModel(
     private val observeOnboardingCompletedUseCase: ObserveOnboardingCompletedUseCase,
@@ -72,14 +75,33 @@ class OnboardingViewModel(
 
     private fun complete() {
         viewModelScope.launch {
-            setOnboardingCompletedUseCase()
+            runCatching { setOnboardingCompletedUseCase() }
+                .onFailure { throwable ->
+                    Log.e(
+                        ONBOARDING_VIEW_MODEL_TAG,
+                        "Failed to mark onboarding completed",
+                        throwable,
+                    )
+                }
+
             _events.send(OnboardingUiContract.Event.Close)
         }
     }
 
     private fun skip() {
         viewModelScope.launch {
-            if (!_state.value.isCompleted) {
+            val wasCompletedBefore = _state.value.isCompleted
+
+            runCatching { setOnboardingCompletedUseCase() }
+                .onFailure { throwable ->
+                    Log.e(
+                        ONBOARDING_VIEW_MODEL_TAG,
+                        "Failed to mark onboarding completed",
+                        throwable,
+                    )
+                }
+
+            if (!wasCompletedBefore) {
                 _events.send(OnboardingUiContract.Event.ShowSkipHint)
             }
             _events.send(OnboardingUiContract.Event.Close)
