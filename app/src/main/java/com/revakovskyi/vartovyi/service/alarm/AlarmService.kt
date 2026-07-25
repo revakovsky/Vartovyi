@@ -40,6 +40,7 @@ import kotlinx.coroutines.withTimeoutOrNull
 import org.koin.android.ext.android.inject
 import java.io.IOException
 import java.util.concurrent.atomic.AtomicBoolean
+import kotlin.time.Duration.Companion.milliseconds
 
 private const val NOTIFICATION_ID = 1001
 private const val CHANNEL_ID = "vartovyi_alarm"
@@ -48,13 +49,11 @@ private val HEADS_UP_TRIGGER_VIBRATION = longArrayOf(0, 1)
 private const val ALARM_TAG = "AlarmService"
 private const val RED_ACCENT_COLOR_RES_ID = android.R.color.holo_red_dark
 private const val EMPTY_VALUE = ""
-private const val ALARM_ACTIVITY_OPEN_RETRY_DELAY_MILLIS = 500L
-private const val ALARM_ACTIVITY_OPEN_MAX_RETRIES = 2
 private const val DEFAULT_ALARM_DURATION_SECONDS = 60
 private const val DEFAULT_ALARM_VOLUME_PERCENT = 100
 private const val PERCENT_DIVISOR = 100f
 private const val MILLIS_IN_SECOND = 1000L
-private const val SETTINGS_READ_TIMEOUT_MILLIS = 2_000L
+private val SETTINGS_READ_TIMEOUT_MILLIS = 2_000.milliseconds
 private const val WAKE_LOCK_TAG = "Vartovyi:AlarmWakeLock"
 private const val WAKE_LOCK_BUFFER_MILLIS = 15_000L
 private const val INITIAL_WAKE_LOCK_TIMEOUT_MILLIS = 30_000L
@@ -79,7 +78,6 @@ class AlarmService : Service() {
     private val observeScheduleSettingsUseCase: ObserveScheduleSettingsUseCase by inject()
 
     private val serviceScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
-    private var openAlarmActivityJob: Job? = null
     private var alarmAutoStopJob: Job? = null
 
     private val isAlarmActive = AtomicBoolean(false)
@@ -117,7 +115,6 @@ class AlarmService : Service() {
 
         requestAudioFocus()
         ensureForegroundNotification()
-        openAlarmActivityWithRetries()
         startAlarmSoundWithResolvedSettings()
         startVibration()
         scheduleAlarmAutoStop()
@@ -135,7 +132,6 @@ class AlarmService : Service() {
         releaseAudioFocus()
         stopAlarmSound()
         stopVibration()
-        openAlarmActivityJob?.cancel()
         alarmAutoStopJob?.cancel()
         serviceScope.cancel()
     }
@@ -186,7 +182,6 @@ class AlarmService : Service() {
         releaseScreenWakeLock()
         releaseWakeLock()
         releaseAudioFocus()
-        openAlarmActivityJob?.cancel()
         alarmAutoStopJob?.cancel()
 
         notifyAlarmStopped()
@@ -207,7 +202,7 @@ class AlarmService : Service() {
                 return@launch
             }
 
-            delay(alarmDurationMillis)
+            delay(alarmDurationMillis.milliseconds)
             stopAlarmSafely()
         }
     }
@@ -287,25 +282,6 @@ class AlarmService : Service() {
     private fun canUseFullScreenIntent(): Boolean {
         return Build.VERSION.SDK_INT < Build.VERSION_CODES.UPSIDE_DOWN_CAKE ||
                 getSystemService(NotificationManager::class.java).canUseFullScreenIntent()
-    }
-
-    private fun openAlarmActivityWithRetries() {
-        openAlarmActivityJob?.cancel()
-        openAlarmActivityJob = serviceScope.launch {
-            for (retryCount in 0..ALARM_ACTIVITY_OPEN_MAX_RETRIES) {
-                if (alarmStateHolder.isVisible.value) return@launch
-
-                runCatching {
-                    startActivity(createAlarmActivityIntent())
-                }.onFailure { throwable ->
-                    Log.e(ALARM_TAG, "Failed to open alarm activity", throwable)
-                }
-
-                if (retryCount < ALARM_ACTIVITY_OPEN_MAX_RETRIES) {
-                    delay(ALARM_ACTIVITY_OPEN_RETRY_DELAY_MILLIS)
-                }
-            }
-        }
     }
 
     private fun createAlarmActivityIntent(): Intent {
