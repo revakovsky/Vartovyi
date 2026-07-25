@@ -30,7 +30,6 @@ class ExportKeywordsUseCaseImpl(
                 keywords = keywordsRepository.keywords.first(),
                 stopWords = keywordsRepository.stopWords.first(),
                 telegramChannels = keywordsRepository.telegramChannels.first(),
-                isTelegramChannelFilterEnabled = keywordsRepository.isTelegramChannelFilterEnabled.first(),
             )
 
             ExportResult.Success(JSON.encodeToString(KeywordsBackup.serializer(), backup))

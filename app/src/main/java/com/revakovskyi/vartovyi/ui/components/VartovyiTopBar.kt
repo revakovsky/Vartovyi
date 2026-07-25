@@ -39,6 +39,7 @@ fun VartovyiTopBar(
     isEmergencyStopVisible: Boolean,
     scrollBehavior: TopAppBarScrollBehavior = TopAppBarDefaults.pinnedScrollBehavior(),
     additionalActions: (@Composable () -> Unit)? = null,
+    trailingActions: (@Composable () -> Unit)? = null,
     onPermissionsClick: () -> Unit,
     onEmergencyStopClick: () -> Unit,
 ) {
@@ -52,7 +53,7 @@ fun VartovyiTopBar(
         },
         actions = {
             Row(
-                horizontalArrangement = Arrangement.spacedBy(VartovyiTheme.spacing.extraSmall),
+                horizontalArrangement = Arrangement.spacedBy(VartovyiTheme.spacing.none),
                 verticalAlignment = Alignment.CenterVertically,
             ) {
                 additionalActions?.invoke()
@@ -97,6 +98,8 @@ fun VartovyiTopBar(
                         modifier = Modifier.size(TOP_BAR_PERMISSION_ICON_SIZE)
                     )
                 }
+
+                trailingActions?.invoke()
             }
         },
         colors = TopAppBarDefaults.topAppBarColors(

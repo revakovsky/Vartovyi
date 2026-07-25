@@ -3,9 +3,7 @@ package com.revakovskyi.vartovyi.usecase.keywords
 import assertk.assertThat
 import assertk.assertions.containsExactly
 import assertk.assertions.isEqualTo
-import assertk.assertions.isFalse
 import assertk.assertions.isInstanceOf
-import assertk.assertions.isTrue
 import com.revakovskyi.vartovyi.model.ImportStrategy
 import com.revakovskyi.vartovyi.model.KeywordsBackup
 import com.revakovskyi.vartovyi.model.KeywordsDataSnapshot
@@ -19,7 +17,6 @@ private fun backupJson(
     keywords: List<String> = emptyList(),
     stopWords: List<String> = emptyList(),
     telegramChannels: List<String> = emptyList(),
-    isTelegramChannelFilterEnabled: Boolean = false,
     version: Int = KeywordsBackup.CURRENT_VERSION,
 ): String {
     val backup = KeywordsBackup(
@@ -27,7 +24,6 @@ private fun backupJson(
         keywords = keywords,
         stopWords = stopWords,
         telegramChannels = telegramChannels,
-        isTelegramChannelFilterEnabled = isTelegramChannelFilterEnabled,
     )
 
     return Json.encodeToString(KeywordsBackup.serializer(), backup)
@@ -53,7 +49,6 @@ class ImportKeywordsUseCaseTest {
                 keywords = listOf("старе"),
                 stopWords = listOf("стоп"),
                 telegramChannels = listOf("Old Channel"),
-                isTelegramChannelFilterEnabled = true,
             )
 
             val result = useCase(
@@ -61,7 +56,6 @@ class ImportKeywordsUseCaseTest {
                     keywords = listOf("ракета"),
                     stopWords = listOf("ппо"),
                     telegramChannels = listOf("New Channel"),
-                    isTelegramChannelFilterEnabled = false,
                 ),
                 strategy = ImportStrategy.REPLACE,
             )
@@ -78,7 +72,6 @@ class ImportKeywordsUseCaseTest {
                     keywords = listOf("ракета"),
                     stopWords = listOf("ппо"),
                     telegramChannels = listOf("New Channel"),
-                    isTelegramChannelFilterEnabled = false,
                 )
             )
         }
@@ -104,20 +97,6 @@ class ImportKeywordsUseCaseTest {
             assertThat(repository.snapshot.value.keywords).containsExactly("ракета")
             assertThat(repository.snapshot.value.stopWords).containsExactly("ППО")
             assertThat(repository.snapshot.value.telegramChannels).containsExactly("Channel")
-        }
-
-        @Test
-        fun `takes telegram channel filter flag from the backup`() = runTest {
-            repository.snapshot.value = repository.snapshot.value.copy(
-                isTelegramChannelFilterEnabled = true,
-            )
-
-            useCase(
-                jsonContent = backupJson(isTelegramChannelFilterEnabled = false),
-                strategy = ImportStrategy.REPLACE,
-            )
-
-            assertThat(repository.snapshot.value.isTelegramChannelFilterEnabled).isFalse()
         }
 
     }
@@ -232,30 +211,6 @@ class ImportKeywordsUseCaseTest {
                 .containsExactly("News", "news")
         }
 
-        @Test
-        fun `keeps telegram channel filter enabled when enabled on either side`() = runTest {
-            repository.snapshot.value = repository.snapshot.value.copy(
-                isTelegramChannelFilterEnabled = true,
-            )
-
-            useCase(
-                jsonContent = backupJson(isTelegramChannelFilterEnabled = false),
-                strategy = ImportStrategy.MERGE,
-            )
-
-            assertThat(repository.snapshot.value.isTelegramChannelFilterEnabled).isTrue()
-        }
-
-        @Test
-        fun `keeps telegram channel filter disabled when disabled on both sides`() = runTest {
-            useCase(
-                jsonContent = backupJson(isTelegramChannelFilterEnabled = false),
-                strategy = ImportStrategy.MERGE,
-            )
-
-            assertThat(repository.snapshot.value.isTelegramChannelFilterEnabled).isFalse()
-        }
-
     }
 
     @Nested
@@ -307,7 +262,6 @@ class ImportKeywordsUseCaseTest {
                 keywords = listOf("ракета"),
                 stopWords = listOf("ппо"),
                 telegramChannels = listOf("Channel"),
-                isTelegramChannelFilterEnabled = true,
             ),
             strategy = ImportStrategy.MERGE,
         )
@@ -324,7 +278,6 @@ class ImportKeywordsUseCaseTest {
                 keywords = listOf("ракета"),
                 stopWords = listOf("ппо"),
                 telegramChannels = listOf("Channel"),
-                isTelegramChannelFilterEnabled = true,
             )
         )
     }

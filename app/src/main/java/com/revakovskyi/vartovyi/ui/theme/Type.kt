@@ -18,6 +18,7 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.sp
 import com.revakovskyi.vartovyi.R
 
@@ -106,6 +107,9 @@ val VartovyiTypography = Typography(
 
 val Typography.bodyLink: TextStyle
     get() = bodyLarge.copy(textDecoration = TextDecoration.Underline)
+
+/** Lower bound for `TextAutoSize` shrinking — below this text stops being readable */
+val MinAutoSizeFontSize: TextUnit = 8.sp
 
 @Preview(
     name = "Typography scale",

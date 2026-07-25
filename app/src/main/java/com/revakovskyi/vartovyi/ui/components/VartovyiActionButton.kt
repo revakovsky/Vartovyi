@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
+import androidx.compose.foundation.text.TextAutoSize
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
@@ -20,6 +21,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import com.revakovskyi.vartovyi.ui.theme.MinAutoSizeFontSize
 import com.revakovskyi.vartovyi.ui.theme.VartovyiTheme
 
 private const val BORDER_STROKE_WIDTH_DP = 1
@@ -82,6 +84,12 @@ fun VartovyiActionButton(
                 text = text,
                 style = VartovyiTheme.typography.titleMedium,
                 color = contentColor,
+                maxLines = 1,
+                softWrap = false,
+                autoSize = TextAutoSize.StepBased(
+                    minFontSize = MinAutoSizeFontSize,
+                    maxFontSize = VartovyiTheme.typography.titleMedium.fontSize,
+                ),
             )
         }
     } else {
@@ -115,6 +123,12 @@ fun VartovyiActionButton(
                 text = text,
                 style = VartovyiTheme.typography.titleMedium,
                 color = effectiveContentColor,
+                maxLines = 1,
+                softWrap = false,
+                autoSize = TextAutoSize.StepBased(
+                    minFontSize = MinAutoSizeFontSize,
+                    maxFontSize = VartovyiTheme.typography.titleMedium.fontSize,
+                ),
             )
         }
     }

@@ -13,7 +13,6 @@ internal class FakeKeywordsRepository : KeywordsRepository {
             keywords = emptyList(),
             stopWords = emptyList(),
             telegramChannels = emptyList(),
-            isTelegramChannelFilterEnabled = false,
         )
     )
 
@@ -27,9 +26,6 @@ internal class FakeKeywordsRepository : KeywordsRepository {
 
     override val telegramChannels: Flow<List<String>> = snapshot.map { it.telegramChannels }
 
-    override val isTelegramChannelFilterEnabled: Flow<Boolean> =
-        snapshot.map { it.isTelegramChannelFilterEnabled }
-
     override suspend fun addKeyword(keyword: String): Boolean = true
 
     override suspend fun removeKeyword(keyword: String): Boolean = true
@@ -42,7 +38,7 @@ internal class FakeKeywordsRepository : KeywordsRepository {
 
     override suspend fun removeTelegramChannel(channel: String): Boolean = true
 
-    override suspend fun setTelegramChannelFilterEnabled(enabled: Boolean): Boolean = true
+    override suspend fun migrateChannelFilterFlagIfNeeded(): Boolean = true
 
     override suspend fun seedDefaultKeywordsIfNeeded() = Unit
 

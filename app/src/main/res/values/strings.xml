@@ -8,15 +8,16 @@
     <string name="emergency_stop_content_description">Stop Alarm</string>
     <string name="permissions_title">Permissions</string>
     <string name="permissions_back">Back</string>
+    <string name="permissions_troubleshooting_question">Having trouble?</string>
+    <string name="permissions_troubleshooting_link">Troubleshooting</string>
     <string name="monitoring_active">Monitoring active</string>
     <string name="monitoring_inactive">Monitoring inactive</string>
     <string name="home_alarm_retrigger_cooldown">Next alarm not earlier than in %1$s</string>
     <string name="monitoring_activate">Activate</string>
     <string name="monitoring_deactivate">Deactivate</string>
-    <string name="home_keywords_title">Keywords</string>
     <string name="home_add_keywords_hint">No keywords added yet</string>
     <string name="home_add">Add</string>
-    <string name="home_and_more" tools:ignore="PluralsCandidate">+%d more…</string>
+    <string name="home_replace_default_keywords_hint">☝️ Replace the example words with your own — you can delete the examples!</string>
     <string name="home_last_trigger">Last trigger</string>
     <string name="home_no_triggers">No triggers yet</string>
     <string name="settings_test_alarm">Test alarm</string>
@@ -37,6 +38,8 @@
     <string name="settings_section_data">Data</string>
     <string name="settings_section_info">Info</string>
     <string name="settings_open_onboarding_guide">Open onboarding guide</string>
+    <string name="settings_open_troubleshooting">Troubleshooting</string>
+    <string name="troubleshooting_back">Back</string>
     <string name="settings_version_number" translatable="false">version: %1$s</string>
     <string name="settings_schedule_enabled_title">Work by schedule</string>
     <string name="settings_schedule_start_title">Start</string>
@@ -48,16 +51,16 @@
     <string name="settings_data_log_size_value_items">%1$d</string>
     <string name="settings_data_alarm_cooldown_title">Alarm cooldown</string>
     <string name="settings_data_alarm_cooldown_value_minutes">%1$d min</string>
-    <string name="settings_data_alarm_cooldown_tooltip">After an alarm fires, new alarms are blocked for the selected duration (1 / 3 / 5 / 10 min). Default — 5 min. Messages during the cooldown are recorded in the log as Skipped (cooldown).\n\n☝️ Stopping the alarm manually does not reset the cooldown — it ends only when the selected time has elapsed.\n\n💡 Prevents duplicate alerts when a channel sends several messages about the same event in quick succession.</string>
+    <string name="settings_data_alarm_cooldown_tooltip" tools:ignore="TypographyFractions">After an alarm fires, new alarms are blocked for the selected duration (1 / 3 / 5 / 10 min). Default — 5 min. Messages during the cooldown are recorded in the log as Skipped (cooldown).\n\n☝️ Stopping the alarm manually does not reset the cooldown — it ends only when the selected time has elapsed.\n\n💡 Prevents duplicate alerts when a channel sends several messages about the same event in quick succession.</string>
     <string name="settings_reset_factory_button">Reset settings</string>
     <string name="settings_reset_factory_dialog_title">Reset all settings?</string>
-    <string name="settings_reset_factory_dialog_message">All app settings will return to factory defaults (sound, schedule, log limits, cooldowns). Monitoring will be turned off.\n\nKeywords, stop words, Telegram channels, and channel filters will be cleared.\n\nThe event log will be erased.\n\nYour acceptance of Privacy Policy and Terms of Use stays saved — you will not be asked to consent again.\n\nThis cannot be undone.</string>
+    <string name="settings_reset_factory_dialog_message">All app settings will return to factory defaults (sound, schedule, log limits, cooldowns). Monitoring will be turned off.\n\nTelegram channels, trigger words, and stop words will be cleared.\n\nThe event log will be erased.\n\nYour acceptance of Privacy Policy and Terms of Use stays saved — you will not be asked to consent again.\n\nThis cannot be undone.</string>
     <string name="settings_reset_factory_dialog_confirm">Reset</string>
     <string name="settings_reset_factory_dialog_dismiss">Cancel</string>
     <string name="settings_reset_factory_completed">Settings were reset to factory defaults</string>
     <string name="settings_test_alarm_channel_name">Test Alarm</string>
     <string name="settings_test_alarm_message_text">This is a test alarm notification.</string>
-    <string name="home_permissions_required_snackbar">Grant required permissions before activating monitoring</string>
+    <string name="home_permissions_required_snackbar">Grant required permissions to start monitoring</string>
     <string name="home_permissions_required_snackbar_action">Permissions</string>
     <string name="legal_consent_title">Before you start</string>
     <string name="legal_consent_description">To continue, review Privacy Policy and Terms of Use. By tapping Confirm, you acknowledge that you have read and accepted these documents.</string>
@@ -80,7 +83,7 @@
     <string name="alarm_dismiss">Dismiss</string>
     <string name="alarm_title">Alarm</string>
     <string name="keywords_trigger_words">Trigger words</string>
-    <string name="keywords_trigger_tooltip">🟢 Mode \"Word\":\n- searches for a standalone word in its exact form;\n- \"rocket\" matches \"a rocket is flying\", but not \"rockets\" or \"rocketry\";\n- \"nd\" matches \"alert in nd\", but not \"fundament\".\n\n🟢 Mode \"All words\":\n- all entered words must be present (order does not matter);\n- each word is matched exactly — \"rocket\" will not match \"rockets\" or \"rocketry\";\n- separate with space, comma, dash, or +;\n- \"rocket + kharkiv\" matches \"rocket flying to Kharkiv\", but not \"rockets over Kharkiv\" and not \"rocket flying to Kyiv\".\n\n🟢 Mode \"Phrase\":\n- searches for an exact sequence of words;\n- do not use quotation marks;\n- \"rocket to kharkiv\" matches only when this exact phrase is present.\n\n☝️ Letter case is ignored in all modes (uppercase/lowercase does not affect matching).\n\n💡 Tip:\n- use \"All words\" or \"Phrase\" for precise alerts;\n- use \"Word\" for broader alerts;\n- in \"Word\" mode, typing multiple words will automatically switch to \"All words\" (2–6 words) or \"Phrase\" (7+ words);\n- to enter a phrase directly — wrap the text in quotes: \"rocket to the city\";\n- after your first alert, open the Logs screen and copy the words you need directly from there.</string>
+    <string name="keywords_trigger_tooltip">🟢 Mode \"Word\":\n- searches for a standalone word in its exact form;\n- \"rocket\" matches \"a rocket is flying\", but not \"rockets\" or \"rocketry\";\n- \"nd\" matches \"alert in nd\", but not \"fundament\".\n\n🟢 Mode \"All words\":\n- all entered words must be present (order does not matter);\n- each word is matched exactly — \"rocket\" will not match \"rockets\" or \"rocketry\";\n- separate with space, comma, dash, or +;\n- \"rocket + kharkiv\" matches \"rocket flying to Kharkiv\", but not \"rockets over Kharkiv\" and not \"rocket flying to Kyiv\".\n\n🟢 Mode \"Phrase\":\n- searches for an exact sequence of words;\n- do not use quotation marks;\n- \"rocket to kharkiv\" matches only when this exact phrase is present.\n\n☝️ Letter case is ignored in all modes (uppercase/lowercase does not affect matching).\n\n💡 Tip:\n- use \"All words\" or \"Phrase\" for precise alerts;\n- use \"Word\" for broader alerts;\n- in \"Word\" mode, typing multiple words will automatically switch to \"All words\" (2–6 words) or \"Phrase\" (7+ words);\n- to enter a phrase directly — wrap the text in quotes: \"rocket to the city\";\n- if your channel posts in Russian — add Russian variants of the words too («Київ» and «Киев»);\n- after your first alert, open the Logs screen and copy the words you need directly from there.</string>
     <string name="keywords_trigger_hint_word">e.g. rocket</string>
     <string name="keywords_trigger_hint_all_words">e.g. rocket + kharkiv</string>
     <string name="keywords_trigger_hint_phrase">e.g. rocket to kharkiv</string>
@@ -92,12 +95,16 @@
     <string name="keywords_stop_tooltip">If a message contains any stop word — the alarm will not fire.\n\nUseful for filtering "all clear" messages where your trigger words may also appear.\n\n⚠️ A stop word is matched as a substring: "safe" will also block "unsafe".\n\n☝️ Letter case is ignored (uppercase/lowercase does not affect matching).\n\n💡 Example: trigger "Kyiv" + stop word "all clear" → "all clear, no more threat for Kyiv" will not trigger the alarm.</string>
     <string name="keywords_stop_hint">e.g. all clear</string>
     <string name="keywords_telegram_channels">Telegram channels</string>
-    <string name="keywords_optional">Optional</string>
-    <string name="keywords_all_channels_monitored">All channels are being monitored</string>
     <string name="keywords_telegram_channel_hint">e.g. Повітряні Сили ЗС України</string>
-    <string name="keywords_telegram_channel_tip">Only messages from these channels will trigger the alarm</string>
-    <string name="keywords_telegram_channel_tooltip">⚠️ Do NOT enter a link (t.me/…) or channel address (@channel) — they will never match the name in the notification.\n\nEnter the channel name exactly as it appears in your Telegram chat list — for example, "Повітряні Сили ЗС України", not "t.me/kpszsu" or "@kpszsu".\n\nEmoji at the edges of the name do not affect matching: "Повітряні цілі Київ" and "🚨 Повітряні цілі Київ" work the same.\n\n☝️ Letter case does not matter — type the name however you like.\n\n💡 Tip: if alarms from a channel stop coming — check whether it was renamed. If so, remove it and add it again with the new name.</string>
-    <string name="keywords_popular_channels_title">Popular channels</string>
+    <string name="keywords_choose_from_list">Choose from list</string>
+    <string name="keywords_popular_channels_no_match">No channels match your search</string>
+    <string name="keywords_telegram_channel_tip">Currently only notifications from selected channels are tracked</string>
+    <string name="keywords_telegram_channels_empty_hint">Currently all Telegram notifications are tracked</string>
+    <string name="keywords_telegram_channel_tooltip">While the Telegram channel list is empty, Vartovyi reads every Telegram notification that arrives on your phone.\n\nWe recommend adding the channels you rely on during an alert. Then Vartovyi looks for your trigger words only in notifications from those channels — this reduces false alarms (other notifications may contain the same words or phrases, but in a different context).\n\nYou can pick channels from our list of ready-made channels, or type the names yourself if your channel isn\'t in the list.\n\nType the name exactly as the channel appears in Telegram, for example: «Повітряні Сили ЗС України», not «t.me/kpszsu» or «@kpszsu».\n\nEmoji at the edges of the name do not affect matching: «Повітряні цілі Київ» and «🚨 Повітряні цілі Київ» work the same.\n\n☝️ Letter case does not matter — type the name however you like.\n\n💡 Tip: if alarms from a channel stop coming — check whether the Telegram channel changed its name. If so, remove it and add it again with the new name.</string>
+    <string name="keywords_channels_intro_dialog_title">Filter by channel</string>
+    <string name="keywords_channels_intro_dialog_message">Right now the Telegram channels field is empty — in this mode the app reads every Telegram notification that arrives on your phone.\n\nWe recommend adding to the Telegram channels field the channels you rely on for alerts. Then Vartovyi looks for your trigger words only in notifications from those channels — and this reduces false alarms (your trigger words may also appear in other notifications unrelated to an alert).\n\nPick the air-raid alert channels you need from our list of ready-made channels, or type the names yourself if your channel isn\'t in our list.</string>
+    <string name="keywords_channels_intro_dialog_dont_show_again">Don\'t show again</string>
+    <string name="keywords_channels_intro_dialog_confirm">Got it</string>
     <string name="keywords_popular_channels_group_national">Nationwide</string>
     <string name="keywords_popular_channels_group_chernihiv">Chernihiv</string>
     <string name="keywords_popular_channels_group_sumy">Sumy</string>
@@ -129,16 +136,6 @@
         <item quantity="one">Up to %d keyword allowed</item>
         <item quantity="other">Up to %d keywords allowed</item>
     </plurals>
-    <string name="keywords_restore_defaults">Restore defaults</string>
-    <string name="keywords_restore_defaults_dialog_title">Restore defaults?</string>
-    <string name="keywords_restore_defaults_dialog_message">Default trigger words and stop words will be added to your lists. Existing data is not removed, duplicates are skipped.</string>
-    <string name="keywords_restore_defaults_dialog_confirm">Restore</string>
-    <string name="keywords_restore_defaults_dialog_dismiss">Cancel</string>
-    <plurals name="keywords_restore_defaults_added">
-        <item quantity="one">Restored %d default keyword</item>
-        <item quantity="other">Restored %d default keywords</item>
-    </plurals>
-    <string name="keywords_restore_nothing_added">All default keywords are already in the list</string>
     <string name="permissions_warning">Grant all required and recommended permissions for stable background monitoring</string>
     <string name="permissions_listener_title">Notification access</string>
     <string name="permissions_listener_description">Allows intercepting Telegram notifications to search for trigger words. Without it, monitoring does not work</string>
@@ -173,7 +170,7 @@
     <string name="log_info_dialog_body">All Telegram notifications received while monitoring is active are shown here.\n\nEntry statuses:\n\n• Alarm — a trigger word matched and the siren fired.\n\n• Skipped (cooldown) — a trigger word matched, but the delay between alarms configured in app settings has not elapsed yet.\n\n• Skipped — the alarm did not fire for one of the following reasons:\n  - no trigger word matched\n  - a stop word was found in the message\n  - the channel is not in the allowed list\n  - the message was sent outside the schedule configured in app settings\n\n💡 To copy a channel name or message text, tap the corresponding action buttons on the right.</string>
     <string name="keywords_clear">Clear all lists</string>
     <string name="keywords_clear_dialog_title">Clear all lists?</string>
-    <string name="keywords_clear_dialog_message">Trigger words, stop words, and Telegram channels will be removed. Channel filtering will be turned off.\n\nIf an alarm is playing — it will stop. Monitoring will be turned off.\n\n⚠️ This cannot be undone.</string>
+    <string name="keywords_clear_dialog_message">Telegram channels, trigger words, and stop words will be removed.\n\nIf an alarm is playing — it will stop. Monitoring will be turned off.\n\n⚠️ This cannot be undone.</string>
     <string name="keywords_clear_dialog_confirm">Clear</string>
     <string name="keywords_clear_dialog_dismiss">Cancel</string>
     <string name="keywords_import_strategy_dialog_title">Import</string>
@@ -184,8 +181,9 @@
     <string name="keywords_clear_completed">Keyword lists were cleared</string>
     <string name="keywords_export">Export</string>
     <string name="keywords_import">Import</string>
+    <string name="keywords_menu_content_description">More options</string>
     <string name="keywords_export_dialog_title">Export</string>
-    <string name="keywords_export_dialog_message">Trigger words, stop words, and Telegram channels will be saved. How would you like to export your data?\n\n• Save file locally to device\n• Share via other apps</string>
+    <string name="keywords_export_dialog_message">Telegram channels, trigger words, and stop words will be saved. How would you like to export your data?\n\n• Save file locally to device\n• Share via other apps</string>
     <string name="keywords_export_save">Save to device</string>
     <string name="keywords_export_share">Share</string>
     <string name="keywords_export_cancel">Cancel</string>
@@ -207,54 +205,38 @@
     <string name="onboarding_next">Next</string>
     <string name="onboarding_complete">Done</string>
     <string name="onboarding_skip">Skip</string>
-    <string name="onboarding_open_permissions">Open permissions</string>
+    <string name="onboarding_skip_hint">The onboarding guide is always available in Settings → Info</string>
 
     <string name="onboarding_welcome_title">Vartovyi</string>
-    <string name="onboarding_welcome_body">Set up once — Vartovyi listens. Detects. Alerts.\n\nVartovyi works together with Telegram — in the background it reads notifications from Telegram channels, searches for your trigger words and alerts you about matches.\n\nThe moment a match is found — the app immediately triggers a loud siren, even if your phone is on silent</string>
-    <string name="onboarding_welcome_privacy_note">🔒 All your data is stored only on your device. Nothing is sent to any servers or third-party services — your privacy is fully protected</string>
+    <string name="onboarding_welcome_tagline">Set up once — Vartovyi listens. Detects. Alerts.</string>
+    <string name="onboarding_welcome_explanation">After you set up Vartovyi and turn on monitoring, it starts watching Telegram notifications in the background and looks for matches with the trigger words you enter yourself in Vartovyi.</string>
+    <string name="onboarding_welcome_siren">The moment a match is found — Vartovyi immediately triggers a loud siren, even if your phone is on silent.</string>
+    <string name="onboarding_welcome_telegram_required">That\'s why Vartovyi works in pair with Telegram, which must be installed on your device. If you don\'t have Telegram yet — download it from Google Play or another app store. Official Telegram, Telegram X and NekoX are supported.</string>
+    <string name="onboarding_welcome_keywords_hint">The «Keywords» screen already has an example of how to enter trigger words correctly — just replace them with your own</string>
+    <string name="onboarding_welcome_privacy_note">🔒 All your data is stored only on your device. Nothing is sent to any servers or third-party services — your privacy is fully protected!</string>
 
     <string name="onboarding_telegram_title">Set up Telegram</string>
-    <string name="onboarding_telegram_body_1">If Telegram is not installed yet — download it from Google Play or any other app store. Supported clients: official Telegram, Telegram X and NekoX.\n\nFind a channel in the Telegram app that reports air raid alerts for all of Ukraine or specifically your region or city.\n⚠️ MAKE SURE to subscribe to that channel! This is where Vartovyi will receive notifications to monitor</string>
-    <string name="onboarding_telegram_body_2">⚠️ MAKE SURE to enable notifications for the channel — without them Vartovyi will not receive any messages!\n\nChannel settings → «Notify» → «With sound» or «Without sound». We recommend without sound — Vartovyi will sound the siren</string>
+    <string name="onboarding_telegram_intro">Set up Telegram in three steps:</string>
+    <string name="onboarding_telegram_step_1_title">1. Subscribe to a channel</string>
+    <string name="onboarding_telegram_step_1_body">In Telegram, find and subscribe to one or more channels that report air raid alerts, if you haven\'t already. Choose channels for your region or city — that way the alerts are the most relevant to you.</string>
+    <string name="onboarding_telegram_step_2_title">2. Turn on the channel\'s notifications</string>
+    <string name="onboarding_telegram_step_2_body">⚠️ Without notifications enabled, Vartovyi receives no messages and cannot read the notification text!\n\nOpen the channel and turn on its notifications with the «Notify» button at the bottom. From now on the channel\'s notifications will arrive on your device.</string>
+    <string name="onboarding_telegram_step_3_title">3. Turn off the notification sound</string>
+    <string name="onboarding_telegram_step_3_body">So the channel doesn\'t distract you with constant unnecessary notifications — turn off its sound, and Vartovyi will sound the siren at the right moment.\n\nOpen the channel → three dots in the top-right corner → «Notify» → choose «Without sound».\n\nIf you also want to hear Telegram\'s own sound — you can skip this step</string>
 
-    <string name="onboarding_permissions_title">Grant permissions</string>
-    <string name="onboarding_permissions_mandatory_header">Required</string>
-    <string name="onboarding_permissions_recommended_header">Recommended</string>
-    <string name="onboarding_permissions_footer">A detailed description of each permission is available on the Permissions screen inside the app</string>
-    <string name="onboarding_permissions_mandatory_granted">All required permissions granted</string>
-    <string name="onboarding_permissions_recommended_granted">All recommended permissions granted</string>
-    <string name="onboarding_permissions_all_granted">All permissions granted</string>
-
-    <string name="keywords_back">Back</string>
-    <string name="onboarding_keywords_title">Keywords</string>
-    <string name="onboarding_keywords_intro">Keywords are the core setting — they determine when the siren triggers.</string>
-    <string name="onboarding_keywords_trigger_words_header">Trigger words</string>
-    <string name="onboarding_keywords_trigger_words_body">A message containing these words will trigger the siren. Three modes: Word, All Words, Phrase.</string>
-    <string name="onboarding_keywords_stop_words_header">Stop words</string>
-    <string name="onboarding_keywords_stop_words_body">If a word is found in a message, the alarm won\'t fire.</string>
-    <string name="onboarding_keywords_channel_filter_header">Channel filter</string>
-    <string name="onboarding_keywords_channel_filter_body">Optional. Restricts monitoring to selected Telegram channels only.</string>
-    <string name="onboarding_keywords_notes">☝️ If your channel posts in Russian — add Russian variants of your trigger words too (e.g. «Київ» and «Киев»).\n\n💡 After enabling Telegram notification monitoring, open the Logs screen and copy the words you need directly from there</string>
-    <string name="onboarding_open_keywords">Open keywords</string>
-    <string name="onboarding_keywords_later_hint">You can set it up now or come back to it later</string>
-
-    <string name="onboarding_device_tips_title">Device Tips</string>
-    <string name="onboarding_device_tips_intro">ℹ️ This step is optional — come back if Vartovyi stops working reliably in the background. You can open this later via «Info» in Settings</string>
-    <string name="onboarding_device_tips_lead">Some manufacturers add extra background restrictions on top of standard Android permissions. Tap your device below to see the steps</string>
-    <string name="onboarding_device_tips_xiaomi_miui_title">Xiaomi · POCO · Redmi (MIUI)</string>
-    <string name="onboarding_device_tips_xiaomi_miui_body">• Autostart — Settings → Apps → Manage apps → Vartovyi → Permissions → Autostart → enable Vartovyi (on MIUI 14 it\'s «Background autostart»)\n• Pop-up windows — Settings → Apps → Manage apps → Vartovyi → Other permissions → Display pop-up windows while running in background → enable Vartovyi</string>
-    <string name="onboarding_device_tips_xiaomi_hyperos_title">Xiaomi · POCO · Redmi (HyperOS)</string>
-    <string name="onboarding_device_tips_xiaomi_hyperos_body">• Autostart — Settings → Apps → Manage apps → Vartovyi → Background autostart → enable Vartovyi\n• Pop-up windows — Settings → Apps → Manage apps → Vartovyi → Other permissions → Display pop-up windows while running in background → enable Vartovyi</string>
-    <string name="onboarding_device_tips_samsung_title">Samsung (One UI)</string>
-    <string name="onboarding_device_tips_samsung_body">• Settings → Battery and device care → Battery → Background usage limits → Never sleeping apps → add Vartovyi\n• On One UI 7 the top item may simply be «Battery»: Settings → Battery → Background usage limits → Never sleeping apps\n• If Vartovyi is not in the list — that\'s fine. It means Samsung hasn\'t flagged it for sleeping yet. The app is already protected if Battery optimization is disabled</string>
-    <string name="onboarding_device_tips_oppo_title">OPPO · OnePlus · Realme (ColorOS / OxygenOS / Realme UI)</string>
-    <string name="onboarding_device_tips_oppo_body">• Auto-launch — Settings → App management → Auto-launch → enable Vartovyi (older ColorOS: Phone Manager → Startup Manager)\n• Battery — Settings → Battery → App Battery Management → Vartovyi → allow background activity (OnePlus: Battery optimization → Vartovyi → Don\'t optimize)</string>
-    <string name="onboarding_device_tips_huawei_title">Huawei · Honor (EMUI / HarmonyOS)</string>
-    <string name="onboarding_device_tips_huawei_body">• App launch — Settings → Battery → App launch → Vartovyi → turn off «Manage automatically» → enable Auto-launch, Secondary launch, Run in background\n• On EMUI 11+ it\'s Settings → Apps → App launch; on Honor (MagicOS) — Optimizer → App launch</string>
-    <string name="onboarding_device_tips_vivo_title">Vivo (FuntouchOS / OriginOS)</string>
-    <string name="onboarding_device_tips_vivo_body">• Autostart — Settings → More settings → Applications → Autostart → enable Vartovyi\n• Battery — Settings → Battery → High background power consumption → enable Vartovyi</string>
-    <string name="onboarding_device_tips_other_title">Other brands</string>
-    <string name="onboarding_device_tips_other_body">If the app is not working correctly in the background — search for «autostart» or «background activity» in your device Settings and allow Vartovyi</string>
-    <string name="onboarding_launch_title">Launch and test</string>
-    <string name="onboarding_launch_body">Tap Activate on the home screen — the shield will light up and Vartovyi will start monitoring Telegram notifications in the background.\n\nCheck right away that everything works:\n• Ask someone to send you a Telegram message containing your keyword (a direct message or one in a shared group).\n• Make sure notifications for that chat aren\'t muted — otherwise Vartovyi won\'t see it.\n• If you enabled the channel filter — the message must come from one of the selected channels.\n\nDidn\'t fire? Open the Logs screen — it shows whether an event arrived and what went wrong.\n\nAll set. Stay safe. 🛡\n\nYou can reopen this guide later in the Info section of the Settings screen.</string>
+    <string name="troubleshooting_lead">Some manufacturers add extra background restrictions on top of standard Android permissions. Tap your device below to see the steps</string>
+    <string name="troubleshooting_xiaomi_miui_title">Xiaomi · POCO · Redmi (MIUI)</string>
+    <string name="troubleshooting_xiaomi_miui_body">• Autostart — Settings → Apps → Manage apps → Vartovyi → Permissions → Autostart → enable Vartovyi (on MIUI 14 it\'s «Background autostart»)\n• Pop-up windows — Settings → Apps → Manage apps → Vartovyi → Other permissions → Display pop-up windows while running in background → enable Vartovyi</string>
+    <string name="troubleshooting_xiaomi_hyperos_title">Xiaomi · POCO · Redmi (HyperOS)</string>
+    <string name="troubleshooting_xiaomi_hyperos_body">• Autostart — Settings → Apps → Manage apps → Vartovyi → Background autostart → enable Vartovyi\n• Pop-up windows — Settings → Apps → Manage apps → Vartovyi → Other permissions → Display pop-up windows while running in background → enable Vartovyi</string>
+    <string name="troubleshooting_samsung_title">Samsung (One UI)</string>
+    <string name="troubleshooting_samsung_body">• Settings → Battery and device care → Battery → Background usage limits → Never sleeping apps → add Vartovyi\n• On One UI 7 the top item may simply be «Battery»: Settings → Battery → Background usage limits → Never sleeping apps\n• If Vartovyi is not in the list — that\'s fine. It means Samsung hasn\'t flagged it for sleeping yet. The app is already protected if Battery optimization is disabled</string>
+    <string name="troubleshooting_oppo_title">OPPO · OnePlus · Realme (ColorOS / OxygenOS / Realme UI)</string>
+    <string name="troubleshooting_oppo_body">• Auto-launch — Settings → App management → Auto-launch → enable Vartovyi (older ColorOS: Phone Manager → Startup Manager)\n• Battery — Settings → Battery → App Battery Management → Vartovyi → allow background activity (OnePlus: Battery optimization → Vartovyi → Don\'t optimize)</string>
+    <string name="troubleshooting_huawei_title">Huawei · Honor (EMUI / HarmonyOS)</string>
+    <string name="troubleshooting_huawei_body">• App launch — Settings → Battery → App launch → Vartovyi → turn off «Manage automatically» → enable Auto-launch, Secondary launch, Run in background\n• On EMUI 11+ it\'s Settings → Apps → App launch; on Honor (MagicOS) — Optimizer → App launch</string>
+    <string name="troubleshooting_vivo_title">Vivo (FuntouchOS / OriginOS)</string>
+    <string name="troubleshooting_vivo_body">• Autostart — Settings → More settings → Applications → Autostart → enable Vartovyi\n• Battery — Settings → Battery → High background power consumption → enable Vartovyi</string>
+    <string name="troubleshooting_other_title">Other brands</string>
+    <string name="troubleshooting_other_body">If the app is not working correctly in the background — search for «autostart» or «background activity» in your device Settings and allow Vartovyi</string>
 </resources>

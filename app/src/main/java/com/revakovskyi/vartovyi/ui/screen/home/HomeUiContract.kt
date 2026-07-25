@@ -1,6 +1,7 @@
 package com.revakovskyi.vartovyi.ui.screen.home
 
 import androidx.compose.runtime.Immutable
+import com.revakovskyi.vartovyi.constants.DEFAULT_KEYWORDS_SEED
 import com.revakovskyi.vartovyi.model.AlertEvent
 import com.revakovskyi.vartovyi.model.MonitoringState
 
@@ -17,7 +18,10 @@ interface HomeUiContract {
         val alarmRetriggerCooldownMillis: Long = 0L,
         val isListenerServiceActive: Boolean = false,
         val keywords: List<String> = emptyList(),
-    )
+    ) {
+        val needsKeywordsAttention: Boolean
+            get() = keywords.isEmpty() || keywords.all { keyword -> keyword in DEFAULT_KEYWORDS_SEED }
+    }
 
     sealed interface Action {
         data object ToggleMonitoring : Action

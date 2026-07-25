@@ -35,6 +35,7 @@ import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.revakovskyi.vartovyi.R
 import com.revakovskyi.vartovyi.ui.components.LoadingOverlay
+import com.revakovskyi.vartovyi.ui.components.SectionContainer
 import com.revakovskyi.vartovyi.ui.components.VartovyiDialog
 import com.revakovskyi.vartovyi.ui.screen.settings.components.AlarmDurationSection
 import com.revakovskyi.vartovyi.ui.screen.settings.components.AlarmSoundSection
@@ -42,7 +43,6 @@ import com.revakovskyi.vartovyi.ui.screen.settings.components.AlarmVolumeSection
 import com.revakovskyi.vartovyi.ui.screen.settings.components.DataSettingsSection
 import com.revakovskyi.vartovyi.ui.screen.settings.components.LegalDocumentsSettingsSection
 import com.revakovskyi.vartovyi.ui.screen.settings.components.ScheduleSettingsSection
-import com.revakovskyi.vartovyi.ui.screen.settings.components.SettingsSectionContainer
 import com.revakovskyi.vartovyi.ui.screen.settings.components.SettingsTestAlarmButton
 import com.revakovskyi.vartovyi.ui.theme.VartovyiTheme
 import com.revakovskyi.vartovyi.ui.util.AlarmSoundPickerHelper
@@ -61,6 +61,7 @@ fun SettingsScreen(
     viewModel: SettingsViewModel = koinViewModel(),
     onNavigateToHome: () -> Unit,
     onNavigateToOnboarding: () -> Unit,
+    onNavigateToTroubleshooting: () -> Unit,
 ) {
     val context = LocalContext.current
     val lifecycleOwner = LocalLifecycleOwner.current
@@ -116,6 +117,7 @@ fun SettingsScreen(
             }
 
             is SettingsUiContract.Event.OpenOnboardingGuide -> onNavigateToOnboarding()
+            is SettingsUiContract.Event.OpenTroubleshooting -> onNavigateToTroubleshooting()
 
             SettingsUiContract.Event.LaunchSoundPicker -> {
                 alarmSoundPickerLauncher.launch(
@@ -232,7 +234,7 @@ private fun SettingsContent(
                 modifier = Modifier.padding(vertical = VartovyiTheme.spacing.medium)
             )
 
-            SettingsSectionContainer(
+            SectionContainer(
                 title = stringResource(R.string.settings_section_data),
                 isExpanded = state.expandedSection == SettingsUiContract.SettingsSection.DATA,
                 onHeaderClick = {
@@ -262,7 +264,7 @@ private fun SettingsContent(
                 )
             }
 
-            SettingsSectionContainer(
+            SectionContainer(
                 title = stringResource(R.string.settings_section_sound),
                 isExpanded = state.expandedSection == SettingsUiContract.SettingsSection.SOUND,
                 onHeaderClick = {
@@ -302,7 +304,7 @@ private fun SettingsContent(
                 )
             }
 
-            SettingsSectionContainer(
+            SectionContainer(
                 title = stringResource(R.string.settings_section_schedule),
                 titleTooltipText = stringResource(R.string.settings_section_schedule_tooltip),
                 isExpanded = state.expandedSection == SettingsUiContract.SettingsSection.SCHEDULE,
@@ -330,7 +332,7 @@ private fun SettingsContent(
                 )
             }
 
-            SettingsSectionContainer(
+            SectionContainer(
                 title = stringResource(R.string.settings_section_info),
                 isExpanded = state.expandedSection == SettingsUiContract.SettingsSection.LEGAL,
                 onHeaderClick = {
@@ -350,6 +352,9 @@ private fun SettingsContent(
                     },
                     onOpenOnboardingGuideClick = {
                         onAction(SettingsUiContract.Action.OpenOnboardingGuide)
+                    },
+                    onOpenTroubleshootingClick = {
+                        onAction(SettingsUiContract.Action.OpenTroubleshooting)
                     },
                 )
             }

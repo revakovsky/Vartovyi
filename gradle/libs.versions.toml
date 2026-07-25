@@ -3,31 +3,31 @@
 # Config
 appId = "com.revakovskyi.vartovyi"
 
-compileSdk = "36"
-compileSdkMinorApi = "1"
+compileSdk = "37"
+compileSdkMinorApi = "0"
 minSdk = "28"
-targetSdk = "36"
+targetSdk = "37"
 
-versionCode = "6"
-versionName = "1.5"
+versionCode = "7"
+versionName = "2.0"
 
 # Build
-agp = "9.2.1"
-kotlin = "2.3.10"
+agp = "9.3.1"
+kotlin = "2.4.10"
 jvmTargetVersion = "11"
-ksp = "2.3.6"
-androidTools = "32.2.1"
+ksp = "2.3.9"
+androidTools = "32.3.1"
 
 # AndroidX
 coreKtx = "1.19.0"
 activityCompose = "1.13.0"
-composeBom = "2026.06.00"
+composeBom = "2026.06.01"
 navigationCompose = "2.9.8"
 workManager = "2.11.2"
 browser = "1.10.0"
 
 # Lifecycle
-lifecycleRuntimeKtx = "2.10.0"
+lifecycleRuntimeKtx = "2.11.0"
 
 # DB
 dataStore = "1.2.1"
@@ -45,12 +45,12 @@ coroutinesAndroid = "1.11.0"
 detekt = "1.23.8"
 
 # Firebase
-firebaseCrashlytics = "20.0.6"
+firebaseCrashlytics = "20.1.0"
 googleGmsGoogleServices = "4.5.0"
 googleFirebaseCrashlytics = "3.0.7"
 
 # Tests
-junit5 = "6.1.0"
+junit5 = "6.1.2"
 junit5Plugin = "2.0.1"
 assertk = "0.28.1"
 mockk = "1.14.11"

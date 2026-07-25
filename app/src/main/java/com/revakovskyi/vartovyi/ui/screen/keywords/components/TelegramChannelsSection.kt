@@ -1,45 +1,37 @@
 package com.revakovskyi.vartovyi.ui.screen.keywords.components
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.FlowRow
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.relocation.BringIntoViewRequester
 import androidx.compose.foundation.relocation.bringIntoViewRequester
-import androidx.compose.material3.FilledTonalIconButton
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButtonDefaults
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.tooling.preview.Preview
 import com.revakovskyi.vartovyi.R
+import com.revakovskyi.vartovyi.model.PopularChannelRegion
 import com.revakovskyi.vartovyi.model.PopularTelegramChannel
-import com.revakovskyi.vartovyi.ui.components.VartovyiDialog
-import com.revakovskyi.vartovyi.ui.components.VartovyiSwitch
+import com.revakovskyi.vartovyi.ui.components.SectionContainer
+import com.revakovskyi.vartovyi.ui.components.VartovyiSurface
 import com.revakovskyi.vartovyi.ui.theme.VartovyiTheme
 
 @Composable
 fun TelegramChannelsSection(
     modifier: Modifier = Modifier,
     bringIntoViewRequester: BringIntoViewRequester,
-    isEnabled: Boolean,
     channels: List<String>,
+    hasSuggestedChannels: Boolean,
     suggestedChannels: List<PopularTelegramChannel>,
     inputValue: String,
-    onToggle: () -> Unit,
     onInputChange: (value: String) -> Unit,
     onAdd: () -> Unit,
     onCopy: (text: String) -> Unit,
@@ -47,140 +39,95 @@ fun TelegramChannelsSection(
     onSuggestionSelect: (channel: String) -> Unit,
     onFocusChanged: (isFocused: Boolean) -> Unit,
 ) {
-    var showInfoDialog by remember { mutableStateOf(false) }
-    var isInputFocused by remember { mutableStateOf(false) }
+    var isSuggestionsVisible by remember { mutableStateOf(channels.isEmpty()) }
 
-    if (showInfoDialog) {
-        VartovyiDialog(
-            title = stringResource(R.string.keywords_telegram_channels),
-            message = stringResource(R.string.keywords_telegram_channel_tooltip),
-            confirmText = stringResource(R.string.ok),
-            onDismiss = { showInfoDialog = false },
-        )
-    }
-
-    Surface(
-        color = VartovyiTheme.colors.surface,
-        shape = VartovyiTheme.shapes.large,
-        modifier = modifier,
-    ) {
+    VartovyiSurface(modifier = modifier) {
         Column(
             verticalArrangement = Arrangement.spacedBy(VartovyiTheme.spacing.medium),
             modifier = Modifier.padding(VartovyiTheme.spacing.standard),
         ) {
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.SpaceBetween,
-                modifier = Modifier.fillMaxWidth(),
+            SectionTitle(
+                title = stringResource(R.string.keywords_telegram_channels),
+                tooltipText = stringResource(R.string.keywords_telegram_channel_tooltip),
+            )
+
+            Text(
+                text = stringResource(
+                    if (channels.isEmpty()) R.string.keywords_telegram_channels_empty_hint
+                    else R.string.keywords_telegram_channel_tip
+                ),
+                style = VartovyiTheme.typography.bodySmall,
+                color = VartovyiTheme.colors.tertiary,
+            )
+
+            Column(
+                verticalArrangement = Arrangement.spacedBy(VartovyiTheme.spacing.medium),
             ) {
-                Row(
-                    horizontalArrangement = Arrangement.spacedBy(VartovyiTheme.spacing.small),
-                ) {
-                    Column(
-                        verticalArrangement = Arrangement.spacedBy(VartovyiTheme.spacing.small),
-                    ) {
-                        Text(
-                            text = stringResource(R.string.keywords_telegram_channels),
-                            style = VartovyiTheme.typography.titleMedium,
-                            color = VartovyiTheme.colors.onSurface,
-                        )
+                WordInputRow(
+                    value = inputValue,
+                    hint = stringResource(R.string.keywords_telegram_channel_hint),
+                    onClear = { onInputChange("") },
+                    onValueChange = onInputChange,
+                    onAdd = onAdd,
+                    onFocusChanged = onFocusChanged,
+                    modifier = Modifier.bringIntoViewRequester(bringIntoViewRequester)
+                )
 
-                        Text(
-                            text = stringResource(R.string.keywords_optional),
-                            style = VartovyiTheme.typography.bodySmall,
-                            color = VartovyiTheme.colors.onSurfaceVariant,
-                        )
-                    }
-
-                    FilledTonalIconButton(
-                        onClick = { showInfoDialog = true },
-                        colors = IconButtonDefaults.filledTonalIconButtonColors(
-                            containerColor = VartovyiTheme.colors.onSurfaceVariant.copy(alpha = 0.35f),
+                if (hasSuggestedChannels) {
+                    SectionContainer(
+                        title = stringResource(R.string.keywords_choose_from_list),
+                        isExpanded = isSuggestionsVisible,
+                        contentPadding = PaddingValues(
+                            horizontal = VartovyiTheme.spacing.standard,
+                            vertical = VartovyiTheme.spacing.medium,
                         ),
-                        modifier = Modifier.size(VartovyiTheme.spacing.extraLarge),
+                        border = BorderStroke(
+                            width = VartovyiTheme.spacing.one,
+                            color = VartovyiTheme.colors.tertiary,
+                        ),
+                        onHeaderClick = { isSuggestionsVisible = !isSuggestionsVisible },
                     ) {
-                        Icon(
-                            imageVector = ImageVector.vectorResource(R.drawable.info),
-                            contentDescription = null,
-                            modifier = Modifier.size(VartovyiTheme.spacing.standard),
+                        PopularChannelsSuggestions(
+                            channels = suggestedChannels,
+                            onSelect = { channel ->
+                                isSuggestionsVisible = false
+                                onSuggestionSelect(channel)
+                            },
                         )
                     }
                 }
 
-                VartovyiSwitch(
-                    checked = isEnabled,
-                    onCheckedChange = { onToggle() }
-                )
-            }
-
-            if (isEnabled) {
-                Text(
-                    text = stringResource(R.string.keywords_telegram_channel_tip),
-                    style = VartovyiTheme.typography.bodySmall,
-                    color = VartovyiTheme.colors.onSurfaceVariant,
-                )
-
-                Column(
-                    verticalArrangement = Arrangement.spacedBy(VartovyiTheme.spacing.medium),
-                ) {
-                    WordInputRow(
-                        value = inputValue,
-                        hint = stringResource(R.string.keywords_telegram_channel_hint),
-                        onClear = { onInputChange("") },
-                        onValueChange = onInputChange,
-                        onAdd = onAdd,
-                        onFocusChanged = { isFocused ->
-                            isInputFocused = isFocused
-                            onFocusChanged(isFocused)
-                        },
-                        modifier = Modifier.bringIntoViewRequester(bringIntoViewRequester)
-                    )
-
-                    PopularChannelsSuggestions(
-                        visible = isInputFocused && suggestedChannels.isNotEmpty(),
-                        channels = suggestedChannels,
-                        onSelect = onSuggestionSelect,
-                    )
-
-                    if (channels.isNotEmpty()) {
-                        FlowRow(
-                            horizontalArrangement = Arrangement.spacedBy(VartovyiTheme.spacing.small),
-                            verticalArrangement = Arrangement.spacedBy(VartovyiTheme.spacing.small),
-                        ) {
-                            channels.forEach { channel ->
-                                WordChip(
-                                    text = channel,
-                                    containerColor = VartovyiTheme.colors.tertiaryContainer,
-                                    contentColor = VartovyiTheme.colors.onTertiaryContainer,
-                                    onLongPress = { onCopy(channel) },
-                                    onRemove = { onRemove(channel) },
-                                )
-                            }
+                if (channels.isNotEmpty()) {
+                    FlowRow(
+                        horizontalArrangement = Arrangement.spacedBy(VartovyiTheme.spacing.small),
+                        verticalArrangement = Arrangement.spacedBy(VartovyiTheme.spacing.small),
+                    ) {
+                        channels.forEach { channel ->
+                            WordChip(
+                                text = channel,
+                                containerColor = VartovyiTheme.colors.tertiaryContainer,
+                                contentColor = VartovyiTheme.colors.onTertiaryContainer,
+                                onLongPress = { onCopy(channel) },
+                                onRemove = { onRemove(channel) },
+                            )
                         }
                     }
                 }
-            } else {
-                Text(
-                    text = stringResource(R.string.keywords_all_channels_monitored),
-                    style = VartovyiTheme.typography.bodyMedium,
-                    color = VartovyiTheme.colors.onSurfaceVariant,
-                )
             }
         }
     }
 }
 
-@Preview(name = "Telegram channels section — disabled")
+@Preview(name = "Telegram channels section — empty")
 @Composable
-private fun PreviewTelegramChannelsSectionDisabled() {
+private fun PreviewTelegramChannelsSectionEmpty() {
     VartovyiTheme {
         TelegramChannelsSection(
             bringIntoViewRequester = remember { BringIntoViewRequester() },
-            isEnabled = false,
             channels = emptyList(),
+            hasSuggestedChannels = false,
             suggestedChannels = emptyList(),
             inputValue = "",
-            onToggle = {},
             onInputChange = {},
             onAdd = {},
             onCopy = {},
@@ -191,17 +138,22 @@ private fun PreviewTelegramChannelsSectionDisabled() {
     }
 }
 
-@Preview(name = "Telegram channels section — enabled, empty")
+@Preview(name = "Telegram channels section — empty, suggestions auto-expanded")
 @Composable
-private fun PreviewTelegramChannelsSectionEnabledEmpty() {
+private fun PreviewTelegramChannelsSectionEmptyAutoExpanded() {
     VartovyiTheme {
         TelegramChannelsSection(
             bringIntoViewRequester = remember { BringIntoViewRequester() },
-            isEnabled = true,
             channels = emptyList(),
-            suggestedChannels = emptyList(),
+            hasSuggestedChannels = true,
+            suggestedChannels = listOf(
+                PopularTelegramChannel(
+                    handle = "@kpszsu",
+                    displayName = "Повітряні Сили ЗС України",
+                    region = PopularChannelRegion.NATIONAL,
+                ),
+            ),
             inputValue = "",
-            onToggle = {},
             onInputChange = {},
             onAdd = {},
             onCopy = {},
@@ -212,17 +164,22 @@ private fun PreviewTelegramChannelsSectionEnabledEmpty() {
     }
 }
 
-@Preview(name = "Telegram channels section — enabled, with channels")
+@Preview(name = "Telegram channels section — with channels")
 @Composable
 private fun PreviewTelegramChannelsSectionWithChannels() {
     VartovyiTheme {
         TelegramChannelsSection(
             bringIntoViewRequester = remember { BringIntoViewRequester() },
-            isEnabled = true,
             channels = listOf("@air_alert_ua", "@kharkiv_alarm"),
-            suggestedChannels = emptyList(),
+            hasSuggestedChannels = true,
+            suggestedChannels = listOf(
+                PopularTelegramChannel(
+                    handle = "@kpszsu",
+                    displayName = "Повітряні Сили ЗС України",
+                    region = PopularChannelRegion.NATIONAL,
+                ),
+            ),
             inputValue = "",
-            onToggle = {},
             onInputChange = {},
             onAdd = {},
             onCopy = {},

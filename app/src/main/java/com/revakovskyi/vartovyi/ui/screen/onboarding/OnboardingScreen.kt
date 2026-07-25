@@ -28,47 +28,37 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.revakovskyi.vartovyi.R
-import com.revakovskyi.vartovyi.model.PermissionsStatus
 import com.revakovskyi.vartovyi.ui.components.VartovyiActionButton
 import com.revakovskyi.vartovyi.ui.components.VartovyiActionButtonStyle
-import com.revakovskyi.vartovyi.ui.screen.onboarding.components.OnboardingPageDeviceTips
-import com.revakovskyi.vartovyi.ui.screen.onboarding.components.OnboardingPageKeywords
-import com.revakovskyi.vartovyi.ui.screen.onboarding.components.OnboardingPageLaunch
-import com.revakovskyi.vartovyi.ui.screen.onboarding.components.OnboardingPagePermissions
 import com.revakovskyi.vartovyi.ui.screen.onboarding.components.OnboardingPageTelegram
 import com.revakovskyi.vartovyi.ui.screen.onboarding.components.OnboardingPageWelcome
 import com.revakovskyi.vartovyi.ui.screen.onboarding.components.OnboardingProgressDots
 import com.revakovskyi.vartovyi.ui.theme.VartovyiTheme
+import com.revakovskyi.vartovyi.ui.util.snackbar.SnackbarController
+import com.revakovskyi.vartovyi.ui.util.snackbar.SnackbarEvent
 import com.revakovskyi.vartovyi.utils.ObserveSingleEvents
 import org.koin.compose.viewmodel.koinViewModel
 
-private enum class OnboardingPage {
-    WELCOME, TELEGRAM, PERMISSIONS, KEYWORDS, DEVICE_TIPS, LAUNCH,
-}
-
 @Composable
 fun OnboardingScreen(
-    permissionsStatus: PermissionsStatus,
-    isRecommendedGranted: Boolean,
     viewModel: OnboardingViewModel = koinViewModel(),
     onClose: () -> Unit,
-    onOpenPermissions: () -> Unit,
-    onOpenKeywords: () -> Unit,
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
+
+    val skipHintMessage = stringResource(R.string.onboarding_skip_hint)
 
     ObserveSingleEvents(flow = viewModel.events) { event ->
         when (event) {
             is OnboardingUiContract.Event.Close -> onClose()
-            is OnboardingUiContract.Event.OpenPermissions -> onOpenPermissions()
-            is OnboardingUiContract.Event.OpenKeywords -> onOpenKeywords()
+            is OnboardingUiContract.Event.ShowSkipHint -> {
+                SnackbarController.sendEvent(SnackbarEvent(message = skipHintMessage))
+            }
         }
     }
 
     OnboardingContent(
         state = state,
-        permissionsStatus = permissionsStatus,
-        isRecommendedGranted = isRecommendedGranted,
         onAction = viewModel::onAction,
     )
 }
@@ -77,8 +67,6 @@ fun OnboardingScreen(
 private fun OnboardingContent(
     modifier: Modifier = Modifier,
     state: OnboardingUiContract.State,
-    permissionsStatus: PermissionsStatus,
-    isRecommendedGranted: Boolean,
     onAction: (action: OnboardingUiContract.Action) -> Unit,
 ) {
     val pagerState = rememberPagerState(pageCount = { state.totalPages })
@@ -114,24 +102,6 @@ private fun OnboardingContent(
                 when (OnboardingPage.entries.getOrNull(page)) {
                     OnboardingPage.WELCOME -> OnboardingPageWelcome()
                     OnboardingPage.TELEGRAM -> OnboardingPageTelegram()
-
-                    OnboardingPage.PERMISSIONS -> {
-                        OnboardingPagePermissions(
-                            permissionsStatus = permissionsStatus,
-                            isRecommendedGranted = isRecommendedGranted,
-                            onOpenPermissions = { onAction(OnboardingUiContract.Action.OpenPermissions) },
-                        )
-                    }
-
-                    OnboardingPage.DEVICE_TIPS -> OnboardingPageDeviceTips()
-
-                    OnboardingPage.KEYWORDS -> {
-                        OnboardingPageKeywords(
-                            onOpenKeywords = { onAction(OnboardingUiContract.Action.OpenKeywords) }
-                        )
-                    }
-
-                    OnboardingPage.LAUNCH -> OnboardingPageLaunch()
                     null -> OnboardingPageWelcome()
                 }
             }
@@ -180,21 +150,19 @@ private fun OnboardingContent(
                 }
             }
 
-            if (state.canSkip) {
-                Text(
-                    text = stringResource(R.string.onboarding_skip),
-                    style = VartovyiTheme.typography.bodyMedium,
-                    color = VartovyiTheme.colors.onSurfaceVariant,
-                    modifier = Modifier
-                        .align(Alignment.CenterHorizontally)
-                        .padding(top = VartovyiTheme.spacing.standard)
-                        .clickable(
-                            indication = null,
-                            interactionSource = remember { MutableInteractionSource() },
-                            onClick = { onAction(OnboardingUiContract.Action.Skip) }
-                        ),
-                )
-            }
+            Text(
+                text = stringResource(R.string.onboarding_skip),
+                style = VartovyiTheme.typography.bodyMedium,
+                color = VartovyiTheme.colors.onSurfaceVariant,
+                modifier = Modifier
+                    .align(Alignment.CenterHorizontally)
+                    .padding(top = VartovyiTheme.spacing.standard)
+                    .clickable(
+                        indication = null,
+                        interactionSource = remember { MutableInteractionSource() },
+                        onClick = { onAction(OnboardingUiContract.Action.Skip) }
+                    ),
+            )
 
             Spacer(
                 modifier = Modifier
@@ -211,60 +179,6 @@ private fun OnboardingContentFirstPagePreview() {
     VartovyiTheme {
         OnboardingContent(
             state = OnboardingUiContract.State(currentPage = 0),
-            permissionsStatus = PermissionsStatus.MANDATORY_MISSING,
-            isRecommendedGranted = false,
-            onAction = {},
-        )
-    }
-}
-
-@Preview(showBackground = true, name = "Permissions — mandatory missing (red)")
-@Composable
-private fun OnboardingContentPermissionsMandatoryMissingPreview() {
-    VartovyiTheme {
-        OnboardingContent(
-            state = OnboardingUiContract.State(currentPage = 2),
-            permissionsStatus = PermissionsStatus.MANDATORY_MISSING,
-            isRecommendedGranted = false,
-            onAction = {},
-        )
-    }
-}
-
-@Preview(showBackground = true, name = "Permissions — recommended missing (orange)")
-@Composable
-private fun OnboardingContentPermissionsRecommendedMissingPreview() {
-    VartovyiTheme {
-        OnboardingContent(
-            state = OnboardingUiContract.State(currentPage = 2),
-            permissionsStatus = PermissionsStatus.RECOMMENDED_MISSING,
-            isRecommendedGranted = false,
-            onAction = {},
-        )
-    }
-}
-
-@Preview(showBackground = true, name = "Permissions — all granted (green)")
-@Composable
-private fun OnboardingContentPermissionsGrantedPreview() {
-    VartovyiTheme {
-        OnboardingContent(
-            state = OnboardingUiContract.State(currentPage = 2),
-            permissionsStatus = PermissionsStatus.GRANTED,
-            isRecommendedGranted = true,
-            onAction = {},
-        )
-    }
-}
-
-@Preview(showBackground = true)
-@Composable
-private fun OnboardingContentDeviceTipsPreview() {
-    VartovyiTheme {
-        OnboardingContent(
-            state = OnboardingUiContract.State(currentPage = 4),
-            permissionsStatus = PermissionsStatus.GRANTED,
-            isRecommendedGranted = true,
             onAction = {},
         )
     }
@@ -275,9 +189,7 @@ private fun OnboardingContentDeviceTipsPreview() {
 private fun OnboardingContentLastPagePreview() {
     VartovyiTheme {
         OnboardingContent(
-            state = OnboardingUiContract.State(currentPage = 5),
-            permissionsStatus = PermissionsStatus.GRANTED,
-            isRecommendedGranted = true,
+            state = OnboardingUiContract.State(currentPage = 1),
             onAction = {},
         )
     }

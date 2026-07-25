@@ -20,12 +20,12 @@ import com.revakovskyi.vartovyi.usecase.keywords.ExportKeywordsUseCase
 import com.revakovskyi.vartovyi.usecase.keywords.ExportKeywordsUseCaseImpl
 import com.revakovskyi.vartovyi.usecase.keywords.ImportKeywordsUseCase
 import com.revakovskyi.vartovyi.usecase.keywords.ImportKeywordsUseCaseImpl
+import com.revakovskyi.vartovyi.usecase.keywords.MigrateLegacyChannelFilterUseCase
+import com.revakovskyi.vartovyi.usecase.keywords.MigrateLegacyChannelFilterUseCaseImpl
 import com.revakovskyi.vartovyi.usecase.keywords.ObserveKeywordsUseCase
 import com.revakovskyi.vartovyi.usecase.keywords.ObserveKeywordsUseCaseImpl
 import com.revakovskyi.vartovyi.usecase.keywords.ObserveStopWordsUseCase
 import com.revakovskyi.vartovyi.usecase.keywords.ObserveStopWordsUseCaseImpl
-import com.revakovskyi.vartovyi.usecase.keywords.ObserveTelegramChannelFilterEnabledUseCase
-import com.revakovskyi.vartovyi.usecase.keywords.ObserveTelegramChannelFilterEnabledUseCaseImpl
 import com.revakovskyi.vartovyi.usecase.keywords.ObserveTelegramChannelsUseCase
 import com.revakovskyi.vartovyi.usecase.keywords.ObserveTelegramChannelsUseCaseImpl
 import com.revakovskyi.vartovyi.usecase.keywords.RemoveKeywordUseCase
@@ -34,18 +34,12 @@ import com.revakovskyi.vartovyi.usecase.keywords.RemoveStopWordUseCase
 import com.revakovskyi.vartovyi.usecase.keywords.RemoveStopWordUseCaseImpl
 import com.revakovskyi.vartovyi.usecase.keywords.RemoveTelegramChannelUseCase
 import com.revakovskyi.vartovyi.usecase.keywords.RemoveTelegramChannelUseCaseImpl
-import com.revakovskyi.vartovyi.usecase.keywords.RestoreDefaultKeywordsUseCase
-import com.revakovskyi.vartovyi.usecase.keywords.RestoreDefaultKeywordsUseCaseImpl
-import com.revakovskyi.vartovyi.usecase.keywords.RestoreDefaultStopWordsUseCase
-import com.revakovskyi.vartovyi.usecase.keywords.RestoreDefaultStopWordsUseCaseImpl
 import com.revakovskyi.vartovyi.usecase.keywords.SanitizeWordInputUseCase
 import com.revakovskyi.vartovyi.usecase.keywords.SanitizeWordInputUseCaseImpl
 import com.revakovskyi.vartovyi.usecase.keywords.SeedDefaultKeywordsUseCase
 import com.revakovskyi.vartovyi.usecase.keywords.SeedDefaultKeywordsUseCaseImpl
 import com.revakovskyi.vartovyi.usecase.keywords.SeedDefaultStopWordsUseCase
 import com.revakovskyi.vartovyi.usecase.keywords.SeedDefaultStopWordsUseCaseImpl
-import com.revakovskyi.vartovyi.usecase.keywords.ToggleTelegramChannelFilterUseCase
-import com.revakovskyi.vartovyi.usecase.keywords.ToggleTelegramChannelFilterUseCaseImpl
 import com.revakovskyi.vartovyi.usecase.legal.AcceptCurrentLegalDocumentsUseCase
 import com.revakovskyi.vartovyi.usecase.legal.AcceptCurrentLegalDocumentsUseCaseImpl
 import com.revakovskyi.vartovyi.usecase.legal.ObserveLegalConsentStateUseCase
@@ -66,8 +60,12 @@ import com.revakovskyi.vartovyi.usecase.monitoring.ToggleMonitoringUseCase
 import com.revakovskyi.vartovyi.usecase.monitoring.ToggleMonitoringUseCaseImpl
 import com.revakovskyi.vartovyi.usecase.notification.ProcessIncomingTelegramNotificationUseCase
 import com.revakovskyi.vartovyi.usecase.notification.ProcessIncomingTelegramNotificationUseCaseImpl
+import com.revakovskyi.vartovyi.usecase.onboarding.ObserveKeywordsChannelsIntroHiddenUseCase
+import com.revakovskyi.vartovyi.usecase.onboarding.ObserveKeywordsChannelsIntroHiddenUseCaseImpl
 import com.revakovskyi.vartovyi.usecase.onboarding.ObserveOnboardingCompletedUseCase
 import com.revakovskyi.vartovyi.usecase.onboarding.ObserveOnboardingCompletedUseCaseImpl
+import com.revakovskyi.vartovyi.usecase.onboarding.SetKeywordsChannelsIntroHiddenUseCase
+import com.revakovskyi.vartovyi.usecase.onboarding.SetKeywordsChannelsIntroHiddenUseCaseImpl
 import com.revakovskyi.vartovyi.usecase.onboarding.SetOnboardingCompletedUseCase
 import com.revakovskyi.vartovyi.usecase.onboarding.SetOnboardingCompletedUseCaseImpl
 import com.revakovskyi.vartovyi.usecase.settings.ObserveAlarmRetriggerCooldownDurationUseCase
@@ -119,16 +117,13 @@ val useCaseModule = module {
     singleOf(::AddStopWordUseCaseImpl) { bind<AddStopWordUseCase>() }
     singleOf(::RemoveStopWordUseCaseImpl) { bind<RemoveStopWordUseCase>() }
     singleOf(::ObserveTelegramChannelsUseCaseImpl) { bind<ObserveTelegramChannelsUseCase>() }
-    singleOf(::ObserveTelegramChannelFilterEnabledUseCaseImpl) { bind<ObserveTelegramChannelFilterEnabledUseCase>() }
     singleOf(::AddTelegramChannelUseCaseImpl) { bind<AddTelegramChannelUseCase>() }
     singleOf(::RemoveTelegramChannelUseCaseImpl) { bind<RemoveTelegramChannelUseCase>() }
-    singleOf(::ToggleTelegramChannelFilterUseCaseImpl) { bind<ToggleTelegramChannelFilterUseCase>() }
+    singleOf(::MigrateLegacyChannelFilterUseCaseImpl) { bind<MigrateLegacyChannelFilterUseCase>() }
     singleOf(::ExportKeywordsUseCaseImpl) { bind<ExportKeywordsUseCase>() }
     singleOf(::ImportKeywordsUseCaseImpl) { bind<ImportKeywordsUseCase>() }
     singleOf(::SeedDefaultKeywordsUseCaseImpl) { bind<SeedDefaultKeywordsUseCase>() }
     singleOf(::SeedDefaultStopWordsUseCaseImpl) { bind<SeedDefaultStopWordsUseCase>() }
-    singleOf(::RestoreDefaultKeywordsUseCaseImpl) { bind<RestoreDefaultKeywordsUseCase>() }
-    singleOf(::RestoreDefaultStopWordsUseCaseImpl) { bind<RestoreDefaultStopWordsUseCase>() }
     singleOf(::SanitizeWordInputUseCaseImpl) { bind<SanitizeWordInputUseCase>() }
 
     singleOf(::ObserveLogEntriesUseCaseImpl) { bind<ObserveLogEntriesUseCase>() }
@@ -140,6 +135,12 @@ val useCaseModule = module {
     singleOf(::AcceptCurrentLegalDocumentsUseCaseImpl) { bind<AcceptCurrentLegalDocumentsUseCase>() }
     singleOf(::ObserveOnboardingCompletedUseCaseImpl) { bind<ObserveOnboardingCompletedUseCase>() }
     singleOf(::SetOnboardingCompletedUseCaseImpl) { bind<SetOnboardingCompletedUseCase>() }
+    singleOf(::ObserveKeywordsChannelsIntroHiddenUseCaseImpl) {
+        bind<ObserveKeywordsChannelsIntroHiddenUseCase>()
+    }
+    singleOf(::SetKeywordsChannelsIntroHiddenUseCaseImpl) {
+        bind<SetKeywordsChannelsIntroHiddenUseCase>()
+    }
 
     singleOf(::ObserveScheduleSettingsUseCaseImpl) { bind<ObserveScheduleSettingsUseCase>() }
     singleOf(::ObserveLogSizeLimitUseCaseImpl) { bind<ObserveLogSizeLimitUseCase>() }

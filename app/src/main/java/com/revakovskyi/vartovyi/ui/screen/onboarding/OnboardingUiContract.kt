@@ -1,6 +1,8 @@
 package com.revakovskyi.vartovyi.ui.screen.onboarding
 
-private const val TOTAL_PAGES = 6
+internal enum class OnboardingPage {
+    WELCOME, TELEGRAM,
+}
 
 object OnboardingUiContract {
 
@@ -8,8 +10,7 @@ object OnboardingUiContract {
         val isLoading: Boolean = true,
         val isCompleted: Boolean = false,
         val currentPage: Int = 0,
-        val totalPages: Int = TOTAL_PAGES,
-        val canSkip: Boolean = false,
+        val totalPages: Int = OnboardingPage.entries.size,
     )
 
     sealed interface Action {
@@ -18,14 +19,11 @@ object OnboardingUiContract {
         data class PageChanged(val pageIndex: Int) : Action
         data object Complete : Action
         data object Skip : Action
-        data object OpenPermissions : Action
-        data object OpenKeywords : Action
     }
 
     sealed interface Event {
         data object Close : Event
-        data object OpenPermissions : Event
-        data object OpenKeywords : Event
+        data object ShowSkipHint : Event
     }
 
 }

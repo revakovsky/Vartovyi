@@ -1,4 +1,4 @@
-package com.revakovskyi.vartovyi.ui.screen.settings.components
+package com.revakovskyi.vartovyi.ui.components
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.animateFloatAsState
@@ -7,10 +7,12 @@ import androidx.compose.animation.expandVertically
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.shrinkVertically
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.defaultMinSize
@@ -24,7 +26,6 @@ import androidx.compose.material3.FilledTonalIconButton
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButtonDefaults
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -39,7 +40,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.tooling.preview.Preview
 import com.revakovskyi.vartovyi.R
-import com.revakovskyi.vartovyi.ui.components.VartovyiDialog
 import com.revakovskyi.vartovyi.ui.theme.VartovyiTheme
 
 private const val SECTION_ENTER_FADE_DURATION_MILLIS = 220
@@ -52,21 +52,25 @@ private const val EXPAND_ICON_EXPANDED_ROTATION_DEGREES = 180f
 private const val INFO_ICON_BACKGROUND_ALPHA = 0.35f
 
 @Composable
-fun SettingsSectionContainer(
+fun SectionContainer(
     modifier: Modifier = Modifier,
     title: String,
     titleTooltipText: String? = null,
     isExpanded: Boolean,
+    border: BorderStroke? = BorderStroke(
+        width = VartovyiTheme.spacing.one,
+        color = VartovyiTheme.colors.outlineVariant,
+    ),
+    contentPadding: PaddingValues = PaddingValues(VartovyiTheme.spacing.standard),
     onHeaderClick: () -> Unit,
     content: @Composable () -> Unit,
 ) {
-    Surface(
-        color = VartovyiTheme.colors.surfaceVariant,
-        shape = VartovyiTheme.shapes.large,
+    VartovyiSurface(
+        border = border,
         modifier = modifier.fillMaxWidth()
     ) {
         Column(
-            modifier = Modifier.padding(VartovyiTheme.spacing.standard)
+            modifier = Modifier.padding(contentPadding)
         ) {
             SettingsSectionTitleRow(
                 title = title,
@@ -193,9 +197,9 @@ private fun SettingsSectionTitleRow(
 
 @Preview(name = "Title only")
 @Composable
-private fun SettingsSectionContainerPreviewTitleOnly() {
+private fun SectionContainerPreviewTitleOnly() {
     VartovyiTheme {
-        SettingsSectionContainer(
+        SectionContainer(
             title = "Data",
             isExpanded = true,
             onHeaderClick = {},
@@ -211,9 +215,9 @@ private fun SettingsSectionContainerPreviewTitleOnly() {
 
 @Preview(name = "With info button")
 @Composable
-private fun SettingsSectionContainerPreviewWithTooltip() {
+private fun SectionContainerPreviewWithTooltip() {
     VartovyiTheme {
-        SettingsSectionContainer(
+        SectionContainer(
             title = "Work schedule",
             titleTooltipText = "When enabled, keyword checks apply only inside the selected time range.",
             isExpanded = true,

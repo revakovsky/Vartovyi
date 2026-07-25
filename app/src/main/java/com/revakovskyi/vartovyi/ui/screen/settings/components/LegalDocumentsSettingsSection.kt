@@ -20,9 +20,10 @@ fun LegalDocumentsSettingsSection(
     onPrivacyPolicyClick: () -> Unit,
     onTermsOfUseClick: () -> Unit,
     onOpenOnboardingGuideClick: () -> Unit,
+    onOpenTroubleshootingClick: () -> Unit,
 ) {
     Column(
-        verticalArrangement = Arrangement.spacedBy(VartovyiTheme.spacing.standard),
+        verticalArrangement = Arrangement.spacedBy(VartovyiTheme.spacing.large),
         modifier = modifier
             .fillMaxWidth()
             .padding(vertical = VartovyiTheme.spacing.medium)
@@ -47,6 +48,13 @@ fun LegalDocumentsSettingsSection(
             color = VartovyiTheme.colors.primary,
             modifier = Modifier.clickable(onClick = onOpenOnboardingGuideClick)
         )
+
+        Text(
+            text = stringResource(R.string.settings_open_troubleshooting),
+            style = VartovyiTheme.typography.bodyLink,
+            color = VartovyiTheme.colors.primary,
+            modifier = Modifier.clickable(onClick = onOpenTroubleshootingClick)
+        )
     }
 }
 
@@ -58,6 +66,7 @@ private fun LegalDocumentsSettingsSectionPreview() {
             onPrivacyPolicyClick = {},
             onTermsOfUseClick = {},
             onOpenOnboardingGuideClick = {},
+            onOpenTroubleshootingClick = {},
         )
     }
 }

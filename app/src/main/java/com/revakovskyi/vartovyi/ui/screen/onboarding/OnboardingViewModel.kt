@@ -1,5 +1,6 @@
 package com.revakovskyi.vartovyi.ui.screen.onboarding
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.revakovskyi.vartovyi.usecase.onboarding.ObserveOnboardingCompletedUseCase
@@ -12,6 +13,8 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+
+private const val ONBOARDING_VIEW_MODEL_TAG = "OnboardingViewModel"
 
 class OnboardingViewModel(
     private val observeOnboardingCompletedUseCase: ObserveOnboardingCompletedUseCase,
@@ -35,8 +38,6 @@ class OnboardingViewModel(
             is OnboardingUiContract.Action.PageChanged -> onPageChanged(action.pageIndex)
             is OnboardingUiContract.Action.Complete -> complete()
             is OnboardingUiContract.Action.Skip -> skip()
-            is OnboardingUiContract.Action.OpenPermissions -> openPermissions()
-            is OnboardingUiContract.Action.OpenKeywords -> openKeywords()
         }
     }
 
@@ -47,7 +48,6 @@ class OnboardingViewModel(
                     it.copy(
                         isLoading = false,
                         isCompleted = isCompleted,
-                        canSkip = isCompleted,
                     )
                 }
             }
@@ -75,26 +75,36 @@ class OnboardingViewModel(
 
     private fun complete() {
         viewModelScope.launch {
-            setOnboardingCompletedUseCase()
+            runCatching { setOnboardingCompletedUseCase() }
+                .onFailure { throwable ->
+                    Log.e(
+                        ONBOARDING_VIEW_MODEL_TAG,
+                        "Failed to mark onboarding completed",
+                        throwable,
+                    )
+                }
+
             _events.send(OnboardingUiContract.Event.Close)
         }
     }
 
     private fun skip() {
         viewModelScope.launch {
+            val wasCompletedBefore = _state.value.isCompleted
+
+            runCatching { setOnboardingCompletedUseCase() }
+                .onFailure { throwable ->
+                    Log.e(
+                        ONBOARDING_VIEW_MODEL_TAG,
+                        "Failed to mark onboarding completed",
+                        throwable,
+                    )
+                }
+
+            if (!wasCompletedBefore) {
+                _events.send(OnboardingUiContract.Event.ShowSkipHint)
+            }
             _events.send(OnboardingUiContract.Event.Close)
-        }
-    }
-
-    private fun openPermissions() {
-        viewModelScope.launch {
-            _events.send(OnboardingUiContract.Event.OpenPermissions)
-        }
-    }
-
-    private fun openKeywords() {
-        viewModelScope.launch {
-            _events.send(OnboardingUiContract.Event.OpenKeywords)
         }
     }
 

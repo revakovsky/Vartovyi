@@ -33,6 +33,7 @@ class PermissionsViewModel : ViewModel() {
             is Action.RequestPostNotificationsPermission -> requestPostNotifications()
             is Action.ToggleFullScreenIntentPermission -> requestFullScreenIntent()
             is Action.NavigateBack -> navigateBack()
+            is Action.OpenTroubleshooting -> openTroubleshooting()
             is Action.ToggleBatteryOptimizationPermission -> {
                 toggleBatteryOptimizationPermission(action.shouldEnable)
             }
@@ -158,6 +159,10 @@ class PermissionsViewModel : ViewModel() {
 
     private fun navigateBack() {
         viewModelScope.launch { _events.send(Event.NavigateBack) }
+    }
+
+    private fun openTroubleshooting() {
+        viewModelScope.launch { _events.send(Event.OpenTroubleshooting) }
     }
 
 }

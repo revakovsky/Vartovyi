@@ -6,7 +6,6 @@ import assertk.assertions.containsNone
 import assertk.assertions.isEmpty
 import assertk.assertions.isEqualTo
 import assertk.assertions.isNull
-import assertk.assertions.isTrue
 import com.revakovskyi.vartovyi.constants.KeywordsLimits
 import com.revakovskyi.vartovyi.constants.POPULAR_TELEGRAM_CHANNELS
 import com.revakovskyi.vartovyi.ui.screen.keywords.KeywordsUiContract.Action
@@ -290,36 +289,4 @@ class KeywordsTelegramChannelsTest : KeywordsViewModelBaseTest() {
         assertThat(suggestedNames).isEqualTo(listOf("TLK News"))
     }
 
-    @Test
-    fun `ToggleTelegramChannelFilter invokes the use case`() = runTest(testDispatcher) {
-        val viewModel = createViewModel()
-        advanceUntilIdle()
-
-        viewModel.onAction(Action.ToggleTelegramChannelFilter)
-        advanceUntilIdle()
-
-        coVerify(exactly = 1) { toggleTelegramChannelFilterUseCase() }
-    }
-
-    @Test
-    fun `telegram channel filter flag is propagated into state`() = runTest(testDispatcher) {
-        every { observeTelegramChannelFilterEnabledUseCase() } returns flowOf(true)
-
-        val viewModel = createViewModel()
-        advanceUntilIdle()
-
-        assertThat(viewModel.state.value.isTelegramChannelFilterEnabled).isTrue()
-    }
-
-    @Test
-    fun `ConfirmRestoreDefaults does not touch telegram channels`() = runTest(testDispatcher) {
-        val viewModel = createViewModel()
-        advanceUntilIdle()
-
-        viewModel.onAction(Action.ConfirmRestoreDefaults)
-        advanceUntilIdle()
-
-        coVerify(exactly = 0) { addTelegramChannelUseCase(any()) }
-        coVerify(exactly = 0) { removeTelegramChannelUseCase(any()) }
-    }
 }

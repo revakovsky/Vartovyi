@@ -27,15 +27,13 @@ import com.revakovskyi.vartovyi.usecase.keywords.ImportKeywordsUseCase
 import com.revakovskyi.vartovyi.usecase.keywords.ImportResult
 import com.revakovskyi.vartovyi.usecase.keywords.ObserveKeywordsUseCase
 import com.revakovskyi.vartovyi.usecase.keywords.ObserveStopWordsUseCase
-import com.revakovskyi.vartovyi.usecase.keywords.ObserveTelegramChannelFilterEnabledUseCase
 import com.revakovskyi.vartovyi.usecase.keywords.ObserveTelegramChannelsUseCase
 import com.revakovskyi.vartovyi.usecase.keywords.RemoveKeywordUseCase
 import com.revakovskyi.vartovyi.usecase.keywords.RemoveStopWordUseCase
 import com.revakovskyi.vartovyi.usecase.keywords.RemoveTelegramChannelUseCase
-import com.revakovskyi.vartovyi.usecase.keywords.RestoreDefaultKeywordsUseCase
-import com.revakovskyi.vartovyi.usecase.keywords.RestoreDefaultStopWordsUseCase
 import com.revakovskyi.vartovyi.usecase.keywords.SanitizeWordInputUseCase
-import com.revakovskyi.vartovyi.usecase.keywords.ToggleTelegramChannelFilterUseCase
+import com.revakovskyi.vartovyi.usecase.onboarding.ObserveKeywordsChannelsIntroHiddenUseCase
+import com.revakovskyi.vartovyi.usecase.onboarding.SetKeywordsChannelsIntroHiddenUseCase
 import com.revakovskyi.vartovyi.utils.parseTriggerKeywordRuleFromStorage
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.Flow
@@ -43,6 +41,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
@@ -54,20 +53,18 @@ class KeywordsViewModel(
     private val observeKeywordsUseCase: ObserveKeywordsUseCase,
     private val observeStopWordsUseCase: ObserveStopWordsUseCase,
     private val observeTelegramChannelsUseCase: ObserveTelegramChannelsUseCase,
-    private val observeTelegramChannelFilterEnabledUseCase: ObserveTelegramChannelFilterEnabledUseCase,
     private val addKeywordUseCase: AddKeywordUseCase,
     private val removeKeywordUseCase: RemoveKeywordUseCase,
     private val addStopWordUseCase: AddStopWordUseCase,
     private val removeStopWordUseCase: RemoveStopWordUseCase,
     private val addTelegramChannelUseCase: AddTelegramChannelUseCase,
     private val removeTelegramChannelUseCase: RemoveTelegramChannelUseCase,
-    private val toggleTelegramChannelFilterUseCase: ToggleTelegramChannelFilterUseCase,
     private val clearKeywordsScreenDataUseCase: ClearKeywordsScreenDataUseCase,
-    private val restoreDefaultKeywordsUseCase: RestoreDefaultKeywordsUseCase,
-    private val restoreDefaultStopWordsUseCase: RestoreDefaultStopWordsUseCase,
     private val sanitizeWordInputUseCase: SanitizeWordInputUseCase,
     private val exportKeywordsUseCase: ExportKeywordsUseCase,
     private val importKeywordsUseCase: ImportKeywordsUseCase,
+    private val observeKeywordsChannelsIntroHiddenUseCase: ObserveKeywordsChannelsIntroHiddenUseCase,
+    private val setKeywordsChannelsIntroHiddenUseCase: SetKeywordsChannelsIntroHiddenUseCase,
 ) : ViewModel() {
 
     private val _state = MutableStateFlow(State())
@@ -78,6 +75,7 @@ class KeywordsViewModel(
 
     init {
         observeKeywords()
+        maybeShowChannelsIntroDialog()
     }
 
     fun onAction(action: Action) {
@@ -89,7 +87,6 @@ class KeywordsViewModel(
             is Action.RemoveKeyword -> removeKeyword(action.keyword)
             is Action.AddStopWord -> addStopWord()
             is Action.RemoveStopWord -> removeStopWord(action.stopWord)
-            is Action.ToggleTelegramChannelFilter -> toggleTelegramChannelFilter()
             is Action.UpdateTelegramChannelInput -> updateTelegramChannelInput(action.value)
             is Action.AddTelegramChannel -> addTelegramChannel()
             is Action.SelectSuggestedTelegramChannel -> {
@@ -102,9 +99,6 @@ class KeywordsViewModel(
             is Action.OpenClearKeywordsDialog -> openClearKeywordsDialog()
             is Action.DismissClearKeywordsDialog -> dismissClearKeywordsDialog()
             is Action.ConfirmClearKeywords -> confirmClearKeywords()
-            is Action.OpenRestoreDefaultsDialog -> openRestoreDefaultsDialog()
-            is Action.DismissRestoreDefaultsDialog -> dismissRestoreDefaultsDialog()
-            is Action.ConfirmRestoreDefaults -> confirmRestoreDefaults()
             is Action.CopyChip -> copyChip(action.text)
             is Action.RequestExport -> requestExport()
             is Action.DismissExportDestinationDialog -> dismissExportDestinationDialog()
@@ -117,6 +111,8 @@ class KeywordsViewModel(
             is Action.ImportKeywords -> importKeywords(action.jsonContent)
             is Action.NotifyImportReadError -> notifyImportReadError()
             is Action.NotifyImportFileTooLarge -> notifyImportFileTooLarge()
+            is Action.DismissChannelsIntroDialog -> dismissChannelsIntroDialog()
+            is Action.HideChannelsIntroDialogForever -> hideChannelsIntroDialogForever()
         }
     }
 
@@ -126,8 +122,7 @@ class KeywordsViewModel(
             observeKeywordsUseCase(),
             observeStopWordsUseCase(),
             observeTelegramChannelsUseCase(),
-            observeTelegramChannelFilterEnabledUseCase(),
-        ) { keywords, stopWords, telegramChannels, isTelegramChannelFilterEnabled ->
+        ) { keywords, stopWords, telegramChannels ->
             val parsedKeywords = keywords.map { keyword ->
                 parseTriggerKeywordRuleFromStorage(keyword)
             }
@@ -143,7 +138,6 @@ class KeywordsViewModel(
                     keywords = sortedKeywords,
                     stopWords = stopWords,
                     telegramChannels = telegramChannels,
-                    isTelegramChannelFilterEnabled = isTelegramChannelFilterEnabled,
                     isLoading = if (isFirstEmission) false else currentState.isLoading,
                 )
             }
@@ -152,6 +146,24 @@ class KeywordsViewModel(
                 isFirstEmission = false
             }
         }.launchIn(viewModelScope)
+    }
+
+    /** Shows the channels-filter intro dialog on every visit until the user opts out of it. */
+    private fun maybeShowChannelsIntroDialog() {
+        viewModelScope.launch {
+            val isHidden = observeKeywordsChannelsIntroHiddenUseCase().first()
+            if (isHidden) return@launch
+            _state.update { it.copy(isChannelsIntroDialogVisible = true) }
+        }
+    }
+
+    private fun dismissChannelsIntroDialog() {
+        _state.update { it.copy(isChannelsIntroDialogVisible = false) }
+    }
+
+    private fun hideChannelsIntroDialogForever() {
+        _state.update { it.copy(isChannelsIntroDialogVisible = false) }
+        viewModelScope.launch { setKeywordsChannelsIntroHiddenUseCase() }
     }
 
     private fun updateKeywordInput(value: String) {
@@ -323,10 +335,6 @@ class KeywordsViewModel(
         }
     }
 
-    private fun toggleTelegramChannelFilter() {
-        viewModelScope.launch { toggleTelegramChannelFilterUseCase() }
-    }
-
     private fun updateTelegramChannelInput(value: String) {
         _state.update { it.copy(inputTelegramChannel = value) }
     }
@@ -459,34 +467,6 @@ class KeywordsViewModel(
                 )
             }
             _events.send(Event.KeywordsScreenDataCleared)
-        }
-    }
-
-    private fun openRestoreDefaultsDialog() {
-        _state.update { currentState ->
-            currentState.copy(isRestoreDefaultsDialogVisible = true)
-        }
-    }
-
-    private fun dismissRestoreDefaultsDialog() {
-        _state.update { currentState ->
-            currentState.copy(isRestoreDefaultsDialogVisible = false)
-        }
-    }
-
-    private fun confirmRestoreDefaults() {
-        viewModelScope.launch {
-            val addedKeywordsCount = restoreDefaultKeywordsUseCase()
-            val addedStopWordsCount = restoreDefaultStopWordsUseCase()
-
-            _state.update { currentState ->
-                currentState.copy(isRestoreDefaultsDialogVisible = false)
-            }
-            _events.send(
-                Event.DefaultKeywordsRestored(
-                    addedCount = addedKeywordsCount + addedStopWordsCount
-                )
-            )
         }
     }
 

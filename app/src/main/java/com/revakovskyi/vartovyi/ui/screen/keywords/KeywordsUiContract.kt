@@ -24,38 +24,42 @@ interface KeywordsUiContract {
         val stopWords: List<String> = emptyList(),
         val inputKeyword: String = "",
         val inputStopWord: String = "",
-        val isTelegramChannelFilterEnabled: Boolean = false,
         val telegramChannels: List<String> = emptyList(),
         val inputTelegramChannel: String = "",
         val duplicateWord: String? = null,
         val pendingRemoval: PendingRemoval? = null,
         val isClearKeywordsDialogVisible: Boolean = false,
-        val isRestoreDefaultsDialogVisible: Boolean = false,
         val isImportStrategyDialogVisible: Boolean = false,
         val pendingImportStrategy: ImportStrategy? = null,
         val isExportDestinationDialogVisible: Boolean = false,
+        val isChannelsIntroDialogVisible: Boolean = false,
     ) {
         val hasKeywordDataToClear: Boolean
             get() = keywords.isNotEmpty() ||
                     stopWords.isNotEmpty() ||
-                    telegramChannels.isNotEmpty() ||
-                    isTelegramChannelFilterEnabled
+                    telegramChannels.isNotEmpty()
 
         val canExport: Boolean
             get() = keywords.isNotEmpty() || stopWords.isNotEmpty() || telegramChannels.isNotEmpty()
 
+        val notYetAddedTelegramChannels: List<PopularTelegramChannel>
+            get() = POPULAR_TELEGRAM_CHANNELS.filter { suggestion ->
+                telegramChannels.none { channel ->
+                    channel.equals(suggestion.displayName, ignoreCase = true)
+                }
+            }
+
+        val hasSuggestedTelegramChannels: Boolean
+            get() = notYetAddedTelegramChannels.isNotEmpty()
+
         val suggestedTelegramChannels: List<PopularTelegramChannel>
             get() {
                 val query = inputTelegramChannel.trim()
-                return POPULAR_TELEGRAM_CHANNELS.filter { suggestion ->
-                    val isAlreadyAdded = telegramChannels.any { channel ->
-                        channel.equals(suggestion.displayName, ignoreCase = true)
-                    }
-                    val matchesQuery = query.isBlank() ||
-                            suggestion.displayName.contains(query, ignoreCase = true) ||
-                            suggestion.handle.contains(query, ignoreCase = true)
+                if (query.isBlank()) return notYetAddedTelegramChannels
 
-                    !isAlreadyAdded && matchesQuery
+                return notYetAddedTelegramChannels.filter { suggestion ->
+                    suggestion.displayName.contains(query, ignoreCase = true) ||
+                            suggestion.handle.contains(query, ignoreCase = true)
                 }
             }
     }
@@ -68,7 +72,6 @@ interface KeywordsUiContract {
         data class RemoveKeyword(val keyword: TriggerKeywordRule) : Action
         data object AddStopWord : Action
         data class RemoveStopWord(val stopWord: String) : Action
-        data object ToggleTelegramChannelFilter : Action
         data class UpdateTelegramChannelInput(val value: String) : Action
         data object AddTelegramChannel : Action
         data class SelectSuggestedTelegramChannel(val channel: String) : Action
@@ -79,9 +82,6 @@ interface KeywordsUiContract {
         data object OpenClearKeywordsDialog : Action
         data object DismissClearKeywordsDialog : Action
         data object ConfirmClearKeywords : Action
-        data object OpenRestoreDefaultsDialog : Action
-        data object DismissRestoreDefaultsDialog : Action
-        data object ConfirmRestoreDefaults : Action
         data class CopyChip(val text: String) : Action
         data object RequestExport : Action
         data object DismissExportDestinationDialog : Action
@@ -94,6 +94,8 @@ interface KeywordsUiContract {
         data class ImportKeywords(val jsonContent: String) : Action
         data object NotifyImportReadError : Action
         data object NotifyImportFileTooLarge : Action
+        data object DismissChannelsIntroDialog : Action
+        data object HideChannelsIntroDialogForever : Action
     }
 
     sealed interface Event {
@@ -109,7 +111,6 @@ interface KeywordsUiContract {
         data object TelegramChannelAdded : Event
         data object TelegramChannelRemoved : Event
         data object KeywordsScreenDataCleared : Event
-        data class DefaultKeywordsRestored(val addedCount: Int) : Event
         data class ChipCopied(val text: String) : Event
         data class LaunchExportFilePicker(val jsonContent: String) : Event
         data class LaunchExportShareSheet(val jsonContent: String) : Event

@@ -11,7 +11,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.isImeVisible
 import androidx.compose.foundation.layout.padding
@@ -47,12 +46,9 @@ import com.revakovskyi.vartovyi.model.TriggerKeywordRuleType
 import com.revakovskyi.vartovyi.ui.components.DialogChoice
 import com.revakovskyi.vartovyi.ui.components.DialogChoiceRole
 import com.revakovskyi.vartovyi.ui.components.LoadingOverlay
-import com.revakovskyi.vartovyi.ui.components.VartovyiBackTopBar
 import com.revakovskyi.vartovyi.ui.components.VartovyiChoiceDialog
 import com.revakovskyi.vartovyi.ui.components.VartovyiDialog
-import com.revakovskyi.vartovyi.ui.screen.keywords.components.KeywordsBackupRow
-import com.revakovskyi.vartovyi.ui.screen.keywords.components.KeywordsClearButton
-import com.revakovskyi.vartovyi.ui.screen.keywords.components.KeywordsRestoreDefaultsButton
+import com.revakovskyi.vartovyi.ui.screen.keywords.components.KeywordsChannelsIntroDialog
 import com.revakovskyi.vartovyi.ui.screen.keywords.components.KeywordsSection
 import com.revakovskyi.vartovyi.ui.screen.keywords.components.StopWordsSection
 import com.revakovskyi.vartovyi.ui.screen.keywords.components.TelegramChannelsSection
@@ -65,9 +61,10 @@ import com.revakovskyi.vartovyi.utils.ObserveSingleEvents
 import com.revakovskyi.vartovyi.utils.parseTriggerKeywordRuleFromStorage
 import kotlinx.coroutines.delay
 import org.koin.androidx.compose.koinViewModel
+import kotlin.time.Duration.Companion.milliseconds
 
 /** Delay to let the keyboard fully animate open before scrolling the active field into view. */
-private const val BRING_INTO_VIEW_DELAY_MS = 400L
+private val BRING_INTO_VIEW_DELAY_MS = 400.milliseconds
 
 /** Input row plus a slice of the suggestions list kept visible above the keyboard. */
 private const val TELEGRAM_SUGGESTIONS_PEEK_HEIGHT_DP = 220
@@ -76,7 +73,6 @@ private const val KEYWORDS_CHIP_CLIP_LABEL = "keywords_chip"
 @Composable
 fun KeywordsScreen(
     viewModel: KeywordsViewModel = koinViewModel(),
-    onNavigateBack: (() -> Unit)? = null,
 ) {
     val clipboardManager = LocalClipboard.current
     val hapticFeedback = LocalHapticFeedback.current
@@ -154,21 +150,6 @@ fun KeywordsScreen(
             is KeywordsUiContract.Event.KeywordsScreenDataCleared -> {
                 SnackbarController.sendEvent(
                     SnackbarEvent(message = resources.getString(R.string.keywords_clear_completed)),
-                )
-            }
-
-            is KeywordsUiContract.Event.DefaultKeywordsRestored -> {
-                val message = if (event.addedCount == 0) {
-                    resources.getString(R.string.keywords_restore_nothing_added)
-                } else {
-                    resources.getQuantityString(
-                        R.plurals.keywords_restore_defaults_added,
-                        event.addedCount,
-                        event.addedCount,
-                    )
-                }
-                SnackbarController.sendEvent(
-                    event = SnackbarEvent(message = message)
                 )
             }
 
@@ -261,7 +242,6 @@ fun KeywordsScreen(
             KeywordsContent(
                 state = state,
                 onAction = viewModel::onAction,
-                onNavigateBack = onNavigateBack,
             )
         }
     }
@@ -300,17 +280,6 @@ fun KeywordsScreen(
             dismissText = stringResource(R.string.keywords_clear_dialog_dismiss),
             onDismiss = { viewModel.onAction(KeywordsUiContract.Action.DismissClearKeywordsDialog) },
             onConfirm = { viewModel.onAction(KeywordsUiContract.Action.ConfirmClearKeywords) },
-        )
-    }
-
-    if (state.isRestoreDefaultsDialogVisible) {
-        VartovyiDialog(
-            title = stringResource(R.string.keywords_restore_defaults_dialog_title),
-            message = stringResource(R.string.keywords_restore_defaults_dialog_message),
-            confirmText = stringResource(R.string.keywords_restore_defaults_dialog_confirm),
-            dismissText = stringResource(R.string.keywords_restore_defaults_dialog_dismiss),
-            onDismiss = { viewModel.onAction(KeywordsUiContract.Action.DismissRestoreDefaultsDialog) },
-            onConfirm = { viewModel.onAction(KeywordsUiContract.Action.ConfirmRestoreDefaults) },
         )
     }
 
@@ -389,6 +358,17 @@ fun KeywordsScreen(
             },
         )
     }
+
+    if (state.isChannelsIntroDialogVisible) {
+        KeywordsChannelsIntroDialog(
+            onDismiss = {
+                viewModel.onAction(KeywordsUiContract.Action.DismissChannelsIntroDialog)
+            },
+            onHideForever = {
+                viewModel.onAction(KeywordsUiContract.Action.HideChannelsIntroDialogForever)
+            },
+        )
+    }
 }
 
 @OptIn(ExperimentalLayoutApi::class)
@@ -397,7 +377,6 @@ private fun KeywordsContent(
     modifier: Modifier = Modifier,
     state: KeywordsUiContract.State,
     onAction: (action: KeywordsUiContract.Action) -> Unit,
-    onNavigateBack: (() -> Unit)? = null,
 ) {
     val focusManager = LocalFocusManager.current
     val density = LocalDensity.current
@@ -442,134 +421,87 @@ private fun KeywordsContent(
         focusManager.clearFocus()
     }
 
-    Column(modifier = modifier.fillMaxSize()) {
-        if (onNavigateBack != null) {
-            VartovyiBackTopBar(
-                title = stringResource(R.string.onboarding_keywords_title),
-                backContentDescription = stringResource(R.string.keywords_back),
-                onNavigateBack = onNavigateBack,
-            )
-        }
-
-        Box(
-            contentAlignment = Alignment.TopCenter,
-            modifier = Modifier.weight(1f),
+    Box(
+        contentAlignment = Alignment.TopCenter,
+        modifier = modifier.fillMaxSize()
+    ) {
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.spacedBy(VartovyiTheme.spacing.small),
+            modifier = Modifier
+                .widthIn(max = VartovyiTheme.spacing.contentMaxWidth)
+                .fillMaxSize()
+                .imePadding()
+                .verticalScroll(scrollState)
+                .padding(VartovyiTheme.spacing.small)
         ) {
-            Column(
-                horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.spacedBy(VartovyiTheme.spacing.small),
-                modifier = Modifier
-                    .widthIn(max = VartovyiTheme.spacing.contentMaxWidth)
-                    .fillMaxSize()
-                    .imePadding()
-                    .verticalScroll(scrollState)
-                    .padding(
-                        start = VartovyiTheme.spacing.small,
-                        end = VartovyiTheme.spacing.small,
-                        top = if (onNavigateBack != null) {
-                            VartovyiTheme.spacing.small
-                        } else {
-                            VartovyiTheme.spacing.medium
-                        },
-                        bottom = VartovyiTheme.spacing.small,
-                    )
-            ) {
-                KeywordsSection(
-                    bringIntoViewRequester = keywordsBivr,
-                    keywords = state.keywords,
-                    selectedTriggerKeywordRuleType = state.selectedTriggerKeywordRuleType,
-                    inputValue = state.inputKeyword,
-                    inputHint = when (state.selectedTriggerKeywordRuleType) {
-                        TriggerKeywordRuleType.WORD -> stringResource(R.string.keywords_trigger_hint_word)
-                        TriggerKeywordRuleType.ALL_WORDS -> stringResource(R.string.keywords_trigger_hint_all_words)
-                        TriggerKeywordRuleType.PHRASE -> stringResource(R.string.keywords_trigger_hint_phrase)
-                    },
-                    onTypeSelected = { type ->
-                        onAction(KeywordsUiContract.Action.SelectTriggerKeywordRuleType(type))
-                    },
-                    onInputChange = { value ->
-                        onAction(KeywordsUiContract.Action.UpdateKeywordInput(value))
-                    },
-                    onAdd = { onAction(KeywordsUiContract.Action.AddKeyword) },
-                    onCopy = { text -> onAction(KeywordsUiContract.Action.CopyChip(text)) },
-                    onRemove = { keywordRule ->
-                        onAction(KeywordsUiContract.Action.RemoveKeyword(keywordRule))
-                    },
-                    onFocusChanged = { isFocused ->
-                        if (isFocused) activeBivr = keywordsBivr
-                        else if (activeBivr == keywordsBivr) activeBivr = null
-                    },
-                )
+            TelegramChannelsSection(
+                bringIntoViewRequester = telegramBivr,
+                channels = state.telegramChannels,
+                hasSuggestedChannels = state.hasSuggestedTelegramChannels,
+                suggestedChannels = state.suggestedTelegramChannels,
+                inputValue = state.inputTelegramChannel,
+                onInputChange = { value ->
+                    onAction(KeywordsUiContract.Action.UpdateTelegramChannelInput(value))
+                },
+                onAdd = { onAction(KeywordsUiContract.Action.AddTelegramChannel) },
+                onCopy = { text -> onAction(KeywordsUiContract.Action.CopyChip(text)) },
+                onRemove = { channel ->
+                    onAction(KeywordsUiContract.Action.RemoveTelegramChannel(channel))
+                },
+                onSuggestionSelect = { channel ->
+                    onAction(KeywordsUiContract.Action.SelectSuggestedTelegramChannel(channel))
+                },
+                onFocusChanged = { isFocused ->
+                    if (isFocused) activeBivr = telegramBivr
+                    else if (activeBivr == telegramBivr) activeBivr = null
+                },
+            )
 
-                StopWordsSection(
-                    bringIntoViewRequester = stopWordsBivr,
-                    stopWords = state.stopWords,
-                    inputValue = state.inputStopWord,
-                    onInputChange = { value ->
-                        onAction(KeywordsUiContract.Action.UpdateStopWordInput(value))
-                    },
-                    onAdd = { onAction(KeywordsUiContract.Action.AddStopWord) },
-                    onCopy = { text -> onAction(KeywordsUiContract.Action.CopyChip(text)) },
-                    onRemove = { stopWord ->
-                        onAction(KeywordsUiContract.Action.RemoveStopWord(stopWord))
-                    },
-                    onFocusChanged = { isFocused ->
-                        if (isFocused) activeBivr = stopWordsBivr
-                        else if (activeBivr == stopWordsBivr) activeBivr = null
-                    },
-                )
+            KeywordsSection(
+                bringIntoViewRequester = keywordsBivr,
+                keywords = state.keywords,
+                selectedTriggerKeywordRuleType = state.selectedTriggerKeywordRuleType,
+                inputValue = state.inputKeyword,
+                inputHint = when (state.selectedTriggerKeywordRuleType) {
+                    TriggerKeywordRuleType.WORD -> stringResource(R.string.keywords_trigger_hint_word)
+                    TriggerKeywordRuleType.ALL_WORDS -> stringResource(R.string.keywords_trigger_hint_all_words)
+                    TriggerKeywordRuleType.PHRASE -> stringResource(R.string.keywords_trigger_hint_phrase)
+                },
+                onTypeSelected = { type ->
+                    onAction(KeywordsUiContract.Action.SelectTriggerKeywordRuleType(type))
+                },
+                onInputChange = { value ->
+                    onAction(KeywordsUiContract.Action.UpdateKeywordInput(value))
+                },
+                onAdd = { onAction(KeywordsUiContract.Action.AddKeyword) },
+                onCopy = { text -> onAction(KeywordsUiContract.Action.CopyChip(text)) },
+                onRemove = { keywordRule ->
+                    onAction(KeywordsUiContract.Action.RemoveKeyword(keywordRule))
+                },
+                onFocusChanged = { isFocused ->
+                    if (isFocused) activeBivr = keywordsBivr
+                    else if (activeBivr == keywordsBivr) activeBivr = null
+                },
+            )
 
-                TelegramChannelsSection(
-                    bringIntoViewRequester = telegramBivr,
-                    isEnabled = state.isTelegramChannelFilterEnabled,
-                    channels = state.telegramChannels,
-                    suggestedChannels = state.suggestedTelegramChannels,
-                    inputValue = state.inputTelegramChannel,
-                    onToggle = { onAction(KeywordsUiContract.Action.ToggleTelegramChannelFilter) },
-                    onInputChange = { value ->
-                        onAction(KeywordsUiContract.Action.UpdateTelegramChannelInput(value))
-                    },
-                    onAdd = { onAction(KeywordsUiContract.Action.AddTelegramChannel) },
-                    onCopy = { text -> onAction(KeywordsUiContract.Action.CopyChip(text)) },
-                    onRemove = { channel ->
-                        onAction(KeywordsUiContract.Action.RemoveTelegramChannel(channel))
-                    },
-                    onSuggestionSelect = { channel ->
-                        onAction(KeywordsUiContract.Action.SelectSuggestedTelegramChannel(channel))
-                    },
-                    onFocusChanged = { isFocused ->
-                        if (isFocused) activeBivr = telegramBivr
-                        else if (activeBivr == telegramBivr) activeBivr = null
-                    },
-                )
-
-                Column(
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.spacedBy(VartovyiTheme.spacing.medium),
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(
-                            top = VartovyiTheme.spacing.medium,
-                            bottom = VartovyiTheme.spacing.small,
-                        )
-                ) {
-                    KeywordsBackupRow(
-                        isExportEnabled = state.canExport,
-                        onExportClick = { onAction(KeywordsUiContract.Action.RequestExport) },
-                        onImportClick = { onAction(KeywordsUiContract.Action.RequestImport) },
-                    )
-
-                    KeywordsRestoreDefaultsButton(
-                        onClick = { onAction(KeywordsUiContract.Action.OpenRestoreDefaultsDialog) },
-                    )
-
-                    KeywordsClearButton(
-                        isEnabled = state.hasKeywordDataToClear,
-                        onClick = { onAction(KeywordsUiContract.Action.OpenClearKeywordsDialog) },
-                        modifier = Modifier.padding(bottom = VartovyiTheme.spacing.small)
-                    )
-                }
-            }
+            StopWordsSection(
+                bringIntoViewRequester = stopWordsBivr,
+                stopWords = state.stopWords,
+                inputValue = state.inputStopWord,
+                onInputChange = { value ->
+                    onAction(KeywordsUiContract.Action.UpdateStopWordInput(value))
+                },
+                onAdd = { onAction(KeywordsUiContract.Action.AddStopWord) },
+                onCopy = { text -> onAction(KeywordsUiContract.Action.CopyChip(text)) },
+                onRemove = { stopWord ->
+                    onAction(KeywordsUiContract.Action.RemoveStopWord(stopWord))
+                },
+                onFocusChanged = { isFocused ->
+                    if (isFocused) activeBivr = stopWordsBivr
+                    else if (activeBivr == stopWordsBivr) activeBivr = null
+                },
+            )
         }
     }
 }
@@ -623,7 +555,7 @@ private fun KeywordsContentWithDataPreview() {
     }
 }
 
-@Preview(name = "Keywords — Telegram filter on", heightDp = 900)
+@Preview(name = "Keywords — with Telegram channels", heightDp = 900)
 @Composable
 private fun KeywordsContentTelegramFilterPreview() {
     VartovyiTheme {
@@ -635,7 +567,6 @@ private fun KeywordsContentTelegramFilterPreview() {
                     parseTriggerKeywordRuleFromStorage("ракета + харків"),
                 ),
                 stopWords = listOf("відбій"),
-                isTelegramChannelFilterEnabled = true,
                 telegramChannels = listOf("@air_alert_ua", "@kharkiv_alarm"),
             ),
             onAction = {},

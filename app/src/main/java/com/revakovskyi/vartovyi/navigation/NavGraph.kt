@@ -1,9 +1,7 @@
 package com.revakovskyi.vartovyi.navigation
 
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
-import androidx.navigation.NavDestination.Companion.hasRoute
 import androidx.navigation.NavHostController
 import androidx.navigation.NavOptions
 import androidx.navigation.compose.NavHost
@@ -13,10 +11,12 @@ import androidx.navigation.toRoute
 import com.revakovskyi.vartovyi.model.PermissionsStatus
 import com.revakovskyi.vartovyi.ui.screen.home.HomeScreen
 import com.revakovskyi.vartovyi.ui.screen.keywords.KeywordsScreen
+import com.revakovskyi.vartovyi.ui.screen.keywords.KeywordsViewModel
 import com.revakovskyi.vartovyi.ui.screen.log.LogScreen
 import com.revakovskyi.vartovyi.ui.screen.onboarding.OnboardingScreen
 import com.revakovskyi.vartovyi.ui.screen.permissions.PermissionsScreen
 import com.revakovskyi.vartovyi.ui.screen.settings.SettingsScreen
+import com.revakovskyi.vartovyi.ui.screen.troubleshooting.TroubleshootingScreen
 
 private fun tabNavOptions(): NavOptions = navOptions {
     popUpTo<Routes.Home> { saveState = true }
@@ -35,8 +35,8 @@ fun NavGraph(
     navController: NavHostController,
     startDestination: Any,
     permissionsStatus: PermissionsStatus,
-    isRecommendedGranted: Boolean,
     isLogInfoDialogVisible: Boolean,
+    keywordsViewModel: KeywordsViewModel,
     onRefreshPermissions: () -> Unit,
     onDismissLogInfoDialog: () -> Unit,
 ) {
@@ -47,8 +47,6 @@ fun NavGraph(
     ) {
         composable<Routes.Onboarding> {
             OnboardingScreen(
-                permissionsStatus = permissionsStatus,
-                isRecommendedGranted = isRecommendedGranted,
                 onClose = {
                     val navigatedUp = navController.navigateUp()
                     if (!navigatedUp) {
@@ -57,8 +55,6 @@ fun NavGraph(
                         }
                     }
                 },
-                onOpenPermissions = { navController.navigate(Routes.Permissions) },
-                onOpenKeywords = { navController.navigate(Routes.Keywords) },
             )
         }
 
@@ -82,19 +78,7 @@ fun NavGraph(
         }
 
         composable<Routes.Keywords> {
-            val isFromOnboarding = remember {
-                navController.previousBackStackEntry
-                    ?.destination
-                    ?.hasRoute(Routes.Onboarding::class) == true
-            }
-
-            KeywordsScreen(
-                onNavigateBack = if (isFromOnboarding) {
-                    { navController.navigateUp() }
-                } else {
-                    null
-                },
-            )
+            KeywordsScreen(viewModel = keywordsViewModel)
         }
 
         composable<Routes.Log> { backStackEntry ->
@@ -115,13 +99,21 @@ fun NavGraph(
                     )
                 },
                 onNavigateToOnboarding = { navController.navigate(Routes.Onboarding) },
+                onNavigateToTroubleshooting = { navController.navigate(Routes.Troubleshooting) },
             )
         }
 
         composable<Routes.Permissions> {
             PermissionsScreen(
                 onNavigateBack = { navController.navigateUp() },
+                onNavigateToTroubleshooting = { navController.navigate(Routes.Troubleshooting) },
                 onRefreshPermissions = onRefreshPermissions,
+            )
+        }
+
+        composable<Routes.Troubleshooting> {
+            TroubleshootingScreen(
+                onNavigateBack = { navController.navigateUp() },
             )
         }
     }

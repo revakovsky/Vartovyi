@@ -6,13 +6,13 @@ import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.relocation.BringIntoViewRequester
 import androidx.compose.foundation.relocation.bringIntoViewRequester
-import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import com.revakovskyi.vartovyi.R
+import com.revakovskyi.vartovyi.ui.components.VartovyiSurface
 import com.revakovskyi.vartovyi.ui.theme.VartovyiTheme
 
 @Composable
@@ -27,11 +27,7 @@ fun StopWordsSection(
     onRemove: (stopWord: String) -> Unit,
     onFocusChanged: (isFocused: Boolean) -> Unit,
 ) {
-    Surface(
-        color = VartovyiTheme.colors.surface,
-        shape = VartovyiTheme.shapes.large,
-        modifier = modifier,
-    ) {
+    VartovyiSurface(modifier = modifier) {
         Column(
             verticalArrangement = Arrangement.spacedBy(VartovyiTheme.spacing.medium),
             modifier = Modifier.padding(VartovyiTheme.spacing.standard),

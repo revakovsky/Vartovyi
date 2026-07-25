@@ -5,7 +5,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Surface
+import androidx.compose.foundation.text.TextAutoSize
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -14,8 +14,10 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import com.revakovskyi.vartovyi.R
 import com.revakovskyi.vartovyi.ui.components.PulsingDot
+import com.revakovskyi.vartovyi.ui.components.VartovyiSurface
 import com.revakovskyi.vartovyi.ui.components.VartovyiSwitch
 import com.revakovskyi.vartovyi.ui.screen.permissions.PermissionsUiContract
+import com.revakovskyi.vartovyi.ui.theme.MinAutoSizeFontSize
 import com.revakovskyi.vartovyi.ui.theme.VartovyiTheme
 
 @Composable
@@ -28,11 +30,7 @@ fun PermissionItemCard(
     onAction: (action: PermissionsUiContract.Action) -> Unit,
     onSwitchToggle: (isChecked: Boolean) -> PermissionsUiContract.Action,
 ) {
-    Surface(
-        color = VartovyiTheme.colors.surface,
-        shape = VartovyiTheme.shapes.large,
-        modifier = modifier.fillMaxWidth(),
-    ) {
+    VartovyiSurface(modifier = modifier.fillMaxWidth()) {
         Column(
             verticalArrangement = Arrangement.spacedBy(VartovyiTheme.spacing.small),
             modifier = Modifier.padding(VartovyiTheme.spacing.standard),
@@ -84,6 +82,12 @@ fun PermissionItemCard(
                                 text = "($requirementText)",
                                 style = VartovyiTheme.typography.labelSmall,
                                 color = VartovyiTheme.colors.onSurface,
+                                maxLines = 1,
+                                softWrap = false,
+                                autoSize = TextAutoSize.StepBased(
+                                    minFontSize = MinAutoSizeFontSize,
+                                    maxFontSize = VartovyiTheme.typography.labelSmall.fontSize,
+                                ),
                             )
                         }
                     }
