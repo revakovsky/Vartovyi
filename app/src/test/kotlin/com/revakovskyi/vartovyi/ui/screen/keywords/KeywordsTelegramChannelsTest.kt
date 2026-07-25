@@ -289,15 +289,4 @@ class KeywordsTelegramChannelsTest : KeywordsViewModelBaseTest() {
         assertThat(suggestedNames).isEqualTo(listOf("TLK News"))
     }
 
-    @Test
-    fun `ConfirmRestoreDefaults does not touch telegram channels`() = runTest(testDispatcher) {
-        val viewModel = createViewModel()
-        advanceUntilIdle()
-
-        viewModel.onAction(Action.ConfirmRestoreDefaults)
-        advanceUntilIdle()
-
-        coVerify(exactly = 0) { addTelegramChannelUseCase(any()) }
-        coVerify(exactly = 0) { removeTelegramChannelUseCase(any()) }
-    }
 }

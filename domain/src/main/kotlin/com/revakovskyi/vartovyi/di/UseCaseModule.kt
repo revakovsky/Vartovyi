@@ -34,10 +34,6 @@ import com.revakovskyi.vartovyi.usecase.keywords.RemoveStopWordUseCase
 import com.revakovskyi.vartovyi.usecase.keywords.RemoveStopWordUseCaseImpl
 import com.revakovskyi.vartovyi.usecase.keywords.RemoveTelegramChannelUseCase
 import com.revakovskyi.vartovyi.usecase.keywords.RemoveTelegramChannelUseCaseImpl
-import com.revakovskyi.vartovyi.usecase.keywords.RestoreDefaultKeywordsUseCase
-import com.revakovskyi.vartovyi.usecase.keywords.RestoreDefaultKeywordsUseCaseImpl
-import com.revakovskyi.vartovyi.usecase.keywords.RestoreDefaultStopWordsUseCase
-import com.revakovskyi.vartovyi.usecase.keywords.RestoreDefaultStopWordsUseCaseImpl
 import com.revakovskyi.vartovyi.usecase.keywords.SanitizeWordInputUseCase
 import com.revakovskyi.vartovyi.usecase.keywords.SanitizeWordInputUseCaseImpl
 import com.revakovskyi.vartovyi.usecase.keywords.SeedDefaultKeywordsUseCase
@@ -124,8 +120,6 @@ val useCaseModule = module {
     singleOf(::ImportKeywordsUseCaseImpl) { bind<ImportKeywordsUseCase>() }
     singleOf(::SeedDefaultKeywordsUseCaseImpl) { bind<SeedDefaultKeywordsUseCase>() }
     singleOf(::SeedDefaultStopWordsUseCaseImpl) { bind<SeedDefaultStopWordsUseCase>() }
-    singleOf(::RestoreDefaultKeywordsUseCaseImpl) { bind<RestoreDefaultKeywordsUseCase>() }
-    singleOf(::RestoreDefaultStopWordsUseCaseImpl) { bind<RestoreDefaultStopWordsUseCase>() }
     singleOf(::SanitizeWordInputUseCaseImpl) { bind<SanitizeWordInputUseCase>() }
 
     singleOf(::ObserveLogEntriesUseCaseImpl) { bind<ObserveLogEntriesUseCase>() }

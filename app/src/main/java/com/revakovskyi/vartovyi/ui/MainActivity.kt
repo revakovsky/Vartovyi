@@ -5,6 +5,7 @@ import androidx.activity.ComponentActivity
 import androidx.activity.SystemBarStyle
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.consumeWindowInsets
@@ -13,10 +14,10 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.ime
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.FilledTonalIconButton
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButtonDefaults
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.ScaffoldDefaults
 import androidx.compose.material3.SnackbarHost
@@ -28,6 +29,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -47,6 +49,9 @@ import com.revakovskyi.vartovyi.navigation.Routes
 import com.revakovskyi.vartovyi.ui.components.LoadingOverlay
 import com.revakovskyi.vartovyi.ui.components.VartovyiBottomBar
 import com.revakovskyi.vartovyi.ui.components.VartovyiTopBar
+import com.revakovskyi.vartovyi.ui.screen.keywords.KeywordsUiContract
+import com.revakovskyi.vartovyi.ui.screen.keywords.KeywordsViewModel
+import com.revakovskyi.vartovyi.ui.screen.keywords.components.KeywordsTopBarActionsIcon
 import com.revakovskyi.vartovyi.ui.screen.legal.LegalConsentScreen
 import com.revakovskyi.vartovyi.ui.screen.legal.LegalConsentViewModel
 import com.revakovskyi.vartovyi.ui.screen.onboarding.OnboardingViewModel
@@ -66,6 +71,7 @@ class MainActivity : ComponentActivity() {
     private val legalConsentViewModel: LegalConsentViewModel by viewModel()
     private val onboardingViewModel: OnboardingViewModel by viewModel()
     private val permissionsViewModel: PermissionsViewModel by viewModel()
+    private val keywordsViewModel: KeywordsViewModel by viewModel()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -129,6 +135,7 @@ class MainActivity : ComponentActivity() {
                 isAlarmRunning = mainState.isAlarmRunning,
                 monitoringState = mainState.monitoringState,
                 permissionsStatus = permissionsState.permissionsStatus,
+                keywordsViewModel = keywordsViewModel,
                 onRefreshPermissions = onRefreshPermissions,
                 onStopAlarm = { mainViewModel.onAction(MainUiContract.Action.StopAlarm) },
             )
@@ -141,6 +148,7 @@ class MainActivity : ComponentActivity() {
         isAlarmRunning: Boolean,
         monitoringState: com.revakovskyi.vartovyi.model.MonitoringState,
         permissionsStatus: PermissionsStatus,
+        keywordsViewModel: KeywordsViewModel,
         onRefreshPermissions: () -> Unit,
         onStopAlarm: () -> Unit,
     ) {
@@ -148,8 +156,9 @@ class MainActivity : ComponentActivity() {
         val currentBackStackEntry by navController.currentBackStackEntryAsState()
         val currentDestination = currentBackStackEntry?.destination
 
-        val snackbarHostState = remember { SnackbarHostState() }
+        val keywordsState by keywordsViewModel.state.collectAsStateWithLifecycle()
 
+        val snackbarHostState = remember { SnackbarHostState() }
         var showLogInfoDialog by remember { mutableStateOf(false) }
 
         LaunchedEffect(Unit) {
@@ -208,25 +217,57 @@ class MainActivity : ComponentActivity() {
                             permissionsStatus = permissionsStatus,
                             isEmergencyStopVisible = isAlarmRunning,
                             scrollBehavior = topBarScrollBehavior,
-                            additionalActions = if (selectedNavItem == BottomNavItem.Logs) {
-                                {
-                                    FilledTonalIconButton(
-                                        onClick = { showLogInfoDialog = true },
-                                        colors = IconButtonDefaults.filledTonalIconButtonColors(
-                                            containerColor = VartovyiTheme.colors.onSurfaceVariant.copy(
-                                                alpha = 0.35f
-                                            ),
-                                        ),
-                                        modifier = Modifier.size(VartovyiTheme.spacing.extraLarge),
-                                    ) {
-                                        Icon(
-                                            imageVector = ImageVector.vectorResource(R.drawable.info),
-                                            contentDescription = null,
-                                            modifier = Modifier.size(VartovyiTheme.spacing.standard),
+                            trailingActions = when (selectedNavItem) {
+                                BottomNavItem.Keywords -> {
+                                    {
+                                        KeywordsTopBarActionsIcon(
+                                            isExportEnabled = keywordsState.canExport,
+                                            isClearEnabled = keywordsState.hasKeywordDataToClear,
+                                            onExportClick = {
+                                                keywordsViewModel.onAction(
+                                                    KeywordsUiContract.Action.RequestExport
+                                                )
+                                            },
+                                            onImportClick = {
+                                                keywordsViewModel.onAction(
+                                                    KeywordsUiContract.Action.RequestImport
+                                                )
+                                            },
+                                            onClearClick = {
+                                                keywordsViewModel.onAction(
+                                                    KeywordsUiContract.Action.OpenClearKeywordsDialog
+                                                )
+                                            },
                                         )
                                     }
                                 }
-                            } else null,
+
+                                BottomNavItem.Logs -> {
+                                    {
+                                        IconButton(onClick = { showLogInfoDialog = true }) {
+                                            Box(
+                                                contentAlignment = Alignment.Center,
+                                                modifier = Modifier
+                                                    .fillMaxSize()
+                                                    .padding(VartovyiTheme.spacing.extraSmall)
+                                                    .background(
+                                                        shape = CircleShape,
+                                                        color = VartovyiTheme.colors.onSurfaceVariant
+                                                            .copy(alpha = 0.35f),
+                                                    )
+                                            ) {
+                                                Icon(
+                                                    imageVector = ImageVector.vectorResource(R.drawable.info),
+                                                    contentDescription = null,
+                                                    modifier = Modifier.size(VartovyiTheme.spacing.standard),
+                                                )
+                                            }
+                                        }
+                                    }
+                                }
+
+                                else -> null
+                            },
                             onPermissionsClick = { navController.navigate(Routes.Permissions) },
                             onEmergencyStopClick = onStopAlarm,
                         )
@@ -260,6 +301,7 @@ class MainActivity : ComponentActivity() {
                     onRefreshPermissions = onRefreshPermissions,
                     isLogInfoDialogVisible = showLogInfoDialog,
                     onDismissLogInfoDialog = { showLogInfoDialog = false },
+                    keywordsViewModel = keywordsViewModel,
                     modifier = Modifier
                         .fillMaxSize()
                         .then(

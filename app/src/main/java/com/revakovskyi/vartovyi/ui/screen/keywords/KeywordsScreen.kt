@@ -11,7 +11,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.isImeVisible
 import androidx.compose.foundation.layout.padding
@@ -49,9 +48,6 @@ import com.revakovskyi.vartovyi.ui.components.DialogChoiceRole
 import com.revakovskyi.vartovyi.ui.components.LoadingOverlay
 import com.revakovskyi.vartovyi.ui.components.VartovyiChoiceDialog
 import com.revakovskyi.vartovyi.ui.components.VartovyiDialog
-import com.revakovskyi.vartovyi.ui.screen.keywords.components.KeywordsBackupRow
-import com.revakovskyi.vartovyi.ui.screen.keywords.components.KeywordsClearButton
-import com.revakovskyi.vartovyi.ui.screen.keywords.components.KeywordsRestoreDefaultsButton
 import com.revakovskyi.vartovyi.ui.screen.keywords.components.KeywordsSection
 import com.revakovskyi.vartovyi.ui.screen.keywords.components.StopWordsSection
 import com.revakovskyi.vartovyi.ui.screen.keywords.components.TelegramChannelsSection
@@ -64,9 +60,10 @@ import com.revakovskyi.vartovyi.utils.ObserveSingleEvents
 import com.revakovskyi.vartovyi.utils.parseTriggerKeywordRuleFromStorage
 import kotlinx.coroutines.delay
 import org.koin.androidx.compose.koinViewModel
+import kotlin.time.Duration.Companion.milliseconds
 
 /** Delay to let the keyboard fully animate open before scrolling the active field into view. */
-private const val BRING_INTO_VIEW_DELAY_MS = 400L
+private val BRING_INTO_VIEW_DELAY_MS = 400.milliseconds
 
 /** Input row plus a slice of the suggestions list kept visible above the keyboard. */
 private const val TELEGRAM_SUGGESTIONS_PEEK_HEIGHT_DP = 220
@@ -152,21 +149,6 @@ fun KeywordsScreen(
             is KeywordsUiContract.Event.KeywordsScreenDataCleared -> {
                 SnackbarController.sendEvent(
                     SnackbarEvent(message = resources.getString(R.string.keywords_clear_completed)),
-                )
-            }
-
-            is KeywordsUiContract.Event.DefaultKeywordsRestored -> {
-                val message = if (event.addedCount == 0) {
-                    resources.getString(R.string.keywords_restore_nothing_added)
-                } else {
-                    resources.getQuantityString(
-                        R.plurals.keywords_restore_defaults_added,
-                        event.addedCount,
-                        event.addedCount,
-                    )
-                }
-                SnackbarController.sendEvent(
-                    event = SnackbarEvent(message = message)
                 )
             }
 
@@ -297,17 +279,6 @@ fun KeywordsScreen(
             dismissText = stringResource(R.string.keywords_clear_dialog_dismiss),
             onDismiss = { viewModel.onAction(KeywordsUiContract.Action.DismissClearKeywordsDialog) },
             onConfirm = { viewModel.onAction(KeywordsUiContract.Action.ConfirmClearKeywords) },
-        )
-    }
-
-    if (state.isRestoreDefaultsDialogVisible) {
-        VartovyiDialog(
-            title = stringResource(R.string.keywords_restore_defaults_dialog_title),
-            message = stringResource(R.string.keywords_restore_defaults_dialog_message),
-            confirmText = stringResource(R.string.keywords_restore_defaults_dialog_confirm),
-            dismissText = stringResource(R.string.keywords_restore_defaults_dialog_dismiss),
-            onDismiss = { viewModel.onAction(KeywordsUiContract.Action.DismissRestoreDefaultsDialog) },
-            onConfirm = { viewModel.onAction(KeywordsUiContract.Action.ConfirmRestoreDefaults) },
         )
     }
 
@@ -520,33 +491,6 @@ private fun KeywordsContent(
                         else if (activeBivr == stopWordsBivr) activeBivr = null
                     },
                 )
-
-                Column(
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.spacedBy(VartovyiTheme.spacing.medium),
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(
-                            top = VartovyiTheme.spacing.medium,
-                            bottom = VartovyiTheme.spacing.small,
-                        )
-                ) {
-                    KeywordsBackupRow(
-                        isExportEnabled = state.canExport,
-                        onExportClick = { onAction(KeywordsUiContract.Action.RequestExport) },
-                        onImportClick = { onAction(KeywordsUiContract.Action.RequestImport) },
-                    )
-
-                    KeywordsRestoreDefaultsButton(
-                        onClick = { onAction(KeywordsUiContract.Action.OpenRestoreDefaultsDialog) },
-                    )
-
-                    KeywordsClearButton(
-                        isEnabled = state.hasKeywordDataToClear,
-                        onClick = { onAction(KeywordsUiContract.Action.OpenClearKeywordsDialog) },
-                        modifier = Modifier.padding(bottom = VartovyiTheme.spacing.small)
-                    )
-                }
             }
         }
     }

@@ -53,7 +53,7 @@
     <string name="settings_data_alarm_cooldown_tooltip" tools:ignore="TypographyFractions">Після спрацювання тривоги нові спрацювання блокуються на вибраний час (1 / 3 / 5 / 10 хв). За замовчуванням — 5 хв. Повідомлення протягом паузи потрапляють до журналу зі статусом «Пропущено (пауза)».\n\n☝️ Зупинка тривоги вручну паузу не скидає — вона завершиться лише коли мине відведений час.\n\n💡 Допомагає уникнути дублювання, якщо канал надсилає кілька повідомлень підряд про одну подію.</string>
     <string name="settings_reset_factory_button">Скинути налаштування</string>
     <string name="settings_reset_factory_dialog_title">Скинути всі налаштування?</string>
-    <string name="settings_reset_factory_dialog_message">Усі налаштування застосунку повернуться до заводських (звук, розклад, ліміт журналу, пауза між тривогами). Моніторинг буде вимкнено.\n\nКлючові слова, стоп-слова, канали Telegram і фільтри каналів буде очищено.\n\nЖурнал подій буде видалено.\n\nПідтвердження Privacy Policy та Terms of Use залишиться збереженим — повторно погоджувати документи не доведеться.\n\nЦю дію неможливо скасувати.</string>
+    <string name="settings_reset_factory_dialog_message">Усі налаштування застосунку повернуться до заводських (звук, розклад, ліміт журналу, пауза між тривогами). Моніторинг буде вимкнено.\n\nКанали Telegram, тригер-слова та стоп-слова буде очищено.\n\nЖурнал подій буде видалено.\n\nПідтвердження Privacy Policy та Terms of Use залишиться збереженим — повторно погоджувати документи не доведеться.\n\nЦю дію неможливо скасувати.</string>
     <string name="settings_reset_factory_dialog_confirm">Скинути</string>
     <string name="settings_reset_factory_dialog_dismiss">Скасувати</string>
     <string name="settings_reset_factory_completed">Налаштування скинуто до заводських</string>
@@ -135,18 +135,6 @@
         <item quantity="many">Не більше %d ключових слів</item>
         <item quantity="other">Не більше %d ключових слів</item>
     </plurals>
-    <string name="keywords_restore_defaults">Відновити дефолтні</string>
-    <string name="keywords_restore_defaults_dialog_title">Відновити дефолтні?</string>
-    <string name="keywords_restore_defaults_dialog_message">До ваших списків буде додано дефолтні тригер-слова та стоп-слова. Наявні дані не видаляються, дублікати пропускаються.</string>
-    <string name="keywords_restore_defaults_dialog_confirm">Відновити</string>
-    <string name="keywords_restore_defaults_dialog_dismiss">Скасувати</string>
-    <plurals name="keywords_restore_defaults_added">
-        <item quantity="one">Додано %d дефолтне слово</item>
-        <item quantity="few">Додано %d дефолтні слова</item>
-        <item quantity="many">Додано %d дефолтних слів</item>
-        <item quantity="other">Додано %d дефолтних слів</item>
-    </plurals>
-    <string name="keywords_restore_nothing_added">Усі дефолтні слова вже у списку</string>
     <string name="permissions_warning">Для стабільного фонового моніторингу надайте всі обов’язкові та рекомендовані дозволи</string>
     <string name="permissions_listener_title">Доступ до сповіщень</string>
     <string name="permissions_listener_description">Дозволяє перехоплювати сповіщення Telegram для пошуку ключових слів. Без нього моніторинг не працює</string>
@@ -181,7 +169,7 @@
     <string name="log_info_dialog_body">Тут відображаються всі сповіщення Telegram, отримані під час активного моніторингу.\n\nСтатуси записів:\n\n• Тривога — тригер-слово знайдено, сирена спрацювала.\n\n• Пропущено (пауза) — ключове слово знайдено, але ще не минув час затримки між тривогами, який задається в налаштуваннях додатку.\n\n• Пропущено — тривога не спрацювала з однієї з причин:\n  - немає збігів з тригер-словами\n  - стоп-слово в повідомленні\n  - канал не в списку дозволених каналів\n  - повідомлення надіслано поза розкладом який задається в налаштуваннях\n\n💡 Щоб скопіювати назву каналу або текст повідомлення, натискайте відповідні кнопки праворуч.</string>
     <string name="keywords_clear">Очистити всі списки</string>
     <string name="keywords_clear_dialog_title">Очистити всі списки?</string>
-    <string name="keywords_clear_dialog_message">Буде видалено тригер-слова, стоп-слова та канали Telegram. Фільтр каналів буде вимкнено.\n\nЯкщо зараз грає тривога — вона зупиниться. Моніторинг буде вимкнено.\n\n⚠️ Цю дію неможливо скасувати.</string>
+    <string name="keywords_clear_dialog_message">Буде видалено канали Telegram, тригер-слова та стоп-слова.\n\nЯкщо зараз грає тривога — вона зупиниться. Моніторинг буде вимкнено.\n\n⚠️ Цю дію неможливо скасувати.</string>
     <string name="keywords_clear_dialog_confirm">Очистити</string>
     <string name="keywords_clear_dialog_dismiss">Скасувати</string>
     <string name="keywords_import_strategy_dialog_title">Імпорт</string>
@@ -192,8 +180,9 @@
     <string name="keywords_clear_completed">Списки ключових слів очищено</string>
     <string name="keywords_export">Експорт</string>
     <string name="keywords_import">Імпорт</string>
+    <string name="keywords_menu_content_description">Більше опцій</string>
     <string name="keywords_export_dialog_title">Експорт</string>
-    <string name="keywords_export_dialog_message">Буде збережено тригер-слова, стоп-слова та канали Telegram. Як ви хочете експортувати ваші дані?\n\n• Зберегти файл локально на пристрій\n• Поділитися через інші додатки</string>
+    <string name="keywords_export_dialog_message">Буде збережено канали Telegram, тригер-слова та стоп-слова. Як ви хочете експортувати ваші дані?\n\n• Зберегти файл локально на пристрій\n• Поділитися через інші додатки</string>
     <string name="keywords_export_save">Зберегти на пристрій</string>
     <string name="keywords_export_share">Поділитися</string>
     <string name="keywords_export_cancel">Скасувати</string>

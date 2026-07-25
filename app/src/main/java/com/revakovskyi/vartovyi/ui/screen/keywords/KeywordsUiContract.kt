@@ -29,7 +29,6 @@ interface KeywordsUiContract {
         val duplicateWord: String? = null,
         val pendingRemoval: PendingRemoval? = null,
         val isClearKeywordsDialogVisible: Boolean = false,
-        val isRestoreDefaultsDialogVisible: Boolean = false,
         val isImportStrategyDialogVisible: Boolean = false,
         val pendingImportStrategy: ImportStrategy? = null,
         val isExportDestinationDialogVisible: Boolean = false,
@@ -82,9 +81,6 @@ interface KeywordsUiContract {
         data object OpenClearKeywordsDialog : Action
         data object DismissClearKeywordsDialog : Action
         data object ConfirmClearKeywords : Action
-        data object OpenRestoreDefaultsDialog : Action
-        data object DismissRestoreDefaultsDialog : Action
-        data object ConfirmRestoreDefaults : Action
         data class CopyChip(val text: String) : Action
         data object RequestExport : Action
         data object DismissExportDestinationDialog : Action
@@ -112,7 +108,6 @@ interface KeywordsUiContract {
         data object TelegramChannelAdded : Event
         data object TelegramChannelRemoved : Event
         data object KeywordsScreenDataCleared : Event
-        data class DefaultKeywordsRestored(val addedCount: Int) : Event
         data class ChipCopied(val text: String) : Event
         data class LaunchExportFilePicker(val jsonContent: String) : Event
         data class LaunchExportShareSheet(val jsonContent: String) : Event
