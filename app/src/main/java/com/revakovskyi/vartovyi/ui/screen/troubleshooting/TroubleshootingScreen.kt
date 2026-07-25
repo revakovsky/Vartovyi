@@ -25,10 +25,13 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.material3.rememberTopAppBarState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateMapOf
@@ -37,6 +40,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.style.TextAlign
@@ -58,32 +62,38 @@ fun TroubleshootingScreen(
     TroubleshootingContent(onNavigateBack = onNavigateBack)
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun TroubleshootingContent(
     modifier: Modifier = Modifier,
     onNavigateBack: () -> Unit,
 ) {
+    val topBarScrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior(
+        state = rememberTopAppBarState(),
+    )
+
     val expandedGroupKeys = remember { mutableStateMapOf<Int, Boolean>() }
 
-    Box(
-        contentAlignment = Alignment.TopCenter,
-        modifier = modifier.fillMaxSize(),
+    Column(
+        modifier = modifier
+            .fillMaxSize()
+            .nestedScroll(topBarScrollBehavior.nestedScrollConnection)
     ) {
+        VartovyiBackTopBar(
+            title = stringResource(R.string.settings_open_troubleshooting),
+            backContentDescription = stringResource(R.string.troubleshooting_back),
+            scrollBehavior = topBarScrollBehavior,
+            onNavigateBack = onNavigateBack,
+        )
+
         LazyColumn(
             verticalArrangement = Arrangement.spacedBy(VartovyiTheme.spacing.small),
             contentPadding = PaddingValues(bottom = VartovyiTheme.spacing.medium),
             modifier = Modifier
+                .align(Alignment.CenterHorizontally)
                 .widthIn(max = VartovyiTheme.spacing.contentMaxWidth)
                 .fillMaxSize()
         ) {
-            item(contentType = "header") {
-                VartovyiBackTopBar(
-                    title = stringResource(R.string.settings_open_troubleshooting),
-                    backContentDescription = stringResource(R.string.troubleshooting_back),
-                    onNavigateBack = onNavigateBack,
-                )
-            }
-
             item(contentType = "description") {
                 Text(
                     text = stringResource(R.string.troubleshooting_lead),
