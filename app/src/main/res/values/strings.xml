@@ -17,7 +17,7 @@
     <string name="monitoring_deactivate">Deactivate</string>
     <string name="home_add_keywords_hint">No keywords added yet</string>
     <string name="home_add">Add</string>
-    <string name="home_and_more" tools:ignore="PluralsCandidate">+%d more…</string>
+    <string name="home_replace_default_keywords_hint">☝️ Replace the example words with your own — you can delete the examples!</string>
     <string name="home_last_trigger">Last trigger</string>
     <string name="home_no_triggers">No triggers yet</string>
     <string name="settings_test_alarm">Test alarm</string>
@@ -51,7 +51,7 @@
     <string name="settings_data_log_size_value_items">%1$d</string>
     <string name="settings_data_alarm_cooldown_title">Alarm cooldown</string>
     <string name="settings_data_alarm_cooldown_value_minutes">%1$d min</string>
-    <string name="settings_data_alarm_cooldown_tooltip">After an alarm fires, new alarms are blocked for the selected duration (1 / 3 / 5 / 10 min). Default — 5 min. Messages during the cooldown are recorded in the log as Skipped (cooldown).\n\n☝️ Stopping the alarm manually does not reset the cooldown — it ends only when the selected time has elapsed.\n\n💡 Prevents duplicate alerts when a channel sends several messages about the same event in quick succession.</string>
+    <string name="settings_data_alarm_cooldown_tooltip" tools:ignore="TypographyFractions">After an alarm fires, new alarms are blocked for the selected duration (1 / 3 / 5 / 10 min). Default — 5 min. Messages during the cooldown are recorded in the log as Skipped (cooldown).\n\n☝️ Stopping the alarm manually does not reset the cooldown — it ends only when the selected time has elapsed.\n\n💡 Prevents duplicate alerts when a channel sends several messages about the same event in quick succession.</string>
     <string name="settings_reset_factory_button">Reset settings</string>
     <string name="settings_reset_factory_dialog_title">Reset all settings?</string>
     <string name="settings_reset_factory_dialog_message">All app settings will return to factory defaults (sound, schedule, log limits, cooldowns). Monitoring will be turned off.\n\nKeywords, stop words, Telegram channels, and channel filters will be cleared.\n\nThe event log will be erased.\n\nYour acceptance of Privacy Policy and Terms of Use stays saved — you will not be asked to consent again.\n\nThis cannot be undone.</string>
@@ -96,10 +96,11 @@
     <string name="keywords_stop_hint">e.g. all clear</string>
     <string name="keywords_telegram_channels">Telegram channels</string>
     <string name="keywords_telegram_channel_hint">e.g. Повітряні Сили ЗС України</string>
-    <string name="keywords_telegram_channel_tip">Only messages from these channels will trigger the alarm</string>
-    <string name="keywords_telegram_channels_empty_hint">Empty — Vartovyi listens to all Telegram channels</string>
-    <string name="keywords_telegram_channel_tooltip">⚠️ Do NOT enter a link (t.me/…) or channel address (@channel) — they will never match the name in the notification.\n\nEnter the channel name exactly as it appears in your Telegram chat list — for example, "Повітряні Сили ЗС України", not "t.me/kpszsu" or "@kpszsu".\n\nEmoji at the edges of the name do not affect matching: "Повітряні цілі Київ" and "🚨 Повітряні цілі Київ" work the same.\n\n☝️ Letter case does not matter — type the name however you like.\n\n💡 Tip: if alarms from a channel stop coming — check whether it was renamed. If so, remove it and add it again with the new name.</string>
-    <string name="keywords_popular_channels_title">Popular channels</string>
+    <string name="keywords_choose_from_list">Choose from list</string>
+    <string name="keywords_popular_channels_no_match">No channels match your search</string>
+    <string name="keywords_telegram_channel_tip">Currently only notifications from selected channels are tracked</string>
+    <string name="keywords_telegram_channels_empty_hint">Currently all Telegram notifications are tracked</string>
+    <string name="keywords_telegram_channel_tooltip">If the Telegram channel list is empty — Vartovyi listens to all Telegram notifications you receive. Add channels to make the alarm trigger only on messages from selected channels.\n\n⚠️ Do NOT enter a link (t.me/…) or channel address (@channel) — they will never match the name in the notification.\n\nEnter the channel name exactly as it appears in your Telegram chat list — for example, "Повітряні Сили ЗС України", not "t.me/kpszsu" or "@kpszsu".\n\nEmoji at the edges of the name do not affect matching: "Повітряні цілі Київ" and "🚨 Повітряні цілі Київ" work the same.\n\n☝️ Letter case does not matter — type the name however you like.\n\n💡 Tip: if alarms from a channel stop coming — check whether it was renamed. If so, remove it and add it again with the new name.</string>
     <string name="keywords_popular_channels_group_national">Nationwide</string>
     <string name="keywords_popular_channels_group_chernihiv">Chernihiv</string>
     <string name="keywords_popular_channels_group_sumy">Sumy</string>

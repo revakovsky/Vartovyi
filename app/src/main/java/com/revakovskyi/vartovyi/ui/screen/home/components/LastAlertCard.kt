@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalLocale
@@ -21,6 +22,7 @@ import androidx.compose.ui.unit.dp
 import com.revakovskyi.vartovyi.R
 import com.revakovskyi.vartovyi.model.AlertEvent
 import com.revakovskyi.vartovyi.model.AlertEventStatus
+import com.revakovskyi.vartovyi.ui.components.VartovyiSurface
 import com.revakovskyi.vartovyi.ui.theme.VartovyiTheme
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -34,13 +36,12 @@ fun LastAlertCard(
     modifier: Modifier = Modifier,
     lastAlertEvent: AlertEvent?,
     onClick: () -> Unit,
+    onEventClick: () -> Unit,
 ) {
-    Surface(
-        color = VartovyiTheme.colors.surface,
-        shape = VartovyiTheme.shapes.large,
-        onClick = onClick,
-        enabled = lastAlertEvent != null,
+    VartovyiSurface(
         modifier = modifier,
+        isClickable = true,
+        onClick = onClick,
     ) {
         Column(
             modifier = Modifier
@@ -62,56 +63,79 @@ fun LastAlertCard(
                     color = VartovyiTheme.colors.onSurfaceVariant,
                 )
             } else {
-                val timeString = SimpleDateFormat(
-                    TIME_FORMAT_PATTERN,
-                    LocalLocale.current.platformLocale
-                ).format(Date(lastAlertEvent.timestamp))
-
-                Row(
-                    horizontalArrangement = Arrangement.spacedBy(VartovyiTheme.spacing.extraSmall),
-                    verticalAlignment = Alignment.CenterVertically,
-                ) {
-                    Text(
-                        text = timeString,
-                        style = VartovyiTheme.typography.labelMedium,
-                        color = VartovyiTheme.colors.onSurfaceVariant,
-                    )
-
-                    HomeKeywordChip(text = lastAlertEvent.senderName)
-                }
-
-                Spacer(modifier = Modifier.height(VartovyiTheme.spacing.extraSmall))
-
-                Text(
-                    text = lastAlertEvent.messageText,
-                    style = VartovyiTheme.typography.bodyMedium,
-                    color = VartovyiTheme.colors.onSurface,
-                    maxLines = MAX_MESSAGE_LINES,
-                    overflow = TextOverflow.Ellipsis,
+                AlertEventContent(
+                    lastAlertEvent = lastAlertEvent,
+                    onClick = onEventClick,
                 )
-
-                Spacer(modifier = Modifier.height(VartovyiTheme.spacing.medium))
-
-                Surface(
-                    color = VartovyiTheme.colors.surface,
-                    shape = VartovyiTheme.shapes.small,
-                    border = BorderStroke(
-                        width = BORDER_STROKE_WIDTH_DP.dp,
-                        color = VartovyiTheme.colors.error,
-                    ),
-                ) {
-                    Text(
-                        text = lastAlertEvent.matchedKeyword,
-                        style = VartovyiTheme.typography.labelMedium,
-                        color = VartovyiTheme.colors.error,
-                        modifier = Modifier.padding(
-                            horizontal = VartovyiTheme.spacing.small,
-                            vertical = VartovyiTheme.spacing.extraSmall,
-                        )
-                    )
-                }
             }
         }
+    }
+}
+
+@Composable
+private fun AlertEventContent(
+    lastAlertEvent: AlertEvent,
+    onClick: () -> Unit,
+) {
+    val locale = LocalLocale.current.platformLocale
+    val timeString = remember(lastAlertEvent.timestamp, locale) {
+        SimpleDateFormat(TIME_FORMAT_PATTERN, locale).format(Date(lastAlertEvent.timestamp))
+    }
+
+    Surface(
+        color = VartovyiTheme.colors.surface,
+        onClick = onClick,
+    ) {
+        Column {
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(VartovyiTheme.spacing.extraSmall),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Text(
+                    text = timeString,
+                    style = VartovyiTheme.typography.labelMedium,
+                    color = VartovyiTheme.colors.onSurfaceVariant,
+                )
+
+                HomeKeywordChip(text = lastAlertEvent.senderName)
+            }
+
+            Spacer(modifier = Modifier.height(VartovyiTheme.spacing.extraSmall))
+
+            Text(
+                text = lastAlertEvent.messageText,
+                style = VartovyiTheme.typography.bodyMedium,
+                color = VartovyiTheme.colors.onSurface,
+                maxLines = MAX_MESSAGE_LINES,
+                overflow = TextOverflow.Ellipsis,
+            )
+
+            Spacer(modifier = Modifier.height(VartovyiTheme.spacing.medium))
+
+            MatchedKeywordBadge(text = lastAlertEvent.matchedKeyword)
+        }
+    }
+}
+
+@Composable
+private fun MatchedKeywordBadge(text: String) {
+    Surface(
+        color = VartovyiTheme.colors.surface,
+        shape = VartovyiTheme.shapes.small,
+        border = BorderStroke(
+            width = BORDER_STROKE_WIDTH_DP.dp,
+            color = VartovyiTheme.colors.error,
+        ),
+    ) {
+        Text(
+            text = text,
+            style = VartovyiTheme.typography.labelMedium,
+            color = VartovyiTheme.colors.error,
+            modifier = Modifier.padding(
+                horizontal = VartovyiTheme.spacing.small,
+                vertical = VartovyiTheme.spacing.extraSmall,
+            )
+        )
     }
 }
 
@@ -131,6 +155,7 @@ private fun PreviewLastAlertCard() {
                 status = AlertEventStatus.ALARM_TRIGGERED,
             ),
             onClick = {},
+            onEventClick = {},
         )
     }
 }
@@ -142,6 +167,7 @@ private fun PreviewLastAlertCardEmpty() {
         LastAlertCard(
             lastAlertEvent = null,
             onClick = {},
+            onEventClick = {},
         )
     }
 }

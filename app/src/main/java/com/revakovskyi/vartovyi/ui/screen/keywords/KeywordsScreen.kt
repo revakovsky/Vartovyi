@@ -456,6 +456,7 @@ private fun KeywordsContent(
                 TelegramChannelsSection(
                     bringIntoViewRequester = telegramBivr,
                     channels = state.telegramChannels,
+                    hasSuggestedChannels = state.hasSuggestedTelegramChannels,
                     suggestedChannels = state.suggestedTelegramChannels,
                     inputValue = state.inputTelegramChannel,
                     onInputChange = { value ->

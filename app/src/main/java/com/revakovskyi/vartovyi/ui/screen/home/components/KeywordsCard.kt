@@ -8,7 +8,6 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -16,10 +15,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import com.revakovskyi.vartovyi.R
+import com.revakovskyi.vartovyi.constants.DEFAULT_KEYWORDS_SEED
+import com.revakovskyi.vartovyi.ui.components.VartovyiSurface
 import com.revakovskyi.vartovyi.ui.theme.VartovyiTheme
 import com.revakovskyi.vartovyi.ui.theme.bodyLink
-
-private const val MAX_VISIBLE_KEYWORDS = 5
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
@@ -27,9 +26,8 @@ fun KeywordsCard(
     keywords: List<String>,
     onClick: () -> Unit,
 ) {
-    Surface(
-        color = VartovyiTheme.colors.surface,
-        shape = VartovyiTheme.shapes.large,
+    VartovyiSurface(
+        isClickable = true,
         onClick = onClick,
     ) {
         Column(
@@ -60,36 +58,24 @@ fun KeywordsCard(
                     )
                 }
             } else {
-                val visibleKeywords = keywords.take(MAX_VISIBLE_KEYWORDS)
-                val remainingCount = keywords.size - visibleKeywords.size
+                Text(
+                    text = stringResource(R.string.home_replace_default_keywords_hint),
+                    style = VartovyiTheme.typography.bodyMedium,
+                    color = VartovyiTheme.colors.onSurfaceVariant,
+                )
+
+                Spacer(modifier = Modifier.height(VartovyiTheme.spacing.medium))
 
                 FlowRow(
                     horizontalArrangement = Arrangement.spacedBy(VartovyiTheme.spacing.extraSmall),
                     verticalArrangement = Arrangement.spacedBy(VartovyiTheme.spacing.extraSmall),
                 ) {
-                    visibleKeywords.forEach { keyword ->
+                    keywords.forEach { keyword ->
                         HomeKeywordChip(text = keyword)
-                    }
-
-                    if (remainingCount > 0) {
-                        HomeKeywordChip(
-                            text = stringResource(R.string.home_and_more, remainingCount),
-                        )
                     }
                 }
             }
         }
-    }
-}
-
-@Preview(name = "Keywords card — short words")
-@Composable
-private fun PreviewKeywordsCard() {
-    VartovyiTheme {
-        KeywordsCard(
-            keywords = listOf("ракета", "вибух", "тривога", "атака", "бомба"),
-            onClick = {},
-        )
     }
 }
 
@@ -98,23 +84,18 @@ private fun PreviewKeywordsCard() {
 private fun PreviewKeywordsCardEmpty() {
     VartovyiTheme {
         KeywordsCard(
-            keywords = listOf(),
+            keywords = emptyList(),
             onClick = {},
         )
     }
 }
 
-@Preview(name = "Keywords card — long words")
+@Preview(name = "Keywords card — default keywords only")
 @Composable
-private fun PreviewKeywordsCardLongWords() {
+private fun PreviewKeywordsCardDefaultOnly() {
     VartovyiTheme {
         KeywordsCard(
-            keywords = listOf(
-                "Салтівка",
-                "sdffds lgfsgkld lfdskgjdsgj ldfgldjgjsdfogjs odfgj lfdskgjdsgj",
-                "вибух",
-                "короткий текст та ще трохи довший текст",
-            ),
+            keywords = DEFAULT_KEYWORDS_SEED,
             onClick = {},
         )
     }

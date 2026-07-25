@@ -26,6 +26,7 @@ import androidx.compose.ui.unit.dp
 import com.revakovskyi.vartovyi.R
 import com.revakovskyi.vartovyi.model.AlertEvent
 import com.revakovskyi.vartovyi.model.AlertEventStatus
+import com.revakovskyi.vartovyi.ui.components.VartovyiSurface
 import com.revakovskyi.vartovyi.ui.theme.VartovyiTheme
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -47,11 +48,7 @@ fun LogEventItemCard(
         formatLogEventTime(timestamp = event.timestamp)
     }
 
-    Surface(
-        color = VartovyiTheme.colors.surface,
-        shape = VartovyiTheme.shapes.large,
-        modifier = modifier,
-    ) {
+    VartovyiSurface(modifier = modifier) {
         Column(
             modifier = Modifier.padding(VartovyiTheme.spacing.standard),
         ) {

@@ -42,18 +42,24 @@ interface KeywordsUiContract {
         val canExport: Boolean
             get() = keywords.isNotEmpty() || stopWords.isNotEmpty() || telegramChannels.isNotEmpty()
 
+        val notYetAddedTelegramChannels: List<PopularTelegramChannel>
+            get() = POPULAR_TELEGRAM_CHANNELS.filter { suggestion ->
+                telegramChannels.none { channel ->
+                    channel.equals(suggestion.displayName, ignoreCase = true)
+                }
+            }
+
+        val hasSuggestedTelegramChannels: Boolean
+            get() = notYetAddedTelegramChannels.isNotEmpty()
+
         val suggestedTelegramChannels: List<PopularTelegramChannel>
             get() {
                 val query = inputTelegramChannel.trim()
-                return POPULAR_TELEGRAM_CHANNELS.filter { suggestion ->
-                    val isAlreadyAdded = telegramChannels.any { channel ->
-                        channel.equals(suggestion.displayName, ignoreCase = true)
-                    }
-                    val matchesQuery = query.isBlank() ||
-                            suggestion.displayName.contains(query, ignoreCase = true) ||
-                            suggestion.handle.contains(query, ignoreCase = true)
+                if (query.isBlank()) return notYetAddedTelegramChannels
 
-                    !isAlreadyAdded && matchesQuery
+                return notYetAddedTelegramChannels.filter { suggestion ->
+                    suggestion.displayName.contains(query, ignoreCase = true) ||
+                            suggestion.handle.contains(query, ignoreCase = true)
                 }
             }
     }

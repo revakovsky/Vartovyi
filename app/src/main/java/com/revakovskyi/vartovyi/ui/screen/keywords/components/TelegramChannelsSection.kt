@@ -1,12 +1,13 @@
 package com.revakovskyi.vartovyi.ui.screen.keywords.components
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.FlowRow
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.relocation.BringIntoViewRequester
 import androidx.compose.foundation.relocation.bringIntoViewRequester
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -17,7 +18,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import com.revakovskyi.vartovyi.R
+import com.revakovskyi.vartovyi.model.PopularChannelRegion
 import com.revakovskyi.vartovyi.model.PopularTelegramChannel
+import com.revakovskyi.vartovyi.ui.components.SectionContainer
+import com.revakovskyi.vartovyi.ui.components.VartovyiSurface
 import com.revakovskyi.vartovyi.ui.theme.VartovyiTheme
 
 @Composable
@@ -25,6 +29,7 @@ fun TelegramChannelsSection(
     modifier: Modifier = Modifier,
     bringIntoViewRequester: BringIntoViewRequester,
     channels: List<String>,
+    hasSuggestedChannels: Boolean,
     suggestedChannels: List<PopularTelegramChannel>,
     inputValue: String,
     onInputChange: (value: String) -> Unit,
@@ -34,13 +39,9 @@ fun TelegramChannelsSection(
     onSuggestionSelect: (channel: String) -> Unit,
     onFocusChanged: (isFocused: Boolean) -> Unit,
 ) {
-    var isInputFocused by remember { mutableStateOf(false) }
+    var isSuggestionsVisible by remember { mutableStateOf(channels.isEmpty()) }
 
-    Surface(
-        color = VartovyiTheme.colors.surface,
-        shape = VartovyiTheme.shapes.large,
-        modifier = modifier,
-    ) {
+    VartovyiSurface(modifier = modifier) {
         Column(
             verticalArrangement = Arrangement.spacedBy(VartovyiTheme.spacing.medium),
             modifier = Modifier.padding(VartovyiTheme.spacing.standard),
@@ -56,7 +57,7 @@ fun TelegramChannelsSection(
                     else R.string.keywords_telegram_channel_tip
                 ),
                 style = VartovyiTheme.typography.bodySmall,
-                color = VartovyiTheme.colors.onSurfaceVariant,
+                color = VartovyiTheme.colors.tertiary,
             )
 
             Column(
@@ -68,18 +69,33 @@ fun TelegramChannelsSection(
                     onClear = { onInputChange("") },
                     onValueChange = onInputChange,
                     onAdd = onAdd,
-                    onFocusChanged = { isFocused ->
-                        isInputFocused = isFocused
-                        onFocusChanged(isFocused)
-                    },
+                    onFocusChanged = onFocusChanged,
                     modifier = Modifier.bringIntoViewRequester(bringIntoViewRequester)
                 )
 
-                PopularChannelsSuggestions(
-                    visible = isInputFocused && suggestedChannels.isNotEmpty(),
-                    channels = suggestedChannels,
-                    onSelect = onSuggestionSelect,
-                )
+                if (hasSuggestedChannels) {
+                    SectionContainer(
+                        title = stringResource(R.string.keywords_choose_from_list),
+                        isExpanded = isSuggestionsVisible,
+                        contentPadding = PaddingValues(
+                            horizontal = VartovyiTheme.spacing.standard,
+                            vertical = VartovyiTheme.spacing.medium,
+                        ),
+                        border = BorderStroke(
+                            width = VartovyiTheme.spacing.one,
+                            color = VartovyiTheme.colors.tertiary,
+                        ),
+                        onHeaderClick = { isSuggestionsVisible = !isSuggestionsVisible },
+                    ) {
+                        PopularChannelsSuggestions(
+                            channels = suggestedChannels,
+                            onSelect = { channel ->
+                                isSuggestionsVisible = false
+                                onSuggestionSelect(channel)
+                            },
+                        )
+                    }
+                }
 
                 if (channels.isNotEmpty()) {
                     FlowRow(
@@ -109,7 +125,34 @@ private fun PreviewTelegramChannelsSectionEmpty() {
         TelegramChannelsSection(
             bringIntoViewRequester = remember { BringIntoViewRequester() },
             channels = emptyList(),
+            hasSuggestedChannels = false,
             suggestedChannels = emptyList(),
+            inputValue = "",
+            onInputChange = {},
+            onAdd = {},
+            onCopy = {},
+            onRemove = {},
+            onSuggestionSelect = {},
+            onFocusChanged = {},
+        )
+    }
+}
+
+@Preview(name = "Telegram channels section — empty, suggestions auto-expanded")
+@Composable
+private fun PreviewTelegramChannelsSectionEmptyAutoExpanded() {
+    VartovyiTheme {
+        TelegramChannelsSection(
+            bringIntoViewRequester = remember { BringIntoViewRequester() },
+            channels = emptyList(),
+            hasSuggestedChannels = true,
+            suggestedChannels = listOf(
+                PopularTelegramChannel(
+                    handle = "@kpszsu",
+                    displayName = "Повітряні Сили ЗС України",
+                    region = PopularChannelRegion.NATIONAL,
+                ),
+            ),
             inputValue = "",
             onInputChange = {},
             onAdd = {},
@@ -128,7 +171,14 @@ private fun PreviewTelegramChannelsSectionWithChannels() {
         TelegramChannelsSection(
             bringIntoViewRequester = remember { BringIntoViewRequester() },
             channels = listOf("@air_alert_ua", "@kharkiv_alarm"),
-            suggestedChannels = emptyList(),
+            hasSuggestedChannels = true,
+            suggestedChannels = listOf(
+                PopularTelegramChannel(
+                    handle = "@kpszsu",
+                    displayName = "Повітряні Сили ЗС України",
+                    region = PopularChannelRegion.NATIONAL,
+                ),
+            ),
             inputValue = "",
             onInputChange = {},
             onAdd = {},
