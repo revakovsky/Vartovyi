@@ -3,6 +3,7 @@ package com.revakovskyi.vartovyi.ui.components
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -10,6 +11,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -39,22 +41,29 @@ fun VartovyiBottomBar(
         color = VartovyiTheme.colors.surface,
         modifier = modifier.fillMaxWidth()
     ) {
-        Row(
-            horizontalArrangement = Arrangement.SpaceEvenly,
-            verticalAlignment = Alignment.CenterVertically,
+        Box(
+            contentAlignment = Alignment.Center,
             modifier = Modifier
                 .fillMaxWidth()
                 .navigationBarsPadding()
-                .padding(VartovyiTheme.spacing.small)
         ) {
-            BottomNavItem.all.forEach { item ->
-                BottomBarItem(
-                    item = item,
-                    isSelected = selectedRoute == item.route,
-                    itemPadding = PaddingValues(all = VartovyiTheme.spacing.none),
-                    onNavigate = onNavigate,
-                    modifier = Modifier.weight(1f)
-                )
+            Row(
+                horizontalArrangement = Arrangement.SpaceEvenly,
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier
+                    .widthIn(max = VartovyiTheme.spacing.contentMaxWidth)
+                    .fillMaxWidth()
+                    .padding(VartovyiTheme.spacing.small)
+            ) {
+                BottomNavItem.all.forEach { item ->
+                    BottomBarItem(
+                        item = item,
+                        isSelected = selectedRoute == item.route,
+                        itemPadding = PaddingValues(all = VartovyiTheme.spacing.none),
+                        onNavigate = onNavigate,
+                        modifier = Modifier.weight(1f)
+                    )
+                }
             }
         }
     }
