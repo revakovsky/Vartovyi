@@ -7,6 +7,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.material3.TopAppBarScrollBehavior
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -26,10 +27,12 @@ fun VartovyiBackTopBar(
     modifier: Modifier = Modifier,
     title: String,
     backContentDescription: String,
+    scrollBehavior: TopAppBarScrollBehavior? = null,
     onNavigateBack: () -> Unit,
 ) {
     TopAppBar(
         modifier = modifier,
+        scrollBehavior = scrollBehavior,
         title = {
             Text(
                 text = title,
@@ -51,6 +54,7 @@ fun VartovyiBackTopBar(
     )
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Preview
 @Composable
 private fun VartovyiBackTopBarPreview() {
