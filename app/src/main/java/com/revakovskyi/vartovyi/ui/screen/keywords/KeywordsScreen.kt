@@ -421,89 +421,87 @@ private fun KeywordsContent(
         focusManager.clearFocus()
     }
 
-    Column(modifier = modifier.fillMaxSize()) {
-        Box(
-            contentAlignment = Alignment.TopCenter,
-            modifier = Modifier.weight(1f),
+    Box(
+        contentAlignment = Alignment.TopCenter,
+        modifier = modifier.fillMaxSize()
+    ) {
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.spacedBy(VartovyiTheme.spacing.small),
+            modifier = Modifier
+                .widthIn(max = VartovyiTheme.spacing.contentMaxWidth)
+                .fillMaxSize()
+                .imePadding()
+                .verticalScroll(scrollState)
+                .padding(VartovyiTheme.spacing.small)
         ) {
-            Column(
-                horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.spacedBy(VartovyiTheme.spacing.small),
-                modifier = Modifier
-                    .widthIn(max = VartovyiTheme.spacing.contentMaxWidth)
-                    .fillMaxSize()
-                    .imePadding()
-                    .verticalScroll(scrollState)
-                    .padding(VartovyiTheme.spacing.small)
-            ) {
-                TelegramChannelsSection(
-                    bringIntoViewRequester = telegramBivr,
-                    channels = state.telegramChannels,
-                    hasSuggestedChannels = state.hasSuggestedTelegramChannels,
-                    suggestedChannels = state.suggestedTelegramChannels,
-                    inputValue = state.inputTelegramChannel,
-                    onInputChange = { value ->
-                        onAction(KeywordsUiContract.Action.UpdateTelegramChannelInput(value))
-                    },
-                    onAdd = { onAction(KeywordsUiContract.Action.AddTelegramChannel) },
-                    onCopy = { text -> onAction(KeywordsUiContract.Action.CopyChip(text)) },
-                    onRemove = { channel ->
-                        onAction(KeywordsUiContract.Action.RemoveTelegramChannel(channel))
-                    },
-                    onSuggestionSelect = { channel ->
-                        onAction(KeywordsUiContract.Action.SelectSuggestedTelegramChannel(channel))
-                    },
-                    onFocusChanged = { isFocused ->
-                        if (isFocused) activeBivr = telegramBivr
-                        else if (activeBivr == telegramBivr) activeBivr = null
-                    },
-                )
+            TelegramChannelsSection(
+                bringIntoViewRequester = telegramBivr,
+                channels = state.telegramChannels,
+                hasSuggestedChannels = state.hasSuggestedTelegramChannels,
+                suggestedChannels = state.suggestedTelegramChannels,
+                inputValue = state.inputTelegramChannel,
+                onInputChange = { value ->
+                    onAction(KeywordsUiContract.Action.UpdateTelegramChannelInput(value))
+                },
+                onAdd = { onAction(KeywordsUiContract.Action.AddTelegramChannel) },
+                onCopy = { text -> onAction(KeywordsUiContract.Action.CopyChip(text)) },
+                onRemove = { channel ->
+                    onAction(KeywordsUiContract.Action.RemoveTelegramChannel(channel))
+                },
+                onSuggestionSelect = { channel ->
+                    onAction(KeywordsUiContract.Action.SelectSuggestedTelegramChannel(channel))
+                },
+                onFocusChanged = { isFocused ->
+                    if (isFocused) activeBivr = telegramBivr
+                    else if (activeBivr == telegramBivr) activeBivr = null
+                },
+            )
 
-                KeywordsSection(
-                    bringIntoViewRequester = keywordsBivr,
-                    keywords = state.keywords,
-                    selectedTriggerKeywordRuleType = state.selectedTriggerKeywordRuleType,
-                    inputValue = state.inputKeyword,
-                    inputHint = when (state.selectedTriggerKeywordRuleType) {
-                        TriggerKeywordRuleType.WORD -> stringResource(R.string.keywords_trigger_hint_word)
-                        TriggerKeywordRuleType.ALL_WORDS -> stringResource(R.string.keywords_trigger_hint_all_words)
-                        TriggerKeywordRuleType.PHRASE -> stringResource(R.string.keywords_trigger_hint_phrase)
-                    },
-                    onTypeSelected = { type ->
-                        onAction(KeywordsUiContract.Action.SelectTriggerKeywordRuleType(type))
-                    },
-                    onInputChange = { value ->
-                        onAction(KeywordsUiContract.Action.UpdateKeywordInput(value))
-                    },
-                    onAdd = { onAction(KeywordsUiContract.Action.AddKeyword) },
-                    onCopy = { text -> onAction(KeywordsUiContract.Action.CopyChip(text)) },
-                    onRemove = { keywordRule ->
-                        onAction(KeywordsUiContract.Action.RemoveKeyword(keywordRule))
-                    },
-                    onFocusChanged = { isFocused ->
-                        if (isFocused) activeBivr = keywordsBivr
-                        else if (activeBivr == keywordsBivr) activeBivr = null
-                    },
-                )
+            KeywordsSection(
+                bringIntoViewRequester = keywordsBivr,
+                keywords = state.keywords,
+                selectedTriggerKeywordRuleType = state.selectedTriggerKeywordRuleType,
+                inputValue = state.inputKeyword,
+                inputHint = when (state.selectedTriggerKeywordRuleType) {
+                    TriggerKeywordRuleType.WORD -> stringResource(R.string.keywords_trigger_hint_word)
+                    TriggerKeywordRuleType.ALL_WORDS -> stringResource(R.string.keywords_trigger_hint_all_words)
+                    TriggerKeywordRuleType.PHRASE -> stringResource(R.string.keywords_trigger_hint_phrase)
+                },
+                onTypeSelected = { type ->
+                    onAction(KeywordsUiContract.Action.SelectTriggerKeywordRuleType(type))
+                },
+                onInputChange = { value ->
+                    onAction(KeywordsUiContract.Action.UpdateKeywordInput(value))
+                },
+                onAdd = { onAction(KeywordsUiContract.Action.AddKeyword) },
+                onCopy = { text -> onAction(KeywordsUiContract.Action.CopyChip(text)) },
+                onRemove = { keywordRule ->
+                    onAction(KeywordsUiContract.Action.RemoveKeyword(keywordRule))
+                },
+                onFocusChanged = { isFocused ->
+                    if (isFocused) activeBivr = keywordsBivr
+                    else if (activeBivr == keywordsBivr) activeBivr = null
+                },
+            )
 
-                StopWordsSection(
-                    bringIntoViewRequester = stopWordsBivr,
-                    stopWords = state.stopWords,
-                    inputValue = state.inputStopWord,
-                    onInputChange = { value ->
-                        onAction(KeywordsUiContract.Action.UpdateStopWordInput(value))
-                    },
-                    onAdd = { onAction(KeywordsUiContract.Action.AddStopWord) },
-                    onCopy = { text -> onAction(KeywordsUiContract.Action.CopyChip(text)) },
-                    onRemove = { stopWord ->
-                        onAction(KeywordsUiContract.Action.RemoveStopWord(stopWord))
-                    },
-                    onFocusChanged = { isFocused ->
-                        if (isFocused) activeBivr = stopWordsBivr
-                        else if (activeBivr == stopWordsBivr) activeBivr = null
-                    },
-                )
-            }
+            StopWordsSection(
+                bringIntoViewRequester = stopWordsBivr,
+                stopWords = state.stopWords,
+                inputValue = state.inputStopWord,
+                onInputChange = { value ->
+                    onAction(KeywordsUiContract.Action.UpdateStopWordInput(value))
+                },
+                onAdd = { onAction(KeywordsUiContract.Action.AddStopWord) },
+                onCopy = { text -> onAction(KeywordsUiContract.Action.CopyChip(text)) },
+                onRemove = { stopWord ->
+                    onAction(KeywordsUiContract.Action.RemoveStopWord(stopWord))
+                },
+                onFocusChanged = { isFocused ->
+                    if (isFocused) activeBivr = stopWordsBivr
+                    else if (activeBivr == stopWordsBivr) activeBivr = null
+                },
+            )
         }
     }
 }

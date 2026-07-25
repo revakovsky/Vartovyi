@@ -9,6 +9,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import com.revakovskyi.vartovyi.R
 import com.revakovskyi.vartovyi.ui.theme.VartovyiTheme
@@ -27,12 +28,14 @@ fun LogEmptyState(modifier: Modifier = Modifier) {
                 text = stringResource(R.string.log_empty),
                 style = VartovyiTheme.typography.titleMedium,
                 color = VartovyiTheme.colors.onBackground,
+                textAlign = TextAlign.Center,
             )
 
             Text(
                 text = stringResource(R.string.log_empty_hint),
                 style = VartovyiTheme.typography.bodySmall,
                 color = VartovyiTheme.colors.onSurfaceVariant,
+                textAlign = TextAlign.Center,
             )
         }
     }
