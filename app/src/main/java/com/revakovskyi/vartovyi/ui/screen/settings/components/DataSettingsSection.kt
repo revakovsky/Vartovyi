@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.text.TextAutoSize
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.FilterChipDefaults
 import androidx.compose.material3.Text
@@ -18,6 +19,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import com.revakovskyi.vartovyi.R
 import com.revakovskyi.vartovyi.ui.screen.keywords.components.SectionTitle
+import com.revakovskyi.vartovyi.ui.theme.MinAutoSizeFontSize
 import com.revakovskyi.vartovyi.ui.theme.VartovyiTheme
 
 private val LOG_SIZE_OPTIONS = listOf(100, 300, 500, 1000)
@@ -72,6 +74,12 @@ fun DataSettingsSection(
                                 logSizeLimit
                             ),
                             textAlign = TextAlign.Center,
+                            maxLines = 1,
+                            softWrap = false,
+                            autoSize = TextAutoSize.StepBased(
+                                minFontSize = MinAutoSizeFontSize,
+                                maxFontSize = VartovyiTheme.typography.labelLarge.fontSize,
+                            ),
                             modifier = Modifier.fillMaxWidth()
                         )
                     },
@@ -115,6 +123,12 @@ fun DataSettingsSection(
                                 cooldownDurationMinutes,
                             ),
                             textAlign = TextAlign.Center,
+                            maxLines = 1,
+                            softWrap = false,
+                            autoSize = TextAutoSize.StepBased(
+                                minFontSize = MinAutoSizeFontSize,
+                                maxFontSize = VartovyiTheme.typography.labelLarge.fontSize,
+                            ),
                             modifier = Modifier.fillMaxWidth()
                         )
                     },

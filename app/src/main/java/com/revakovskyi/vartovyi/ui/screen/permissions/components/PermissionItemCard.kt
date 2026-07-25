@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.text.TextAutoSize
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -16,6 +17,7 @@ import com.revakovskyi.vartovyi.ui.components.PulsingDot
 import com.revakovskyi.vartovyi.ui.components.VartovyiSurface
 import com.revakovskyi.vartovyi.ui.components.VartovyiSwitch
 import com.revakovskyi.vartovyi.ui.screen.permissions.PermissionsUiContract
+import com.revakovskyi.vartovyi.ui.theme.MinAutoSizeFontSize
 import com.revakovskyi.vartovyi.ui.theme.VartovyiTheme
 
 @Composable
@@ -80,6 +82,12 @@ fun PermissionItemCard(
                                 text = "($requirementText)",
                                 style = VartovyiTheme.typography.labelSmall,
                                 color = VartovyiTheme.colors.onSurface,
+                                maxLines = 1,
+                                softWrap = false,
+                                autoSize = TextAutoSize.StepBased(
+                                    minFontSize = MinAutoSizeFontSize,
+                                    maxFontSize = VartovyiTheme.typography.labelSmall.fontSize,
+                                ),
                             )
                         }
                     }
