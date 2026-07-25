@@ -74,7 +74,10 @@ fun VartovyiChoiceDialog(
         },
         containerColor = VartovyiTheme.colors.surfaceVariant,
         shape = VartovyiTheme.shapes.large,
-        modifier = modifier.padding(vertical = VartovyiTheme.spacing.extraLarge)
+        modifier = modifier.padding(
+            horizontal = VartovyiTheme.spacing.standard,
+            vertical = VartovyiTheme.spacing.extraLarge,
+        )
     )
 }
 
