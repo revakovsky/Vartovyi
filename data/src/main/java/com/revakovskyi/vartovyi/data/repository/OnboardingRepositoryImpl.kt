@@ -11,8 +11,15 @@ internal class OnboardingRepositoryImpl(
     override val isOnboardingCompleted: Flow<Boolean> =
         onboardingDataStore.isOnboardingCompleted
 
+    override val isKeywordsChannelsIntroHidden: Flow<Boolean> =
+        onboardingDataStore.isKeywordsChannelsIntroHidden
+
     override suspend fun setOnboardingCompleted() {
         onboardingDataStore.setOnboardingCompleted()
+    }
+
+    override suspend fun setKeywordsChannelsIntroHidden() {
+        onboardingDataStore.setKeywordsChannelsIntroHidden()
     }
 
 }

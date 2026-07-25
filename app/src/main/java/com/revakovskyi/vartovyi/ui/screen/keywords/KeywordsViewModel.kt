@@ -32,6 +32,8 @@ import com.revakovskyi.vartovyi.usecase.keywords.RemoveKeywordUseCase
 import com.revakovskyi.vartovyi.usecase.keywords.RemoveStopWordUseCase
 import com.revakovskyi.vartovyi.usecase.keywords.RemoveTelegramChannelUseCase
 import com.revakovskyi.vartovyi.usecase.keywords.SanitizeWordInputUseCase
+import com.revakovskyi.vartovyi.usecase.onboarding.ObserveKeywordsChannelsIntroHiddenUseCase
+import com.revakovskyi.vartovyi.usecase.onboarding.SetKeywordsChannelsIntroHiddenUseCase
 import com.revakovskyi.vartovyi.utils.parseTriggerKeywordRuleFromStorage
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.Flow
@@ -39,6 +41,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
@@ -60,6 +63,8 @@ class KeywordsViewModel(
     private val sanitizeWordInputUseCase: SanitizeWordInputUseCase,
     private val exportKeywordsUseCase: ExportKeywordsUseCase,
     private val importKeywordsUseCase: ImportKeywordsUseCase,
+    private val observeKeywordsChannelsIntroHiddenUseCase: ObserveKeywordsChannelsIntroHiddenUseCase,
+    private val setKeywordsChannelsIntroHiddenUseCase: SetKeywordsChannelsIntroHiddenUseCase,
 ) : ViewModel() {
 
     private val _state = MutableStateFlow(State())
@@ -70,6 +75,7 @@ class KeywordsViewModel(
 
     init {
         observeKeywords()
+        maybeShowChannelsIntroDialog()
     }
 
     fun onAction(action: Action) {
@@ -105,6 +111,8 @@ class KeywordsViewModel(
             is Action.ImportKeywords -> importKeywords(action.jsonContent)
             is Action.NotifyImportReadError -> notifyImportReadError()
             is Action.NotifyImportFileTooLarge -> notifyImportFileTooLarge()
+            is Action.DismissChannelsIntroDialog -> dismissChannelsIntroDialog()
+            is Action.HideChannelsIntroDialogForever -> hideChannelsIntroDialogForever()
         }
     }
 
@@ -138,6 +146,24 @@ class KeywordsViewModel(
                 isFirstEmission = false
             }
         }.launchIn(viewModelScope)
+    }
+
+    /** Shows the channels-filter intro dialog on every visit until the user opts out of it. */
+    private fun maybeShowChannelsIntroDialog() {
+        viewModelScope.launch {
+            val isHidden = observeKeywordsChannelsIntroHiddenUseCase().first()
+            if (isHidden) return@launch
+            _state.update { it.copy(isChannelsIntroDialogVisible = true) }
+        }
+    }
+
+    private fun dismissChannelsIntroDialog() {
+        _state.update { it.copy(isChannelsIntroDialogVisible = false) }
+    }
+
+    private fun hideChannelsIntroDialogForever() {
+        _state.update { it.copy(isChannelsIntroDialogVisible = false) }
+        viewModelScope.launch { setKeywordsChannelsIntroHiddenUseCase() }
     }
 
     private fun updateKeywordInput(value: String) {

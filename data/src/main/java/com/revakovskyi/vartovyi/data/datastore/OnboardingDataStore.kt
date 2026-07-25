@@ -21,15 +21,27 @@ internal class OnboardingDataStore(
 
     private object Keys {
         val IS_ONBOARDING_COMPLETED = booleanPreferencesKey("is_onboarding_completed")
+        val IS_KEYWORDS_CHANNELS_INTRO_HIDDEN =
+            booleanPreferencesKey("is_keywords_channels_intro_hidden")
     }
 
     val isOnboardingCompleted: Flow<Boolean> = context.onboardingDataStore.data
         .safeCatch()
         .map { preferences -> preferences[Keys.IS_ONBOARDING_COMPLETED] ?: false }
 
+    val isKeywordsChannelsIntroHidden: Flow<Boolean> = context.onboardingDataStore.data
+        .safeCatch()
+        .map { preferences -> preferences[Keys.IS_KEYWORDS_CHANNELS_INTRO_HIDDEN] ?: false }
+
     suspend fun setOnboardingCompleted(): Boolean {
         return context.onboardingDataStore.safeEdit { preferences ->
             preferences[Keys.IS_ONBOARDING_COMPLETED] = true
+        }
+    }
+
+    suspend fun setKeywordsChannelsIntroHidden(): Boolean {
+        return context.onboardingDataStore.safeEdit { preferences ->
+            preferences[Keys.IS_KEYWORDS_CHANNELS_INTRO_HIDDEN] = true
         }
     }
 

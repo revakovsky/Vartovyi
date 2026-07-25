@@ -1,6 +1,9 @@
 package com.revakovskyi.vartovyi.ui.components
 
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ColumnScope
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
@@ -24,6 +27,7 @@ fun VartovyiDialog(
     confirmContentColor: Color = VartovyiTheme.colors.primary,
     dismissText: String? = null,
     onConfirm: (() -> Unit)? = null,
+    content: (@Composable ColumnScope.() -> Unit)? = null,
     onDismiss: () -> Unit,
 ) {
     val resolvedOnConfirm = onConfirm ?: onDismiss
@@ -46,6 +50,12 @@ fun VartovyiDialog(
                     style = VartovyiTheme.typography.bodyMedium,
                     color = VartovyiTheme.colors.onSurfaceVariant,
                 )
+
+                content?.let { extraContent ->
+                    Spacer(modifier = Modifier.height(VartovyiTheme.spacing.medium))
+
+                    extraContent()
+                }
             }
         },
         confirmButton = {

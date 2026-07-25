@@ -32,6 +32,7 @@ interface KeywordsUiContract {
         val isImportStrategyDialogVisible: Boolean = false,
         val pendingImportStrategy: ImportStrategy? = null,
         val isExportDestinationDialogVisible: Boolean = false,
+        val isChannelsIntroDialogVisible: Boolean = false,
     ) {
         val hasKeywordDataToClear: Boolean
             get() = keywords.isNotEmpty() ||
@@ -93,6 +94,8 @@ interface KeywordsUiContract {
         data class ImportKeywords(val jsonContent: String) : Action
         data object NotifyImportReadError : Action
         data object NotifyImportFileTooLarge : Action
+        data object DismissChannelsIntroDialog : Action
+        data object HideChannelsIntroDialogForever : Action
     }
 
     sealed interface Event {

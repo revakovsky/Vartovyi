@@ -100,7 +100,11 @@
     <string name="keywords_popular_channels_no_match">No channels match your search</string>
     <string name="keywords_telegram_channel_tip">Currently only notifications from selected channels are tracked</string>
     <string name="keywords_telegram_channels_empty_hint">Currently all Telegram notifications are tracked</string>
-    <string name="keywords_telegram_channel_tooltip">If the Telegram channel list is empty — Vartovyi listens to all Telegram notifications you receive. Add channels to make the alarm trigger only on messages from selected channels.\n\n⚠️ Do NOT enter a link (t.me/…) or channel address (@channel) — they will never match the name in the notification.\n\nEnter the channel name exactly as it appears in your Telegram chat list — for example, "Повітряні Сили ЗС України", not "t.me/kpszsu" or "@kpszsu".\n\nEmoji at the edges of the name do not affect matching: "Повітряні цілі Київ" and "🚨 Повітряні цілі Київ" work the same.\n\n☝️ Letter case does not matter — type the name however you like.\n\n💡 Tip: if alarms from a channel stop coming — check whether it was renamed. If so, remove it and add it again with the new name.</string>
+    <string name="keywords_telegram_channel_tooltip">While the Telegram channel list is empty, Vartovyi reads every Telegram notification that arrives on your phone.\n\nWe recommend adding the channels you rely on during an alert. Then Vartovyi looks for your trigger words only in notifications from those channels — this reduces false alarms (other notifications may contain the same words or phrases, but in a different context).\n\nYou can pick channels from our list of ready-made channels, or type the names yourself if your channel isn\'t in the list.\n\nType the name exactly as the channel appears in Telegram, for example: «Повітряні Сили ЗС України», not «t.me/kpszsu» or «@kpszsu».\n\nEmoji at the edges of the name do not affect matching: «Повітряні цілі Київ» and «🚨 Повітряні цілі Київ» work the same.\n\n☝️ Letter case does not matter — type the name however you like.\n\n💡 Tip: if alarms from a channel stop coming — check whether the Telegram channel changed its name. If so, remove it and add it again with the new name.</string>
+    <string name="keywords_channels_intro_dialog_title">Filter by channel</string>
+    <string name="keywords_channels_intro_dialog_message">Right now the Telegram channels field is empty — in this mode the app reads every Telegram notification that arrives on your phone.\n\nWe recommend adding to the Telegram channels field the channels you rely on for alerts. Then Vartovyi looks for your trigger words only in notifications from those channels — and this reduces false alarms (your trigger words may also appear in other notifications unrelated to an alert).\n\nPick the air-raid alert channels you need from our list of ready-made channels, or type the names yourself if your channel isn\'t in our list.</string>
+    <string name="keywords_channels_intro_dialog_dont_show_again">Don\'t show again</string>
+    <string name="keywords_channels_intro_dialog_confirm">Got it</string>
     <string name="keywords_popular_channels_group_national">Nationwide</string>
     <string name="keywords_popular_channels_group_chernihiv">Chernihiv</string>
     <string name="keywords_popular_channels_group_sumy">Sumy</string>
@@ -205,16 +209,20 @@
 
     <string name="onboarding_welcome_title">Vartovyi</string>
     <string name="onboarding_welcome_tagline">Set up once — Vartovyi listens. Detects. Alerts.</string>
-    <string name="onboarding_welcome_explanation">Vartovyi works together with Telegram. Once you finish setup and turn on monitoring, it reads Telegram channel notifications in the background and looks for matches with your trigger words.</string>
-    <string name="onboarding_welcome_siren">The moment a match is found — the app immediately triggers a loud siren, even if your phone is on silent.</string>
+    <string name="onboarding_welcome_explanation">After you set up Vartovyi and turn on monitoring, it starts watching Telegram notifications in the background and looks for matches with the trigger words you enter yourself in Vartovyi.</string>
+    <string name="onboarding_welcome_siren">The moment a match is found — Vartovyi immediately triggers a loud siren, even if your phone is on silent.</string>
+    <string name="onboarding_welcome_telegram_required">That\'s why Vartovyi works in pair with Telegram, which must be installed on your device. If you don\'t have Telegram yet — download it from Google Play or another app store. Official Telegram, Telegram X and NekoX are supported.</string>
     <string name="onboarding_welcome_keywords_hint">The «Keywords» screen already has an example of how to enter trigger words correctly — just replace them with your own</string>
     <string name="onboarding_welcome_privacy_note">🔒 All your data is stored only on your device. Nothing is sent to any servers or third-party services — your privacy is fully protected!</string>
 
     <string name="onboarding_telegram_title">Set up Telegram</string>
-    <string name="onboarding_telegram_body_1">If Telegram is not installed yet — download it from Google Play or any other app store. Supported clients: official Telegram, Telegram X and NekoX.\n\nFind a channel in the Telegram app that reports air raid alerts for all of Ukraine or specifically your region or city.\n⚠️ MAKE SURE to subscribe to that channel! This is where Vartovyi will receive notifications to monitor</string>
-    <string name="onboarding_telegram_body_2">⚠️ MAKE SURE to enable notifications for the channel — without them Vartovyi will not receive any messages!\n\nChannel settings → «Notify» → «With sound» or «Without sound». We recommend without sound — Vartovyi will sound the siren</string>
-
-
+    <string name="onboarding_telegram_intro">Set up Telegram in three steps:</string>
+    <string name="onboarding_telegram_step_1_title">1. Subscribe to a channel</string>
+    <string name="onboarding_telegram_step_1_body">In Telegram, find and subscribe to one or more channels that report air raid alerts, if you haven\'t already. Choose channels for your region or city — that way the alerts are the most relevant to you.</string>
+    <string name="onboarding_telegram_step_2_title">2. Turn on the channel\'s notifications</string>
+    <string name="onboarding_telegram_step_2_body">⚠️ Without notifications enabled, Vartovyi receives no messages and cannot read the notification text!\n\nOpen the channel and turn on its notifications with the «Notify» button at the bottom. From now on the channel\'s notifications will arrive on your device.</string>
+    <string name="onboarding_telegram_step_3_title">3. Turn off the notification sound</string>
+    <string name="onboarding_telegram_step_3_body">So the channel doesn\'t distract you with constant unnecessary notifications — turn off its sound, and Vartovyi will sound the siren at the right moment.\n\nOpen the channel → three dots in the top-right corner → «Notify» → choose «Without sound».\n\nIf you also want to hear Telegram\'s own sound — you can skip this step</string>
 
     <string name="troubleshooting_lead">Some manufacturers add extra background restrictions on top of standard Android permissions. Tap your device below to see the steps</string>
     <string name="troubleshooting_xiaomi_miui_title">Xiaomi · POCO · Redmi (MIUI)</string>

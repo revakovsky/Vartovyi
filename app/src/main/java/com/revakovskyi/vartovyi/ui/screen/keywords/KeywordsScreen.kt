@@ -48,6 +48,7 @@ import com.revakovskyi.vartovyi.ui.components.DialogChoiceRole
 import com.revakovskyi.vartovyi.ui.components.LoadingOverlay
 import com.revakovskyi.vartovyi.ui.components.VartovyiChoiceDialog
 import com.revakovskyi.vartovyi.ui.components.VartovyiDialog
+import com.revakovskyi.vartovyi.ui.screen.keywords.components.KeywordsChannelsIntroDialog
 import com.revakovskyi.vartovyi.ui.screen.keywords.components.KeywordsSection
 import com.revakovskyi.vartovyi.ui.screen.keywords.components.StopWordsSection
 import com.revakovskyi.vartovyi.ui.screen.keywords.components.TelegramChannelsSection
@@ -354,6 +355,17 @@ fun KeywordsScreen(
             ),
             onDismiss = {
                 viewModel.onAction(KeywordsUiContract.Action.DismissExportDestinationDialog)
+            },
+        )
+    }
+
+    if (state.isChannelsIntroDialogVisible) {
+        KeywordsChannelsIntroDialog(
+            onDismiss = {
+                viewModel.onAction(KeywordsUiContract.Action.DismissChannelsIntroDialog)
+            },
+            onHideForever = {
+                viewModel.onAction(KeywordsUiContract.Action.HideChannelsIntroDialogForever)
             },
         )
     }
