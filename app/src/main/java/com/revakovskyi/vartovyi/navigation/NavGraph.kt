@@ -11,6 +11,7 @@ import androidx.navigation.toRoute
 import com.revakovskyi.vartovyi.model.PermissionsStatus
 import com.revakovskyi.vartovyi.ui.screen.home.HomeScreen
 import com.revakovskyi.vartovyi.ui.screen.keywords.KeywordsScreen
+import com.revakovskyi.vartovyi.ui.screen.keywords.KeywordsViewModel
 import com.revakovskyi.vartovyi.ui.screen.log.LogScreen
 import com.revakovskyi.vartovyi.ui.screen.onboarding.OnboardingScreen
 import com.revakovskyi.vartovyi.ui.screen.permissions.PermissionsScreen
@@ -35,6 +36,7 @@ fun NavGraph(
     startDestination: Any,
     permissionsStatus: PermissionsStatus,
     isLogInfoDialogVisible: Boolean,
+    keywordsViewModel: KeywordsViewModel,
     onRefreshPermissions: () -> Unit,
     onDismissLogInfoDialog: () -> Unit,
 ) {
@@ -76,7 +78,7 @@ fun NavGraph(
         }
 
         composable<Routes.Keywords> {
-            KeywordsScreen()
+            KeywordsScreen(viewModel = keywordsViewModel)
         }
 
         composable<Routes.Log> { backStackEntry ->

@@ -14,8 +14,6 @@ import com.revakovskyi.vartovyi.usecase.keywords.ObserveTelegramChannelsUseCase
 import com.revakovskyi.vartovyi.usecase.keywords.RemoveKeywordUseCase
 import com.revakovskyi.vartovyi.usecase.keywords.RemoveStopWordUseCase
 import com.revakovskyi.vartovyi.usecase.keywords.RemoveTelegramChannelUseCase
-import com.revakovskyi.vartovyi.usecase.keywords.RestoreDefaultKeywordsUseCase
-import com.revakovskyi.vartovyi.usecase.keywords.RestoreDefaultStopWordsUseCase
 import com.revakovskyi.vartovyi.usecase.keywords.SanitizeWordInputUseCase
 import com.revakovskyi.vartovyi.usecase.keywords.SanitizeWordInputUseCaseImpl
 import io.mockk.every
@@ -48,10 +46,6 @@ abstract class KeywordsViewModelBaseTest {
     protected val removeTelegramChannelUseCase = mockk<RemoveTelegramChannelUseCase>(relaxed = true)
     protected val clearKeywordsScreenDataUseCase =
         mockk<ClearKeywordsScreenDataUseCase>(relaxed = true)
-    protected val restoreDefaultKeywordsUseCase =
-        mockk<RestoreDefaultKeywordsUseCase>(relaxed = true)
-    protected val restoreDefaultStopWordsUseCase =
-        mockk<RestoreDefaultStopWordsUseCase>(relaxed = true)
     protected val exportKeywordsUseCase = mockk<ExportKeywordsUseCase>(relaxed = true)
     protected val importKeywordsUseCase = mockk<ImportKeywordsUseCase>(relaxed = true)
     protected val sanitizeWordInputUseCase: SanitizeWordInputUseCase =
@@ -90,8 +84,6 @@ abstract class KeywordsViewModelBaseTest {
         addTelegramChannelUseCase = addTelegramChannelUseCase,
         removeTelegramChannelUseCase = removeTelegramChannelUseCase,
         clearKeywordsScreenDataUseCase = clearKeywordsScreenDataUseCase,
-        restoreDefaultKeywordsUseCase = restoreDefaultKeywordsUseCase,
-        restoreDefaultStopWordsUseCase = restoreDefaultStopWordsUseCase,
         sanitizeWordInputUseCase = sanitizeWordInputUseCase,
         exportKeywordsUseCase = exportKeywordsUseCase,
         importKeywordsUseCase = importKeywordsUseCase,

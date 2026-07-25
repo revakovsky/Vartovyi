@@ -31,8 +31,6 @@ import com.revakovskyi.vartovyi.usecase.keywords.ObserveTelegramChannelsUseCase
 import com.revakovskyi.vartovyi.usecase.keywords.RemoveKeywordUseCase
 import com.revakovskyi.vartovyi.usecase.keywords.RemoveStopWordUseCase
 import com.revakovskyi.vartovyi.usecase.keywords.RemoveTelegramChannelUseCase
-import com.revakovskyi.vartovyi.usecase.keywords.RestoreDefaultKeywordsUseCase
-import com.revakovskyi.vartovyi.usecase.keywords.RestoreDefaultStopWordsUseCase
 import com.revakovskyi.vartovyi.usecase.keywords.SanitizeWordInputUseCase
 import com.revakovskyi.vartovyi.utils.parseTriggerKeywordRuleFromStorage
 import kotlinx.coroutines.channels.Channel
@@ -59,8 +57,6 @@ class KeywordsViewModel(
     private val addTelegramChannelUseCase: AddTelegramChannelUseCase,
     private val removeTelegramChannelUseCase: RemoveTelegramChannelUseCase,
     private val clearKeywordsScreenDataUseCase: ClearKeywordsScreenDataUseCase,
-    private val restoreDefaultKeywordsUseCase: RestoreDefaultKeywordsUseCase,
-    private val restoreDefaultStopWordsUseCase: RestoreDefaultStopWordsUseCase,
     private val sanitizeWordInputUseCase: SanitizeWordInputUseCase,
     private val exportKeywordsUseCase: ExportKeywordsUseCase,
     private val importKeywordsUseCase: ImportKeywordsUseCase,
@@ -97,9 +93,6 @@ class KeywordsViewModel(
             is Action.OpenClearKeywordsDialog -> openClearKeywordsDialog()
             is Action.DismissClearKeywordsDialog -> dismissClearKeywordsDialog()
             is Action.ConfirmClearKeywords -> confirmClearKeywords()
-            is Action.OpenRestoreDefaultsDialog -> openRestoreDefaultsDialog()
-            is Action.DismissRestoreDefaultsDialog -> dismissRestoreDefaultsDialog()
-            is Action.ConfirmRestoreDefaults -> confirmRestoreDefaults()
             is Action.CopyChip -> copyChip(action.text)
             is Action.RequestExport -> requestExport()
             is Action.DismissExportDestinationDialog -> dismissExportDestinationDialog()
@@ -448,34 +441,6 @@ class KeywordsViewModel(
                 )
             }
             _events.send(Event.KeywordsScreenDataCleared)
-        }
-    }
-
-    private fun openRestoreDefaultsDialog() {
-        _state.update { currentState ->
-            currentState.copy(isRestoreDefaultsDialogVisible = true)
-        }
-    }
-
-    private fun dismissRestoreDefaultsDialog() {
-        _state.update { currentState ->
-            currentState.copy(isRestoreDefaultsDialogVisible = false)
-        }
-    }
-
-    private fun confirmRestoreDefaults() {
-        viewModelScope.launch {
-            val addedKeywordsCount = restoreDefaultKeywordsUseCase()
-            val addedStopWordsCount = restoreDefaultStopWordsUseCase()
-
-            _state.update { currentState ->
-                currentState.copy(isRestoreDefaultsDialogVisible = false)
-            }
-            _events.send(
-                Event.DefaultKeywordsRestored(
-                    addedCount = addedKeywordsCount + addedStopWordsCount
-                )
-            )
         }
     }
 
