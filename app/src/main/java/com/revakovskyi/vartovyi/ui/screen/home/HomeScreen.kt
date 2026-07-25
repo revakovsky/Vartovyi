@@ -5,6 +5,8 @@ import androidx.compose.animation.core.tween
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.widthIn
@@ -20,6 +22,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.layout.LayoutCoordinates
 import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -102,8 +105,23 @@ private fun HomeContent(
     onAction: (action: HomeUiContract.Action) -> Unit,
     onShowPermissionsRequiredMessage: () -> Unit,
 ) {
+    val windowSize = LocalWindowInfo.current.containerSize
+
     var homeContentLayoutCoordinates by remember { mutableStateOf<LayoutCoordinates?>(null) }
     var securityIconCenterInHomeContent by remember { mutableStateOf<Offset?>(null) }
+
+    /** Landscape window means a large screen — phones stay locked to portrait */
+    val isTwoPaneLayout = windowSize.width > windowSize.height
+
+    val onToggleMonitoring: () -> Unit = {
+        val isTryingToActivate = state.monitoringState != MonitoringState.ACTIVE
+
+        if (isTryingToActivate && !isRequiredPermissionsGranted) {
+            onShowPermissionsRequiredMessage()
+        } else {
+            onAction(HomeUiContract.Action.ToggleMonitoring)
+        }
+    }
 
     Box(
         contentAlignment = Alignment.TopCenter,
@@ -120,57 +138,100 @@ private fun HomeContent(
             )
         }
 
-        Column(
-            horizontalAlignment = Alignment.CenterHorizontally,
-            modifier = Modifier
-                .widthIn(max = VartovyiTheme.spacing.contentMaxWidth)
-                .fillMaxSize(),
-        ) {
-            StatusBlock(
-                monitoringState = state.monitoringState,
-                alarmRetriggerCooldownMillis = state.alarmRetriggerCooldownMillis,
-                onToggle = {
-                    val isTryingToActivate = state.monitoringState != MonitoringState.ACTIVE
-
-                    if (isTryingToActivate && !isRequiredPermissionsGranted) {
-                        onShowPermissionsRequiredMessage()
-                    } else {
-                        onAction(HomeUiContract.Action.ToggleMonitoring)
-                    }
-                },
-                homeContentLayoutCoordinates = { homeContentLayoutCoordinates },
-                onSecurityIconCenterInHomeContentChanged = { center ->
-                    securityIconCenterInHomeContent = center
-                },
-                modifier = Modifier.weight(1f),
-            )
-
-            Column(
-                horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.spacedBy(VartovyiTheme.spacing.small),
-                modifier = Modifier.padding(horizontal = VartovyiTheme.spacing.small),
+        if (isTwoPaneLayout) {
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(VartovyiTheme.spacing.standard),
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(horizontal = VartovyiTheme.spacing.standard)
             ) {
-                if (state.needsKeywordsAttention) {
-                    KeywordsCard(
-                        keywords = state.keywords,
-                        onClick = { onAction(HomeUiContract.Action.NavigateToKeywords) },
+                Box(
+                    contentAlignment = Alignment.Center,
+                    modifier = Modifier.weight(1f)
+                ) {
+                    HomeCardsSection(
+                        state = state,
+                        onAction = onAction,
+                        modifier = Modifier.widthIn(max = VartovyiTheme.spacing.contentMaxWidth)
                     )
                 }
 
-                LastAlertCard(
-                    lastAlertEvent = state.lastAlertEvent,
-                    onClick = { onAction(HomeUiContract.Action.NavigateToLog()) },
-                    onEventClick = {
-                        onAction(
-                            HomeUiContract.Action.NavigateToLog(
-                                logEntryId = state.lastAlertEvent?.id,
-                            ),
-                        )
+                Box(
+                    contentAlignment = Alignment.Center,
+                    modifier = Modifier.weight(1f)
+                ) {
+                    StatusBlock(
+                        monitoringState = state.monitoringState,
+                        alarmRetriggerCooldownMillis = state.alarmRetriggerCooldownMillis,
+                        onToggle = onToggleMonitoring,
+                        homeContentLayoutCoordinates = { homeContentLayoutCoordinates },
+                        onSecurityIconCenterInHomeContentChanged = { center ->
+                            securityIconCenterInHomeContent = center
+                        },
+                        modifier = Modifier
+                            .widthIn(max = VartovyiTheme.spacing.contentMaxWidth)
+                            .fillMaxHeight()
+                    )
+                }
+            }
+        } else {
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
+                modifier = Modifier
+                    .widthIn(max = VartovyiTheme.spacing.contentMaxWidth)
+                    .fillMaxSize()
+            ) {
+                StatusBlock(
+                    monitoringState = state.monitoringState,
+                    alarmRetriggerCooldownMillis = state.alarmRetriggerCooldownMillis,
+                    onToggle = onToggleMonitoring,
+                    homeContentLayoutCoordinates = { homeContentLayoutCoordinates },
+                    onSecurityIconCenterInHomeContentChanged = { center ->
+                        securityIconCenterInHomeContent = center
                     },
-                    modifier = Modifier.padding(bottom = VartovyiTheme.spacing.small),
+                    modifier = Modifier.weight(1f)
+                )
+
+                HomeCardsSection(
+                    state = state,
+                    onAction = onAction,
                 )
             }
         }
+    }
+}
+
+@Composable
+private fun HomeCardsSection(
+    modifier: Modifier = Modifier,
+    state: HomeUiContract.State,
+    onAction: (action: HomeUiContract.Action) -> Unit,
+) {
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.spacedBy(VartovyiTheme.spacing.small),
+        modifier = modifier.padding(horizontal = VartovyiTheme.spacing.small)
+    ) {
+        if (state.needsKeywordsAttention) {
+            KeywordsCard(
+                keywords = state.keywords,
+                onClick = { onAction(HomeUiContract.Action.NavigateToKeywords) },
+            )
+        }
+
+        LastAlertCard(
+            lastAlertEvent = state.lastAlertEvent,
+            onClick = { onAction(HomeUiContract.Action.NavigateToLog()) },
+            onEventClick = {
+                onAction(
+                    HomeUiContract.Action.NavigateToLog(
+                        logEntryId = state.lastAlertEvent?.id,
+                    ),
+                )
+            },
+            modifier = Modifier.padding(bottom = VartovyiTheme.spacing.small)
+        )
     }
 }
 
