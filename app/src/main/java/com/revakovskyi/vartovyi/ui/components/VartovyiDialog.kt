@@ -80,7 +80,10 @@ fun VartovyiDialog(
         },
         containerColor = containerColor,
         shape = shape,
-        modifier = Modifier.padding(vertical = VartovyiTheme.spacing.extraLarge)
+        modifier = Modifier.padding(
+            horizontal = VartovyiTheme.spacing.standard,
+            vertical = VartovyiTheme.spacing.extraLarge,
+        )
     )
 }
 
