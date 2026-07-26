@@ -152,11 +152,14 @@ class KeywordsViewModel(
         }.launchIn(viewModelScope)
     }
 
-    /** Shows the channels-filter intro dialog on every visit until the user opts out of it. */
     private fun maybeShowChannelsIntroDialog() {
         viewModelScope.launch {
             val isHidden = observeKeywordsChannelsIntroHiddenUseCase().first()
             if (isHidden) return@launch
+
+            val hasConfiguredChannels = observeTelegramChannelsUseCase().first().isNotEmpty()
+            if (hasConfiguredChannels) return@launch
+
             _state.update { it.copy(isChannelsIntroDialogVisible = true) }
         }
     }
