@@ -39,10 +39,12 @@ import com.revakovskyi.vartovyi.ui.util.snackbar.SnackbarController
 import com.revakovskyi.vartovyi.ui.util.snackbar.SnackbarEvent
 import com.revakovskyi.vartovyi.utils.ObserveSingleEvents
 import org.koin.compose.viewmodel.koinViewModel
+import org.koin.core.parameter.parametersOf
 
 @Composable
 fun OnboardingScreen(
-    viewModel: OnboardingViewModel = koinViewModel(),
+    startPage: Int,
+    viewModel: OnboardingViewModel = koinViewModel { parametersOf(startPage) },
     onClose: () -> Unit,
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()

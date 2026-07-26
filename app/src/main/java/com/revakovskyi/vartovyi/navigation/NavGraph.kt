@@ -46,8 +46,9 @@ fun NavGraph(
         navController = navController,
         startDestination = startDestination,
     ) {
-        composable<Routes.Onboarding> {
+        composable<Routes.Onboarding> { backStackEntry ->
             OnboardingScreen(
+                startPage = backStackEntry.toRoute<Routes.Onboarding>().startPage,
                 onClose = {
                     val navigatedUp = navController.navigateUp()
                     if (!navigatedUp) {

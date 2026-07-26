@@ -8,6 +8,7 @@ import com.revakovskyi.vartovyi.ui.screen.log.LogViewModel
 import com.revakovskyi.vartovyi.ui.screen.onboarding.OnboardingViewModel
 import com.revakovskyi.vartovyi.ui.screen.permissions.PermissionsViewModel
 import com.revakovskyi.vartovyi.ui.screen.settings.SettingsViewModel
+import org.koin.core.module.dsl.viewModel
 import org.koin.core.module.dsl.viewModelOf
 import org.koin.dsl.module
 
@@ -20,6 +21,12 @@ val viewModelModule = module {
     viewModelOf(::SettingsViewModel)
     viewModelOf(::PermissionsViewModel)
     viewModelOf(::LegalConsentViewModel)
-    viewModelOf(::OnboardingViewModel)
+    viewModel { parameters ->
+        OnboardingViewModel(
+            startPage = parameters.get<Int>(),
+            observeOnboardingCompletedUseCase = get(),
+            setOnboardingCompletedUseCase = get(),
+        )
+    }
 
 }

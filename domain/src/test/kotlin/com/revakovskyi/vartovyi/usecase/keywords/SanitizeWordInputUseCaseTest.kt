@@ -41,7 +41,7 @@ class SanitizeWordInputUseCaseTest {
         @Test
         fun `only-symbols input resolves to StartsWithNonAlphanumeric`() {
             val result = sanitizeTriggerKeyword(
-                rawInput = "!!!@#\$",
+                rawInput = "!!!@#$",
                 selectedType = TriggerKeywordRuleType.WORD,
             )
             assertThat(result).isEqualTo(KeywordSanitizationResult.StartsWithNonAlphanumeric)

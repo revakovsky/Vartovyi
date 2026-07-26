@@ -10,9 +10,10 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
+import kotlin.time.Duration.Companion.seconds
 
 private const val ZERO_MILLIS = 0L
-private const val COOLDOWN_TICK_INTERVAL_MILLIS = 1000L
+private val COOLDOWN_TICK_INTERVAL = 1.seconds
 
 class AlarmRetriggerCooldownStateHolder(
     private val elapsedRealtimeProvider: ElapsedRealtimeProvider,
@@ -78,7 +79,7 @@ class AlarmRetriggerCooldownStateHolder(
                     break
                 }
 
-                delay(COOLDOWN_TICK_INTERVAL_MILLIS)
+                delay(COOLDOWN_TICK_INTERVAL)
             }
         }
     }

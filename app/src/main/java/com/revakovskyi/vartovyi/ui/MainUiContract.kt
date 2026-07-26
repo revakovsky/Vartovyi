@@ -5,6 +5,8 @@ import com.revakovskyi.vartovyi.model.MonitoringState
 object MainUiContract {
 
     data class State(
+        val isOnboardingLoading: Boolean = true,
+        val isOnboardingCompleted: Boolean = false,
         val isAlarmRunning: Boolean = false,
         val monitoringState: MonitoringState = MonitoringState.INACTIVE,
     )

@@ -10,6 +10,7 @@ import com.revakovskyi.vartovyi.usecase.keywords.SeedDefaultKeywordsUseCase
 import com.revakovskyi.vartovyi.usecase.keywords.SeedDefaultStopWordsUseCase
 import com.revakovskyi.vartovyi.usecase.monitoring.ObserveMonitoringStateUseCase
 import com.revakovskyi.vartovyi.usecase.monitoring.SyncMonitoringRuntimeUseCase
+import com.revakovskyi.vartovyi.usecase.onboarding.ObserveOnboardingCompletedUseCase
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -28,6 +29,7 @@ class MainViewModel(
     private val seedDefaultKeywordsUseCase: SeedDefaultKeywordsUseCase,
     private val seedDefaultStopWordsUseCase: SeedDefaultStopWordsUseCase,
     private val migrateLegacyChannelFilterUseCase: MigrateLegacyChannelFilterUseCase,
+    private val observeOnboardingCompletedUseCase: ObserveOnboardingCompletedUseCase,
 ) : ViewModel() {
 
     private val _state = MutableStateFlow(MainUiContract.State())
@@ -39,6 +41,7 @@ class MainViewModel(
         migrateLegacyChannelFilter()
         observeAlarmRunning()
         observeMonitoringState()
+        observeOnboardingCompleted()
     }
 
     fun onAction(action: MainUiContract.Action) {
@@ -76,6 +79,19 @@ class MainViewModel(
                 Log.e(MAIN_VIEW_MODEL_TAG, "Failed to migrate legacy channel filter", throwable)
             }
         }
+    }
+
+    private fun observeOnboardingCompleted() {
+        observeOnboardingCompletedUseCase()
+            .onEach { isCompleted ->
+                _state.update {
+                    it.copy(
+                        isOnboardingLoading = false,
+                        isOnboardingCompleted = isCompleted,
+                    )
+                }
+            }
+            .launchIn(viewModelScope)
     }
 
     private fun observeAlarmRunning() {

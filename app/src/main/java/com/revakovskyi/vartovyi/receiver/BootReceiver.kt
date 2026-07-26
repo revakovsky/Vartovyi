@@ -14,9 +14,10 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withTimeoutOrNull
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
+import kotlin.time.Duration.Companion.seconds
 
 private const val BOOT_RECEIVER_TAG = "BootReceiver"
-private const val BOOT_INIT_TIMEOUT_MILLIS = 9_000L
+private val BOOT_INIT_TIMEOUT = 9.seconds
 
 @Suppress("TooGenericExceptionCaught")
 class BootReceiver : BroadcastReceiver(), KoinComponent {
@@ -30,7 +31,7 @@ class BootReceiver : BroadcastReceiver(), KoinComponent {
         val pendingResult = goAsync()
         CoroutineScope(SupervisorJob() + Dispatchers.IO).launch {
             try {
-                withTimeoutOrNull(BOOT_INIT_TIMEOUT_MILLIS) {
+                withTimeoutOrNull(BOOT_INIT_TIMEOUT) {
                     settingsRepository.setAlarmRetriggerCooldownUntilElapsedRealtimeMillis(0L)
 
                     if (settingsRepository.isMonitoringActive.first()) {
