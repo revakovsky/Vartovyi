@@ -68,6 +68,8 @@ import com.revakovskyi.vartovyi.usecase.onboarding.SetKeywordsChannelsIntroHidde
 import com.revakovskyi.vartovyi.usecase.onboarding.SetKeywordsChannelsIntroHiddenUseCaseImpl
 import com.revakovskyi.vartovyi.usecase.onboarding.SetOnboardingCompletedUseCase
 import com.revakovskyi.vartovyi.usecase.onboarding.SetOnboardingCompletedUseCaseImpl
+import com.revakovskyi.vartovyi.usecase.onboarding.ShouldShowTelegramChannelReminderUseCase
+import com.revakovskyi.vartovyi.usecase.onboarding.ShouldShowTelegramChannelReminderUseCaseImpl
 import com.revakovskyi.vartovyi.usecase.settings.ObserveAlarmRetriggerCooldownDurationUseCase
 import com.revakovskyi.vartovyi.usecase.settings.ObserveAlarmRetriggerCooldownDurationUseCaseImpl
 import com.revakovskyi.vartovyi.usecase.settings.ObserveLogSizeLimitUseCase
@@ -140,6 +142,9 @@ val useCaseModule = module {
     }
     singleOf(::SetKeywordsChannelsIntroHiddenUseCaseImpl) {
         bind<SetKeywordsChannelsIntroHiddenUseCase>()
+    }
+    singleOf(::ShouldShowTelegramChannelReminderUseCaseImpl) {
+        bind<ShouldShowTelegramChannelReminderUseCase>()
     }
 
     singleOf(::ObserveScheduleSettingsUseCaseImpl) { bind<ObserveScheduleSettingsUseCase>() }

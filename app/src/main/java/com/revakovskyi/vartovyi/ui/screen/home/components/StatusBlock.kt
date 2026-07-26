@@ -50,6 +50,7 @@ import com.revakovskyi.vartovyi.model.MonitoringState
 import com.revakovskyi.vartovyi.ui.theme.VartovyiTheme
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collectLatest
+import kotlin.time.Duration.Companion.milliseconds
 
 private const val ICON_SIZE_FRACTION = 0.42f
 private const val ICON_MIN_SIZE_DP = 32
@@ -61,7 +62,7 @@ private const val TOGGLE_BUTTON_WIDTH_FRACTION = 0.7f
 private const val TOGGLE_BUTTON_CORNER_PERCENT = 50
 private const val MILLIS_IN_SECOND = 1000L
 private const val SECONDS_IN_MINUTE = 60L
-private const val ACTIVATE_BUTTON_ENTRY_DELAY_MILLIS = 500L
+private val ACTIVATE_BUTTON_ENTRY_DELAY = 500.milliseconds
 private const val ACTIVATE_BUTTON_PULSE_SCALE_PEAK = 1.035f
 private const val ACTIVATE_BUTTON_PULSE_EXPAND_DURATION_MILLIS = 900
 private const val ACTIVATE_BUTTON_PULSE_CONTRACT_DURATION_MILLIS = 900
@@ -140,7 +141,7 @@ fun StatusBlock(
     val securityIconScale = if (isActive) monitoringIconPulseScale else 1f
 
     LaunchedEffect(Unit) {
-        delay(ACTIVATE_BUTTON_ENTRY_DELAY_MILLIS)
+        delay(ACTIVATE_BUTTON_ENTRY_DELAY)
 
         val motionScale = coroutineContext[MotionDurationScale]?.scaleFactor ?: 1f
         if (motionScale <= 0f) {

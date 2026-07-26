@@ -63,26 +63,6 @@ private fun WelcomeBodyContent(modifier: Modifier = Modifier) {
             textAlign = TextAlign.Center,
             modifier = Modifier.fillMaxWidth()
         )
-
-        Spacer(modifier = Modifier.height(VartovyiTheme.spacing.standard))
-
-        Text(
-            text = stringResource(R.string.onboarding_welcome_telegram_required),
-            style = VartovyiTheme.typography.bodyLarge,
-            color = VartovyiTheme.colors.onSurface,
-            textAlign = TextAlign.Center,
-            modifier = Modifier.fillMaxWidth()
-        )
-
-        Spacer(modifier = Modifier.height(VartovyiTheme.spacing.standard))
-
-        Text(
-            text = stringResource(R.string.onboarding_welcome_keywords_hint),
-            style = VartovyiTheme.typography.bodyLarge,
-            color = VartovyiTheme.colors.onSurface,
-            textAlign = TextAlign.Center,
-            modifier = Modifier.fillMaxWidth()
-        )
     }
 }
 

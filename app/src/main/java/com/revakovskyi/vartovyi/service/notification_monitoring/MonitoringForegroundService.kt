@@ -32,13 +32,14 @@ import kotlinx.coroutines.withTimeoutOrNull
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 import java.util.concurrent.atomic.AtomicBoolean
+import kotlin.time.Duration.Companion.seconds
 
 private const val MONITORING_NOTIFICATION_ID = 2001
 private const val MONITORING_CHANNEL_ID = "vartovyi_monitoring"
 private const val GREEN_ACCENT_COLOR_RES_ID = android.R.color.holo_green_dark
 private const val ACTION_STOP = "com.revakovskyi.vartovyi.ACTION_STOP_MONITORING"
 private const val MONITORING_SERVICE_TAG = "MonitoringService"
-private const val STOP_DATASTORE_WRITE_TIMEOUT_MILLIS = 2_000L
+private val STOP_DATASTORE_WRITE_TIMEOUT = 2.seconds
 
 class MonitoringForegroundService : Service(), KoinComponent {
 
@@ -93,7 +94,7 @@ class MonitoringForegroundService : Service(), KoinComponent {
 
             serviceScope.launch {
                 withContext(NonCancellable) {
-                    withTimeoutOrNull(STOP_DATASTORE_WRITE_TIMEOUT_MILLIS) {
+                    withTimeoutOrNull(STOP_DATASTORE_WRITE_TIMEOUT) {
                         settingsRepository.setMonitoringActive(false)
                         settingsRepository.setAlarmRetriggerCooldownUntilElapsedRealtimeMillis(0L)
                     }

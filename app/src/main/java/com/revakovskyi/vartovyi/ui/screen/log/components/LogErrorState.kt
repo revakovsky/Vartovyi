@@ -12,6 +12,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import com.revakovskyi.vartovyi.R
 import com.revakovskyi.vartovyi.ui.components.VartovyiActionButton
@@ -34,6 +35,7 @@ fun LogErrorState(
             text = stringResource(R.string.log_load_failed),
             style = VartovyiTheme.typography.bodyMedium,
             color = VartovyiTheme.colors.onSurfaceVariant,
+            textAlign = TextAlign.Center,
         )
 
         Spacer(modifier = Modifier.height(VartovyiTheme.spacing.medium))
@@ -41,8 +43,11 @@ fun LogErrorState(
         VartovyiActionButton(
             text = stringResource(R.string.log_retry),
             onClick = onRetry,
-            style = VartovyiActionButtonStyle.Filled,
-            modifier = Modifier.fillMaxWidth()
+            style = VartovyiActionButtonStyle.Outlined,
+            borderColor = VartovyiTheme.colors.primary,
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(vertical = VartovyiTheme.spacing.standard)
         )
     }
 }

@@ -134,14 +134,14 @@ A rule is stored as a single string and parsed by `parseTriggerKeywordRuleFromSt
 | `PHRASE`    | `"ціль на київ"` | the normalized text contains the phrase                         |
 
 Normalization: NFC, unifying apostrophe variants, lowercase, collapsing whitespace, stripping
-invisible unicode characters. Duplicates are detected by `normalizedSignature()` (type + sorted
+invisible Unicode characters. Duplicates are detected by `normalizedSignature()` (type + sorted
 normalized terms), so `ракета+київ` and `київ+ракета` are one and the same rule.
 
 Limits: up to **200** triggers, minimum term length is 2 characters.
 
 A stop word blocks the alarm through a plain `contains` check over the normalized text.
 The Telegram channel allow-list is **fail-open**: an empty list means every channel is allowed;
-there is no separate filter toggle any more (the legacy flag is migrated on startup by
+there is no separate filter toggle anymore (the legacy flag is migrated on startup by
 `MigrateLegacyChannelFilterUseCase`).
 
 On the first launch demo examples are seeded: one trigger per rule type, plus typical stop words.
@@ -171,7 +171,7 @@ On the first launch demo examples are seeded: one trigger per rule type, plus ty
 
 Telegram calls `onNotificationPosted` multiple times for one and the same message: the
 GROUP_SUMMARY copy, a refresh on any change in the chat, retroactive edits of `when`
-and of the text (typo fixes). The signature is a SHA-256 of
+and of the text (typo fixes). The signature is an SHA-256 of
 `pkg | notificationKey | senderName | messageText` (normalized text).
 Deduplication works as a **sliding 60-second window**:
 the DAO `findRecentIdBySignature` looks for an entry with this signature having `timestamp >=
@@ -186,7 +186,7 @@ recovering what was missed after an OEM kill of the process.
 Why exactly this way:
 
 - the normalized message text (lowercase, trim, collapse whitespace,
-  strip invisible unicode) is stable across Telegram's refresh-edit cycles — different
+  strip invisible Unicode) is stable across Telegram's refresh-edit cycles — different
   real messages have different signatures and never get merged;
 - a sliding window (rather than a fixed bucket) catches duplicates that cross the minute
   boundary — Telegram's 25–30s `when`-shift no longer produces a duplicate even when the

@@ -5,7 +5,7 @@ import kotlinx.serialization.Serializable
 sealed interface Routes {
 
     @Serializable
-    data object Onboarding : Routes
+    data class Onboarding(val startPage: Int = 0) : Routes
 
     @Serializable
     data object Home : Routes

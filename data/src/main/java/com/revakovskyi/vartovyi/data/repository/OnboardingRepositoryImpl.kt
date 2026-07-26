@@ -22,4 +22,8 @@ internal class OnboardingRepositoryImpl(
         onboardingDataStore.setKeywordsChannelsIntroHidden()
     }
 
+    override suspend fun shouldShowTelegramChannelReminder(): Boolean {
+        return onboardingDataStore.shouldShowTelegramChannelReminder()
+    }
+
 }

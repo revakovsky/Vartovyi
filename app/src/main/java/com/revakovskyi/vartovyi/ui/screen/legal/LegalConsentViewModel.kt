@@ -17,8 +17,9 @@ import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlin.time.Duration.Companion.seconds
 
-private const val LEGAL_CONSENT_LOADING_DELAY_MILLIS = 1000L
+private val LEGAL_CONSENT_LOADING_DELAY = 1.seconds
 
 class LegalConsentViewModel(
     observeLegalConsentStateUseCase: ObserveLegalConsentStateUseCase,
@@ -34,7 +35,7 @@ class LegalConsentViewModel(
     init {
         observeLegalConsentStateUseCase()
             .onEach { isAccepted ->
-                if (!isAccepted) delay(LEGAL_CONSENT_LOADING_DELAY_MILLIS)
+                if (!isAccepted) delay(LEGAL_CONSENT_LOADING_DELAY)
 
                 _state.update {
                     it.copy(

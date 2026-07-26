@@ -33,6 +33,7 @@ interface KeywordsUiContract {
         val pendingImportStrategy: ImportStrategy? = null,
         val isExportDestinationDialogVisible: Boolean = false,
         val isChannelsIntroDialogVisible: Boolean = false,
+        val isTelegramChannelReminderDialogVisible: Boolean = false,
     ) {
         val hasKeywordDataToClear: Boolean
             get() = keywords.isNotEmpty() ||
@@ -96,6 +97,8 @@ interface KeywordsUiContract {
         data object NotifyImportFileTooLarge : Action
         data object DismissChannelsIntroDialog : Action
         data object HideChannelsIntroDialogForever : Action
+        data object DismissTelegramChannelReminderDialog : Action
+        data object OpenTelegramSetupGuide : Action
     }
 
     sealed interface Event {
@@ -126,6 +129,7 @@ interface KeywordsUiContract {
         data class KeywordsImportUnsupportedVersion(val fileVersion: Int) : Event
         data object KeywordsImportWriteError : Event
         data object KeywordsImportFileTooLarge : Event
+        data object NavigateToOnboardingTelegramPage : Event
     }
 
 }

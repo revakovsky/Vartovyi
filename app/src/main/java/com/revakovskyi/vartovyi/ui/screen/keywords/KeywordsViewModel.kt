@@ -34,6 +34,7 @@ import com.revakovskyi.vartovyi.usecase.keywords.RemoveTelegramChannelUseCase
 import com.revakovskyi.vartovyi.usecase.keywords.SanitizeWordInputUseCase
 import com.revakovskyi.vartovyi.usecase.onboarding.ObserveKeywordsChannelsIntroHiddenUseCase
 import com.revakovskyi.vartovyi.usecase.onboarding.SetKeywordsChannelsIntroHiddenUseCase
+import com.revakovskyi.vartovyi.usecase.onboarding.ShouldShowTelegramChannelReminderUseCase
 import com.revakovskyi.vartovyi.utils.parseTriggerKeywordRuleFromStorage
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.Flow
@@ -65,6 +66,7 @@ class KeywordsViewModel(
     private val importKeywordsUseCase: ImportKeywordsUseCase,
     private val observeKeywordsChannelsIntroHiddenUseCase: ObserveKeywordsChannelsIntroHiddenUseCase,
     private val setKeywordsChannelsIntroHiddenUseCase: SetKeywordsChannelsIntroHiddenUseCase,
+    private val shouldShowTelegramChannelReminderUseCase: ShouldShowTelegramChannelReminderUseCase,
 ) : ViewModel() {
 
     private val _state = MutableStateFlow(State())
@@ -113,6 +115,8 @@ class KeywordsViewModel(
             is Action.NotifyImportFileTooLarge -> notifyImportFileTooLarge()
             is Action.DismissChannelsIntroDialog -> dismissChannelsIntroDialog()
             is Action.HideChannelsIntroDialogForever -> hideChannelsIntroDialogForever()
+            is Action.DismissTelegramChannelReminderDialog -> dismissTelegramChannelReminderDialog()
+            is Action.OpenTelegramSetupGuide -> openTelegramSetupGuide()
         }
     }
 
@@ -164,6 +168,15 @@ class KeywordsViewModel(
     private fun hideChannelsIntroDialogForever() {
         _state.update { it.copy(isChannelsIntroDialogVisible = false) }
         viewModelScope.launch { setKeywordsChannelsIntroHiddenUseCase() }
+    }
+
+    private fun dismissTelegramChannelReminderDialog() {
+        _state.update { it.copy(isTelegramChannelReminderDialogVisible = false) }
+    }
+
+    private fun openTelegramSetupGuide() {
+        _state.update { it.copy(isTelegramChannelReminderDialogVisible = false) }
+        viewModelScope.launch { _events.send(Event.NavigateToOnboardingTelegramPage) }
     }
 
     private fun updateKeywordInput(value: String) {
@@ -382,6 +395,10 @@ class KeywordsViewModel(
 
         if (channel != rawInput.trim()) {
             _events.send(Event.KeywordNormalized(displayValue = channel))
+        }
+
+        if (shouldShowTelegramChannelReminderUseCase()) {
+            _state.update { it.copy(isTelegramChannelReminderDialogVisible = true) }
         }
     }
 

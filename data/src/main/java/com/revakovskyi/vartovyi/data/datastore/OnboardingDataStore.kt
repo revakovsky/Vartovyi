@@ -23,6 +23,8 @@ internal class OnboardingDataStore(
         val IS_ONBOARDING_COMPLETED = booleanPreferencesKey("is_onboarding_completed")
         val IS_KEYWORDS_CHANNELS_INTRO_HIDDEN =
             booleanPreferencesKey("is_keywords_channels_intro_hidden")
+        val IS_TELEGRAM_CHANNEL_REMINDER_SHOWN =
+            booleanPreferencesKey("is_telegram_channel_reminder_shown")
     }
 
     val isOnboardingCompleted: Flow<Boolean> = context.onboardingDataStore.data
@@ -43,6 +45,22 @@ internal class OnboardingDataStore(
         return context.onboardingDataStore.safeEdit { preferences ->
             preferences[Keys.IS_KEYWORDS_CHANNELS_INTRO_HIDDEN] = true
         }
+    }
+
+    /**
+     * Reports whether the Telegram channel subscribe-reminder should be shown now — `true` only
+     * the first time ever, `false` on every later call. Marks it as shown as a side effect
+     */
+    suspend fun shouldShowTelegramChannelReminder(): Boolean {
+        var shouldShow = false
+        val writeSucceeded = context.onboardingDataStore.safeEdit { preferences ->
+            val alreadyShown = preferences[Keys.IS_TELEGRAM_CHANNEL_REMINDER_SHOWN] == true
+            if (alreadyShown) return@safeEdit
+
+            shouldShow = true
+            preferences[Keys.IS_TELEGRAM_CHANNEL_REMINDER_SHOWN] = true
+        }
+        return shouldShow && writeSucceeded
     }
 
 }

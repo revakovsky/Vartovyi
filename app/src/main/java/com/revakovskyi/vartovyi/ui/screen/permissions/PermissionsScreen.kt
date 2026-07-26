@@ -12,7 +12,6 @@ import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
@@ -23,15 +22,17 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.material3.rememberTopAppBarState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.sp
 import androidx.core.app.ActivityCompat
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
@@ -44,7 +45,7 @@ import com.revakovskyi.vartovyi.ui.screen.permissions.components.PermissionItemC
 import com.revakovskyi.vartovyi.ui.screen.permissions.components.PermissionsWarningCard
 import com.revakovskyi.vartovyi.ui.screen.permissions.utils.buildPermissionItems
 import com.revakovskyi.vartovyi.ui.theme.VartovyiTheme
-import com.revakovskyi.vartovyi.ui.theme.bodyLink
+import com.revakovskyi.vartovyi.ui.theme.bodyLinkSmall
 import com.revakovskyi.vartovyi.utils.ObserveSingleEvents
 import org.koin.compose.viewmodel.koinActivityViewModel
 
@@ -140,27 +141,32 @@ private fun PermissionsContent(
     state: PermissionsUiContract.State,
     onAction: (action: PermissionsUiContract.Action) -> Unit,
 ) {
+    val topBarScrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior(
+        state = rememberTopAppBarState(),
+    )
+
     val permissionItems = buildPermissionItems(state = state)
 
-    Box(
-        contentAlignment = Alignment.TopCenter,
-        modifier = modifier.fillMaxSize(),
+    Column(
+        modifier = modifier
+            .fillMaxSize()
+            .nestedScroll(topBarScrollBehavior.nestedScrollConnection)
     ) {
+        VartovyiBackTopBar(
+            title = stringResource(R.string.permissions_title),
+            backContentDescription = stringResource(R.string.permissions_back),
+            scrollBehavior = topBarScrollBehavior,
+            onNavigateBack = { onAction(PermissionsUiContract.Action.NavigateBack) },
+        )
+
         LazyColumn(
             verticalArrangement = Arrangement.spacedBy(VartovyiTheme.spacing.small),
             contentPadding = PaddingValues(bottom = VartovyiTheme.spacing.medium),
             modifier = Modifier
+                .align(Alignment.CenterHorizontally)
                 .widthIn(max = VartovyiTheme.spacing.contentMaxWidth)
                 .fillMaxSize()
         ) {
-            item(contentType = "header") {
-                VartovyiBackTopBar(
-                    title = stringResource(R.string.permissions_title),
-                    backContentDescription = stringResource(R.string.permissions_back),
-                    onNavigateBack = { onAction(PermissionsUiContract.Action.NavigateBack) },
-                )
-            }
-
             if (state.hasMissingPermissions) {
                 item(contentType = "warning") {
                     PermissionsWarningCard(
@@ -197,11 +203,7 @@ private fun PermissionsContent(
 
                     Text(
                         text = stringResource(R.string.permissions_troubleshooting_link),
-                        style = VartovyiTheme.typography.bodyLink.copy(
-                            fontSize = 14.sp,
-                            lineHeight = 24.sp,
-                            letterSpacing = 0.15.sp,
-                        ),
+                        style = VartovyiTheme.typography.bodyLinkSmall,
                         color = VartovyiTheme.colors.primary,
                         modifier = Modifier.clickable {
                             onAction(PermissionsUiContract.Action.OpenTroubleshooting)

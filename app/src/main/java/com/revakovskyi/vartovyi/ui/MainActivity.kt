@@ -54,7 +54,6 @@ import com.revakovskyi.vartovyi.ui.screen.keywords.KeywordsViewModel
 import com.revakovskyi.vartovyi.ui.screen.keywords.components.KeywordsTopBarActionsIcon
 import com.revakovskyi.vartovyi.ui.screen.legal.LegalConsentScreen
 import com.revakovskyi.vartovyi.ui.screen.legal.LegalConsentViewModel
-import com.revakovskyi.vartovyi.ui.screen.onboarding.OnboardingViewModel
 import com.revakovskyi.vartovyi.ui.screen.permissions.PermissionsViewModel
 import com.revakovskyi.vartovyi.ui.theme.VartovyiTheme
 import com.revakovskyi.vartovyi.ui.theme.appRootBackground
@@ -69,7 +68,6 @@ class MainActivity : ComponentActivity() {
 
     private val mainViewModel: MainViewModel by viewModel()
     private val legalConsentViewModel: LegalConsentViewModel by viewModel()
-    private val onboardingViewModel: OnboardingViewModel by viewModel()
     private val permissionsViewModel: PermissionsViewModel by viewModel()
     private val keywordsViewModel: KeywordsViewModel by viewModel()
 
@@ -116,9 +114,8 @@ class MainActivity : ComponentActivity() {
         val mainState by mainViewModel.state.collectAsStateWithLifecycle()
         val permissionsState by permissionsViewModel.state.collectAsStateWithLifecycle()
         val legalConsentState by legalConsentViewModel.state.collectAsStateWithLifecycle()
-        val onboardingState by onboardingViewModel.state.collectAsStateWithLifecycle()
 
-        if (legalConsentState.isLoading || onboardingState.isLoading) {
+        if (legalConsentState.isLoading || mainState.isOnboardingLoading) {
             LoadingOverlay()
         } else if (!legalConsentState.isAccepted) {
             LegalConsentScreen(
@@ -127,7 +124,7 @@ class MainActivity : ComponentActivity() {
             )
         } else {
             val startDestination: Any =
-                if (!onboardingState.isCompleted) Routes.Onboarding
+                if (!mainState.isOnboardingCompleted) Routes.Onboarding()
                 else Routes.Home
 
             MainAppScaffold(

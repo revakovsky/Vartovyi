@@ -18,6 +18,7 @@ import com.revakovskyi.vartovyi.usecase.keywords.SanitizeWordInputUseCase
 import com.revakovskyi.vartovyi.usecase.keywords.SanitizeWordInputUseCaseImpl
 import com.revakovskyi.vartovyi.usecase.onboarding.ObserveKeywordsChannelsIntroHiddenUseCase
 import com.revakovskyi.vartovyi.usecase.onboarding.SetKeywordsChannelsIntroHiddenUseCase
+import com.revakovskyi.vartovyi.usecase.onboarding.ShouldShowTelegramChannelReminderUseCase
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.mockkStatic
@@ -54,6 +55,8 @@ abstract class KeywordsViewModelBaseTest {
         mockk<ObserveKeywordsChannelsIntroHiddenUseCase>(relaxed = true)
     protected val setKeywordsChannelsIntroHiddenUseCase =
         mockk<SetKeywordsChannelsIntroHiddenUseCase>(relaxed = true)
+    protected val shouldShowTelegramChannelReminderUseCase =
+        mockk<ShouldShowTelegramChannelReminderUseCase>(relaxed = true)
     protected val sanitizeWordInputUseCase: SanitizeWordInputUseCase =
         SanitizeWordInputUseCaseImpl()
 
@@ -96,6 +99,7 @@ abstract class KeywordsViewModelBaseTest {
         importKeywordsUseCase = importKeywordsUseCase,
         observeKeywordsChannelsIntroHiddenUseCase = observeKeywordsChannelsIntroHiddenUseCase,
         setKeywordsChannelsIntroHiddenUseCase = setKeywordsChannelsIntroHiddenUseCase,
+        shouldShowTelegramChannelReminderUseCase = shouldShowTelegramChannelReminderUseCase,
     )
 
     protected fun TestScope.collectEvents(viewModel: KeywordsViewModel): List<Event> {

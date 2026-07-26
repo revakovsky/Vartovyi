@@ -104,6 +104,10 @@
     <string name="keywords_channels_intro_dialog_message">Сейчас поле каналов Telegram пустое — в этом режиме приложение читает все уведомления от Telegram, которые приходят на ваш телефон.\n\nРекомендуем добавить в поле каналов Telegram каналы, на которые вы ориентируетесь при срабатывании тревоги. Тогда Vartovyi будет искать ваши триггер-слова только в уведомлениях от указанных каналов — и это снижает риск ложных тревог (ведь ваши триггер-слова могут встречаться и в других уведомлениях, не связанных с тревогой).\n\nВыберите нужные каналы Telegram с оповещением о воздушной тревоге из нашего списка готовых каналов, или впишите названия вручную, если вашего канала нет в нашем списке.</string>
     <string name="keywords_channels_intro_dialog_dont_show_again">Больше не показывать</string>
     <string name="keywords_channels_intro_dialog_confirm">Понятно</string>
+    <string name="keywords_telegram_reminder_dialog_title">Не забудьте подписаться</string>
+    <string name="keywords_telegram_reminder_dialog_message">Не забудьте подписаться на этот канал в приложении Telegram и включить уведомления от него</string>
+    <string name="keywords_telegram_reminder_dialog_learn_more">Подробнее об этом — здесь</string>
+    <string name="keywords_telegram_setup_guide_link">Настройка приложения Telegram</string>
     <string name="keywords_popular_channels_group_national">Общенациональные</string>
     <string name="keywords_popular_channels_group_chernihiv">Чернигов</string>
     <string name="keywords_popular_channels_group_sumy">Сумы</string>
@@ -214,13 +218,12 @@
 
     <string name="onboarding_welcome_title">Vartovyi</string>
     <string name="onboarding_welcome_tagline">Настройте один раз — Vartovyi слушает. Распознаёт. Оповещает.</string>
+    <string name="onboarding_welcome_privacy_note">🔒 Все ваши данные хранятся только на вашем устройстве. Ничего не отправляется ни на какие серверы или сторонние сервисы — ваша конфиденциальность полностью защищена!</string>
     <string name="onboarding_welcome_explanation">После настройки приложения Vartovyi и включения мониторинга приложение начинает в фоне следить за уведомлениями от приложения Telegram и ищет в них совпадения со словами-триггерами, которые вы вводите вручную в Vartovyi.</string>
     <string name="onboarding_welcome_siren">Как только найдено совпадение — Vartovyi немедленно включает громкую сирену, даже если телефон в беззвучном режиме.</string>
-    <string name="onboarding_welcome_telegram_required">Именно поэтому Vartovyi работает в паре с Telegram, который должен быть установлен на вашем устройстве. Если Telegram ещё нет — скачайте его из Google Play или другого магазина приложений. Подходят официальный Telegram, Telegram X и NekoX.</string>
-    <string name="onboarding_welcome_keywords_hint">На экране «Ключевые слова» уже есть пример того, как правильно вводить слова-триггеры — просто замените их на свои</string>
-    <string name="onboarding_welcome_privacy_note">🔒 Все ваши данные хранятся только на вашем устройстве. Ничего не отправляется ни на какие серверы или сторонние сервисы — ваша конфиденциальность полностью защищена!</string>
 
     <string name="onboarding_telegram_title">Настройте Telegram</string>
+    <string name="onboarding_telegram_required">Если Telegram ещё не установлен на вашем устройстве — скачайте его из Google Play или другого магазина приложений. Подходят официальный Telegram, Telegram X и NekoX</string>
     <string name="onboarding_telegram_intro">Настройте приложение Telegram в три шага:</string>
     <string name="onboarding_telegram_step_1_title">1. Подпишитесь на канал</string>
     <string name="onboarding_telegram_step_1_body">В Telegram найдите и подпишитесь на один или несколько каналов, которые сообщают о воздушной тревоге, если вы ещё не подписаны на них. Выбирайте каналы своего региона или города — так оповещения будут самыми точными для вас.</string>

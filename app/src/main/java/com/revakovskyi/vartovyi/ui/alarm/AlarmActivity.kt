@@ -54,10 +54,8 @@ import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
 import com.revakovskyi.vartovyi.R
 import com.revakovskyi.vartovyi.constants.AlarmContract
-import com.revakovskyi.vartovyi.controllers.alarm.AlarmStateHolder
 import com.revakovskyi.vartovyi.service.alarm.AlarmService
 import com.revakovskyi.vartovyi.ui.theme.VartovyiTheme
-import org.koin.android.ext.android.inject
 import java.util.concurrent.atomic.AtomicBoolean
 
 private const val ALARM_ICON_SIZE_DP = 128
@@ -70,8 +68,6 @@ private const val CONTENT_EDGE_SPACER_WEIGHT = 0.2f
 private const val EMPTY_VALUE = ""
 
 class AlarmActivity : ComponentActivity() {
-
-    private val alarmStateHolder: AlarmStateHolder by inject()
 
     private var sourceChannelName by mutableStateOf(EMPTY_VALUE)
     private var sourceMessageText by mutableStateOf(EMPTY_VALUE)
@@ -110,16 +106,6 @@ class AlarmActivity : ComponentActivity() {
         super.onNewIntent(intent)
         isDismissing.set(false)
         updateAlarmContentFromIntent(intent)
-    }
-
-    override fun onStart() {
-        super.onStart()
-        alarmStateHolder.setVisible(true)
-    }
-
-    override fun onStop() {
-        super.onStop()
-        alarmStateHolder.setVisible(false)
     }
 
     override fun onDestroy() {
