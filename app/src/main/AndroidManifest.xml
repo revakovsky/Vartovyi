@@ -41,10 +41,8 @@
         <activity
             android:name=".ui.MainActivity"
             android:exported="true"
-            android:screenOrientation="portrait"
             android:theme="@style/Theme.Vartovyi"
-            android:windowSoftInputMode="adjustResize"
-            tools:ignore="DiscouragedApi,LockedOrientationActivity">
+            android:windowSoftInputMode="adjustResize">
 
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -56,13 +54,11 @@
         <activity
             android:name=".ui.alarm.AlarmActivity"
             android:exported="false"
-            android:screenOrientation="portrait"
             android:launchMode="singleTask"
             android:taskAffinity=""
             android:excludeFromRecents="true"
             android:showOnLockScreen="true"
-            android:turnScreenOn="true"
-            tools:ignore="DiscouragedApi,LockedOrientationActivity" />
+            android:turnScreenOn="true" />
 
         <service
             android:name=".service.TelegramListenerService"
