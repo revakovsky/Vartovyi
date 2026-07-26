@@ -108,6 +108,9 @@ val VartovyiTypography = Typography(
 val Typography.bodyLink: TextStyle
     get() = bodyLarge.copy(textDecoration = TextDecoration.Underline)
 
+val Typography.bodyLinkSmall: TextStyle
+    get() = bodyMedium.copy(textDecoration = TextDecoration.Underline)
+
 /** Lower bound for `TextAutoSize` shrinking — below this text stops being readable */
 val MinAutoSizeFontSize: TextUnit = 8.sp
 

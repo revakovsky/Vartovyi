@@ -1,8 +1,6 @@
 package com.revakovskyi.vartovyi.ui.screen.onboarding
 
-internal enum class OnboardingPage {
-    WELCOME, TELEGRAM,
-}
+import com.revakovskyi.vartovyi.model.OnboardingPage
 
 object OnboardingUiContract {
 

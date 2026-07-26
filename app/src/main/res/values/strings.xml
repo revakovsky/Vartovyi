@@ -105,6 +105,10 @@
     <string name="keywords_channels_intro_dialog_message">Right now the Telegram channels field is empty — in this mode the app reads every Telegram notification that arrives on your phone.\n\nWe recommend adding to the Telegram channels field the channels you rely on for alerts. Then Vartovyi looks for your trigger words only in notifications from those channels — and this reduces false alarms (your trigger words may also appear in other notifications unrelated to an alert).\n\nPick the air-raid alert channels you need from our list of ready-made channels, or type the names yourself if your channel isn\'t in our list.</string>
     <string name="keywords_channels_intro_dialog_dont_show_again">Don\'t show again</string>
     <string name="keywords_channels_intro_dialog_confirm">Got it</string>
+    <string name="keywords_telegram_reminder_dialog_title">Don\'t forget to subscribe</string>
+    <string name="keywords_telegram_reminder_dialog_message">Don\'t forget to subscribe to this channel in the Telegram app and enable notifications for it</string>
+    <string name="keywords_telegram_reminder_dialog_learn_more">More about this — here</string>
+    <string name="keywords_telegram_setup_guide_link">Telegram app setup</string>
     <string name="keywords_popular_channels_group_national">Nationwide</string>
     <string name="keywords_popular_channels_group_chernihiv">Chernihiv</string>
     <string name="keywords_popular_channels_group_sumy">Sumy</string>
@@ -209,13 +213,12 @@
 
     <string name="onboarding_welcome_title">Vartovyi</string>
     <string name="onboarding_welcome_tagline">Set up once — Vartovyi listens. Detects. Alerts.</string>
+    <string name="onboarding_welcome_privacy_note">🔒 All your data is stored only on your device. Nothing is sent to any servers or third-party services — your privacy is fully protected!</string>
     <string name="onboarding_welcome_explanation">After you set up Vartovyi and turn on monitoring, it starts watching Telegram notifications in the background and looks for matches with the trigger words you enter yourself in Vartovyi.</string>
     <string name="onboarding_welcome_siren">The moment a match is found — Vartovyi immediately triggers a loud siren, even if your phone is on silent.</string>
-    <string name="onboarding_welcome_telegram_required">That\'s why Vartovyi works in pair with Telegram, which must be installed on your device. If you don\'t have Telegram yet — download it from Google Play or another app store. Official Telegram, Telegram X and NekoX are supported.</string>
-    <string name="onboarding_welcome_keywords_hint">The «Keywords» screen already has an example of how to enter trigger words correctly — just replace them with your own</string>
-    <string name="onboarding_welcome_privacy_note">🔒 All your data is stored only on your device. Nothing is sent to any servers or third-party services — your privacy is fully protected!</string>
 
     <string name="onboarding_telegram_title">Set up Telegram</string>
+    <string name="onboarding_telegram_required">If you don\'t have Telegram installed on your device yet — download it from Google Play or another app store. Official Telegram, Telegram X and NekoX are supported.</string>
     <string name="onboarding_telegram_intro">Set up Telegram in three steps:</string>
     <string name="onboarding_telegram_step_1_title">1. Subscribe to a channel</string>
     <string name="onboarding_telegram_step_1_body">In Telegram, find and subscribe to one or more channels that report air raid alerts, if you haven\'t already. Choose channels for your region or city — that way the alerts are the most relevant to you.</string>

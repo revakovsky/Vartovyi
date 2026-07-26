@@ -8,6 +8,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navOptions
 import androidx.navigation.toRoute
+import com.revakovskyi.vartovyi.model.OnboardingPage
 import com.revakovskyi.vartovyi.model.PermissionsStatus
 import com.revakovskyi.vartovyi.ui.screen.home.HomeScreen
 import com.revakovskyi.vartovyi.ui.screen.keywords.KeywordsScreen
@@ -78,7 +79,14 @@ fun NavGraph(
         }
 
         composable<Routes.Keywords> {
-            KeywordsScreen(viewModel = keywordsViewModel)
+            KeywordsScreen(
+                viewModel = keywordsViewModel,
+                onNavigateToOnboardingTelegramPage = {
+                    navController.navigate(
+                        Routes.Onboarding(startPage = OnboardingPage.TELEGRAM.ordinal)
+                    )
+                },
+            )
         }
 
         composable<Routes.Log> { backStackEntry ->
@@ -98,7 +106,7 @@ fun NavGraph(
                         navOptions = tabNavOptions()
                     )
                 },
-                onNavigateToOnboarding = { navController.navigate(Routes.Onboarding) },
+                onNavigateToOnboarding = { navController.navigate(Routes.Onboarding()) },
                 onNavigateToTroubleshooting = { navController.navigate(Routes.Troubleshooting) },
             )
         }

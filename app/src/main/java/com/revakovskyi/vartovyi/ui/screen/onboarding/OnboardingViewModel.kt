@@ -1,8 +1,12 @@
 package com.revakovskyi.vartovyi.ui.screen.onboarding
 
 import android.util.Log
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.navigation.toRoute
+import com.revakovskyi.vartovyi.model.OnboardingPage
+import com.revakovskyi.vartovyi.navigation.Routes
 import com.revakovskyi.vartovyi.usecase.onboarding.ObserveOnboardingCompletedUseCase
 import com.revakovskyi.vartovyi.usecase.onboarding.SetOnboardingCompletedUseCase
 import kotlinx.coroutines.channels.Channel
@@ -17,11 +21,15 @@ import kotlinx.coroutines.launch
 private const val ONBOARDING_VIEW_MODEL_TAG = "OnboardingViewModel"
 
 class OnboardingViewModel(
+    savedStateHandle: SavedStateHandle,
     private val observeOnboardingCompletedUseCase: ObserveOnboardingCompletedUseCase,
     private val setOnboardingCompletedUseCase: SetOnboardingCompletedUseCase,
 ) : ViewModel() {
 
-    private val _state = MutableStateFlow(OnboardingUiContract.State())
+    private val startPage = savedStateHandle.toRoute<Routes.Onboarding>().startPage
+        .coerceIn(0, OnboardingPage.entries.lastIndex)
+
+    private val _state = MutableStateFlow(OnboardingUiContract.State(currentPage = startPage))
     val state: StateFlow<OnboardingUiContract.State> = _state.asStateFlow()
 
     private val _events = Channel<OnboardingUiContract.Event>(Channel.BUFFERED)

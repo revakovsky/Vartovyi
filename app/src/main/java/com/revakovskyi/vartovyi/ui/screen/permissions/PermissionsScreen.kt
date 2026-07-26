@@ -31,7 +31,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.sp
 import androidx.core.app.ActivityCompat
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
@@ -44,7 +43,7 @@ import com.revakovskyi.vartovyi.ui.screen.permissions.components.PermissionItemC
 import com.revakovskyi.vartovyi.ui.screen.permissions.components.PermissionsWarningCard
 import com.revakovskyi.vartovyi.ui.screen.permissions.utils.buildPermissionItems
 import com.revakovskyi.vartovyi.ui.theme.VartovyiTheme
-import com.revakovskyi.vartovyi.ui.theme.bodyLink
+import com.revakovskyi.vartovyi.ui.theme.bodyLinkSmall
 import com.revakovskyi.vartovyi.utils.ObserveSingleEvents
 import org.koin.compose.viewmodel.koinActivityViewModel
 
@@ -197,11 +196,7 @@ private fun PermissionsContent(
 
                     Text(
                         text = stringResource(R.string.permissions_troubleshooting_link),
-                        style = VartovyiTheme.typography.bodyLink.copy(
-                            fontSize = 14.sp,
-                            lineHeight = 24.sp,
-                            letterSpacing = 0.15.sp,
-                        ),
+                        style = VartovyiTheme.typography.bodyLinkSmall,
                         color = VartovyiTheme.colors.primary,
                         modifier = Modifier.clickable {
                             onAction(PermissionsUiContract.Action.OpenTroubleshooting)

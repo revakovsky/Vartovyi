@@ -32,7 +32,7 @@ import com.revakovskyi.vartovyi.ui.components.ScrollProgressBar
 import com.revakovskyi.vartovyi.ui.theme.VartovyiTheme
 
 private const val ONBOARDING_TELEGRAM_ICON_SIZE = 100
-private const val SCREENSHOT_WIDTH_FRACTION = 0.85f
+private const val SCREENSHOT_WIDTH_FRACTION = 0.9f
 
 @Composable
 fun OnboardingPageTelegram(
@@ -72,6 +72,16 @@ fun OnboardingPageTelegram(
             )
 
             Spacer(modifier = Modifier.height(VartovyiTheme.spacing.standard))
+
+            Text(
+                text = stringResource(R.string.onboarding_telegram_required),
+                style = VartovyiTheme.typography.bodyLarge,
+                color = VartovyiTheme.colors.onSurface,
+                textAlign = TextAlign.Center,
+                modifier = Modifier.fillMaxWidth()
+            )
+
+            Spacer(modifier = Modifier.height(VartovyiTheme.spacing.large))
 
             Text(
                 text = stringResource(R.string.onboarding_telegram_intro),

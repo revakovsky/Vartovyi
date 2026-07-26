@@ -127,7 +127,7 @@ class MainActivity : ComponentActivity() {
             )
         } else {
             val startDestination: Any =
-                if (!onboardingState.isCompleted) Routes.Onboarding
+                if (!onboardingState.isCompleted) Routes.Onboarding()
                 else Routes.Home
 
             MainAppScaffold(

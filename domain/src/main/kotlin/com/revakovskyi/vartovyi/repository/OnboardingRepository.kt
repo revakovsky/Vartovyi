@@ -9,5 +9,6 @@ interface OnboardingRepository {
 
     suspend fun setOnboardingCompleted()
     suspend fun setKeywordsChannelsIntroHidden()
+    suspend fun shouldShowTelegramChannelReminder(): Boolean
 
 }

@@ -28,6 +28,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.revakovskyi.vartovyi.R
+import com.revakovskyi.vartovyi.model.OnboardingPage
 import com.revakovskyi.vartovyi.ui.components.VartovyiActionButton
 import com.revakovskyi.vartovyi.ui.components.VartovyiActionButtonStyle
 import com.revakovskyi.vartovyi.ui.screen.onboarding.components.OnboardingPageTelegram
@@ -69,7 +70,10 @@ private fun OnboardingContent(
     state: OnboardingUiContract.State,
     onAction: (action: OnboardingUiContract.Action) -> Unit,
 ) {
-    val pagerState = rememberPagerState(pageCount = { state.totalPages })
+    val pagerState = rememberPagerState(
+        initialPage = state.currentPage,
+        pageCount = { state.totalPages },
+    )
 
     val isLastPage = state.currentPage == state.totalPages - 1
 

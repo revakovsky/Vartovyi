@@ -5,6 +5,8 @@ import androidx.activity.compose.BackHandler
 import androidx.compose.animation.Crossfade
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.ScrollState
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -17,6 +19,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.relocation.BringIntoViewRequester
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -50,10 +53,12 @@ import com.revakovskyi.vartovyi.ui.components.VartovyiChoiceDialog
 import com.revakovskyi.vartovyi.ui.components.VartovyiDialog
 import com.revakovskyi.vartovyi.ui.screen.keywords.components.KeywordsChannelsIntroDialog
 import com.revakovskyi.vartovyi.ui.screen.keywords.components.KeywordsSection
+import com.revakovskyi.vartovyi.ui.screen.keywords.components.KeywordsTelegramReminderDialog
 import com.revakovskyi.vartovyi.ui.screen.keywords.components.StopWordsSection
 import com.revakovskyi.vartovyi.ui.screen.keywords.components.TelegramChannelsSection
 import com.revakovskyi.vartovyi.ui.screen.keywords.model.ExportDestination
 import com.revakovskyi.vartovyi.ui.theme.VartovyiTheme
+import com.revakovskyi.vartovyi.ui.theme.bodyLinkSmall
 import com.revakovskyi.vartovyi.ui.util.rememberKeywordsBackupHelper
 import com.revakovskyi.vartovyi.ui.util.snackbar.SnackbarController
 import com.revakovskyi.vartovyi.ui.util.snackbar.SnackbarEvent
@@ -73,6 +78,7 @@ private const val KEYWORDS_CHIP_CLIP_LABEL = "keywords_chip"
 @Composable
 fun KeywordsScreen(
     viewModel: KeywordsViewModel = koinViewModel(),
+    onNavigateToOnboardingTelegramPage: () -> Unit,
 ) {
     val clipboardManager = LocalClipboard.current
     val hapticFeedback = LocalHapticFeedback.current
@@ -228,6 +234,10 @@ fun KeywordsScreen(
             is KeywordsUiContract.Event.LaunchExportShareSheet,
             is KeywordsUiContract.Event.LaunchImportFilePicker,
                 -> backupHelper.handleEvent(event)
+
+            is KeywordsUiContract.Event.NavigateToOnboardingTelegramPage -> {
+                onNavigateToOnboardingTelegramPage()
+            }
         }
     }
 
@@ -369,6 +379,17 @@ fun KeywordsScreen(
             },
         )
     }
+
+    if (state.isTelegramChannelReminderDialogVisible) {
+        KeywordsTelegramReminderDialog(
+            onDismiss = {
+                viewModel.onAction(KeywordsUiContract.Action.DismissTelegramChannelReminderDialog)
+            },
+            onLearnMoreClick = {
+                viewModel.onAction(KeywordsUiContract.Action.OpenTelegramSetupGuide)
+            },
+        )
+    }
 }
 
 @OptIn(ExperimentalLayoutApi::class)
@@ -501,6 +522,19 @@ private fun KeywordsContent(
                     if (isFocused) activeBivr = stopWordsBivr
                     else if (activeBivr == stopWordsBivr) activeBivr = null
                 },
+            )
+
+            Text(
+                text = stringResource(R.string.keywords_telegram_setup_guide_link),
+                style = VartovyiTheme.typography.bodyLinkSmall,
+                color = VartovyiTheme.colors.onSurfaceVariant,
+                modifier = Modifier
+                    .padding(vertical = VartovyiTheme.spacing.standard)
+                    .clickable(
+                        indication = null,
+                        interactionSource = remember { MutableInteractionSource() },
+                        onClick = { onAction(KeywordsUiContract.Action.OpenTelegramSetupGuide) },
+                    ),
             )
         }
     }
