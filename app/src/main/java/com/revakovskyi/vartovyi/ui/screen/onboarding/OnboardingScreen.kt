@@ -10,9 +10,8 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.statusBarsPadding
+import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.pager.HorizontalPager
@@ -99,7 +98,7 @@ private fun OnboardingContent(
         modifier = modifier
             .fillMaxSize()
             .background(VartovyiTheme.colors.background)
-            .statusBarsPadding()
+            .systemBarsPadding()
     ) {
         Column(modifier = Modifier.fillMaxSize()) {
             HorizontalPager(
@@ -183,7 +182,6 @@ private fun OnboardingContent(
 
             Spacer(
                 modifier = Modifier
-                    .navigationBarsPadding()
                     .height(
                         if (isLandscape) VartovyiTheme.spacing.small
                         else VartovyiTheme.spacing.extraLarge

@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.AlertDialog
@@ -15,6 +16,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.window.DialogProperties
 import com.revakovskyi.vartovyi.ui.theme.VartovyiTheme
 
 @Composable
@@ -80,10 +82,13 @@ fun VartovyiDialog(
         },
         containerColor = containerColor,
         shape = shape,
-        modifier = Modifier.padding(
-            horizontal = VartovyiTheme.spacing.standard,
-            vertical = VartovyiTheme.spacing.extraLarge,
-        )
+        properties = DialogProperties(usePlatformDefaultWidth = false),
+        modifier = Modifier
+            .widthIn(max = VartovyiTheme.spacing.contentMaxWidth)
+            .padding(
+                horizontal = VartovyiTheme.spacing.standard,
+                vertical = VartovyiTheme.spacing.extraLarge,
+            )
     )
 }
 
