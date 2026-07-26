@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
@@ -28,22 +29,28 @@ internal fun LegalConsentPortraitContent(
         Box(modifier = Modifier.weight(1f)) {
             Column(
                 horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.spacedBy(VartovyiTheme.spacing.standard),
                 modifier = Modifier
                     .fillMaxSize()
                     .verticalScroll(scrollState)
-                    .padding(horizontal = VartovyiTheme.spacing.medium)
-                    .padding(
-                        top = VartovyiTheme.spacing.massive,
-                        bottom = VartovyiTheme.spacing.standard,
-                    )
             ) {
-                LegalConsentTexts()
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.spacedBy(VartovyiTheme.spacing.standard),
+                    modifier = Modifier
+                        .widthIn(max = VartovyiTheme.spacing.contentMaxWidth)
+                        .padding(horizontal = VartovyiTheme.spacing.medium)
+                        .padding(
+                            top = VartovyiTheme.spacing.massive,
+                            bottom = VartovyiTheme.spacing.standard,
+                        )
+                ) {
+                    LegalConsentTexts()
 
-                LegalConsentDocumentButtons(
-                    isEnabled = isEnabled,
-                    onAction = onAction,
-                )
+                    LegalConsentDocumentButtons(
+                        isEnabled = isEnabled,
+                        onAction = onAction,
+                    )
+                }
             }
 
             ScrollProgressBar(
@@ -56,6 +63,8 @@ internal fun LegalConsentPortraitContent(
             isEnabled = isEnabled,
             onAction = onAction,
             modifier = Modifier
+                .align(Alignment.CenterHorizontally)
+                .widthIn(max = VartovyiTheme.spacing.contentMaxWidth)
                 .fillMaxWidth()
                 .padding(horizontal = VartovyiTheme.spacing.medium)
                 .padding(bottom = VartovyiTheme.spacing.medium)

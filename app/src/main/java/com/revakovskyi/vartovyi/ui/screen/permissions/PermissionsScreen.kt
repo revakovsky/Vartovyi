@@ -11,6 +11,8 @@ import android.provider.Settings
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.Orientation
+import androidx.compose.foundation.gestures.scrollable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -20,6 +22,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
@@ -145,12 +148,19 @@ private fun PermissionsContent(
         state = rememberTopAppBarState(),
     )
 
+    val listState = rememberLazyListState()
+
     val permissionItems = buildPermissionItems(state = state)
 
     Column(
         modifier = modifier
             .fillMaxSize()
             .nestedScroll(topBarScrollBehavior.nestedScrollConnection)
+            .scrollable(
+                state = listState,
+                orientation = Orientation.Vertical,
+                reverseDirection = true,
+            )
     ) {
         VartovyiBackTopBar(
             title = stringResource(R.string.permissions_title),
@@ -160,6 +170,7 @@ private fun PermissionsContent(
         )
 
         LazyColumn(
+            state = listState,
             verticalArrangement = Arrangement.spacedBy(VartovyiTheme.spacing.small),
             contentPadding = PaddingValues(bottom = VartovyiTheme.spacing.medium),
             modifier = Modifier
