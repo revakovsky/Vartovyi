@@ -3,6 +3,7 @@ package com.revakovskyi.vartovyi.ui.screen.home.components
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.displayCutoutPadding
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -34,6 +35,7 @@ internal fun HomeLandscapeContent(
         verticalAlignment = Alignment.CenterVertically,
         modifier = modifier
             .fillMaxSize()
+            .displayCutoutPadding()
             .padding(horizontal = VartovyiTheme.spacing.standard)
     ) {
         Box(
