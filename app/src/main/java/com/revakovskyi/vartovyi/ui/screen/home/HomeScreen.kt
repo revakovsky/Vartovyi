@@ -2,14 +2,8 @@ package com.revakovskyi.vartovyi.ui.screen.home
 
 import androidx.compose.animation.Crossfade
 import androidx.compose.animation.core.tween
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.widthIn
 import androidx.compose.material3.SnackbarDuration
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -32,10 +26,9 @@ import com.revakovskyi.vartovyi.model.AlertEvent
 import com.revakovskyi.vartovyi.model.AlertEventStatus
 import com.revakovskyi.vartovyi.model.MonitoringState
 import com.revakovskyi.vartovyi.ui.components.LoadingOverlay
+import com.revakovskyi.vartovyi.ui.screen.home.components.HomeLandscapeContent
 import com.revakovskyi.vartovyi.ui.screen.home.components.HomeMonitoringActiveContentEffect
-import com.revakovskyi.vartovyi.ui.screen.home.components.KeywordsCard
-import com.revakovskyi.vartovyi.ui.screen.home.components.LastAlertCard
-import com.revakovskyi.vartovyi.ui.screen.home.components.StatusBlock
+import com.revakovskyi.vartovyi.ui.screen.home.components.HomePortraitContent
 import com.revakovskyi.vartovyi.ui.theme.VartovyiTheme
 import com.revakovskyi.vartovyi.ui.util.snackbar.SnackbarAction
 import com.revakovskyi.vartovyi.ui.util.snackbar.SnackbarController
@@ -110,7 +103,6 @@ private fun HomeContent(
     var homeContentLayoutCoordinates by remember { mutableStateOf<LayoutCoordinates?>(null) }
     var securityIconCenterInHomeContent by remember { mutableStateOf<Offset?>(null) }
 
-    /** Landscape window means a large screen — phones stay locked to portrait */
     val isTwoPaneLayout = windowSize.width > windowSize.height
 
     val onToggleMonitoring: () -> Unit = {
@@ -139,99 +131,26 @@ private fun HomeContent(
         }
 
         if (isTwoPaneLayout) {
-            Row(
-                horizontalArrangement = Arrangement.spacedBy(VartovyiTheme.spacing.standard),
-                verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(horizontal = VartovyiTheme.spacing.standard)
-            ) {
-                Box(
-                    contentAlignment = Alignment.Center,
-                    modifier = Modifier.weight(1f)
-                ) {
-                    HomeCardsSection(
-                        state = state,
-                        onAction = onAction,
-                        modifier = Modifier.widthIn(max = VartovyiTheme.spacing.contentMaxWidth)
-                    )
-                }
-
-                Box(
-                    contentAlignment = Alignment.Center,
-                    modifier = Modifier.weight(1f)
-                ) {
-                    StatusBlock(
-                        monitoringState = state.monitoringState,
-                        alarmRetriggerCooldownMillis = state.alarmRetriggerCooldownMillis,
-                        onToggle = onToggleMonitoring,
-                        homeContentLayoutCoordinates = { homeContentLayoutCoordinates },
-                        onSecurityIconCenterInHomeContentChanged = { center ->
-                            securityIconCenterInHomeContent = center
-                        },
-                        modifier = Modifier
-                            .widthIn(max = VartovyiTheme.spacing.contentMaxWidth)
-                            .fillMaxHeight()
-                    )
-                }
-            }
+            HomeLandscapeContent(
+                state = state,
+                homeContentLayoutCoordinates = { homeContentLayoutCoordinates },
+                onToggleMonitoring = onToggleMonitoring,
+                onAction = onAction,
+                onSecurityIconCenterInHomeContentChanged = { center ->
+                    securityIconCenterInHomeContent = center
+                },
+            )
         } else {
-            Column(
-                horizontalAlignment = Alignment.CenterHorizontally,
-                modifier = Modifier
-                    .widthIn(max = VartovyiTheme.spacing.contentMaxWidth)
-                    .fillMaxSize()
-            ) {
-                StatusBlock(
-                    monitoringState = state.monitoringState,
-                    alarmRetriggerCooldownMillis = state.alarmRetriggerCooldownMillis,
-                    onToggle = onToggleMonitoring,
-                    homeContentLayoutCoordinates = { homeContentLayoutCoordinates },
-                    onSecurityIconCenterInHomeContentChanged = { center ->
-                        securityIconCenterInHomeContent = center
-                    },
-                    modifier = Modifier.weight(1f)
-                )
-
-                HomeCardsSection(
-                    state = state,
-                    onAction = onAction,
-                )
-            }
-        }
-    }
-}
-
-@Composable
-private fun HomeCardsSection(
-    modifier: Modifier = Modifier,
-    state: HomeUiContract.State,
-    onAction: (action: HomeUiContract.Action) -> Unit,
-) {
-    Column(
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.spacedBy(VartovyiTheme.spacing.small),
-        modifier = modifier.padding(horizontal = VartovyiTheme.spacing.small)
-    ) {
-        if (state.needsKeywordsAttention) {
-            KeywordsCard(
-                keywords = state.keywords,
-                onClick = { onAction(HomeUiContract.Action.NavigateToKeywords) },
+            HomePortraitContent(
+                state = state,
+                homeContentLayoutCoordinates = { homeContentLayoutCoordinates },
+                onToggleMonitoring = onToggleMonitoring,
+                onAction = onAction,
+                onSecurityIconCenterInHomeContentChanged = { center ->
+                    securityIconCenterInHomeContent = center
+                },
             )
         }
-
-        LastAlertCard(
-            lastAlertEvent = state.lastAlertEvent,
-            onClick = { onAction(HomeUiContract.Action.NavigateToLog()) },
-            onEventClick = {
-                onAction(
-                    HomeUiContract.Action.NavigateToLog(
-                        logEntryId = state.lastAlertEvent?.id,
-                    ),
-                )
-            },
-            modifier = Modifier.padding(bottom = VartovyiTheme.spacing.small)
-        )
     }
 }
 

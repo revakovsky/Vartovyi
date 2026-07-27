@@ -214,165 +214,170 @@ private fun SettingsContent(
     ) {
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(VartovyiTheme.spacing.small),
             modifier = Modifier
-                .widthIn(max = VartovyiTheme.spacing.contentMaxWidth)
                 .fillMaxSize()
                 .verticalScroll(rememberScrollState())
-                .padding(horizontal = VartovyiTheme.spacing.small)
         ) {
-            SettingsTestAlarmButton(
-                isAlarmRunning = state.isAlarmRunning,
-                onClick = {
-                    onAction(
-                        SettingsUiContract.Action.ToggleTestAlarm(
-                            sourceChannelName = testAlarmSourceChannelName,
-                            sourceMessageText = testAlarmSourceMessageText,
-                        )
-                    )
-                },
-                modifier = Modifier.padding(vertical = VartovyiTheme.spacing.medium)
-            )
-
-            SectionContainer(
-                title = stringResource(R.string.settings_section_data),
-                isExpanded = state.expandedSection == SettingsUiContract.SettingsSection.DATA,
-                onHeaderClick = {
-                    onAction(
-                        SettingsUiContract.Action.ToggleSection(
-                            section = SettingsUiContract.SettingsSection.DATA,
-                        ),
-                    )
-                },
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.spacedBy(VartovyiTheme.spacing.small),
+                modifier = Modifier
+                    .widthIn(max = VartovyiTheme.spacing.contentMaxWidth)
+                    .padding(horizontal = VartovyiTheme.spacing.small)
             ) {
-                DataSettingsSection(
-                    currentLogSizeLimit = state.logSizeLimit,
-                    currentAlarmCooldownDurationMillis = state.alarmRetriggerCooldownDurationMillis,
-                    onLogSizeLimitChange = { limit ->
-                        onAction(SettingsUiContract.Action.SetLogSizeLimit(limit))
-                    },
-                    onAlarmCooldownDurationChange = { durationMillis ->
+                SettingsTestAlarmButton(
+                    isAlarmRunning = state.isAlarmRunning,
+                    onClick = {
                         onAction(
-                            SettingsUiContract.Action.SetAlarmRetriggerCooldownDurationMillis(
-                                durationMillis
+                            SettingsUiContract.Action.ToggleTestAlarm(
+                                sourceChannelName = testAlarmSourceChannelName,
+                                sourceMessageText = testAlarmSourceMessageText,
                             )
                         )
                     },
-                    onResetToFactoryDefaultsClick = {
-                        onAction(SettingsUiContract.Action.ShowResetToFactoryDefaultsDialog)
+                    modifier = Modifier.padding(vertical = VartovyiTheme.spacing.medium)
+                )
+
+                SectionContainer(
+                    title = stringResource(R.string.settings_section_data),
+                    isExpanded = state.expandedSection == SettingsUiContract.SettingsSection.DATA,
+                    onHeaderClick = {
+                        onAction(
+                            SettingsUiContract.Action.ToggleSection(
+                                section = SettingsUiContract.SettingsSection.DATA,
+                            ),
+                        )
                     },
+                ) {
+                    DataSettingsSection(
+                        currentLogSizeLimit = state.logSizeLimit,
+                        currentAlarmCooldownDurationMillis = state.alarmRetriggerCooldownDurationMillis,
+                        onLogSizeLimitChange = { limit ->
+                            onAction(SettingsUiContract.Action.SetLogSizeLimit(limit))
+                        },
+                        onAlarmCooldownDurationChange = { durationMillis ->
+                            onAction(
+                                SettingsUiContract.Action.SetAlarmRetriggerCooldownDurationMillis(
+                                    durationMillis
+                                )
+                            )
+                        },
+                        onResetToFactoryDefaultsClick = {
+                            onAction(SettingsUiContract.Action.ShowResetToFactoryDefaultsDialog)
+                        },
+                    )
+                }
+
+                SectionContainer(
+                    title = stringResource(R.string.settings_section_sound),
+                    isExpanded = state.expandedSection == SettingsUiContract.SettingsSection.SOUND,
+                    onHeaderClick = {
+                        onAction(
+                            SettingsUiContract.Action.ToggleSection(
+                                section = SettingsUiContract.SettingsSection.SOUND,
+                            ),
+                        )
+                    },
+                ) {
+                    AlarmSoundSection(
+                        selectedSoundTitle = selectedAlarmSoundTitle,
+                        onChooseSoundClick = {
+                            onAction(SettingsUiContract.Action.StartExternalPickerNavigation)
+                        },
+                        modifier = Modifier.fillMaxWidth()
+                    )
+
+                    Spacer(modifier = Modifier.height(VartovyiTheme.spacing.standard))
+
+                    AlarmDurationSection(
+                        durationSeconds = state.alarmDurationSeconds,
+                        onDurationChange = { seconds ->
+                            onAction(SettingsUiContract.Action.SetAlarmDuration(seconds))
+                        },
+                        modifier = Modifier.fillMaxWidth()
+                    )
+
+                    Spacer(modifier = Modifier.height(VartovyiTheme.spacing.standard))
+
+                    AlarmVolumeSection(
+                        volumePercent = state.alarmVolumePercent,
+                        onVolumeChange = { percent ->
+                            onAction(SettingsUiContract.Action.SetAlarmVolume(percent))
+                        },
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                }
+
+                SectionContainer(
+                    title = stringResource(R.string.settings_section_schedule),
+                    titleTooltipText = stringResource(R.string.settings_section_schedule_tooltip),
+                    isExpanded = state.expandedSection == SettingsUiContract.SettingsSection.SCHEDULE,
+                    onHeaderClick = {
+                        onAction(
+                            SettingsUiContract.Action.ToggleSection(
+                                section = SettingsUiContract.SettingsSection.SCHEDULE,
+                            ),
+                        )
+                    },
+                ) {
+                    ScheduleSettingsSection(
+                        isScheduleEnabled = state.isScheduleEnabled,
+                        startTime = state.startTime,
+                        endTime = state.endTime,
+                        onScheduleEnabledChange = { enabled ->
+                            onAction(SettingsUiContract.Action.SetScheduleEnabled(enabled))
+                        },
+                        onStartTimeChange = { time ->
+                            onAction(SettingsUiContract.Action.SetStartTime(time))
+                        },
+                        onEndTimeChange = { time ->
+                            onAction(SettingsUiContract.Action.SetEndTime(time))
+                        },
+                    )
+                }
+
+                SectionContainer(
+                    title = stringResource(R.string.settings_section_info),
+                    isExpanded = state.expandedSection == SettingsUiContract.SettingsSection.LEGAL,
+                    onHeaderClick = {
+                        onAction(
+                            SettingsUiContract.Action.ToggleSection(
+                                section = SettingsUiContract.SettingsSection.LEGAL,
+                            ),
+                        )
+                    },
+                ) {
+                    LegalDocumentsSettingsSection(
+                        onPrivacyPolicyClick = {
+                            onAction(SettingsUiContract.Action.OpenPrivacyPolicy)
+                        },
+                        onTermsOfUseClick = {
+                            onAction(SettingsUiContract.Action.OpenTermsOfUse)
+                        },
+                        onOpenOnboardingGuideClick = {
+                            onAction(SettingsUiContract.Action.OpenOnboardingGuide)
+                        },
+                        onOpenTroubleshootingClick = {
+                            onAction(SettingsUiContract.Action.OpenTroubleshooting)
+                        },
+                    )
+                }
+
+                Spacer(modifier = Modifier.weight(1f))
+
+                Text(
+                    text = stringResource(R.string.settings_version_number, applicationVersionName),
+                    style = VartovyiTheme.typography.bodySmall,
+                    color = VartovyiTheme.colors.onSurfaceVariant,
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(
+                            top = VartovyiTheme.spacing.medium,
+                            bottom = VartovyiTheme.spacing.large,
+                        )
                 )
             }
-
-            SectionContainer(
-                title = stringResource(R.string.settings_section_sound),
-                isExpanded = state.expandedSection == SettingsUiContract.SettingsSection.SOUND,
-                onHeaderClick = {
-                    onAction(
-                        SettingsUiContract.Action.ToggleSection(
-                            section = SettingsUiContract.SettingsSection.SOUND,
-                        ),
-                    )
-                },
-            ) {
-                AlarmSoundSection(
-                    selectedSoundTitle = selectedAlarmSoundTitle,
-                    onChooseSoundClick = {
-                        onAction(SettingsUiContract.Action.StartExternalPickerNavigation)
-                    },
-                    modifier = Modifier.fillMaxWidth()
-                )
-
-                Spacer(modifier = Modifier.height(VartovyiTheme.spacing.standard))
-
-                AlarmDurationSection(
-                    durationSeconds = state.alarmDurationSeconds,
-                    onDurationChange = { seconds ->
-                        onAction(SettingsUiContract.Action.SetAlarmDuration(seconds))
-                    },
-                    modifier = Modifier.fillMaxWidth()
-                )
-
-                Spacer(modifier = Modifier.height(VartovyiTheme.spacing.standard))
-
-                AlarmVolumeSection(
-                    volumePercent = state.alarmVolumePercent,
-                    onVolumeChange = { percent ->
-                        onAction(SettingsUiContract.Action.SetAlarmVolume(percent))
-                    },
-                    modifier = Modifier.fillMaxWidth()
-                )
-            }
-
-            SectionContainer(
-                title = stringResource(R.string.settings_section_schedule),
-                titleTooltipText = stringResource(R.string.settings_section_schedule_tooltip),
-                isExpanded = state.expandedSection == SettingsUiContract.SettingsSection.SCHEDULE,
-                onHeaderClick = {
-                    onAction(
-                        SettingsUiContract.Action.ToggleSection(
-                            section = SettingsUiContract.SettingsSection.SCHEDULE,
-                        ),
-                    )
-                },
-            ) {
-                ScheduleSettingsSection(
-                    isScheduleEnabled = state.isScheduleEnabled,
-                    startTime = state.startTime,
-                    endTime = state.endTime,
-                    onScheduleEnabledChange = { enabled ->
-                        onAction(SettingsUiContract.Action.SetScheduleEnabled(enabled))
-                    },
-                    onStartTimeChange = { time ->
-                        onAction(SettingsUiContract.Action.SetStartTime(time))
-                    },
-                    onEndTimeChange = { time ->
-                        onAction(SettingsUiContract.Action.SetEndTime(time))
-                    },
-                )
-            }
-
-            SectionContainer(
-                title = stringResource(R.string.settings_section_info),
-                isExpanded = state.expandedSection == SettingsUiContract.SettingsSection.LEGAL,
-                onHeaderClick = {
-                    onAction(
-                        SettingsUiContract.Action.ToggleSection(
-                            section = SettingsUiContract.SettingsSection.LEGAL,
-                        ),
-                    )
-                },
-            ) {
-                LegalDocumentsSettingsSection(
-                    onPrivacyPolicyClick = {
-                        onAction(SettingsUiContract.Action.OpenPrivacyPolicy)
-                    },
-                    onTermsOfUseClick = {
-                        onAction(SettingsUiContract.Action.OpenTermsOfUse)
-                    },
-                    onOpenOnboardingGuideClick = {
-                        onAction(SettingsUiContract.Action.OpenOnboardingGuide)
-                    },
-                    onOpenTroubleshootingClick = {
-                        onAction(SettingsUiContract.Action.OpenTroubleshooting)
-                    },
-                )
-            }
-
-            Spacer(modifier = Modifier.weight(1f))
-
-            Text(
-                text = stringResource(R.string.settings_version_number, applicationVersionName),
-                style = VartovyiTheme.typography.bodySmall,
-                color = VartovyiTheme.colors.onSurfaceVariant,
-                textAlign = TextAlign.Center,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(
-                        top = VartovyiTheme.spacing.medium,
-                        bottom = VartovyiTheme.spacing.large,
-                    )
-            )
         }
     }
 }

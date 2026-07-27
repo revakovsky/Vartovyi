@@ -10,9 +10,8 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.statusBarsPadding
+import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.pager.HorizontalPager
@@ -24,6 +23,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -72,6 +72,10 @@ private fun OnboardingContent(
     state: OnboardingUiContract.State,
     onAction: (action: OnboardingUiContract.Action) -> Unit,
 ) {
+    val windowSize = LocalWindowInfo.current.containerSize
+
+    val isLandscape = windowSize.width > windowSize.height
+
     val pagerState = rememberPagerState(
         initialPage = state.currentPage,
         pageCount = { state.totalPages },
@@ -94,13 +98,9 @@ private fun OnboardingContent(
         modifier = modifier
             .fillMaxSize()
             .background(VartovyiTheme.colors.background)
-            .statusBarsPadding()
+            .systemBarsPadding()
     ) {
-        Column(
-            modifier = modifier
-                .widthIn(max = VartovyiTheme.spacing.contentMaxWidth)
-                .fillMaxSize()
-        ) {
+        Column(modifier = Modifier.fillMaxSize()) {
             HorizontalPager(
                 state = pagerState,
                 modifier = Modifier.weight(1f),
@@ -118,14 +118,20 @@ private fun OnboardingContent(
                 modifier = Modifier
                     .align(Alignment.CenterHorizontally)
                     .padding(
-                        top = VartovyiTheme.spacing.large,
-                        bottom = VartovyiTheme.spacing.huge,
+                        top =
+                            if (isLandscape) VartovyiTheme.spacing.small
+                            else VartovyiTheme.spacing.large,
+                        bottom =
+                            if (isLandscape) VartovyiTheme.spacing.medium
+                            else VartovyiTheme.spacing.huge,
                     ),
             )
 
             Row(
                 verticalAlignment = Alignment.CenterVertically,
                 modifier = Modifier
+                    .align(Alignment.CenterHorizontally)
+                    .widthIn(max = VartovyiTheme.spacing.contentMaxWidth)
                     .fillMaxWidth()
                     .padding(horizontal = VartovyiTheme.spacing.medium),
             ) {
@@ -162,7 +168,11 @@ private fun OnboardingContent(
                 color = VartovyiTheme.colors.onSurfaceVariant,
                 modifier = Modifier
                     .align(Alignment.CenterHorizontally)
-                    .padding(top = VartovyiTheme.spacing.standard)
+                    .padding(
+                        top =
+                            if (isLandscape) VartovyiTheme.spacing.small
+                            else VartovyiTheme.spacing.standard
+                    )
                     .clickable(
                         indication = null,
                         interactionSource = remember { MutableInteractionSource() },
@@ -172,8 +182,10 @@ private fun OnboardingContent(
 
             Spacer(
                 modifier = Modifier
-                    .navigationBarsPadding()
-                    .height(VartovyiTheme.spacing.extraLarge),
+                    .height(
+                        if (isLandscape) VartovyiTheme.spacing.small
+                        else VartovyiTheme.spacing.extraLarge
+                    ),
             )
         }
     }

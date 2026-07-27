@@ -27,6 +27,19 @@ class KeywordsChannelsIntroDialogTest : KeywordsViewModelBaseTest() {
     }
 
     @Test
+    fun `intro dialog is not shown when channels are already configured`() =
+        runTest(testDispatcher) {
+            every { observeKeywordsChannelsIntroHiddenUseCase() } returns flowOf(false)
+            every { observeTelegramChannelsUseCase() } returns flowOf(listOf("Тривога Харків"))
+
+            val viewModel = createViewModel()
+            advanceUntilIdle()
+
+            assertThat(viewModel.state.value.isChannelsIntroDialogVisible).isFalse()
+            coVerify(exactly = 0) { setKeywordsChannelsIntroHiddenUseCase() }
+        }
+
+    @Test
     fun `intro dialog stays hidden once the user has opted out`() = runTest(testDispatcher) {
         every { observeKeywordsChannelsIntroHiddenUseCase() } returns flowOf(true)
 

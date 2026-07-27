@@ -76,6 +76,7 @@ fun StatusBlock(
     modifier: Modifier = Modifier,
     monitoringState: MonitoringState,
     alarmRetriggerCooldownMillis: Long,
+    toggleButtonVerticalPadding: Dp = VartovyiTheme.spacing.none,
     onToggle: () -> Unit,
     homeContentLayoutCoordinates: () -> LayoutCoordinates? = { null },
     onSecurityIconCenterInHomeContentChanged: (Offset) -> Unit = { },
@@ -258,6 +259,7 @@ fun StatusBlock(
                     hapticFeedback.performHapticFeedback(HapticFeedbackType.Confirm)
                     onToggle()
                 },
+                modifier = Modifier.padding(vertical = toggleButtonVerticalPadding)
             )
 
             Spacer(modifier = Modifier.weight(1f))

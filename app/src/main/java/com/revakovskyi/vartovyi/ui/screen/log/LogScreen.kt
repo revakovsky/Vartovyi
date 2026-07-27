@@ -2,6 +2,8 @@ package com.revakovskyi.vartovyi.ui.screen.log
 
 import android.content.ClipData
 import androidx.compose.animation.Crossfade
+import androidx.compose.foundation.gestures.Orientation
+import androidx.compose.foundation.gestures.scrollable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -171,7 +173,13 @@ private fun LogContent(
 
     Box(
         contentAlignment = Alignment.TopCenter,
-        modifier = modifier.fillMaxSize(),
+        modifier = modifier
+            .fillMaxSize()
+            .scrollable(
+                state = listState,
+                orientation = Orientation.Vertical,
+                reverseDirection = true,
+            )
     ) {
         Crossfade(
             label = "logContentCrossfade",

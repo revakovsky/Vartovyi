@@ -9,6 +9,8 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.Orientation
+import androidx.compose.foundation.gestures.scrollable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -25,6 +27,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
@@ -72,12 +75,19 @@ private fun TroubleshootingContent(
         state = rememberTopAppBarState(),
     )
 
+    val listState = rememberLazyListState()
+
     val expandedGroupKeys = remember { mutableStateMapOf<Int, Boolean>() }
 
     Column(
         modifier = modifier
             .fillMaxSize()
             .nestedScroll(topBarScrollBehavior.nestedScrollConnection)
+            .scrollable(
+                state = listState,
+                orientation = Orientation.Vertical,
+                reverseDirection = true,
+            )
     ) {
         VartovyiBackTopBar(
             title = stringResource(R.string.settings_open_troubleshooting),
@@ -87,6 +97,7 @@ private fun TroubleshootingContent(
         )
 
         LazyColumn(
+            state = listState,
             verticalArrangement = Arrangement.spacedBy(VartovyiTheme.spacing.small),
             contentPadding = PaddingValues(bottom = VartovyiTheme.spacing.medium),
             modifier = Modifier
