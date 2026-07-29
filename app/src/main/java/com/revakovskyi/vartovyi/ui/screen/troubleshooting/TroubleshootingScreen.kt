@@ -9,8 +9,6 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.gestures.Orientation
-import androidx.compose.foundation.gestures.scrollable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -83,11 +81,6 @@ private fun TroubleshootingContent(
         modifier = modifier
             .fillMaxSize()
             .nestedScroll(topBarScrollBehavior.nestedScrollConnection)
-            .scrollable(
-                state = listState,
-                orientation = Orientation.Vertical,
-                reverseDirection = true,
-            )
     ) {
         VartovyiBackTopBar(
             title = stringResource(R.string.settings_open_troubleshooting),
@@ -98,12 +91,10 @@ private fun TroubleshootingContent(
 
         LazyColumn(
             state = listState,
+            horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.spacedBy(VartovyiTheme.spacing.small),
             contentPadding = PaddingValues(bottom = VartovyiTheme.spacing.medium),
-            modifier = Modifier
-                .align(Alignment.CenterHorizontally)
-                .widthIn(max = VartovyiTheme.spacing.contentMaxWidth)
-                .fillMaxSize()
+            modifier = Modifier.fillMaxSize()
         ) {
             item(contentType = "description") {
                 Text(
@@ -112,6 +103,7 @@ private fun TroubleshootingContent(
                     color = VartovyiTheme.colors.onSurface,
                     textAlign = TextAlign.Center,
                     modifier = Modifier
+                        .widthIn(max = VartovyiTheme.spacing.contentMaxWidth)
                         .fillMaxWidth()
                         .padding(
                             horizontal = VartovyiTheme.spacing.standard,
@@ -131,7 +123,6 @@ private fun TroubleshootingContent(
                         onClick = {
                             expandedGroupKeys[index] = expandedGroupKeys[index] != true
                         },
-                        modifier = Modifier.padding(horizontal = VartovyiTheme.spacing.standard),
                     )
                 },
             )
@@ -158,7 +149,10 @@ private fun TroubleshootingExpandableItem(
     Surface(
         color = VartovyiTheme.colors.surfaceVariant,
         shape = VartovyiTheme.shapes.large,
-        modifier = modifier.fillMaxWidth()
+        modifier = modifier
+            .widthIn(max = VartovyiTheme.spacing.contentMaxWidth)
+            .fillMaxWidth()
+            .padding(horizontal = VartovyiTheme.spacing.standard),
     ) {
         Column(
             modifier = Modifier.padding(VartovyiTheme.spacing.standard)

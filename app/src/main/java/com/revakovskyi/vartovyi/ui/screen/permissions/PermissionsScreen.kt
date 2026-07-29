@@ -11,8 +11,6 @@ import android.provider.Settings
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.gestures.Orientation
-import androidx.compose.foundation.gestures.scrollable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -152,15 +150,14 @@ private fun PermissionsContent(
 
     val permissionItems = buildPermissionItems(state = state)
 
+    val listItemModifier = Modifier
+        .widthIn(max = VartovyiTheme.spacing.contentMaxWidth)
+        .fillMaxWidth()
+
     Column(
         modifier = modifier
             .fillMaxSize()
             .nestedScroll(topBarScrollBehavior.nestedScrollConnection)
-            .scrollable(
-                state = listState,
-                orientation = Orientation.Vertical,
-                reverseDirection = true,
-            )
     ) {
         VartovyiBackTopBar(
             title = stringResource(R.string.permissions_title),
@@ -171,17 +168,16 @@ private fun PermissionsContent(
 
         LazyColumn(
             state = listState,
+            horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.spacedBy(VartovyiTheme.spacing.small),
             contentPadding = PaddingValues(bottom = VartovyiTheme.spacing.medium),
-            modifier = Modifier
-                .align(Alignment.CenterHorizontally)
-                .widthIn(max = VartovyiTheme.spacing.contentMaxWidth)
-                .fillMaxSize()
+            modifier = Modifier.fillMaxSize()
         ) {
             if (state.hasMissingPermissions) {
                 item(contentType = "warning") {
                     PermissionsWarningCard(
-                        modifier = Modifier.padding(horizontal = VartovyiTheme.spacing.standard)
+                        modifier = listItemModifier
+                            .padding(horizontal = VartovyiTheme.spacing.standard)
                     )
                 }
             }
@@ -194,7 +190,8 @@ private fun PermissionsContent(
                     isGranted = permissionItem.isGranted,
                     onAction = onAction,
                     onSwitchToggle = permissionItem.onSwitchToggle,
-                    modifier = Modifier.padding(horizontal = VartovyiTheme.spacing.standard)
+                    modifier = listItemModifier
+                        .padding(horizontal = VartovyiTheme.spacing.standard)
                 )
             }
 
@@ -202,8 +199,7 @@ private fun PermissionsContent(
                 Column(
                     horizontalAlignment = Alignment.CenterHorizontally,
                     verticalArrangement = Arrangement.spacedBy(VartovyiTheme.spacing.medium),
-                    modifier = Modifier
-                        .fillMaxWidth()
+                    modifier = listItemModifier
                         .padding(VartovyiTheme.spacing.large)
                 ) {
                     Text(

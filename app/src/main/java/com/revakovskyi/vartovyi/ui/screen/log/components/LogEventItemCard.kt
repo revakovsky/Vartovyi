@@ -50,7 +50,7 @@ fun LogEventItemCard(
 
     VartovyiSurface(modifier = modifier) {
         Column(
-            modifier = Modifier.padding(VartovyiTheme.spacing.standard),
+            modifier = Modifier.padding(VartovyiTheme.spacing.small),
         ) {
             Row(
                 horizontalArrangement = Arrangement.spacedBy(VartovyiTheme.spacing.standard),

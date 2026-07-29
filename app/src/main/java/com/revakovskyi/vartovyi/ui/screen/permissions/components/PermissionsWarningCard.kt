@@ -1,6 +1,5 @@
 package com.revakovskyi.vartovyi.ui.screen.permissions.components
 
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -18,7 +17,7 @@ fun PermissionsWarningCard(
     Surface(
         color = VartovyiTheme.colors.errorContainer,
         shape = VartovyiTheme.shapes.large,
-        modifier = modifier.fillMaxWidth(),
+        modifier = modifier
     ) {
         Text(
             text = stringResource(R.string.permissions_warning),
