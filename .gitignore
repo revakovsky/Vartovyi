@@ -20,3 +20,4 @@ local.properties
 /keystore/
 /TODO.md
 /app/google-services.json
+/.claude/skills/
