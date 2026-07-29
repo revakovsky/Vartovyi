@@ -1,11 +1,16 @@
 package com.revakovskyi.vartovyi.ui.screen.log.components
 
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.paging.PagingData
@@ -28,8 +33,10 @@ fun LogEventsList(
 ) {
     LazyColumn(
         state = listState,
+        contentPadding = PaddingValues(bottom = VartovyiTheme.spacing.small),
+        horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(VartovyiTheme.spacing.small),
-        modifier = modifier,
+        modifier = modifier.fillMaxSize()
     ) {
         items(
             count = logEntries.itemCount,
@@ -43,7 +50,10 @@ fun LogEventsList(
                 event = event,
                 onCopyChannelClick = onCopyChannelClick,
                 onCopyMessageClick = onCopyMessageClick,
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier
+                    .widthIn(max = VartovyiTheme.spacing.contentMaxWidth)
+                    .fillMaxWidth()
+                    .padding(horizontal = VartovyiTheme.spacing.small)
             )
         }
     }

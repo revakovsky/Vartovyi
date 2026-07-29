@@ -11,6 +11,7 @@ interface LogUiContract {
     @Immutable
     data class State(
         val contentViewState: LogContentViewState = LogContentViewState.Loading,
+        val isClearLogEnabled: Boolean = false,
         val highlightLogEntryId: String? = null,
         val highlightedLogEntryIndex: Int = -1,
         val isClearDialogVisible: Boolean = false,

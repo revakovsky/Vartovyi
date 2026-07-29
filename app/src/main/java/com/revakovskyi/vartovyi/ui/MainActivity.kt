@@ -5,7 +5,6 @@ import androidx.activity.ComponentActivity
 import androidx.activity.SystemBarStyle
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.consumeWindowInsets
@@ -13,11 +12,7 @@ import androidx.compose.foundation.layout.exclude
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.ime
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.ScaffoldDefaults
 import androidx.compose.material3.SnackbarHost
@@ -29,13 +24,10 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.res.vectorResource
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavDestination.Companion.hasRoute
 import androidx.navigation.compose.currentBackStackEntryAsState
@@ -54,6 +46,9 @@ import com.revakovskyi.vartovyi.ui.screen.keywords.KeywordsViewModel
 import com.revakovskyi.vartovyi.ui.screen.keywords.components.KeywordsTopBarActionsIcon
 import com.revakovskyi.vartovyi.ui.screen.legal.LegalConsentScreen
 import com.revakovskyi.vartovyi.ui.screen.legal.LegalConsentViewModel
+import com.revakovskyi.vartovyi.ui.screen.log.LogUiContract
+import com.revakovskyi.vartovyi.ui.screen.log.LogViewModel
+import com.revakovskyi.vartovyi.ui.screen.log.components.LogTopBarActions
 import com.revakovskyi.vartovyi.ui.screen.permissions.PermissionsViewModel
 import com.revakovskyi.vartovyi.ui.theme.VartovyiTheme
 import com.revakovskyi.vartovyi.ui.theme.appRootBackground
@@ -70,6 +65,7 @@ class MainActivity : ComponentActivity() {
     private val legalConsentViewModel: LegalConsentViewModel by viewModel()
     private val permissionsViewModel: PermissionsViewModel by viewModel()
     private val keywordsViewModel: KeywordsViewModel by viewModel()
+    private val logViewModel: LogViewModel by viewModel()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -133,6 +129,7 @@ class MainActivity : ComponentActivity() {
                 monitoringState = mainState.monitoringState,
                 permissionsStatus = permissionsState.permissionsStatus,
                 keywordsViewModel = keywordsViewModel,
+                logViewModel = logViewModel,
                 onRefreshPermissions = onRefreshPermissions,
                 onStopAlarm = { mainViewModel.onAction(MainUiContract.Action.StopAlarm) },
             )
@@ -146,6 +143,7 @@ class MainActivity : ComponentActivity() {
         monitoringState: com.revakovskyi.vartovyi.model.MonitoringState,
         permissionsStatus: PermissionsStatus,
         keywordsViewModel: KeywordsViewModel,
+        logViewModel: LogViewModel,
         onRefreshPermissions: () -> Unit,
         onStopAlarm: () -> Unit,
     ) {
@@ -154,6 +152,7 @@ class MainActivity : ComponentActivity() {
         val currentDestination = currentBackStackEntry?.destination
 
         val keywordsState by keywordsViewModel.state.collectAsStateWithLifecycle()
+        val logState by logViewModel.state.collectAsStateWithLifecycle()
 
         val snackbarHostState = remember { SnackbarHostState() }
         var showLogInfoDialog by remember { mutableStateOf(false) }
@@ -241,25 +240,15 @@ class MainActivity : ComponentActivity() {
 
                                 BottomNavItem.Logs -> {
                                     {
-                                        IconButton(onClick = { showLogInfoDialog = true }) {
-                                            Box(
-                                                contentAlignment = Alignment.Center,
-                                                modifier = Modifier
-                                                    .fillMaxSize()
-                                                    .padding(VartovyiTheme.spacing.extraSmall)
-                                                    .background(
-                                                        shape = CircleShape,
-                                                        color = VartovyiTheme.colors.onSurfaceVariant
-                                                            .copy(alpha = 0.35f),
-                                                    )
-                                            ) {
-                                                Icon(
-                                                    imageVector = ImageVector.vectorResource(R.drawable.info),
-                                                    contentDescription = null,
-                                                    modifier = Modifier.size(VartovyiTheme.spacing.standard),
+                                        LogTopBarActions(
+                                            isClearEnabled = logState.isClearLogEnabled,
+                                            onInfoClick = { showLogInfoDialog = true },
+                                            onClearClick = {
+                                                logViewModel.onAction(
+                                                    LogUiContract.Action.OpenClearLogDialog
                                                 )
-                                            }
-                                        }
+                                            },
+                                        )
                                     }
                                 }
 
@@ -299,6 +288,7 @@ class MainActivity : ComponentActivity() {
                     isLogInfoDialogVisible = showLogInfoDialog,
                     onDismissLogInfoDialog = { showLogInfoDialog = false },
                     keywordsViewModel = keywordsViewModel,
+                    logViewModel = logViewModel,
                     modifier = Modifier
                         .fillMaxSize()
                         .then(

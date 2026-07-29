@@ -29,7 +29,7 @@ fun LogErrorState(
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = modifier
             .fillMaxSize()
-            .padding(horizontal = VartovyiTheme.spacing.small)
+            .padding(horizontal = VartovyiTheme.spacing.standard)
     ) {
         Text(
             text = stringResource(R.string.log_load_failed),

@@ -2,23 +2,15 @@ package com.revakovskyi.vartovyi.ui.screen.log
 
 import android.content.ClipData
 import androidx.compose.animation.Crossfade
-import androidx.compose.foundation.gestures.Orientation
-import androidx.compose.foundation.gestures.scrollable
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.widthIn
-import androidx.compose.foundation.lazy.LazyListState
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.ClipEntry
 import androidx.compose.ui.platform.LocalClipboard
@@ -34,7 +26,6 @@ import com.revakovskyi.vartovyi.model.AlertEvent
 import com.revakovskyi.vartovyi.model.AlertEventStatus
 import com.revakovskyi.vartovyi.ui.components.LoadingOverlay
 import com.revakovskyi.vartovyi.ui.components.VartovyiDialog
-import com.revakovskyi.vartovyi.ui.screen.log.components.LogClearButton
 import com.revakovskyi.vartovyi.ui.screen.log.components.LogEmptyState
 import com.revakovskyi.vartovyi.ui.screen.log.components.LogErrorState
 import com.revakovskyi.vartovyi.ui.screen.log.components.LogEventsList
@@ -48,7 +39,6 @@ import org.koin.androidx.compose.koinViewModel
 
 private const val CHANNEL_NAME_CLIP_LABEL = "channel_name"
 private const val MESSAGE_TEXT_CLIP_LABEL = "message_text"
-private const val LOG_LIST_STATE_KEY = "log_list_state"
 
 @Composable
 fun LogScreen(
@@ -147,9 +137,7 @@ private fun LogContent(
     logEntries: LazyPagingItems<AlertEvent>,
     onAction: (action: LogUiContract.Action) -> Unit,
 ) {
-    val listState = rememberSaveable(saver = LazyListState.Saver, key = LOG_LIST_STATE_KEY) {
-        LazyListState()
-    }
+    val listState = rememberLazyListState()
 
     var isInitialScrollCompleted by remember(state.highlightLogEntryId) { mutableStateOf(false) }
 
@@ -171,62 +159,37 @@ private fun LogContent(
         isInitialScrollCompleted = true
     }
 
-    Box(
-        contentAlignment = Alignment.TopCenter,
-        modifier = modifier
-            .fillMaxSize()
-            .scrollable(
-                state = listState,
-                orientation = Orientation.Vertical,
-                reverseDirection = true,
-            )
-    ) {
-        Crossfade(
-            label = "logContentCrossfade",
-            targetState = state.contentViewState,
-            modifier = Modifier
-                .widthIn(max = VartovyiTheme.spacing.contentMaxWidth)
-                .fillMaxSize()
-        ) { viewState ->
-            when (viewState) {
-                LogUiContract.LogContentViewState.Loading -> {
-                    LoadingOverlay()
-                }
+    Crossfade(
+        label = "logContentCrossfade",
+        targetState = state.contentViewState,
+        modifier = modifier.fillMaxSize()
+    ) { viewState ->
+        when (viewState) {
+            LogUiContract.LogContentViewState.Loading -> {
+                LoadingOverlay()
+            }
 
-                LogUiContract.LogContentViewState.Error -> {
-                    LogErrorState(
-                        onRetry = { logEntries.retry() },
-                    )
-                }
+            LogUiContract.LogContentViewState.Error -> {
+                LogErrorState(
+                    onRetry = { logEntries.retry() },
+                )
+            }
 
-                LogUiContract.LogContentViewState.Empty -> {
-                    LogEmptyState(modifier = Modifier.fillMaxSize())
-                }
+            LogUiContract.LogContentViewState.Empty -> {
+                LogEmptyState()
+            }
 
-                LogUiContract.LogContentViewState.Content -> {
-                    Column(
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .padding(horizontal = VartovyiTheme.spacing.small)
-                    ) {
-                        LogEventsList(
-                            listState = listState,
-                            logEntries = logEntries,
-                            onCopyChannelClick = { channelName ->
-                                onAction(LogUiContract.Action.CopyChannelName(channelName))
-                            },
-                            onCopyMessageClick = { messageText ->
-                                onAction(LogUiContract.Action.CopyMessageText(messageText))
-                            },
-                            modifier = Modifier.weight(1f)
-                        )
-
-                        LogClearButton(
-                            onClick = { onAction(LogUiContract.Action.OpenClearLogDialog) },
-                        )
-                    }
-                }
+            LogUiContract.LogContentViewState.Content -> {
+                LogEventsList(
+                    listState = listState,
+                    logEntries = logEntries,
+                    onCopyChannelClick = { channelName ->
+                        onAction(LogUiContract.Action.CopyChannelName(channelName))
+                    },
+                    onCopyMessageClick = { messageText ->
+                        onAction(LogUiContract.Action.CopyMessageText(messageText))
+                    },
+                )
             }
         }
     }

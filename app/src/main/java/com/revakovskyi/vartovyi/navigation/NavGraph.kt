@@ -14,6 +14,7 @@ import com.revakovskyi.vartovyi.ui.screen.home.HomeScreen
 import com.revakovskyi.vartovyi.ui.screen.keywords.KeywordsScreen
 import com.revakovskyi.vartovyi.ui.screen.keywords.KeywordsViewModel
 import com.revakovskyi.vartovyi.ui.screen.log.LogScreen
+import com.revakovskyi.vartovyi.ui.screen.log.LogViewModel
 import com.revakovskyi.vartovyi.ui.screen.onboarding.OnboardingScreen
 import com.revakovskyi.vartovyi.ui.screen.permissions.PermissionsScreen
 import com.revakovskyi.vartovyi.ui.screen.settings.SettingsScreen
@@ -38,6 +39,7 @@ fun NavGraph(
     permissionsStatus: PermissionsStatus,
     isLogInfoDialogVisible: Boolean,
     keywordsViewModel: KeywordsViewModel,
+    logViewModel: LogViewModel,
     onRefreshPermissions: () -> Unit,
     onDismissLogInfoDialog: () -> Unit,
 ) {
@@ -93,6 +95,7 @@ fun NavGraph(
         composable<Routes.Log> { backStackEntry ->
             val route: Routes.Log = backStackEntry.toRoute()
             LogScreen(
+                viewModel = logViewModel,
                 highlightedLogEntryId = route.highlightedLogEntryId,
                 isInfoDialogVisible = isLogInfoDialogVisible,
                 onDismissInfoDialog = onDismissLogInfoDialog,
