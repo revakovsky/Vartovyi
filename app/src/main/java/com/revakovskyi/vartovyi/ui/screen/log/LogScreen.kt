@@ -2,7 +2,6 @@ package com.revakovskyi.vartovyi.ui.screen.log
 
 import android.content.ClipData
 import androidx.compose.animation.Crossfade
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.runtime.Composable
@@ -12,7 +11,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.ClipEntry
 import androidx.compose.ui.platform.LocalClipboard
@@ -28,7 +26,6 @@ import com.revakovskyi.vartovyi.model.AlertEvent
 import com.revakovskyi.vartovyi.model.AlertEventStatus
 import com.revakovskyi.vartovyi.ui.components.LoadingOverlay
 import com.revakovskyi.vartovyi.ui.components.VartovyiDialog
-import com.revakovskyi.vartovyi.ui.screen.log.components.LogClearButton
 import com.revakovskyi.vartovyi.ui.screen.log.components.LogEmptyState
 import com.revakovskyi.vartovyi.ui.screen.log.components.LogErrorState
 import com.revakovskyi.vartovyi.ui.screen.log.components.LogEventsList
@@ -183,26 +180,16 @@ private fun LogContent(
             }
 
             LogUiContract.LogContentViewState.Content -> {
-                Column(
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    modifier = Modifier.fillMaxSize()
-                ) {
-                    LogEventsList(
-                        listState = listState,
-                        logEntries = logEntries,
-                        onCopyChannelClick = { channelName ->
-                            onAction(LogUiContract.Action.CopyChannelName(channelName))
-                        },
-                        onCopyMessageClick = { messageText ->
-                            onAction(LogUiContract.Action.CopyMessageText(messageText))
-                        },
-                        modifier = Modifier.weight(1f)
-                    )
-
-                    LogClearButton(
-                        onClick = { onAction(LogUiContract.Action.OpenClearLogDialog) },
-                    )
-                }
+                LogEventsList(
+                    listState = listState,
+                    logEntries = logEntries,
+                    onCopyChannelClick = { channelName ->
+                        onAction(LogUiContract.Action.CopyChannelName(channelName))
+                    },
+                    onCopyMessageClick = { messageText ->
+                        onAction(LogUiContract.Action.CopyMessageText(messageText))
+                    },
+                )
             }
         }
     }

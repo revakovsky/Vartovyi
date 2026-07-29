@@ -57,7 +57,11 @@ class LogViewModel(
 
         _state.update { current ->
             if (current.contentViewState == derivedContentViewState) current
-            else current.copy(contentViewState = derivedContentViewState)
+            else current.copy(
+                contentViewState = derivedContentViewState,
+                isClearLogEnabled =
+                    derivedContentViewState == LogUiContract.LogContentViewState.Content,
+            )
         }
     }
 
