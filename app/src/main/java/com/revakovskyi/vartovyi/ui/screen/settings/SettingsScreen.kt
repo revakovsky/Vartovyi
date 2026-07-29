@@ -7,11 +7,13 @@ import androidx.compose.animation.Crossfade
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.rememberScrollState
@@ -208,10 +210,13 @@ private fun SettingsContent(
         )
     }
 
-    Box(
+    BoxWithConstraints(
         contentAlignment = Alignment.TopCenter,
         modifier = modifier.fillMaxSize(),
     ) {
+        /** Keeps the scrolled content at least a viewport tall so the version stays at the bottom */
+        val viewportHeight = maxHeight
+
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
             modifier = Modifier
@@ -223,6 +228,7 @@ private fun SettingsContent(
                 verticalArrangement = Arrangement.spacedBy(VartovyiTheme.spacing.small),
                 modifier = Modifier
                     .widthIn(max = VartovyiTheme.spacing.contentMaxWidth)
+                    .heightIn(min = viewportHeight)
                     .padding(horizontal = VartovyiTheme.spacing.small)
             ) {
                 SettingsTestAlarmButton(
