@@ -8,8 +8,8 @@ compileSdkMinorApi = "0"
 minSdk = "28"
 targetSdk = "37"
 
-versionCode = "8"
-versionName = "2.1"
+versionCode = "9"
+versionName = "2.2"
 
 # Build
 agp = "9.3.1"
