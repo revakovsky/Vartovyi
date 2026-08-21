@@ -28,6 +28,7 @@ import com.revakovskyi.vartovyi.model.AlertEvent
 import com.revakovskyi.vartovyi.model.AlertEventStatus
 import com.revakovskyi.vartovyi.ui.components.VartovyiSurface
 import com.revakovskyi.vartovyi.ui.theme.VartovyiTheme
+import com.revakovskyi.vartovyi.ui.util.unwrapPhraseQuotes
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -131,7 +132,8 @@ fun LogEventItemCard(
                         modifier = Modifier.padding(top = VartovyiTheme.spacing.extraSmall)
                     ) {
                         Text(
-                            text = "${stringResource(R.string.log_alarm)}: ${event.matchedKeyword}",
+                            text = "${stringResource(R.string.log_alarm)}: " +
+                                    event.matchedKeyword.unwrapPhraseQuotes(),
                             style = VartovyiTheme.typography.labelMedium,
                             color = VartovyiTheme.colors.error,
                             modifier = Modifier.padding(
