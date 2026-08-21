@@ -43,7 +43,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.revakovskyi.vartovyi.R
-import com.revakovskyi.vartovyi.constants.KeywordRuleFormat
 import com.revakovskyi.vartovyi.model.ImportStrategy
 import com.revakovskyi.vartovyi.model.TriggerKeywordRuleType
 import com.revakovskyi.vartovyi.ui.components.DialogChoice
@@ -62,6 +61,7 @@ import com.revakovskyi.vartovyi.ui.theme.bodyLinkSmall
 import com.revakovskyi.vartovyi.ui.util.rememberKeywordsBackupHelper
 import com.revakovskyi.vartovyi.ui.util.snackbar.SnackbarController
 import com.revakovskyi.vartovyi.ui.util.snackbar.SnackbarEvent
+import com.revakovskyi.vartovyi.ui.util.unwrapPhraseQuotes
 import com.revakovskyi.vartovyi.utils.ObserveSingleEvents
 import com.revakovskyi.vartovyi.utils.parseTriggerKeywordRuleFromStorage
 import kotlinx.coroutines.delay
@@ -98,6 +98,14 @@ fun KeywordsScreen(
             is KeywordsUiContract.Event.TelegramChannelAdded,
             is KeywordsUiContract.Event.TelegramChannelRemoved,
                 -> hapticFeedback.performHapticFeedback(HapticFeedbackType.Confirm)
+
+            is KeywordsUiContract.Event.TriggerKeywordRuleTypeChanged -> {
+                hapticFeedback.performHapticFeedback(HapticFeedbackType.GestureThresholdActivate)
+            }
+
+            is KeywordsUiContract.Event.PendingRemovalRequested -> {
+                hapticFeedback.performHapticFeedback(HapticFeedbackType.Reject)
+            }
 
             is KeywordsUiContract.Event.KeywordNormalized -> {
                 val cleanDisplayValue = event.displayValue.unwrapPhraseQuotes()
@@ -259,7 +267,10 @@ fun KeywordsScreen(
     state.duplicateWord?.let { duplicateWord ->
         VartovyiDialog(
             title = stringResource(R.string.keywords_duplicate_title),
-            message = stringResource(R.string.keywords_duplicate_message, duplicateWord),
+            message = stringResource(
+                R.string.keywords_duplicate_message,
+                duplicateWord.unwrapPhraseQuotes(),
+            ),
             confirmText = stringResource(R.string.keywords_duplicate_confirm),
             onDismiss = { viewModel.onAction(KeywordsUiContract.Action.DismissDuplicateWordDialog) },
         )
@@ -267,7 +278,9 @@ fun KeywordsScreen(
 
     state.pendingRemoval?.let { pendingRemoval ->
         val pendingRemovalValue = when (pendingRemoval) {
-            is KeywordsUiContract.PendingRemoval.Keyword -> pendingRemoval.keywordRule.displayValue
+            is KeywordsUiContract.PendingRemoval.Keyword ->
+                pendingRemoval.keywordRule.displayValue.unwrapPhraseQuotes()
+
             is KeywordsUiContract.PendingRemoval.StopWord -> pendingRemoval.stopWord
             is KeywordsUiContract.PendingRemoval.TelegramChannel -> pendingRemoval.channel
         }
@@ -485,7 +498,7 @@ private fun KeywordsContent(
 
                 KeywordsSection(
                     bringIntoViewRequester = keywordsBivr,
-                    keywords = state.keywords,
+                    groupedKeywords = state.groupedKeywords,
                     selectedTriggerKeywordRuleType = state.selectedTriggerKeywordRuleType,
                     inputValue = state.inputKeyword,
                     inputHint = when (state.selectedTriggerKeywordRuleType) {
@@ -552,16 +565,6 @@ private suspend fun showSnackbarWithClearFocus(
     focusManager.clearFocus()
     SnackbarController.sendEvent(SnackbarEvent(message = message))
 }
-
-private fun String.unwrapPhraseQuotes(): String =
-    if (length >= 2 &&
-        startsWith(KeywordRuleFormat.QUOTE) &&
-        endsWith(KeywordRuleFormat.QUOTE)
-    ) {
-        substring(1, length - 1)
-    } else {
-        this
-    }
 
 @Preview(name = "Keywords — empty", heightDp = 900)
 @Composable

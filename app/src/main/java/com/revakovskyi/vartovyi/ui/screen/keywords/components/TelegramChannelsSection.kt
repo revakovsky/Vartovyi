@@ -49,6 +49,7 @@ fun TelegramChannelsSection(
             SectionTitle(
                 title = stringResource(R.string.keywords_telegram_channels),
                 tooltipText = stringResource(R.string.keywords_telegram_channel_tooltip),
+                alignIconToEnd = true,
             )
 
             Text(

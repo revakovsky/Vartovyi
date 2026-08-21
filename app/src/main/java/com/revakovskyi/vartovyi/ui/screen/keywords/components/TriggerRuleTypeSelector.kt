@@ -46,8 +46,8 @@ private fun TriggerRuleTypeChip(
     isSelected: Boolean,
     onClick: () -> Unit,
 ) {
-    val selectedContainerColor: Color = VartovyiTheme.colors.primaryContainer
-    val selectedContentColor: Color = VartovyiTheme.colors.onPrimaryContainer
+    val selectedContainerColor: Color = VartovyiTheme.colors.primary
+    val selectedContentColor: Color = VartovyiTheme.colors.onPrimary
     val defaultContainerColor: Color = VartovyiTheme.colors.surfaceVariant
     val defaultContentColor: Color = VartovyiTheme.colors.onSurfaceVariant
 

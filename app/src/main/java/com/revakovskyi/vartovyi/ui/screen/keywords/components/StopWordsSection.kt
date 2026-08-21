@@ -35,6 +35,7 @@ fun StopWordsSection(
             SectionTitle(
                 title = stringResource(R.string.keywords_stop_words),
                 tooltipText = stringResource(R.string.keywords_stop_tooltip),
+                alignIconToEnd = true,
             )
 
             Column(

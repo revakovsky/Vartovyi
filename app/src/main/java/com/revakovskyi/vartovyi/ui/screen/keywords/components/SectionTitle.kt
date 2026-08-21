@@ -28,18 +28,23 @@ fun SectionTitle(
     modifier: Modifier = Modifier,
     title: String,
     tooltipText: String,
+    alignIconToEnd: Boolean = false,
 ) {
     var showDialog by remember { mutableStateOf(false) }
+    val horizontalArrangement =
+        if (alignIconToEnd) Arrangement.SpaceBetween
+        else Arrangement.spacedBy(VartovyiTheme.spacing.small)
 
     Row(
         verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(VartovyiTheme.spacing.small),
+        horizontalArrangement = horizontalArrangement,
         modifier = modifier.fillMaxWidth(),
     ) {
         Text(
             text = title,
             style = VartovyiTheme.typography.titleMedium,
             color = VartovyiTheme.colors.onSurface,
+            modifier = Modifier.weight(1f, fill = false),
         )
 
         FilledTonalIconButton(
