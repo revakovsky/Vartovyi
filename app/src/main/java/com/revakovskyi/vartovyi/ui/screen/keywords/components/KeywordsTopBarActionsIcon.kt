@@ -21,6 +21,8 @@ import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.revakovskyi.vartovyi.R
+import com.revakovskyi.vartovyi.constants.SizeConstants.TOP_BAR_PERMISSION_BUTTON_SIZE
+import com.revakovskyi.vartovyi.constants.SizeConstants.TOP_BAR_PERMISSION_ICON_SIZE
 import com.revakovskyi.vartovyi.ui.theme.VartovyiTheme
 
 private const val MENU_MIN_WIDTH_DP = 200
@@ -40,11 +42,13 @@ fun KeywordsTopBarActionsIcon(
     Box(modifier = modifier) {
         IconButton(
             onClick = { isMenuExpanded = true },
+            modifier = Modifier.size(TOP_BAR_PERMISSION_BUTTON_SIZE.dp),
         ) {
             Icon(
                 imageVector = ImageVector.vectorResource(R.drawable.more_vert),
                 contentDescription = stringResource(R.string.keywords_menu_content_description),
                 tint = VartovyiTheme.colors.onBackground,
+                modifier = Modifier.size(TOP_BAR_PERMISSION_ICON_SIZE.dp)
             )
         }
 

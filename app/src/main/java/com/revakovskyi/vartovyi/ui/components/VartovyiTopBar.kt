@@ -6,15 +6,10 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.PlainTooltip
 import androidx.compose.material3.Text
-import androidx.compose.material3.TooltipAnchorPosition
-import androidx.compose.material3.TooltipBox
-import androidx.compose.material3.TooltipDefaults
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.TopAppBarScrollBehavior
-import androidx.compose.material3.rememberTooltipState
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -25,10 +20,10 @@ import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.revakovskyi.vartovyi.R
+import com.revakovskyi.vartovyi.constants.SizeConstants.TOP_BAR_PERMISSION_BUTTON_SIZE
+import com.revakovskyi.vartovyi.constants.SizeConstants.TOP_BAR_PERMISSION_ICON_SIZE
 import com.revakovskyi.vartovyi.model.PermissionsStatus
 import com.revakovskyi.vartovyi.ui.theme.VartovyiTheme
-
-private val TOP_BAR_PERMISSION_ICON_SIZE = 24.dp
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -59,22 +54,22 @@ fun VartovyiTopBar(
                 additionalActions?.invoke()
 
                 if (isEmergencyStopVisible) {
-                    TopBarTooltipIconButton(
-                        tooltipText = stringResource(R.string.emergency_stop_content_description),
+                    IconButton(
                         onClick = onEmergencyStopClick,
+                        modifier = Modifier.size(TOP_BAR_PERMISSION_BUTTON_SIZE.dp),
                     ) {
                         Icon(
                             imageVector = ImageVector.vectorResource(R.drawable.close),
                             contentDescription = stringResource(R.string.emergency_stop_content_description),
                             tint = VartovyiTheme.colors.error,
-                            modifier = Modifier.size(TOP_BAR_PERMISSION_ICON_SIZE)
+                            modifier = Modifier.size(TOP_BAR_PERMISSION_ICON_SIZE.dp)
                         )
                     }
                 }
 
-                TopBarTooltipIconButton(
-                    tooltipText = stringResource(R.string.permissions_icon_content_description),
+                IconButton(
                     onClick = onPermissionsClick,
+                    modifier = Modifier.size(TOP_BAR_PERMISSION_BUTTON_SIZE.dp),
                 ) {
                     val icon = when (permissionsStatus) {
                         PermissionsStatus.MANDATORY_MISSING ->
@@ -95,7 +90,7 @@ fun VartovyiTopBar(
                         imageVector = icon,
                         contentDescription = stringResource(R.string.permissions_icon_content_description),
                         tint = iconColor,
-                        modifier = Modifier.size(TOP_BAR_PERMISSION_ICON_SIZE)
+                        modifier = Modifier.size(TOP_BAR_PERMISSION_ICON_SIZE.dp)
                     )
                 }
 
@@ -108,30 +103,6 @@ fun VartovyiTopBar(
         scrollBehavior = scrollBehavior,
         modifier = modifier
     )
-}
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-private fun TopBarTooltipIconButton(
-    tooltipText: String,
-    onClick: () -> Unit,
-    content: @Composable () -> Unit,
-) {
-    TooltipBox(
-        positionProvider = TooltipDefaults.rememberTooltipPositionProvider(
-            positioning = TooltipAnchorPosition.Above
-        ),
-        tooltip = {
-            PlainTooltip {
-                Text(text = tooltipText)
-            }
-        },
-        state = rememberTooltipState(),
-    ) {
-        IconButton(onClick = onClick) {
-            content()
-        }
-    }
 }
 
 @Preview(name = "Permissions — all granted (green)")
