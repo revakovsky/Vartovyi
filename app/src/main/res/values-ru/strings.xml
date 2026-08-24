@@ -78,7 +78,7 @@
     <string name="alarm_channel_description">Оповещения об угрозах Vartovyi</string>
     <string name="alarm_notification_title">Тревога!</string>
     <string name="alarm_notification_text">Обнаружено совпадение с сообщением</string>
-    <string name="alarm_stop">Остановить тревогу</string>
+    <string name="alarm_stop">Остановить</string>
     <string name="alarm_dismiss">Закрыть</string>
     <string name="alarm_title">Тревога</string>
     <string name="keywords_trigger_words">Ключевые слова для срабатывания</string>
