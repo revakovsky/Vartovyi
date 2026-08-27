@@ -33,7 +33,10 @@ fun KeywordsCard(
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(VartovyiTheme.spacing.medium)
+                .padding(
+                    vertical = VartovyiTheme.spacing.small,
+                    horizontal = VartovyiTheme.spacing.medium,
+                )
         ) {
             Text(
                 text = stringResource(R.string.nav_keywords),
