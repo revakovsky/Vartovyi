@@ -78,7 +78,7 @@
     <string name="alarm_channel_description">Оповещения об угрозах Vartovyi</string>
     <string name="alarm_notification_title">Тревога!</string>
     <string name="alarm_notification_text">Обнаружено совпадение с сообщением</string>
-    <string name="alarm_stop">Остановить тревогу</string>
+    <string name="alarm_stop">Остановить</string>
     <string name="alarm_dismiss">Закрыть</string>
     <string name="alarm_title">Тревога</string>
     <string name="keywords_trigger_words">Ключевые слова для срабатывания</string>
@@ -221,6 +221,10 @@
     <string name="onboarding_welcome_privacy_note">🔒 Все ваши данные хранятся только на вашем устройстве. Ничего не отправляется ни на какие серверы или сторонние сервисы — ваша конфиденциальность полностью защищена!</string>
     <string name="onboarding_welcome_explanation">После настройки приложения Vartovyi и включения мониторинга приложение начинает в фоне следить за уведомлениями от приложения Telegram и ищет в них совпадения со словами-триггерами, которые вы вводите вручную в Vartovyi.</string>
     <string name="onboarding_welcome_siren">Как только найдено совпадение — Vartovyi немедленно включает громкую сирену, даже если телефон в беззвучном режиме.</string>
+
+    <string name="onboarding_city_title">Ваш город</string>
+    <string name="onboarding_city_explanation">Введите ваш город, и Vartovyi подставит его в примеры слов-триггеров — тогда первое оповещение может быть уже настоящим. Это необязательно: слова всегда можно изменить на экране Триггеров</string>
+    <string name="onboarding_city_hint">Например: Харьков</string>
 
     <string name="onboarding_telegram_title">Настройте Telegram</string>
     <string name="onboarding_telegram_required">Если Telegram ещё не установлен на вашем устройстве — скачайте его из Google Play или другого магазина приложений. Подходят официальный Telegram, Telegram X и NekoX</string>

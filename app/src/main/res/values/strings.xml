@@ -217,6 +217,10 @@
     <string name="onboarding_welcome_explanation">After you set up Vartovyi and turn on monitoring, it starts watching Telegram notifications in the background and looks for matches with the trigger words you enter yourself in Vartovyi.</string>
     <string name="onboarding_welcome_siren">The moment a match is found — Vartovyi immediately triggers a loud siren, even if your phone is on silent.</string>
 
+    <string name="onboarding_city_title">Your city</string>
+    <string name="onboarding_city_explanation">Enter your city and Vartovyi will use it in the trigger-word examples — so the first alert can already be a real one. Optional: you can always change the words later on the Triggers screen</string>
+    <string name="onboarding_city_hint">e.g. Kharkiv</string>
+
     <string name="onboarding_telegram_title">Set up Telegram</string>
     <string name="onboarding_telegram_required">If you don\'t have Telegram installed on your device yet — download it from Google Play or another app store. Official Telegram, Telegram X and NekoX are supported.</string>
     <string name="onboarding_telegram_intro">Set up Telegram in three steps:</string>

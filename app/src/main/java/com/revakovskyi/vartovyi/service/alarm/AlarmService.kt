@@ -25,6 +25,7 @@ import androidx.core.content.ContextCompat
 import androidx.core.net.toUri
 import com.revakovskyi.vartovyi.R
 import com.revakovskyi.vartovyi.constants.AlarmContract
+import com.revakovskyi.vartovyi.contract.CrashReporter
 import com.revakovskyi.vartovyi.controllers.alarm.AlarmStateHolder
 import com.revakovskyi.vartovyi.ui.alarm.AlarmActivity
 import com.revakovskyi.vartovyi.usecase.settings.ObserveScheduleSettingsUseCase
@@ -43,6 +44,7 @@ import java.util.concurrent.atomic.AtomicBoolean
 import kotlin.time.Duration.Companion.milliseconds
 
 private const val NOTIFICATION_ID = 1001
+private const val WEARABLE_NOTIFICATION_ID = 1002
 private const val CHANNEL_ID = "vartovyi_alarm"
 private val VIBRATION_PATTERN = longArrayOf(0, 700, 300)
 private val HEADS_UP_TRIGGER_VIBRATION = longArrayOf(0, 1)
@@ -59,6 +61,10 @@ private const val WAKE_LOCK_BUFFER_MILLIS = 15_000L
 private const val INITIAL_WAKE_LOCK_TIMEOUT_MILLIS = 30_000L
 private const val SCREEN_WAKE_LOCK_TAG = "Vartovyi:ScreenWake"
 private const val SCREEN_WAKE_LOCK_TIMEOUT_MILLIS = 10_000L
+private const val WEARABLE_POST_FAILED_MESSAGE =
+    "Wear OS alert notification was not posted: the alarm runs without a card on the watch"
+private const val WEARABLE_CANCEL_FAILED_MESSAGE =
+    "Wear OS alert notification was not cancelled: a stale card may outlive the alarm"
 
 @Suppress("TooGenericExceptionCaught")
 class AlarmService : Service() {
@@ -74,6 +80,7 @@ class AlarmService : Service() {
     private var currentAlarmVolume: Float = DEFAULT_ALARM_VOLUME_PERCENT / PERCENT_DIVISOR
     private var currentAlarmSoundUri: Uri? = null
 
+    private val crashReporter: CrashReporter by inject()
     private val alarmStateHolder: AlarmStateHolder by inject()
     private val observeScheduleSettingsUseCase: ObserveScheduleSettingsUseCase by inject()
 
@@ -115,6 +122,7 @@ class AlarmService : Service() {
 
         requestAudioFocus()
         ensureForegroundNotification()
+        postWearableAlertNotification()
         startAlarmSoundWithResolvedSettings()
         startVibration()
         scheduleAlarmAutoStop()
@@ -133,6 +141,7 @@ class AlarmService : Service() {
         stopAlarmSound()
         stopVibration()
         alarmAutoStopJob?.cancel()
+        cancelWearableAlertNotification()
         serviceScope.cancel()
     }
 
@@ -168,6 +177,7 @@ class AlarmService : Service() {
             alarmAutoStopJob?.cancel()
             releaseScreenWakeLock()
             releaseWakeLock()
+            cancelWearableAlertNotification()
             stopForeground(STOP_FOREGROUND_REMOVE)
             stopSelf()
             return
@@ -185,6 +195,7 @@ class AlarmService : Service() {
         alarmAutoStopJob?.cancel()
 
         notifyAlarmStopped()
+        cancelWearableAlertNotification()
         stopForeground(STOP_FOREGROUND_REMOVE)
         stopSelf()
     }
@@ -294,6 +305,73 @@ class AlarmService : Service() {
         }
     }
 
+    /**
+     * A foreground-service notification carries FLAG_FOREGROUND_SERVICE and is filtered out of
+     * Wear OS bridging, so the watch gets this plain twin carrying the alarm source details
+     */
+    private fun postWearableAlertNotification() {
+        val alertTitle = currentSourceChannelName.ifBlank {
+            getString(R.string.alarm_notification_title)
+        }
+        val alertText = currentSourceMessageText.ifBlank {
+            getString(R.string.alarm_notification_text)
+        }
+
+        /** Actions added through the extender surface on the watch only */
+        val wearableExtender = NotificationCompat.WearableExtender().addAction(
+            NotificationCompat.Action.Builder(
+                R.drawable.close,
+                getString(R.string.alarm_stop),
+                createStopPendingIntent(),
+            ).build()
+        )
+
+        val notification = NotificationCompat.Builder(this, CHANNEL_ID)
+            .setSmallIcon(R.drawable.alarm)
+            .setContentTitle(alertTitle)
+            .setContentText(alertText)
+            .setCategory(NotificationCompat.CATEGORY_ALARM)
+            .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
+            .extend(wearableExtender)
+            .build()
+
+        runCatching {
+            getSystemService(NotificationManager::class.java).notify(
+                WEARABLE_NOTIFICATION_ID,
+                notification,
+            )
+        }.onFailure { throwable ->
+            crashReporter.report(
+                WearableAlertNotificationException(
+                    message = WEARABLE_POST_FAILED_MESSAGE,
+                    cause = throwable,
+                )
+            )
+        }
+    }
+
+    private fun cancelWearableAlertNotification() {
+        runCatching {
+            getSystemService(NotificationManager::class.java).cancel(WEARABLE_NOTIFICATION_ID)
+        }.onFailure { throwable ->
+            crashReporter.report(
+                WearableAlertNotificationException(
+                    message = WEARABLE_CANCEL_FAILED_MESSAGE,
+                    cause = throwable,
+                )
+            )
+        }
+    }
+
+    private fun createStopPendingIntent(): PendingIntent {
+        return PendingIntent.getService(
+            this,
+            0,
+            Intent(this, AlarmService::class.java).apply { action = AlarmContract.ACTION_STOP },
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE,
+        )
+    }
+
     private fun buildNotification(): Notification {
         val fullScreenPendingIntent = PendingIntent.getActivity(
             this,
@@ -302,12 +380,7 @@ class AlarmService : Service() {
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE,
         )
 
-        val stopPendingIntent = PendingIntent.getService(
-            this,
-            0,
-            Intent(this, AlarmService::class.java).apply { action = AlarmContract.ACTION_STOP },
-            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE,
-        )
+        val stopPendingIntent = createStopPendingIntent()
 
         val notificationBuilder = NotificationCompat.Builder(this, CHANNEL_ID)
             .setSmallIcon(R.drawable.alarm)
@@ -499,3 +572,13 @@ class AlarmService : Service() {
     }
 
 }
+
+/**
+ * Reported to [CrashReporter] when the watch-facing twin of the alarm notification fails to
+ * appear or to go away. Both failures are silent for the user — the watch simply stays quiet,
+ * or keeps showing an alarm that already ended — so they must not be swallowed
+ */
+private class WearableAlertNotificationException(
+    message: String,
+    cause: Throwable? = null,
+) : Exception(message, cause)

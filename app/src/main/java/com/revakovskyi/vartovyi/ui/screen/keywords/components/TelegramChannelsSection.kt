@@ -13,6 +13,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
@@ -22,6 +23,7 @@ import com.revakovskyi.vartovyi.model.PopularChannelRegion
 import com.revakovskyi.vartovyi.model.PopularTelegramChannel
 import com.revakovskyi.vartovyi.ui.components.SectionContainer
 import com.revakovskyi.vartovyi.ui.components.VartovyiSurface
+import com.revakovskyi.vartovyi.ui.components.WordInputRow
 import com.revakovskyi.vartovyi.ui.theme.VartovyiTheme
 
 @Composable
@@ -39,7 +41,7 @@ fun TelegramChannelsSection(
     onSuggestionSelect: (channel: String) -> Unit,
     onFocusChanged: (isFocused: Boolean) -> Unit,
 ) {
-    var isSuggestionsVisible by remember { mutableStateOf(channels.isEmpty()) }
+    var isSuggestionsVisible by rememberSaveable { mutableStateOf(channels.isEmpty()) }
 
     VartovyiSurface(modifier = modifier) {
         Column(
@@ -49,6 +51,7 @@ fun TelegramChannelsSection(
             SectionTitle(
                 title = stringResource(R.string.keywords_telegram_channels),
                 tooltipText = stringResource(R.string.keywords_telegram_channel_tooltip),
+                alignIconToEnd = true,
             )
 
             Text(

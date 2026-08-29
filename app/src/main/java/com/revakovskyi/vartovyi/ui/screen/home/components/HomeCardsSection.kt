@@ -25,7 +25,7 @@ internal fun HomeCardsSection(
     ) {
         if (state.needsKeywordsAttention) {
             KeywordsCard(
-                keywords = state.keywords,
+                keywords = state.displayKeywords,
                 onClick = { onAction(HomeUiContract.Action.NavigateToKeywords) },
             )
         }

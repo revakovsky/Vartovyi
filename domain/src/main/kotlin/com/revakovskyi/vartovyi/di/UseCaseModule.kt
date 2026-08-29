@@ -14,6 +14,8 @@ import com.revakovskyi.vartovyi.usecase.keywords.AddStopWordUseCase
 import com.revakovskyi.vartovyi.usecase.keywords.AddStopWordUseCaseImpl
 import com.revakovskyi.vartovyi.usecase.keywords.AddTelegramChannelUseCase
 import com.revakovskyi.vartovyi.usecase.keywords.AddTelegramChannelUseCaseImpl
+import com.revakovskyi.vartovyi.usecase.keywords.ApplyCityToSeededKeywordsUseCase
+import com.revakovskyi.vartovyi.usecase.keywords.ApplyCityToSeededKeywordsUseCaseImpl
 import com.revakovskyi.vartovyi.usecase.keywords.ClearKeywordsScreenDataUseCase
 import com.revakovskyi.vartovyi.usecase.keywords.ClearKeywordsScreenDataUseCaseImpl
 import com.revakovskyi.vartovyi.usecase.keywords.ExportKeywordsUseCase
@@ -66,6 +68,8 @@ import com.revakovskyi.vartovyi.usecase.onboarding.ObserveOnboardingCompletedUse
 import com.revakovskyi.vartovyi.usecase.onboarding.ObserveOnboardingCompletedUseCaseImpl
 import com.revakovskyi.vartovyi.usecase.onboarding.SetKeywordsChannelsIntroHiddenUseCase
 import com.revakovskyi.vartovyi.usecase.onboarding.SetKeywordsChannelsIntroHiddenUseCaseImpl
+import com.revakovskyi.vartovyi.usecase.onboarding.SetOnboardingCityUseCase
+import com.revakovskyi.vartovyi.usecase.onboarding.SetOnboardingCityUseCaseImpl
 import com.revakovskyi.vartovyi.usecase.onboarding.SetOnboardingCompletedUseCase
 import com.revakovskyi.vartovyi.usecase.onboarding.SetOnboardingCompletedUseCaseImpl
 import com.revakovskyi.vartovyi.usecase.onboarding.ShouldShowTelegramChannelReminderUseCase
@@ -127,6 +131,7 @@ val useCaseModule = module {
     singleOf(::SeedDefaultKeywordsUseCaseImpl) { bind<SeedDefaultKeywordsUseCase>() }
     singleOf(::SeedDefaultStopWordsUseCaseImpl) { bind<SeedDefaultStopWordsUseCase>() }
     singleOf(::SanitizeWordInputUseCaseImpl) { bind<SanitizeWordInputUseCase>() }
+    singleOf(::ApplyCityToSeededKeywordsUseCaseImpl) { bind<ApplyCityToSeededKeywordsUseCase>() }
 
     singleOf(::ObserveLogEntriesUseCaseImpl) { bind<ObserveLogEntriesUseCase>() }
     singleOf(::ObserveLastAlarmTriggeredEventUseCaseImpl) { bind<ObserveLastAlarmTriggeredEventUseCase>() }
@@ -146,6 +151,7 @@ val useCaseModule = module {
     singleOf(::ShouldShowTelegramChannelReminderUseCaseImpl) {
         bind<ShouldShowTelegramChannelReminderUseCase>()
     }
+    singleOf(::SetOnboardingCityUseCaseImpl) { bind<SetOnboardingCityUseCase>() }
 
     singleOf(::ObserveScheduleSettingsUseCaseImpl) { bind<ObserveScheduleSettingsUseCase>() }
     singleOf(::ObserveLogSizeLimitUseCaseImpl) { bind<ObserveLogSizeLimitUseCase>() }

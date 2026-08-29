@@ -44,7 +44,7 @@ internal class FakeKeywordsRepository : KeywordsRepository {
 
     override suspend fun seedDefaultStopWordsIfNeeded() = Unit
 
-    override suspend fun restoreDefaultKeywords(): Int = 0
+    override suspend fun restoreDefaultKeywords(seed: List<String>): Int = 0
 
     override suspend fun restoreDefaultStopWords(): Int = 0
 

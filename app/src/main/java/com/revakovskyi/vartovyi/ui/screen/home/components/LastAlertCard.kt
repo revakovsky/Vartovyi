@@ -24,6 +24,7 @@ import com.revakovskyi.vartovyi.model.AlertEvent
 import com.revakovskyi.vartovyi.model.AlertEventStatus
 import com.revakovskyi.vartovyi.ui.components.VartovyiSurface
 import com.revakovskyi.vartovyi.ui.theme.VartovyiTheme
+import com.revakovskyi.vartovyi.ui.util.unwrapPhraseQuotes
 import java.text.SimpleDateFormat
 import java.util.Date
 
@@ -44,17 +45,19 @@ fun LastAlertCard(
         onClick = onClick,
     ) {
         Column(
+            verticalArrangement = Arrangement.spacedBy(VartovyiTheme.spacing.small),
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(VartovyiTheme.spacing.medium)
+                .padding(
+                    vertical = VartovyiTheme.spacing.small,
+                    horizontal = VartovyiTheme.spacing.medium,
+                )
         ) {
             Text(
                 text = stringResource(R.string.home_last_trigger),
                 style = VartovyiTheme.typography.titleMedium,
                 color = VartovyiTheme.colors.onSurface,
             )
-
-            Spacer(modifier = Modifier.height(VartovyiTheme.spacing.medium))
 
             if (lastAlertEvent == null) {
                 Text(
@@ -100,7 +103,7 @@ private fun AlertEventContent(
                 HomeKeywordChip(text = lastAlertEvent.senderName)
             }
 
-            Spacer(modifier = Modifier.height(VartovyiTheme.spacing.extraSmall))
+            Spacer(modifier = Modifier.height(VartovyiTheme.spacing.micro))
 
             Text(
                 text = lastAlertEvent.messageText,
@@ -112,7 +115,7 @@ private fun AlertEventContent(
 
             Spacer(modifier = Modifier.height(VartovyiTheme.spacing.medium))
 
-            MatchedKeywordBadge(text = lastAlertEvent.matchedKeyword)
+            MatchedKeywordBadge(text = lastAlertEvent.matchedKeyword.unwrapPhraseQuotes())
         }
     }
 }

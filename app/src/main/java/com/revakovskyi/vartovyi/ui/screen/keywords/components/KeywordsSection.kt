@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.relocation.BringIntoViewRequester
 import androidx.compose.foundation.relocation.bringIntoViewRequester
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
@@ -15,14 +16,16 @@ import com.revakovskyi.vartovyi.R
 import com.revakovskyi.vartovyi.model.TriggerKeywordRule
 import com.revakovskyi.vartovyi.model.TriggerKeywordRuleType
 import com.revakovskyi.vartovyi.ui.components.VartovyiSurface
+import com.revakovskyi.vartovyi.ui.components.WordInputRow
 import com.revakovskyi.vartovyi.ui.theme.VartovyiTheme
+import com.revakovskyi.vartovyi.ui.util.unwrapPhraseQuotes
 import com.revakovskyi.vartovyi.utils.parseTriggerKeywordRuleFromStorage
 
 @Composable
 fun KeywordsSection(
     modifier: Modifier = Modifier,
     bringIntoViewRequester: BringIntoViewRequester,
-    keywords: List<TriggerKeywordRule>,
+    groupedKeywords: List<Pair<TriggerKeywordRuleType, List<TriggerKeywordRule>>>,
     selectedTriggerKeywordRuleType: TriggerKeywordRuleType,
     inputValue: String,
     inputHint: String,
@@ -41,6 +44,7 @@ fun KeywordsSection(
             SectionTitle(
                 title = stringResource(R.string.keywords_trigger_words),
                 tooltipText = stringResource(R.string.keywords_trigger_tooltip),
+                alignIconToEnd = true,
             )
 
             Column(
@@ -62,21 +66,33 @@ fun KeywordsSection(
                 )
             }
 
-            if (keywords.isNotEmpty()) {
-                FlowRow(
-                    horizontalArrangement = Arrangement.spacedBy(VartovyiTheme.spacing.small),
-                    verticalArrangement = Arrangement.spacedBy(VartovyiTheme.spacing.small),
-                ) {
-                    keywords.forEach { keywordRule ->
-                        val modeLabel = getModeLabel(type = keywordRule.type)
-                        val chipText = "[$modeLabel] ${keywordRule.displayValue}"
-                        WordChip(
-                            text = chipText,
-                            containerColor = VartovyiTheme.colors.primaryContainer,
-                            contentColor = VartovyiTheme.colors.onPrimaryContainer,
-                            onLongPress = { onCopy(keywordRule.displayValue) },
-                            onRemove = { onRemove(keywordRule) },
-                        )
+            if (groupedKeywords.isNotEmpty()) {
+                Column(verticalArrangement = Arrangement.spacedBy(VartovyiTheme.spacing.standard)) {
+                    groupedKeywords.forEach { (type, keywordsOfType) ->
+                        Column(
+                            verticalArrangement = Arrangement.spacedBy(VartovyiTheme.spacing.small),
+                        ) {
+                            Text(
+                                text = getModeLabel(type = type),
+                                style = VartovyiTheme.typography.labelLarge,
+                                color = VartovyiTheme.colors.onSurfaceVariant,
+                            )
+
+                            FlowRow(
+                                horizontalArrangement = Arrangement.spacedBy(VartovyiTheme.spacing.small),
+                                verticalArrangement = Arrangement.spacedBy(VartovyiTheme.spacing.small),
+                            ) {
+                                keywordsOfType.forEach { keywordRule ->
+                                    WordChip(
+                                        text = keywordRule.displayValue.unwrapPhraseQuotes(),
+                                        containerColor = VartovyiTheme.colors.primaryContainer,
+                                        contentColor = VartovyiTheme.colors.onPrimaryContainer,
+                                        onLongPress = { onCopy(keywordRule.displayValue) },
+                                        onRemove = { onRemove(keywordRule) },
+                                    )
+                                }
+                            }
+                        }
                     }
                 }
             }
@@ -100,7 +116,7 @@ private fun PreviewKeywordsSectionEmpty() {
         KeywordsSection(
             bringIntoViewRequester = remember { BringIntoViewRequester() },
             selectedTriggerKeywordRuleType = TriggerKeywordRuleType.WORD,
-            keywords = emptyList(),
+            groupedKeywords = emptyList(),
             inputValue = "",
             inputHint = "e.g. Saltivka",
             onTypeSelected = {},
@@ -120,10 +136,16 @@ private fun PreviewKeywordsSectionWithWords() {
         KeywordsSection(
             bringIntoViewRequester = remember { BringIntoViewRequester() },
             selectedTriggerKeywordRuleType = TriggerKeywordRuleType.ALL_WORDS,
-            keywords = listOf(
-                parseTriggerKeywordRuleFromStorage("Салтівка"),
-                parseTriggerKeywordRuleFromStorage("ракета + харків"),
-                parseTriggerKeywordRuleFromStorage("\"шахед на місто\""),
+            groupedKeywords = listOf(
+                TriggerKeywordRuleType.WORD to listOf(
+                    parseTriggerKeywordRuleFromStorage("Салтівка"),
+                ),
+                TriggerKeywordRuleType.ALL_WORDS to listOf(
+                    parseTriggerKeywordRuleFromStorage("ракета + харків"),
+                ),
+                TriggerKeywordRuleType.PHRASE to listOf(
+                    parseTriggerKeywordRuleFromStorage("\"шахед на місто\""),
+                ),
             ),
             inputValue = "",
             inputHint = "e.g. rocket + kharkiv",

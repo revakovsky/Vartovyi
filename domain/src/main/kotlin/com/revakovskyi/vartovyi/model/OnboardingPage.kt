@@ -1,3 +1,3 @@
 package com.revakovskyi.vartovyi.model
 
-enum class OnboardingPage { WELCOME, TELEGRAM }
+enum class OnboardingPage { WELCOME, CITY, TELEGRAM }

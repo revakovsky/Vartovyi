@@ -5,8 +5,7 @@ import com.revakovskyi.vartovyi.constants.KeywordsLimits
 import com.revakovskyi.vartovyi.model.TriggerKeywordRuleType
 import com.revakovskyi.vartovyi.model.WordInputTarget
 import com.revakovskyi.vartovyi.result.KeywordSanitizationResult
-import com.revakovskyi.vartovyi.utils.normalizeApostrophes
-import com.revakovskyi.vartovyi.utils.normalizeUnicode
+import com.revakovskyi.vartovyi.utils.normalizeInputChars
 
 /**
  * Sanitizes raw word input from the Keywords screen. Cleaning is shared across all targets;
@@ -26,10 +25,7 @@ class SanitizeWordInputUseCaseImpl : SanitizeWordInputUseCase {
         rawInput: String,
         target: WordInputTarget,
     ): KeywordSanitizationResult {
-        val preprocessed = rawInput.normalizeUnicode()
-            .replace(KeywordRuleFormat.PLACEHOLDER_BRACKETS_REGEX, "")
-            .replace(KeywordRuleFormat.INVISIBLE_CHARS_REGEX, "")
-            .normalizeApostrophes()
+        val preprocessed = rawInput.normalizeInputChars()
 
         if (KeywordRuleFormat.NEW_LINE_REGEX.containsMatchIn(preprocessed)) {
             return KeywordSanitizationResult.MultiLineDetected

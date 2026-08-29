@@ -222,6 +222,10 @@
     <string name="onboarding_welcome_explanation">Після налаштування додатка Vartovyi та увімкнення моніторингу він починає у фоні стежити за сповіщеннями від додатка Telegram і шукає в них збіги зі словами-тригерами, які ви вводите власноруч у Vartovyi.</string>
     <string name="onboarding_welcome_siren">Як тільки знайдено збіг — Vartovyi миттєво вмикає гучну сирену, навіть якщо телефон у беззвучному режимі.</string>
 
+    <string name="onboarding_city_title">Ваше місто</string>
+    <string name="onboarding_city_explanation">Введіть ваше місто, і Vartovyi підставить його у приклади тригер-слів — тоді перше сповіщення може бути вже справжнім. Це необов\'язково: слова завжди можна змінити на екрані Тригерів</string>
+    <string name="onboarding_city_hint">Наприклад: Харків</string>
+
     <string name="onboarding_telegram_title">Налаштуйте Telegram</string>
     <string name="onboarding_telegram_required">Якщо Telegram ще не встановлений на вашому пристрої — завантажте його з Google Play або іншого магазину додатків. Підходять офіційний Telegram, Telegram X та NekoX</string>
     <string name="onboarding_telegram_intro">Налаштуйте додаток Telegram у три кроки:</string>

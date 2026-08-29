@@ -1,12 +1,8 @@
 package com.revakovskyi.vartovyi.ui.screen.log.components
 
-import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.runtime.Composable
@@ -16,11 +12,14 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
 import com.revakovskyi.vartovyi.R
+import com.revakovskyi.vartovyi.constants.SizeConstants.TOP_BAR_PERMISSION_BUTTON_SIZE
+import com.revakovskyi.vartovyi.constants.SizeConstants.TOP_BAR_PERMISSION_ICON_SIZE
+import com.revakovskyi.vartovyi.ui.components.InfoIconButton
 import com.revakovskyi.vartovyi.ui.theme.VartovyiTheme
 
 private const val DISABLED_ICON_ALPHA = 0.38f
-private const val INFO_ICON_BACKGROUND_ALPHA = 0.35f
 
 @Composable
 fun LogTopBarActions(
@@ -36,6 +35,7 @@ fun LogTopBarActions(
         IconButton(
             onClick = onClearClick,
             enabled = isClearEnabled,
+            modifier = Modifier.size(TOP_BAR_PERMISSION_BUTTON_SIZE.dp),
         ) {
             Icon(
                 imageVector = ImageVector.vectorResource(R.drawable.delete),
@@ -43,29 +43,16 @@ fun LogTopBarActions(
                 tint =
                     if (isClearEnabled) VartovyiTheme.colors.primary
                     else VartovyiTheme.colors.onSurfaceVariant.copy(alpha = DISABLED_ICON_ALPHA),
-                modifier = Modifier.size(VartovyiTheme.spacing.extraLarge)
+                modifier = Modifier.size(TOP_BAR_PERMISSION_ICON_SIZE.dp)
             )
         }
 
-        IconButton(onClick = onInfoClick) {
-            Box(
-                contentAlignment = Alignment.Center,
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(VartovyiTheme.spacing.extraSmall)
-                    .background(
-                        shape = CircleShape,
-                        color = VartovyiTheme.colors.onSurfaceVariant
-                            .copy(alpha = INFO_ICON_BACKGROUND_ALPHA),
-                    )
-            ) {
-                Icon(
-                    imageVector = ImageVector.vectorResource(R.drawable.info),
-                    contentDescription = null,
-                    modifier = Modifier.size(VartovyiTheme.spacing.standard)
-                )
-            }
-        }
+        InfoIconButton(
+            onClick = onInfoClick,
+            modifier = Modifier
+                .padding(VartovyiTheme.spacing.small)
+                .size(TOP_BAR_PERMISSION_ICON_SIZE.dp)
+        )
     }
 }
 

@@ -4,6 +4,7 @@ import android.content.Context
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.booleanPreferencesKey
+import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
@@ -25,6 +26,7 @@ internal class OnboardingDataStore(
             booleanPreferencesKey("is_keywords_channels_intro_hidden")
         val IS_TELEGRAM_CHANNEL_REMINDER_SHOWN =
             booleanPreferencesKey("is_telegram_channel_reminder_shown")
+        val ONBOARDING_CITY = stringPreferencesKey("onboarding_city")
     }
 
     val isOnboardingCompleted: Flow<Boolean> = context.onboardingDataStore.data
@@ -35,6 +37,11 @@ internal class OnboardingDataStore(
         .safeCatch()
         .map { preferences -> preferences[Keys.IS_KEYWORDS_CHANNELS_INTRO_HIDDEN] ?: false }
 
+    /** The city entered on the onboarding city step, or empty when none was ever saved. */
+    val onboardingCity: Flow<String> = context.onboardingDataStore.data
+        .safeCatch()
+        .map { preferences -> preferences[Keys.ONBOARDING_CITY].orEmpty() }
+
     suspend fun setOnboardingCompleted(): Boolean {
         return context.onboardingDataStore.safeEdit { preferences ->
             preferences[Keys.IS_ONBOARDING_COMPLETED] = true
@@ -44,6 +51,12 @@ internal class OnboardingDataStore(
     suspend fun setKeywordsChannelsIntroHidden(): Boolean {
         return context.onboardingDataStore.safeEdit { preferences ->
             preferences[Keys.IS_KEYWORDS_CHANNELS_INTRO_HIDDEN] = true
+        }
+    }
+
+    suspend fun setOnboardingCity(city: String): Boolean {
+        return context.onboardingDataStore.safeEdit { preferences ->
+            preferences[Keys.ONBOARDING_CITY] = city
         }
     }
 

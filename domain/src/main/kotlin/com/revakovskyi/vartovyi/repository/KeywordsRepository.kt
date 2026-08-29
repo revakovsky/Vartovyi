@@ -18,7 +18,7 @@ interface KeywordsRepository {
     suspend fun migrateChannelFilterFlagIfNeeded(): Boolean
     suspend fun seedDefaultKeywordsIfNeeded()
     suspend fun seedDefaultStopWordsIfNeeded()
-    suspend fun restoreDefaultKeywords(): Int
+    suspend fun restoreDefaultKeywords(seed: List<String>): Int
     suspend fun restoreDefaultStopWords(): Int
     suspend fun clearAllKeywordsPreferences(): Boolean
     suspend fun replaceAllKeywordsData(

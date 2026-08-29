@@ -53,9 +53,9 @@ fun PopularChannelsSuggestions(
             .fillMaxWidth()
             .heightIn(max = SUGGESTIONS_MAX_HEIGHT_DP.dp)
     ) {
-        PopularChannelRegion.entries.forEach { region ->
+        PopularChannelRegion.entries.forEachIndexed { index, region ->
             val regionChannels = channelsByRegion[region].orEmpty()
-            if (regionChannels.isEmpty()) return@forEach
+            if (regionChannels.isEmpty()) return@forEachIndexed
 
             item(
                 key = "$HEADER_KEY_PREFIX${region.name}",
@@ -68,6 +68,8 @@ fun PopularChannelsSuggestions(
                     modifier = Modifier.padding(
                         start = VartovyiTheme.spacing.standard,
                         end = VartovyiTheme.spacing.standard,
+                        top = if (index == 0) VartovyiTheme.spacing.none
+                        else VartovyiTheme.spacing.standard,
                         bottom = VartovyiTheme.spacing.extraSmall,
                     )
                 )

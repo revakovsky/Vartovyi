@@ -40,6 +40,12 @@ interface KeywordsUiContract {
                     stopWords.isNotEmpty() ||
                     telegramChannels.isNotEmpty()
 
+        val groupedKeywords: List<Pair<TriggerKeywordRuleType, List<TriggerKeywordRule>>>
+            get() = TriggerKeywordRuleType.entries.mapNotNull { type ->
+                val keywordsOfType = keywords.filter { keywordRule -> keywordRule.type == type }
+                if (keywordsOfType.isEmpty()) null else type to keywordsOfType
+            }
+
         val canExport: Boolean
             get() = keywords.isNotEmpty() || stopWords.isNotEmpty() || telegramChannels.isNotEmpty()
 
@@ -102,6 +108,8 @@ interface KeywordsUiContract {
     }
 
     sealed interface Event {
+        data object TriggerKeywordRuleTypeChanged : Event
+        data object PendingRemovalRequested : Event
         data object KeywordAdded : Event
         data class KeywordNormalized(val displayValue: String) : Event
         data object KeywordMultiLineNotAllowed : Event

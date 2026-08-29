@@ -187,7 +187,12 @@ class KeywordsViewModel(
     }
 
     private fun selectTriggerKeywordRuleType(type: TriggerKeywordRuleType) {
+        val hasChanged = _state.value.selectedTriggerKeywordRuleType != type
         _state.update { it.copy(selectedTriggerKeywordRuleType = type) }
+
+        if (hasChanged) {
+            viewModelScope.launch { _events.send(Event.TriggerKeywordRuleTypeChanged) }
+        }
     }
 
     private fun updateStopWordInput(value: String) {
@@ -295,6 +300,7 @@ class KeywordsViewModel(
                 pendingRemoval = KeywordsUiContract.PendingRemoval.Keyword(keyword)
             )
         }
+        viewModelScope.launch { _events.send(Event.PendingRemovalRequested) }
     }
 
     private fun addStopWord() {
@@ -349,6 +355,7 @@ class KeywordsViewModel(
                 pendingRemoval = KeywordsUiContract.PendingRemoval.StopWord(stopWord)
             )
         }
+        viewModelScope.launch { _events.send(Event.PendingRemovalRequested) }
     }
 
     private fun updateTelegramChannelInput(value: String) {
@@ -425,6 +432,7 @@ class KeywordsViewModel(
                 pendingRemoval = KeywordsUiContract.PendingRemoval.TelegramChannel(channel)
             )
         }
+        viewModelScope.launch { _events.send(Event.PendingRemovalRequested) }
     }
 
     private fun dismissDuplicateWordDialog() {
