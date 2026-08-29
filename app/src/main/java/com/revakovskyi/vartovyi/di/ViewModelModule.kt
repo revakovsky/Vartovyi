@@ -26,6 +26,9 @@ val viewModelModule = module {
             startPage = parameters.get<Int>(),
             observeOnboardingCompletedUseCase = get(),
             setOnboardingCompletedUseCase = get(),
+            setOnboardingCityUseCase = get(),
+            applyCityToSeededKeywordsUseCase = get(),
+            crashReporter = get(),
         )
     }
 

@@ -21,6 +21,10 @@ interface HomeUiContract {
         val isListenerServiceActive: Boolean = false,
         val keywords: List<String> = emptyList(),
     ) {
+        /**
+         * True while trigger words are unset: list is empty or still equals
+         * [DEFAULT_KEYWORDS_SEED]
+         */
         val needsKeywordsAttention: Boolean
             get() = keywords.isEmpty() || keywords.all { keyword -> keyword in DEFAULT_KEYWORDS_SEED }
 

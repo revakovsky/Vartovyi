@@ -90,15 +90,26 @@ class KeywordsRepositoryImplTest {
     inner class RestoreDefaults {
 
         @Test
-        fun `restoreDefaultKeywords merges the keywords seed and returns the data store count`() =
+        fun `restoreDefaultKeywords merges the given seed and returns the data store count`() =
             runTest {
                 coEvery { keywordsDataStore.mergeKeywords(DEFAULT_KEYWORDS_SEED) } returns 3
 
-                val result = repository.restoreDefaultKeywords()
+                val result = repository.restoreDefaultKeywords(seed = DEFAULT_KEYWORDS_SEED)
 
                 assertThat(result).isEqualTo(3)
                 coVerify(exactly = 1) { keywordsDataStore.mergeKeywords(DEFAULT_KEYWORDS_SEED) }
             }
+
+        @Test
+        fun `restoreDefaultKeywords merges a custom seed when one is provided`() = runTest {
+            val citySeed = listOf("шахед", "ракета+Харків", "\"ціль на Харків\"")
+            coEvery { keywordsDataStore.mergeKeywords(citySeed) } returns 3
+
+            val result = repository.restoreDefaultKeywords(seed = citySeed)
+
+            assertThat(result).isEqualTo(3)
+            coVerify(exactly = 1) { keywordsDataStore.mergeKeywords(citySeed) }
+        }
 
         @Test
         fun `restoreDefaultStopWords merges the stop-words seed and returns the data store count`() =

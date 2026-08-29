@@ -9,6 +9,16 @@ internal fun String.normalizeApostrophes(): String =
 internal fun String.normalizeUnicode(): String =
     Normalizer.normalize(this, Normalizer.Form.NFKC)
 
+/**
+ * Shared cleanup for free-text input: strips placeholder brackets and invisible characters,
+ * normalizes Unicode and apostrophes
+ */
+internal fun String.normalizeInputChars(): String =
+    normalizeUnicode()
+        .replace(KeywordRuleFormat.PLACEHOLDER_BRACKETS_REGEX, KeywordRuleFormat.EMPTY_VALUE)
+        .replace(KeywordRuleFormat.INVISIBLE_CHARS_REGEX, KeywordRuleFormat.EMPTY_VALUE)
+        .normalizeApostrophes()
+
 /** Brings both sides of a match (stored value and incoming text) to one canonical form. */
 internal fun String.normalizeForMatching(): String =
     normalizeUnicode()

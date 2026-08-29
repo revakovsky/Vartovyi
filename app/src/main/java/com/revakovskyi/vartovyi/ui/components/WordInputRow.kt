@@ -1,4 +1,4 @@
-package com.revakovskyi.vartovyi.ui.screen.keywords.components
+package com.revakovskyi.vartovyi.ui.components
 
 import androidx.compose.foundation.border
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -52,11 +52,12 @@ private const val BORDER_WIDTH_DEFAULT_DP = 1
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun WordInputRow(
-    modifier: Modifier = Modifier,
     value: String,
     hint: String,
+    modifier: Modifier = Modifier,
+    showAddButton: Boolean = true,
+    onAdd: () -> Unit = {},
     onFocusChanged: (isFocused: Boolean) -> Unit = {},
-    onAdd: () -> Unit,
     onClear: () -> Unit,
     onValueChange: (value: String) -> Unit,
 ) {
@@ -156,21 +157,23 @@ fun WordInputRow(
             )
         }
 
-        Button(
-            onClick = onAdd,
-            shape = VartovyiTheme.shapes.medium,
-            colors = ButtonDefaults.buttonColors(
-                containerColor = VartovyiTheme.colors.primary,
-                contentColor = VartovyiTheme.colors.onPrimary,
-            ),
-            contentPadding = PaddingValues(VartovyiTheme.spacing.small),
-            modifier = Modifier.size(VartovyiTheme.spacing.massive),
-        ) {
-            Icon(
-                imageVector = ImageVector.vectorResource(R.drawable.add),
-                contentDescription = null,
-                modifier = Modifier.size(VartovyiTheme.spacing.large),
-            )
+        if (showAddButton) {
+            Button(
+                onClick = onAdd,
+                shape = VartovyiTheme.shapes.medium,
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = VartovyiTheme.colors.primary,
+                    contentColor = VartovyiTheme.colors.onPrimary,
+                ),
+                contentPadding = PaddingValues(VartovyiTheme.spacing.small),
+                modifier = Modifier.size(VartovyiTheme.spacing.massive),
+            ) {
+                Icon(
+                    imageVector = ImageVector.vectorResource(R.drawable.add),
+                    contentDescription = null,
+                    modifier = Modifier.size(VartovyiTheme.spacing.large),
+                )
+            }
         }
     }
 }
@@ -199,6 +202,20 @@ private fun PreviewWordInputRowWithText() {
             onClear = {},
             onValueChange = {},
             onAdd = {},
+        )
+    }
+}
+
+@Preview(name = "Word input row — without add button")
+@Composable
+private fun PreviewWordInputRowWithoutAddButton() {
+    VartovyiTheme {
+        WordInputRow(
+            value = "",
+            hint = "Наприклад: Харків",
+            showAddButton = false,
+            onClear = {},
+            onValueChange = {},
         )
     }
 }

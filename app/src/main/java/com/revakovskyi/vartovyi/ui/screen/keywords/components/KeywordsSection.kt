@@ -16,6 +16,7 @@ import com.revakovskyi.vartovyi.R
 import com.revakovskyi.vartovyi.model.TriggerKeywordRule
 import com.revakovskyi.vartovyi.model.TriggerKeywordRuleType
 import com.revakovskyi.vartovyi.ui.components.VartovyiSurface
+import com.revakovskyi.vartovyi.ui.components.WordInputRow
 import com.revakovskyi.vartovyi.ui.theme.VartovyiTheme
 import com.revakovskyi.vartovyi.ui.util.unwrapPhraseQuotes
 import com.revakovskyi.vartovyi.utils.parseTriggerKeywordRuleFromStorage

@@ -6,10 +6,13 @@ import assertk.assertions.contains
 import assertk.assertions.containsExactly
 import assertk.assertions.containsNone
 import assertk.assertions.isEqualTo
+import com.revakovskyi.vartovyi.contract.CrashReporter
 import com.revakovskyi.vartovyi.model.OnboardingPage
 import com.revakovskyi.vartovyi.ui.screen.onboarding.OnboardingUiContract.Action
 import com.revakovskyi.vartovyi.ui.screen.onboarding.OnboardingUiContract.Event
+import com.revakovskyi.vartovyi.usecase.keywords.ApplyCityToSeededKeywordsUseCase
 import com.revakovskyi.vartovyi.usecase.onboarding.ObserveOnboardingCompletedUseCase
+import com.revakovskyi.vartovyi.usecase.onboarding.SetOnboardingCityUseCase
 import com.revakovskyi.vartovyi.usecase.onboarding.SetOnboardingCompletedUseCase
 import io.mockk.coEvery
 import io.mockk.coVerify
@@ -38,6 +41,10 @@ class OnboardingViewModelTest {
     private val observeOnboardingCompletedUseCase = mockk<ObserveOnboardingCompletedUseCase>()
     private val setOnboardingCompletedUseCase =
         mockk<SetOnboardingCompletedUseCase>(relaxed = true)
+    private val setOnboardingCityUseCase = mockk<SetOnboardingCityUseCase>(relaxed = true)
+    private val applyCityToSeededKeywordsUseCase =
+        mockk<ApplyCityToSeededKeywordsUseCase>(relaxed = true)
+    private val crashReporter = mockk<CrashReporter>(relaxed = true)
 
     private val testDispatcher = UnconfinedTestDispatcher()
 
@@ -151,12 +158,11 @@ class OnboardingViewModelTest {
     }
 
     @Test
-    fun `Start page out of range falls back to the last page`() = runTest(testDispatcher) {
+    fun `Start page out of range falls back to the first page`() = runTest(testDispatcher) {
         val viewModel = createViewModel(startPage = OnboardingPage.entries.size + 5)
         advanceUntilIdle()
 
-        assertThat(viewModel.state.value.currentPage)
-            .isEqualTo(OnboardingPage.entries.lastIndex)
+        assertThat(viewModel.state.value.currentPage).isEqualTo(0)
     }
 
     @Test
@@ -201,10 +207,66 @@ class OnboardingViewModelTest {
         assertThat(viewModel.state.value.currentPage).isEqualTo(OnboardingPage.TELEGRAM.ordinal)
     }
 
+    @Test
+    fun `Reopening a completed onboarding excludes the city page`() = runTest(testDispatcher) {
+        every { observeOnboardingCompletedUseCase() } returns flowOf(true)
+        val viewModel = createViewModel(startPage = OnboardingPage.TELEGRAM.ordinal)
+        advanceUntilIdle()
+
+        assertThat(viewModel.state.value.pages).containsNone(OnboardingPage.CITY)
+        assertThat(viewModel.state.value.currentPage).isEqualTo(1)
+    }
+
+    @Test
+    fun `SubmitCity saves the city, applies it to keywords, and advances the page`() =
+        runTest(testDispatcher) {
+            val viewModel = createViewModel()
+            advanceUntilIdle()
+
+            viewModel.onAction(Action.UpdateCityInput("Харків"))
+            viewModel.onAction(Action.SubmitCity)
+            advanceUntilIdle()
+
+            coVerify(exactly = 1) { setOnboardingCityUseCase("Харків") }
+            coVerify(exactly = 1) { applyCityToSeededKeywordsUseCase("Харків") }
+            assertThat(viewModel.state.value.currentPage).isEqualTo(1)
+        }
+
+    @Test
+    fun `SubmitCity still advances the page when persisting the city fails`() =
+        runTest(testDispatcher) {
+            coEvery { setOnboardingCityUseCase(any()) } throws IllegalStateException("write failed")
+            val viewModel = createViewModel()
+            advanceUntilIdle()
+
+            viewModel.onAction(Action.UpdateCityInput("Харків"))
+            viewModel.onAction(Action.SubmitCity)
+            advanceUntilIdle()
+
+            coVerify(exactly = 1) { crashReporter.report(any()) }
+            assertThat(viewModel.state.value.currentPage).isEqualTo(1)
+        }
+
+    @Test
+    fun `SkipCity advances the page without writing anything`() = runTest(testDispatcher) {
+        val viewModel = createViewModel()
+        advanceUntilIdle()
+
+        viewModel.onAction(Action.SkipCity)
+        advanceUntilIdle()
+
+        coVerify(exactly = 0) { setOnboardingCityUseCase(any()) }
+        coVerify(exactly = 0) { applyCityToSeededKeywordsUseCase(any()) }
+        assertThat(viewModel.state.value.currentPage).isEqualTo(1)
+    }
+
     private fun createViewModel(startPage: Int = 0): OnboardingViewModel = OnboardingViewModel(
         startPage = startPage,
         observeOnboardingCompletedUseCase = observeOnboardingCompletedUseCase,
         setOnboardingCompletedUseCase = setOnboardingCompletedUseCase,
+        setOnboardingCityUseCase = setOnboardingCityUseCase,
+        applyCityToSeededKeywordsUseCase = applyCityToSeededKeywordsUseCase,
+        crashReporter = crashReporter,
     )
 
     private fun TestScope.collectEvents(viewModel: OnboardingViewModel): List<Event> {

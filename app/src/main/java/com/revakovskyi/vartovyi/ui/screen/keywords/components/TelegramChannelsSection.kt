@@ -23,6 +23,7 @@ import com.revakovskyi.vartovyi.model.PopularChannelRegion
 import com.revakovskyi.vartovyi.model.PopularTelegramChannel
 import com.revakovskyi.vartovyi.ui.components.SectionContainer
 import com.revakovskyi.vartovyi.ui.components.VartovyiSurface
+import com.revakovskyi.vartovyi.ui.components.WordInputRow
 import com.revakovskyi.vartovyi.ui.theme.VartovyiTheme
 
 @Composable

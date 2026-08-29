@@ -13,6 +13,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import com.revakovskyi.vartovyi.R
 import com.revakovskyi.vartovyi.ui.components.VartovyiSurface
+import com.revakovskyi.vartovyi.ui.components.WordInputRow
 import com.revakovskyi.vartovyi.ui.theme.VartovyiTheme
 
 @Composable

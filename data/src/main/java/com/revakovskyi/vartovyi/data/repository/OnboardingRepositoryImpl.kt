@@ -14,6 +14,9 @@ internal class OnboardingRepositoryImpl(
     override val isKeywordsChannelsIntroHidden: Flow<Boolean> =
         onboardingDataStore.isKeywordsChannelsIntroHidden
 
+    override val onboardingCity: Flow<String> =
+        onboardingDataStore.onboardingCity
+
     override suspend fun setOnboardingCompleted() {
         onboardingDataStore.setOnboardingCompleted()
     }
@@ -24,6 +27,10 @@ internal class OnboardingRepositoryImpl(
 
     override suspend fun shouldShowTelegramChannelReminder(): Boolean {
         return onboardingDataStore.shouldShowTelegramChannelReminder()
+    }
+
+    override suspend fun setOnboardingCity(city: String) {
+        onboardingDataStore.setOnboardingCity(city)
     }
 
 }

@@ -80,9 +80,9 @@ internal class KeywordsRepositoryImpl(
         }
     }
 
-    override suspend fun restoreDefaultKeywords(): Int {
+    override suspend fun restoreDefaultKeywords(seed: List<String>): Int {
         return keywordsMutationMutex.withLock {
-            keywordsDataStore.mergeKeywords(DEFAULT_KEYWORDS_SEED)
+            keywordsDataStore.mergeKeywords(seed)
         }
     }
 
